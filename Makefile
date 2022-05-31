@@ -5,7 +5,7 @@ NAME := webserv
 SRCS := main.cpp \
 		webserver.cpp
 VPATH = srcs/
-OBJ_DIR := bin/
+OBJ_DIR := objs/
 DEP_DIR := deps/
 OBJS := $(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS := $(SRCS:%.cpp=$(DEP_DIR)%.d)
