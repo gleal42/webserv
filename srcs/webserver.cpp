@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/05/30 19:56:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/05/31 19:53:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,5 +14,5 @@
 
 void	webserver(char *config)
 {
-	std::cout << "The Config file will be: " << config << std::endl;
+	LOG( "The Config file will be: " << config );
 }

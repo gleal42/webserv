@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:14:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/05/30 19:58:40 by gleal            ###   ########.fr       */
+/*   Updated: 2022/05/31 19:52:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	main(int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		std::cerr << "Wrong number of arguments." << std::endl;
+		ERROR("Wrong number of arguments.");
 		return (EXIT_FAILURE);
 	}
 	webserver(argv[1]);
