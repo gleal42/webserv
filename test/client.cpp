@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 18:17:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/06 19:01:23 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/07 00:55:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,6 @@
 #include <arpa/inet.h>
 
 #include <iostream>
-
-#define PORT 8080
 
 int main()
 {
@@ -35,15 +33,12 @@ int main()
     
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_port = htons(PORT);
-    
-    // Convert IPv4 and IPv6 addresses from text to binary form
     serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
     if (serv_addr.sin_addr.s_addr == (in_addr_t)(-1))
     {
 		std::cerr << "\nInvalid address/ Address not supported \n";
         return -1;
     }
-    
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
 		std::cerr << "\nConnection Failed \n";
