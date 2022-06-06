@@ -1,25 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/30 19:14:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/06 15:04:00 by gleal            ###   ########.fr       */
+/*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
+/*   Updated: 2022/06/06 20:55:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "all.hpp"
+#ifndef SERVER_HPP
+# define SERVER_HPP
 
-int	main(int argc, char **argv)
-{
-	if (argc != 2)
-	{
-		webserver(argv[1]);
-		// ERROR("Wrong number of arguments.");
-		return (EXIT_FAILURE);
-	}
-	webserver(argv[1]);
-	return (EXIT_SUCCESS);
-}
+#include <iostream>
+#include <string>
+#include <netinet/in.h>
+
+class Server{
+private:
+    std::string header;
+    int server_fd;
+    int new_socket;
+    struct sockaddr_in address;
+    int addrlen;
+    long valread;
+public:
+    Server();
+    Server(const Server &server);
+    ~Server();
+    Server &operator=(const Server &server);
+};
+
+#endif
