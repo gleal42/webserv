@@ -4,7 +4,8 @@ CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
 		webserver.cpp \
-		Server.cpp
+		Server.cpp \
+		ServerConf.cpp
 VPATH = srcs/
 OBJ_DIR := objs/
 DEP_DIR := deps/

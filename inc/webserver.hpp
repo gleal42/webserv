@@ -4,11 +4,9 @@
 #include <iostream>
 #include <string>
 
-# define LOG(x) std::cout << x << std::endl
-# define ERROR(x) std::cerr << x << std::endl
+#include "macros.hpp"
+#include "Server.hpp"
 
 int webserver(char *config);
-
-#include "Server.hpp"
 
 #endif

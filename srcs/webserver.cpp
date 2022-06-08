@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/07 00:54:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/08 00:24:42 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ int webserver(char *config)
 {
     Server sv(config);
 
-    sv.receive();
+    sv.rcv_msg();
+   
     return 0;
 }
