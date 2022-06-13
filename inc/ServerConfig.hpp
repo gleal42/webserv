@@ -1,31 +1,35 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConf.hpp                                     :+:      :+:    :+:   */
+/*   ServerConfig.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/07 21:16:23 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/07 22:56:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/13 17:03:23 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVERCONF_HPP
-# define SERVERCONF_HPP
+#ifndef SERVERCONFIG_HPP
+# define SERVERCONFIG_HPP
 
 #include <string>
 
-class ServerConf
+// Header should be object instead of string:
+// header.contentType
+// header.etc..
+
+class ServerConfig
 {
 	private:
-		std::string			header;
-		int					port;
+		std::string			_header;
+		int					_port;
 	public:
-		ServerConf();
-		ServerConf(const char *config);
-		ServerConf(const ServerConf &conf);
-		~ServerConf();
-		ServerConf &operator=(const ServerConf &conf);
+		ServerConfig();
+		ServerConfig(const char *config);
+		ServerConfig(const ServerConfig &config);
+		~ServerConfig();
+		ServerConfig &operator=(const ServerConfig &config);
 		const std::string getHeader() const;
 		int	getPort();
 };

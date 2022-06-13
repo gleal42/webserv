@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConf.cpp                                     :+:      :+:    :+:   */
+/*   ServerConfig.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,25 +10,25 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerConf.hpp"
+#include "ServerConfig.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-ServerConf::ServerConf()
+ServerConfig::ServerConfig()
 {
 	// default confs
-    port = 8080;
-    header = "Hello from server";
+    _port = 8080;
+    _header = "Hello from server";
 }
 
-ServerConf::ServerConf(const char *config)
+ServerConfig::ServerConfig(const char *config)
 {
 	// parse conf file/analyze
 	(void)config;
-    port = 8080;
-    header = "HTTP/1.1 200 OK\n";
-	header += "Server: Hello\n";
+    _port = 8080;
+    _header = "HTTP/1.1 200 OK\n";
+	_header += "Server: Hello\n";
 
 	std::ifstream body("index.html");
 	if ( (body.rdstate() & std::ifstream::failbit ) != 0
@@ -39,36 +39,36 @@ ServerConf::ServerConf(const char *config)
     }
 	std::stringstream body_str;
 	body_str << body.rdbuf();
-	header += "Content-Length: ";
+	_header += "Content-Length: ";
 	std::stringstream len;
 	len << body_str.str().size();
-	header += len.str();
-	header += "\nContent-Type: text/html\n\n";
-	header += body_str.str();
+	_header += len.str();
+	_header += "\nContent-Type: text/html\n\n";
+	_header += body_str.str();
 }
 
-ServerConf::ServerConf(const ServerConf &conf)
+ServerConfig::ServerConfig(const ServerConfig &conf)
 {
 	*this = conf;
 }
 
-ServerConf::~ServerConf()
+ServerConfig::~ServerConfig()
 {
 }
 
-ServerConf &ServerConf::operator=(const ServerConf &conf)
+ServerConfig &ServerConfig::operator=(const ServerConfig &conf)
 {
-	header = conf.header;
-	port = conf.port;
+	_header = conf._header;
+	_port = conf._port;
 	return (*this);
 }
 
-const std::string ServerConf::getHeader() const
+const std::string ServerConfig::getHeader() const
 {
-	return (header);
+	return (_header);
 }
 
-int	ServerConf::getPort()
+int	ServerConfig::getPort()
 {
-	return (port);
+	return (_port);
 }

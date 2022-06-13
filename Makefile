@@ -5,7 +5,7 @@ NAME := webserv
 SRCS := main.cpp \
 		webserver.cpp \
 		Server.cpp \
-		ServerConf.cpp
+		ServerConfig.cpp
 VPATH = srcs/
 OBJ_DIR := objs/
 DEP_DIR := deps/

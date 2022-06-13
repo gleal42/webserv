@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/07 22:42:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/13 17:44:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,24 +17,24 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 #include "macros.hpp"
-# include "ServerConf.hpp"
+# include "ServerConfig.hpp"
 
 class Server{
 private:
-	ServerConf conf;
-	struct sockaddr_in address;
-	int fd;
+	ServerConfig _config;
+	typedef sockaddr_in SocketAddress;
+	SocketAddress _address;
+	int _fd;
     Server();
 	void	init_addr();
 public:
-    Server(const ServerConf &config);
+    Server(const ServerConfig &config);
     Server(const Server &server);
     ~Server();
     Server &operator=(const Server &server);
-	int		rcv_msg(void) const;
+	int		receive_message(void) const;
 };
 
 #endif
