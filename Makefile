@@ -3,7 +3,9 @@ CXXFLAGS := -Wall -Wextra -Werror -std=c++98
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
-		webserver.cpp
+		webserver.cpp \
+		Server.cpp \
+		ServerConfig.cpp
 VPATH = srcs/
 OBJ_DIR := objs/
 DEP_DIR := deps/

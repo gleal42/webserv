@@ -2,10 +2,11 @@
 # define WEBSERVER_HPP
 
 #include <iostream>
+#include <string>
 
-# define LOG(x) std::cout << x << std::endl
-# define ERROR(x) std::cerr << x << std::endl
+#include "macros.hpp"
+#include "Server.hpp"
 
-void	webserver(char *config);
+int webserver(char *config);
 
 #endif

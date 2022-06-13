@@ -6,13 +6,17 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/05/31 19:53:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/13 17:49:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserver.hpp"
 
-void	webserver(char *config)
+int webserver(char *config)
 {
-	LOG( "The Config file will be: " << config );
+    Server sv(config);
+
+    sv.receive_message();
+   
+    return 0;
 }
