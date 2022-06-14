@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/13 17:44:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/14 00:27:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,21 +20,32 @@
 
 #include "macros.hpp"
 # include "ServerConfig.hpp"
+# include "Response.hpp"
+# include "Request.hpp"
 
-class Server{
-private:
-	ServerConfig _config;
-	typedef sockaddr_in SocketAddress;
-	SocketAddress _address;
-	int _fd;
-    Server();
-	void	init_addr();
-public:
-    Server(const ServerConfig &config);
-    Server(const Server &server);
-    ~Server();
-    Server &operator=(const Server &server);
-	int		receive_message(void) const;
+// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+
+// Server will have multiple requests and responses so maybe a vector is more adequate
+
+class Server
+{
+	private:
+		typedef sockaddr_in SocketAddress;
+
+		ServerConfig	_config;
+		SocketAddress	_address;
+		Request			_request;
+		Response		_response;
+		int _fd;
+
+		Server();
+		void	init_addr();
+	public:
+		Server(const ServerConfig &config);
+		Server(const Server &server);
+		~Server();
+		Server &operator=(const Server &server);
+		int		receive_message(void) const;
 };
 
 #endif

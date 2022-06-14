@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/13 18:32:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/14 01:15:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,7 @@ int			Server::receive_message() const
         return(EXIT_FAILURE);
     }
     std::cout << buffer;
-    write(new_socket, _config.getHeader().c_str() , _config.getHeader().size());
+    write(new_socket, _response.getMessage().c_str() , _response.getMessage().size());
     printf("\n------------------Hello message sent-------------------\n");
     close(new_socket);
     return (EXIT_SUCCESS);

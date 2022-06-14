@@ -1,24 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserver.cpp                                      :+:      :+:    :+:   */
+/*   Message.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/13 20:06:03 by gleal            ###   ########.fr       */
+/*   Created: 2022/06/14 01:30:21 by gleal             #+#    #+#             */
+/*   Updated: 2022/06/14 01:34:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserver.hpp"
+#include "Message.hpp"
 
-int webserver(char *input)
+const std::string Message::getMessage() const
 {
-    ServerConfig config(input);
-
-    Server sv(config);
-
-    sv.receive_message();
-   
-    return 0;
+	std::string message(_start_line);
+	message += "\n";
+	for(size_t i = 0; i < _fields.size(); i++)
+	{
+		message += _fields[i];
+		message += "\n";
+	}
+	message += "\n";
+	message += _body;
+	return (message);
 }
