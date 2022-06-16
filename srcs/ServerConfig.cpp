@@ -21,7 +21,7 @@ ServerConfig::ServerConfig()
     _port = 8080;
 }
 
-ServerConfig::ServerConfig(const char *config)
+ServerConfig::ServerConfig(std::string &config)
 {
 	// parse conf file/analyze
 	(void)config;

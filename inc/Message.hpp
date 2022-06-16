@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 00:08:17 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/14 01:16:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/16 03:04:31by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,25 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <utility>
+
 
 class Message
 {
+	// Start line (Different for Request and Response)
+	// CRLF (Carriage Return)
+	std::map<std::string, std::string> _fields; // Different for Request and Response / CRLF (Carriage Return) inbetween them 
+	// CRLF (Carriage Return)
+	std::string	_body;
 	public:
-		std::string _start_line; // Different for Request and Response
-		// CRLF (Carriage Return)
-		std::vector<std::string> _fields; // Different for Request and Response / CRLF (Carriage Return) inbetween them 
-		// CRLF (Carriage Return)
-		std::string	_body;
-		const std::string getMessage() const;
+		Message();
+		virtual const std::string getStartLine() const = 0;
+		void addField(std::string field, std::string value);
+		std::map<std::string, std::string> getAllFields() const;
+		std::string getField(std::string field);
+		const std::string getBody() const;
+		void setBody(std::string body);
 };
 
 #endif

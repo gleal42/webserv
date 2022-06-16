@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/14 00:27:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/16 04:32:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 #include <iostream>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <unistd.h>
+
 
 #include "macros.hpp"
 # include "ServerConfig.hpp"
@@ -46,6 +46,7 @@ class Server
 		~Server();
 		Server &operator=(const Server &server);
 		int		receive_message(void) const;
+		Response	getResponse() const;
 };
 
 #endif

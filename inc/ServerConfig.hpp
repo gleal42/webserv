@@ -26,7 +26,7 @@ class ServerConfig
 		int					_return;
 	public:
 		ServerConfig();
-		ServerConfig(const char *config);
+		ServerConfig(std::string &config);
 		ServerConfig(const ServerConfig &config);
 		~ServerConfig();
 		ServerConfig &operator=(const ServerConfig &config);

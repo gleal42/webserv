@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/14 01:21:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/16 04:06:18 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,6 +138,7 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 // Response message generated after processing client request
 
@@ -150,6 +151,8 @@ class Response : public Message
 		std::string	status_message; // Same link
 	public:
 		Response();
+		const std::string getStartLine() const;
+		void send(int socketfd);
 };
 
 

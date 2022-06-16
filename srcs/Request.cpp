@@ -1,24 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   webserver.cpp                                      :+:      :+:    :+:   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/16 04:10:15 by gleal            ###   ########.fr       */
+/*   Created: 2022/06/16 03:51:51 by gleal             #+#    #+#             */
+/*   Updated: 2022/06/16 03:52:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserver.hpp"
+#include "Request.hpp"
 
-int webserver(std::string input)
+const std::string Request::getStartLine() const
 {
-    ServerConfig config(input);
-
-    Server sv(config);
-
-    sv.receive_message();
-   
-    return 0;
+	std::string str = method + " " + request_target + " " + http_version;
+	return str;
 }

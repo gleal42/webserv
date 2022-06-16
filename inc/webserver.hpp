@@ -7,6 +7,6 @@
 #include "macros.hpp"
 #include "Server.hpp"
 
-int webserver(char *config);
+int webserver(std::string config);
 
 #endif

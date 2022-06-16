@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/14 00:39:26 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/16 03:59:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,7 @@ class Request : public Message
 	// SP (single space)
 	std::string request_target;	// 4 forms: origin/absolute/authority/asterisk
 	std::string	http_version; // HTTP/1.1
+	const std::string getStartLine() const;
 };
 
 #endif
