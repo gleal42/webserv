@@ -33,3 +33,6 @@
 
 # Tools
 .vscode
+
+# Doctest
+*-test
