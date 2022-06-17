@@ -1,19 +1,21 @@
-CXX := c++
-CXXFLAGS := -Wall -Wextra -Werror -std=c++98
-NAME := client
-SRCS := main.cpp \
-		Client.cpp
-INC := 
-OBJS := $(SRCS:.cpp=.o)
-all: $(NAME)
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
-%.o: %.cpp $(INC) Makefile
-	$(CXX) $(CXXFLAGS) $< -c -o $@
-clean:
-	$(RM) *.o
-fclean: clean
-	$(RM) $(NAME)
-re: fclean all
+# Run Makefiles of End-to-end integration tests (e2e) and Unit tests (unit)
 
-.PHONY: all clean fclean re
+all:			unit e2e
+
+unit:
+					${MAKE} -C unit
+
+e2e:
+					${MAKE} -C e2e
+
+clean:
+					${MAKE} clean -C e2e
+					${MAKE} clean -C unit
+
+fclean:
+					${MAKE} fclean -C e2e
+					${MAKE} fclean -C unit
+
+re: 			fclean all
+
+.PHONY : 	all clean fclean re
