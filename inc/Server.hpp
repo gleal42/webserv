@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/16 04:32:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/17 23:10:38 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,7 @@ class Server
 
 		ServerConfig	_config;
 		SocketAddress	_address;
-		Request			_request;
-		Response		_response;
 		int _fd;
-
 		Server();
 		void	init_addr();
 	public:
@@ -45,8 +42,8 @@ class Server
 		Server(const Server &server);
 		~Server();
 		Server &operator=(const Server &server);
-		int		receive_message(void) const;
-		Response	getResponse() const;
+		SocketAddress	&getAddress();
+		int	getFd();
 };
 
 #endif

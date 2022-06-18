@@ -22,8 +22,12 @@ class ServerConfig
 {
 	private:
 		std::string			_name;
+		std::string			_bind_address; // following pseudo-code
 		int					_port;
-		int					_return;
+		int					_max_clients;
+		int					_request_timeout;
+		std::string			_root;
+		int					_input_buffer_size;
 	public:
 		ServerConfig();
 		ServerConfig(std::string &config);

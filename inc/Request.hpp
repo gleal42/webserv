@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/16 03:59:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/18 00:48:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 
 #include <string>
 #include <vector>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <iostream>
+
+#include "macros.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -92,15 +97,20 @@ Warning								A general warning about possible problems with the entity body.		
 
 // Request received by client will need to pass constructor validations
 
-#include "Message.hpp"
-
-class Request : public Message
+class Request
 {
-	std::string method; // GET, POST, DELETE
-	// SP (single space)
-	std::string request_target;	// 4 forms: origin/absolute/authority/asterisk
-	std::string	http_version; // HTTP/1.1
-	const std::string getStartLine() const;
+	int socket;
+	typedef sockaddr_in SocketAddress;
+	public:
+		Request();
+		Request(int fd, SocketAddress &address);
+		std::string method; // GET, POST, DELETE
+		// SP (single space)
+		std::string request_target;	// 4 forms: origin/absolute/authority/asterisk
+		std::string	http_version; // HTTP/1.1
+		const std::string getStartLine() const;
+		int	getSocket();
+		int receive();
 };
 
 #endif

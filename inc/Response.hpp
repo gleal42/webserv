@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/16 04:06:18 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/17 21:23:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,8 +131,6 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 									allow from any location"
 */
 
-#include "Message.hpp"
-
 #include <string>
 #include <vector>
 #include <fstream>
@@ -142,17 +140,17 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 // Response message generated after processing client request
 
-class Response : public Message
+#include "ServerConfig.hpp"
+#include "Request.hpp"
+
+class Response
 {
-		std::string	http_version; // HTTP/1.1
-		// SP (single space)
-		std::string	status_code; // https://www.rfc-editor.org/rfc/rfc9110#section-15
-		// SP (single space)
-		std::string	status_message; // Same link
+	Response();
 	public:
-		Response();
-		const std::string getStartLine() const;
+		Response(const ServerConfig &config, const Request &request);
+		std::string start_line(int status);
 		void send(int socketfd);
+		void send_error(int socketfd);
 };
 
 
