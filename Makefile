@@ -41,4 +41,10 @@ resetclean: fclean clean
 
 re: fclean all
 
+tests_unit:
+	$(MAKE) unit -C tests
+
+tests_e2e:
+	$(MAKE) e2e -C tests
+
 .PHONY: all clean fclean resetclean re
