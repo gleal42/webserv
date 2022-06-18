@@ -39,7 +39,6 @@ class Request {
 		Request&	operator= (const Request&);
 
 		int					_socket;
-		// Socket				socket;
 		std::string			_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
 		RequestMethod		_request_method;
 		std::string			_unparsed_uri; 		// The unparsed URI of the request
