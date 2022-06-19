@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/17 23:13:28 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/19 20:08:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,27 +28,41 @@ Server::Server(const ServerConfig &config)
 : _config(config)
 {
     init_addr();
-    _fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (_fd == 0)
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (fd == 0)
     {
         ERROR("In socket\n");
         exit(EXIT_FAILURE);
     }
-    if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address))<0)
+    // // Setting socket to NONBLOCKING before binding
+    // if (fcntl(fd, F_SETFL, O_NONBLOCK) < 1)
+    // {
+    //     perror("Failed because");
+    //     ERROR("In socket flags\n");
+    //     exit(EXIT_FAILURE);
+    // }
+    if (bind(fd, (struct sockaddr *)&_address, sizeof(_address))<0)
     {
         ERROR("In bind\n");
         exit(EXIT_FAILURE);
     }
-    if (listen(_fd, 128) < 0)
+    if (listen(fd, 128) < 0)
     {
         ERROR("In listen\n");
         exit(EXIT_FAILURE);
     }
+	Socket listener;
+	listeners.push_back(listener);
+	listeners.begin()->fd = fd;
 }
 
 Server::~Server()
 {
-    close(_fd);
+	std::vector<Socket>::iterator n = listeners.end();
+    for (std::vector<Socket>::iterator it = listeners.begin(); it != n; it++)
+	{
+		close((*it).fd);
+	}
 }
 
 Server::SocketAddress	&Server::getAddress()
@@ -56,7 +70,7 @@ Server::SocketAddress	&Server::getAddress()
     return (_address);
 }
 
-int	Server::getFd()
+std::vector<Socket>	&Server::getListeners()
 {
-    return (_fd);
+    return (listeners);
 }

@@ -5,7 +5,10 @@ Request::Request(int socket, sockaddr_in *sockaddr){
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n\n";
 
 	if ((_socket = accept(socket, (struct  sockaddr *)sockaddr, (socklen_t *)&addressLen)) < 0)
+	{
+		std::cout << socket << std::endl;
 		throw("Accept error");
+	}
 }
 Request::Request(const Request& param) {
 	// TODO (copy constructor)

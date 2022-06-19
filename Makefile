@@ -7,6 +7,7 @@ SRCS := main.cpp \
 		Server.cpp \
 		Response.cpp \
 		Request.cpp \
+		Socket.cpp \
 		ServerConfig.cpp
 VPATH = srcs/
 OBJ_DIR := objs/

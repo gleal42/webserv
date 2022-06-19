@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/17 23:10:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/19 20:02:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,17 @@
 #include <iostream>
 #include <netinet/in.h>
 #include <sys/socket.h>
-
+#include <fcntl.h>
 
 #include "macros.hpp"
 # include "ServerConfig.hpp"
 # include "Response.hpp"
 # include "Request.hpp"
+# include "Socket.hpp"
+
+// Apagar depois
+#include <errno.h>
+
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
@@ -34,7 +39,7 @@ class Server
 
 		ServerConfig	_config;
 		SocketAddress	_address;
-		int _fd;
+		std::vector<Socket>		listeners;
 		Server();
 		void	init_addr();
 	public:
@@ -43,7 +48,7 @@ class Server
 		~Server();
 		Server &operator=(const Server &server);
 		SocketAddress	&getAddress();
-		int	getFd();
+		std::vector<Socket>	&getListeners();
 };
 
 #endif
