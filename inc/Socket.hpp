@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/15 23:13:18 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/20 18:38:09 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,18 +45,31 @@ Implement wrappers for the following C functions
 
 */
 
+
+
 class Socket {
 
 public:
+
+	struct Error : public std::exception {
+		virtual const char*	what( void ) const throw() = 0;
+	};
+
+	struct CreateError : public Error {
+		virtual const char*	what( void ) const throw();
+	};
 
 	Socket( void ); // address, port
 	Socket( Socket const & src );
 	~Socket( void );
 	Socket &	operator = ( Socket const & rhs );
 
-	int		fd;
+	int		fd( void );
 
 private:
+
+	// Should be private to avoid being set to a wrong value
+	int		_fd;
 
 };
 

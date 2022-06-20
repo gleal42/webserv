@@ -6,19 +6,24 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/15 19:27:44 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/20 18:38:29 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 
+/* Exceptions */
+const char*	Socket::CreateError::what( void ) const throw()
+{
+	return "Failed to create socket.";
+}
+
 /* Constructors */
 Socket::Socket( void )
 {
-	fd = socket(AF_INET, SOCK_STREAM, 0);
-  	if (fd == -1) {
-		ERROR("Failed to create socket. errno: " << errno);
-		exit(EXIT_FAILURE); // TODO: throw std::exception inheriting SocketError
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+  	if (_fd == -1) {
+		throw Socket::CreateError();
 	}
 }
 
@@ -34,10 +39,26 @@ Socket::~Socket( void )
 Socket &	Socket::operator = ( Socket const & rhs )
 {
 	if (this != &rhs) {
-		//value = rhs.value;
+		if (rhs._fd == -1) {
+			throw Socket::CreateError();
+		}
+		_fd = rhs._fd;
 	}
 	return *this;
 }
+
+int	Socket::fd( void ) { return _fd; }
+
+// Socket &	Socket::operator = ( Socket const & rhs )
+// {
+// 	if (rhs._fhs == -1) {
+// 		throw Socket::CreateError();
+// 	}
+// 	if (this != &rhs) {
+// 		fd = rhs.fd;
+// 	}
+// 	return *this;
+// }
 
 /* ostream override */
 std::ostream &	operator << ( std::ostream & o, Socket const & i )

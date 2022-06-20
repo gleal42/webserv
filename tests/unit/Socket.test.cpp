@@ -13,6 +13,7 @@ Usage:
 TEST_CASE("Socket member properties") {
 	Socket socket;
 
-	CHECK(socket.fd > -1);
-	CHECK(socket.fd == 3); // if no other file descriptors open
+	CHECK(socket.fd() > -1);
+	CHECK(socket.fd() == 3); // if no other file descriptors open
 }
+
