@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/20 18:38:09 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/20 20:43:40 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,31 +45,38 @@ Implement wrappers for the following C functions
 
 */
 
-
+typedef struct sockaddr_in 	SocketAddressInternet;
+typedef struct sockaddr 	SocketAddress;
 
 class Socket {
 
 public:
 
-	struct Error : public std::exception {
-		virtual const char*	what( void ) const throw() = 0;
+	struct CreateError : public std::runtime_error {
+		CreateError( void );
+	};
+	struct BindError : public std::runtime_error {
+		BindError( void );
+		BindError( int port );
 	};
 
-	struct CreateError : public Error {
-		virtual const char*	what( void ) const throw();
-	};
-
-	Socket( void ); // address, port
+	Socket( void );
+	Socket( int port );
 	Socket( Socket const & src );
 	~Socket( void );
-	Socket &	operator = ( Socket const & rhs );
+	Socket &		operator = ( Socket const & rhs );
 
-	int		fd( void );
+	int				fd( void );
+	int				port( void );
+	void			bind( int port );
 
 private:
 
 	// Should be private to avoid being set to a wrong value
-	int		_fd;
+	int						_fd;
+	SocketAddressInternet	_address;
+	int						_port;
+	void 					_socket( void );
 
 };
 
