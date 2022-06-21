@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 16:12:27 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 16:58:50 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,10 @@
 # define __SOCKET_H__
 
 # include <iostream>
+# include <vector>
 # include <sys/socket.h> // For socket functions
 # include <netinet/in.h> // For sockaddr_in
-#include <unistd.h> // For close()
+# include <unistd.h> // For close()
 
 # include "macros.hpp"
 
@@ -35,19 +36,18 @@ Needs to be able to:
 	- Send and receive messages
 	- Close the socket
 
-Implement wrappers for the following C functions
+Implements wrappers for the following C functions
 
 - int socket(domain, type, protocol);
 - int bind(int socket, const struct sockaddr *address, socklen_t address_len);
 - int listen(int socket, int backlog);
 - int accept(int socket, struct sockaddr *restrict address, socklen_t *restrict
 	address_len);
-- read / write should be send / recv
+- read / write should be send / recv (C++)
 
 */
 
 typedef struct sockaddr_in 	SocketAddress;
-// typedef struct sockaddr 	SocketAddress;
 
 class Socket {
 
@@ -76,14 +76,16 @@ public:
 	void			close( void );
 	void			listen( int max_connections );
 	void			send( const std::string & response );
+	int				receive( int buffer_size );
 
 private:
 
 	// Should be private to avoid being set to a wrong value
-	int				_fd;
-	SocketAddress	_address;
-	int				_port;
-	void 			_socket( void );
+	int					_fd;
+	SocketAddress		_address;
+	int					_port;
+	void 				_socket( void );
+	std::vector<char>	_buffer;
 
 };
 

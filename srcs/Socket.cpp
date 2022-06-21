@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 16:13:04 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:04:38 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) { _socket(); }
+Socket::Socket( void ) : _port(-1) { _socket(); }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port )
+Socket::Socket( int port ) : _port(-1)
 {
 	_socket();
 	bind(port);
@@ -86,9 +86,17 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 	}
 }
 
-// C `send` function wrapper
+// `send` function wrapper
 void	Socket::send( const std::string & response ) {
 	::send(_fd, response.c_str(), response.size(), 0);
+}
+
+// `recv` function wrapper
+int	Socket::receive( int buffer_size ) {
+	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
+	_buffer = std::vector<char>(buffer_size, '\0');
+
+	return recv(_fd, _buffer.data(), _buffer.size(), 0);
 }
 
 /* ostream override */

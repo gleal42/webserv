@@ -13,6 +13,7 @@ Usage:
 // Constants
 #define PORT 8080
 #define FD 3 // if no other file descriptors open
+#define BUFFER_SIZE 5000
 #define MAX_CONNECTIONS 10
 
 TEST_CASE("Socket constructors") {
@@ -44,7 +45,7 @@ TEST_CASE("Socket `bind` method") {
 	Socket	a;
 
 	SUBCASE("doesn't get called in default constructor") {
-		CHECK(a.port() == 0);
+		CHECK(a.port() == -1);
     }
 
 	SUBCASE("allows setting `port` separate from constructor") {
@@ -120,6 +121,17 @@ TEST_CASE("Socket `send` method") {
 
 		CHECK_NOTHROW(a.send(response));
 		// TODO: more tests
+    }
+}
+
+TEST_CASE("Socket `receive` method") {
+	Socket a(PORT);
+
+	SUBCASE("returns read bytes") {
+		int bytes;
+
+		CHECK_NOTHROW(bytes = a.receive(BUFFER_SIZE));
+		LOG(bytes); // currently outputting -1 which is the error
     }
 }
 
