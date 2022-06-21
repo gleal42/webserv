@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 19:02:13 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 20:45:26 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ public:
 	void			send( const std::string & response );
 	int				receive( int buffer_size );
 	Socket *		accept( void );
+	std::string		to_s( void );
 
 private:
 

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 19:21:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 20:46:42 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,8 @@ int	Socket::receive( int buffer_size ) {
 
 	return recv(_fd, _buffer.data(), _buffer.size(), 0);
 }
+
+std::string	Socket::to_s( void ) { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
 Socket *	Socket::accept( void ) {

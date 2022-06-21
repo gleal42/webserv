@@ -57,6 +57,7 @@ TEST_CASE("Socket `bind` method") {
 	SUBCASE("doesnt allow setting the same `port` twice") {
 		Socket	a;
 		Socket	b(PORT);
+		a.create();
 		CHECK_THROWS(a.bind(PORT));
 
 		try {
