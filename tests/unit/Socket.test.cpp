@@ -28,7 +28,7 @@ TEST_CASE("Socket constructors") {
 		Socket b(a);
 
 		CHECK(b.fd() > -1);
-		CHECK(b.fd() == (FD + 1));
+		CHECK(b.fd() == FD);
     }
 
 	SUBCASE("with `int port` argument, sets `fd` and `port`") {
@@ -41,7 +41,7 @@ TEST_CASE("Socket constructors") {
 
 TEST_CASE("Socket `bind` method") {
 	Socket	a;
-	int		port = PORT + 1;
+	int		port = PORT;
 
 	SUBCASE("doesn't get called in default constructor") {
 		CHECK(a.port() == 0);
@@ -54,6 +54,7 @@ TEST_CASE("Socket `bind` method") {
     }
 
 	SUBCASE("doesnt allow setting the same `port` twice") {
+		Socket b(port);
 		CHECK_THROWS(a.bind(port));
 
 		try {
@@ -62,6 +63,18 @@ TEST_CASE("Socket `bind` method") {
 		catch(Socket::BindError& e) {
 			CHECK(e.what() == "Failed to bind to port " + std::to_string(port) + ".");
 		}
+    }
+}
+
+TEST_CASE("Socket `close` method") {
+	Socket	a;
+	int		port = PORT;
+
+	SUBCASE("closes file descriptor") {
+		a.close();
+		Socket	b;
+
+		CHECK(b.fd() == FD);
     }
 }
 

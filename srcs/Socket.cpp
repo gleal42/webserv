@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/20 20:44:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 14:57:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Socket::Socket( Socket const & src ) { *this = src; }
 /* Destructor */
 Socket::~Socket( void )
 {
-	// close()
+	close();
 }
 
 /* Assignment operator */
@@ -72,6 +72,9 @@ void	Socket::bind( int port )
 	}
 	_port = port;	// only set port if did't fail `bind` call
 }
+
+// C `close` function wrapper
+void	Socket::close( void ) { ::close(_fd); }
 
 /* ostream override */
 std::ostream &	operator << ( std::ostream & o, Socket const & i )

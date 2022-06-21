@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/20 20:43:40 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 14:57:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <iostream>
 # include <sys/socket.h> // For socket functions
 # include <netinet/in.h> // For sockaddr_in
+#include <unistd.h> // For close()
 
 # include "macros.hpp"
 
@@ -69,6 +70,7 @@ public:
 	int				fd( void );
 	int				port( void );
 	void			bind( int port );
+	void			close( void );
 
 private:
 
