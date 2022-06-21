@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/13 18:32:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/17 23:13:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,31 +46,17 @@ Server::Server(const ServerConfig &config)
     }
 }
 
-int			Server::receive_message() const
-{
-    int new_socket;
-    int length = sizeof(_address);
-    std::cout << "\n+++++++ Waiting for new connection ++++++++\n\n";
-    if ((new_socket = accept(_fd, (struct sockaddr *)&_address, (socklen_t*)&length))<0)
-    {
-        ERROR("In accept\n");
-        exit(EXIT_FAILURE);
-    }
-    char buffer[30000] = {0};
-    long valread = read( new_socket , buffer, 30000);
-    if (valread < 0)
-    {
-        ERROR("Nothing read\n");
-        return(EXIT_FAILURE);
-    }
-    std::cout << buffer;
-    write(new_socket, _config.getHeader().c_str() , _config.getHeader().size());
-    printf("\n------------------Hello message sent-------------------\n");
-    close(new_socket);
-    return (EXIT_SUCCESS);
-}
-
 Server::~Server()
 {
     close(_fd);
+}
+
+Server::SocketAddress	&Server::getAddress()
+{
+    return (_address);
+}
+
+int	Server::getFd()
+{
+    return (_fd);
 }
