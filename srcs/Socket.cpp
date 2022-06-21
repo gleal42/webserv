@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 17:46:07 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 19:21:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void	Socket::set_fd( int fd ) { _fd = fd; }
 void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
-  	if (_fd < 0) {
+  	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
 }
@@ -111,11 +111,13 @@ Socket *	Socket::accept( void ) {
 	socklen_t	length = sizeof(s->_address);
 	sockaddr *	address = (struct sockaddr *)&s->_address;
 
-	set_fd(::accept(_fd, address, &length));
-	if ((s->fd() < 0)) {
+	s->set_fd(::accept(_fd, address, &length));
+	LOG(s->fd());
+	if ((s->fd() == FD_UNSET)) {
 		return NULL;
 	}
 
+	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }
 

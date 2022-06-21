@@ -145,8 +145,9 @@ TEST_CASE("Socket `accept` method") {
 
 	SUBCASE("returns new socket connected to client") {
 		Socket *client;
-
 		// TODO: find way to not hang
-		// CHECK_NOTHROW(client = server.accept());
+		// client = server.accept();
+
+		// CHECK(client->fd() != FD_UNSET);
     }
 }
