@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 15:57:26 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 16:13:04 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,11 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 	if (::listen(_fd, max_connections) < 0 || _port < 1) {
 		throw Socket::ListenError();
 	}
+}
+
+// C `send` function wrapper
+void	Socket::send( const std::string & response ) {
+	::send(_fd, response.c_str(), response.size(), 0);
 }
 
 /* ostream override */

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 15:57:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 16:12:27 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ public:
 	void			bind( int port );
 	void			close( void );
 	void			listen( int max_connections );
+	void			send( const std::string & response );
 
 private:
 

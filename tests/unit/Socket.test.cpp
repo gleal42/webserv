@@ -110,6 +110,16 @@ TEST_CASE("Socket `listen` method") {
 			CHECK(std::string(e.what()) == "Failed to listen on socket.");
 		}
     }
+}
 
+TEST_CASE("Socket `send` method") {
+  	std::string response = "Good talking to you\n";
+
+	SUBCASE("accepts response argument") {
+		Socket a(PORT);
+
+		CHECK_NOTHROW(a.send(response));
+		// TODO: more tests
+    }
 }
 
