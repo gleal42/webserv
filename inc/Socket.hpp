@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 17:15:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:44:46 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include "macros.hpp"
 
 # define PORT_UNSET -1
+# define FD_UNSET -1
 
 // ************************************************************************** //
 //                               Socket Class                             	  //
@@ -72,13 +73,19 @@ public:
 	~Socket( void );
 	Socket &		operator = ( Socket const & rhs );
 
+	// Getters
 	int				fd( void );
 	int				port( void );
+	// Setters
+	void			set_fd( int fd );
+
+	void 			create( void );
 	void			bind( int port );
 	void			close( void );
 	void			listen( int max_connections );
 	void			send( const std::string & response );
 	int				receive( int buffer_size );
+	Socket *		accept( void );
 
 private:
 
@@ -86,7 +93,6 @@ private:
 	int					_fd;
 	SocketAddress		_address;
 	int					_port;
-	void 				create( void );
 	std::vector<char>	_buffer;
 
 };

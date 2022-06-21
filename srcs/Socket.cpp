@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 17:15:48 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:46:07 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET) { create(); }
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET) { /* No-op */ }
 
 // TODO: will we also pass `domain`?
 Socket::Socket( int port ) : _port(PORT_UNSET)
@@ -52,8 +52,12 @@ Socket &	Socket::operator = ( Socket const & rhs )
 	return *this;
 }
 
+// Getters
 int	Socket::fd( void ) { return _fd; }
 int	Socket::port( void ) { return _port; }
+
+// Setters
+void	Socket::set_fd( int fd ) { _fd = fd; }
 
 // C `socket` function wrapper
 void	Socket::create( void )
@@ -97,6 +101,22 @@ int	Socket::receive( int buffer_size ) {
 	_buffer = std::vector<char>(buffer_size, '\0');
 
 	return recv(_fd, _buffer.data(), _buffer.size(), 0);
+}
+
+// C `accept` function wrapper
+Socket *	Socket::accept( void ) {
+	Socket *	s = new Socket();
+
+	// TODO: Need to check that these vars are actually set on new socket
+	socklen_t	length = sizeof(s->_address);
+	sockaddr *	address = (struct sockaddr *)&s->_address;
+
+	set_fd(::accept(_fd, address, &length));
+	if ((s->fd() < 0)) {
+		return NULL;
+	}
+
+	return s;
 }
 
 /* ostream override */

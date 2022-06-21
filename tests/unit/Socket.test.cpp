@@ -18,26 +18,24 @@ Usage:
 
 TEST_CASE("Socket constructors") {
 
-	SUBCASE("default sets `fd`") {
+	SUBCASE("default does not set `fd`") {
 		Socket a;
 
-		CHECK(a.fd() > -1);
-		CHECK(a.fd() == FD);
+		CHECK(a.fd() == FD_UNSET);
     }
 
 	SUBCASE("copy and assignment set the same `fd`") {
-		Socket a;
+		Socket a(PORT);
 		Socket b(a);
 
-		CHECK(b.fd() > -1);
-		CHECK(b.fd() == FD);
+		CHECK(a.fd() == b.fd());
     }
 
 	SUBCASE("with `int port` argument, sets `fd` and `port`") {
 		Socket c(PORT);
 
-		CHECK(c.fd() > -1);
-		CHECK(c.port() == PORT);
+		CHECK(c.fd() != FD_UNSET);
+		CHECK(c.port() != PORT_UNSET);
     }
 }
 
@@ -45,13 +43,13 @@ TEST_CASE("Socket `bind` method") {
 	Socket	a;
 
 	SUBCASE("doesn't get called in default constructor") {
-		CHECK(a.port() == -1);
+		CHECK(a.port() == PORT_UNSET);
     }
 
 	SUBCASE("allows setting `port` separate from constructor") {
-		a.bind(PORT);
+		a.bind(PORT + 1);
 
-		CHECK(a.port() == PORT);
+		CHECK(a.port() == PORT + 1);
     }
 
 	SUBCASE("doesnt allow setting the same `port` twice") {
@@ -132,5 +130,17 @@ TEST_CASE("Socket `receive` method") {
 
 		CHECK_NOTHROW(bytes = a.receive(BUFFER_SIZE));
 		LOG(bytes); // currently outputting -1 which is the error
+    }
+}
+
+TEST_CASE("Socket `accept` method") {
+	Socket server(PORT);
+	server.listen(MAX_CONNECTIONS);
+
+	SUBCASE("returns new socket connected to client") {
+		Socket *client;
+
+		// TODO: find way to not hang
+		// CHECK_NOTHROW(client = server.accept());
     }
 }
