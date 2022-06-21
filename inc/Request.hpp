@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/18 17:52:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/21 19:07:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,13 +122,11 @@ class URI {
 
 class Request {
 	public:
-		Request(int socket, sockaddr_in *sockaddr);
-		Request(const Request&);
-		~Request();
+		Request(ServerConfig config);
+		Request(const Request&){};
+		~Request(){};
 		Request&	operator= (const Request&);
 
-		int					_socket;
-		// Socket				socket;
 		std::string			_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
 		RequestMethod		_request_method;
 		std::string			_unparsed_uri; 		// The unparsed URI of the request
@@ -146,14 +144,14 @@ class Request {
 		// SocketAddress		peeraddr;			// The socket address of the client
 		RequestAttributes	_attributes;			// Map of request attributes
 		std::string			_request_time;		// The local time this request was received
+		std::string			_raw_body;
 
 		// Parses a request from +socket+.  This is called internally by Server
-		std::string	read_header(std::string buf);
-		std::string	read_request_line(std::string buf);
-		int		parse(void);
+		void	read_header(std::string *buf);
+		void	read_request_line(std::string *buf);
+		void	parse(int socket);
 };
 
 std::ostream&	operator<<(std::ostream&, const Request&);
 
 #endif
-
