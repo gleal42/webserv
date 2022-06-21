@@ -134,4 +134,3 @@ TEST_CASE("Socket `receive` method") {
 		LOG(bytes); // currently outputting -1 which is the error
     }
 }
-

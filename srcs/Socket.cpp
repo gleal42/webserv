@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 17:12:47 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:15:48 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(-1) { create(); }
+Socket::Socket( void ) : _port(PORT_UNSET) { create(); }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _port(-1)
+Socket::Socket( int port ) : _port(PORT_UNSET)
 {
 	create();
 	bind(port);
@@ -81,7 +81,7 @@ void	Socket::close( void ) { ::close(_fd); }
 
 // C `listen` function wrapper
 void	Socket::listen( int max_connections ) { // Coming from server config or should be const?
-	if (::listen(_fd, max_connections) < 0 || _port < 1) {
+	if (_port == PORT_UNSET || ::listen(_fd, max_connections) < 0) {
 		throw Socket::ListenError();
 	}
 }
