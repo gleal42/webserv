@@ -13,6 +13,7 @@ Usage:
 // Constants
 #define PORT 8080
 #define FD 3 // if no other file descriptors open
+#define MAX_CONNECTIONS 10
 
 TEST_CASE("Socket constructors") {
 
@@ -87,5 +88,28 @@ TEST_CASE("Socket `close` method") {
 
 		CHECK(c.fd() == FD);
     }
+}
+
+TEST_CASE("Socket `listen` method") {
+
+	SUBCASE("accepts max connections argument") {
+		Socket a(PORT);
+
+		CHECK_NOTHROW(a.listen(MAX_CONNECTIONS));
+    }
+
+	SUBCASE("fails if port hasn't been set on the socket") {
+		Socket	a;
+
+		CHECK_THROWS(a.listen(MAX_CONNECTIONS));
+
+		try {
+			a.listen(MAX_CONNECTIONS);
+		}
+		catch(Socket::ListenError& e) {
+			CHECK(std::string(e.what()) == "Failed to listen on socket.");
+		}
+    }
+
 }
 

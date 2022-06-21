@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 14:57:41 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 15:57:26 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@ Socket::CreateError::CreateError( void )
 Socket::BindError::BindError( int port )
 	: std::runtime_error("Failed to bind to port " + std::to_string(port) + ".")
 	{ /* No-op */ }
+
+Socket::ListenError::ListenError( void )
+	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
 Socket::Socket( void ) { _socket(); }
@@ -67,7 +70,7 @@ void	Socket::bind( int port )
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
-	if (::bind(_fd, (SocketAddress *)&_address, sizeof(_address)) < 0) {
+	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);
 	}
 	_port = port;	// only set port if did't fail `bind` call
@@ -75,6 +78,13 @@ void	Socket::bind( int port )
 
 // C `close` function wrapper
 void	Socket::close( void ) { ::close(_fd); }
+
+// C `listen` function wrapper
+void	Socket::listen( int max_connections ) { // Coming from server config or should be const?
+	if (::listen(_fd, max_connections) < 0 || _port < 1) {
+		throw Socket::ListenError();
+	}
+}
 
 /* ostream override */
 std::ostream &	operator << ( std::ostream & o, Socket const & i )
