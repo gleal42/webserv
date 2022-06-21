@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 16:58:50 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:12:31 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,7 +84,7 @@ private:
 	int					_fd;
 	SocketAddress		_address;
 	int					_port;
-	void 				_socket( void );
+	void 				create( void );
 	std::vector<char>	_buffer;
 
 };

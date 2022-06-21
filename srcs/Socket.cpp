@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 17:04:38 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 17:12:47 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,12 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(-1) { _socket(); }
+Socket::Socket( void ) : _port(-1) { create(); }
 
 // TODO: will we also pass `domain`?
 Socket::Socket( int port ) : _port(-1)
 {
-	_socket();
+	create();
 	bind(port);
 }
 
@@ -56,7 +56,7 @@ int	Socket::fd( void ) { return _fd; }
 int	Socket::port( void ) { return _port; }
 
 // C `socket` function wrapper
-void	Socket::_socket( void )
+void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
   	if (_fd < 0) {
