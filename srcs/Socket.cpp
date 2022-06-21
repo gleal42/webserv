@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 20:46:42 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/21 23:08:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ void	Socket::create( void )
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 // C `bind` function wrapper
@@ -81,7 +82,7 @@ void	Socket::bind( int port )
 }
 
 // C `close` function wrapper
-void	Socket::close( void ) { ::close(_fd); }
+void	Socket::close( void ) { if(_fd != FD_UNSET ) ::close(_fd); }
 
 // C `listen` function wrapper
 void	Socket::listen( int max_connections ) { // Coming from server config or should be const?
@@ -111,12 +112,13 @@ Socket *	Socket::accept( void ) {
 
 	// TODO: Need to check that these vars are actually set on new socket
 	socklen_t	length = sizeof(s->_address);
-	sockaddr *	address = (struct sockaddr *)&s->_address;
+	sockaddr *	address = (sockaddr *)&s->_address;
 
 	s->set_fd(::accept(_fd, address, &length));
-	LOG(s->fd());
 	if ((s->fd() == FD_UNSET)) {
-		return NULL;
+		LOG(strerror(errno)); // Temporary to debug
+		delete s;
+		return NULL; // or something else later
 	}
 
 	fcntl(s->fd(), F_SETFL, O_NONBLOCK);

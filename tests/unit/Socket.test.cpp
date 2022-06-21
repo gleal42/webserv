@@ -136,7 +136,7 @@ TEST_CASE("Socket `receive` method") {
 		int bytes;
 
 		CHECK_NOTHROW(bytes = a.receive(BUFFER_SIZE));
-		LOG(bytes); // currently outputting -1 which is the error
+		// LOG(bytes); // currently outputting -1 which is the error
     }
 }
 
@@ -146,9 +146,12 @@ TEST_CASE("Socket `accept` method") {
 
 	SUBCASE("returns new socket connected to client") {
 		Socket *client;
-		// TODO: find way to not hang
-		// client = server.accept();
+		client = server.accept();
 
 		// CHECK(client->fd() != FD_UNSET);
+		CHECK(std::string(strerror(errno)) == "Resource temporarily unavailable");
+
+		if (client)
+			delete client;
     }
 }

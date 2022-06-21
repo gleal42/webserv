@@ -3,10 +3,10 @@ CXXFLAGS := -std=c++98
 CPPFLAGS := -I../../inc
 COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
-all: 			Socket
+all:	Socket
+	./Socket
 
-Socket: ../../srcs/Socket.cpp ../../inc/Socket.hpp Socket.test.cpp
-	$(COMPILE) ../../srcs/Socket.cpp Socket.test.cpp -o $@ \
-	&& ./Socket
+Socket:	../../srcs/Socket.cpp ../../inc/Socket.hpp Socket.test.cpp
+	$(COMPILE) ../../srcs/Socket.cpp Socket.test.cpp -o $@
 
-.PHONY: Socket
+.PHONY: all
