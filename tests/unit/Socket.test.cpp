@@ -41,40 +41,51 @@ TEST_CASE("Socket constructors") {
 
 TEST_CASE("Socket `bind` method") {
 	Socket	a;
-	int		port = PORT;
 
 	SUBCASE("doesn't get called in default constructor") {
 		CHECK(a.port() == 0);
     }
 
 	SUBCASE("allows setting `port` separate from constructor") {
-		a.bind(port);
+		a.bind(PORT);
 
-		CHECK(a.port() == port);
+		CHECK(a.port() == PORT);
     }
 
 	SUBCASE("doesnt allow setting the same `port` twice") {
-		Socket b(port);
-		CHECK_THROWS(a.bind(port));
+		Socket b(PORT);
+		CHECK_THROWS(a.bind(PORT));
 
 		try {
-			a.bind(port);
+			a.bind(PORT);
 		}
 		catch(Socket::BindError& e) {
-			CHECK(e.what() == "Failed to bind to port " + std::to_string(port) + ".");
+			CHECK(e.what() == "Failed to bind to port " + std::to_string(PORT) + ".");
 		}
     }
 }
 
 TEST_CASE("Socket `close` method") {
-	Socket	a;
-	int		port = PORT;
 
-	SUBCASE("closes file descriptor") {
+	SUBCASE("closes file descriptor and frees port") {
+		Socket	a(PORT);
 		a.close();
-		Socket	b;
+		Socket b;
 
+		CHECK_NOTHROW(b.bind(PORT));
 		CHECK(b.fd() == FD);
+		CHECK(b.port() == PORT);
+    }
+
+	SUBCASE("is called on destructor") {
+		Socket	*b = new Socket();
+
+		CHECK(b->fd() == FD);
+
+		delete b;
+		Socket c;
+
+		CHECK(c.fd() == FD);
     }
 }
 
