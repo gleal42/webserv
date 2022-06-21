@@ -40,20 +40,23 @@ TEST_CASE("Socket constructors") {
 }
 
 TEST_CASE("Socket `bind` method") {
-	Socket	a;
 
 	SUBCASE("doesn't get called in default constructor") {
+		Socket	a;
 		CHECK(a.port() == PORT_UNSET);
     }
 
 	SUBCASE("allows setting `port` separate from constructor") {
-		a.bind(PORT + 1);
+		Socket	a;
+		a.create();
+		a.bind(PORT);
 
-		CHECK(a.port() == PORT + 1);
+		CHECK(a.port() == PORT);
     }
 
 	SUBCASE("doesnt allow setting the same `port` twice") {
-		Socket b(PORT);
+		Socket	a;
+		Socket	b(PORT);
 		CHECK_THROWS(a.bind(PORT));
 
 		try {
@@ -70,7 +73,8 @@ TEST_CASE("Socket `close` method") {
 	SUBCASE("closes file descriptor and frees port") {
 		Socket	a(PORT);
 		a.close();
-		Socket b;
+		Socket	b;
+		b.create();
 
 		CHECK_NOTHROW(b.bind(PORT));
 		CHECK(b.fd() == FD);
@@ -79,11 +83,13 @@ TEST_CASE("Socket `close` method") {
 
 	SUBCASE("is called on destructor") {
 		Socket	*b = new Socket();
+		b->create();
 
 		CHECK(b->fd() == FD);
 
 		delete b;
 		Socket c;
+		c.create();
 
 		CHECK(c.fd() == FD);
     }
