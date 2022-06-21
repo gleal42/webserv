@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/18 17:52:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/20 23:14:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,11 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
+#include <unistd.h>
 #include "macros.hpp"
 #include <map>
 #include "ServerConfig.hpp"
+#include <fcntl.h>
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 

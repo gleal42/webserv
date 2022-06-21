@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/19 20:02:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/20 22:15:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <fcntl.h>
+#include <sys/event.h>
 
 #include "macros.hpp"
 # include "ServerConfig.hpp"
@@ -43,7 +44,7 @@ class Server
 		Server();
 		void	init_addr();
 	public:
-		Server(const ServerConfig &config);
+		Server(const ServerConfig &config, int kqueue);
 		Server(const Server &server);
 		~Server();
 		Server &operator=(const Server &server);

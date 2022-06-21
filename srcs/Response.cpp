@@ -6,16 +6,15 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/18 00:47:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/21 00:28:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-Response::Response(const ServerConfig &config, const Request &request)
+Response::Response(const ServerConfig &config)
 {
 	(void)config;
-	(void)request;
 }
 
 std::string Response::start_line(int status)
@@ -48,7 +47,7 @@ void Response::send(int socketfd)
 	message += "Content-Length: " + len.str() + "\n";
 	message += "Content-Type: text/html\n\n";
 	message += body_str.str();
-	write(socketfd, message.c_str() , message.size());
+	::send(socketfd, message.c_str() , message.size(), 0);
     printf("\n------------------Hello message sent-------------------\n");
 }
 
