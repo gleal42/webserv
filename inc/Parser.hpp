@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 08:37:35 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 21:26:36 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/22 21:33:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,8 @@ private:
 
 	Parser( void );
 	Parser( Parser const & src );
-	int				_configs_amount;
 	std::string		_config_file;
+	int				_configs_amount;
 	Configs			_configs;
 
 };

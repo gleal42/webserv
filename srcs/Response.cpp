@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:14:15 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/22 21:34:56 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ Response::Response(const ServerConfig & config){
 	// set member vars from config
 	(void)config;
 }
+
+Response::~Response( void ) { /* no-op */ }
 
 std::string Response::start_line(int status)
 {

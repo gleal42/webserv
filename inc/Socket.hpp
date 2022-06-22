@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 08:47:55 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/22 21:34:07 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,9 @@ public:
 private:
 
 	// Should be private to avoid being set to a wrong value
+	int					_port;
 	int					_fd;
 	SocketAddress		_address;
-	int					_port;
 	std::vector<char>	_buffer;
 
 };

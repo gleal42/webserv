@@ -6,11 +6,13 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:15:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/22 21:29:27 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserver.hpp"
+#include "ServerConfig.hpp"
+#include "Parser.hpp"
+#include "Server.hpp"
 
 typedef std::vector<Server> Cluster;
 
@@ -25,9 +27,9 @@ int webserver(std::string config_file)
     }
 
 	// Initialize Cluster
-	int			amount = parser.configs_amount();
+	size_t		amount = parser.configs_amount();
 	Cluster		cluster(amount);
-	for (int i = 0; i < amount; ++i) {
+	for (size_t i = 0; i < amount; ++i) {
 		// Initialize each new Server with a config from the parser
 		ServerConfig	config(parser.config(i));
 		cluster.push_back(Server(config));
@@ -41,7 +43,7 @@ int webserver(std::string config_file)
 	}
 
 	// Shutdown and cleanup
-	for (int i = 0; i < cluster.size(); ++i) {
+	for (size_t i = 0; i < cluster.size(); ++i) {
 		cluster[i].shutdown();
 	}
     return 0;
