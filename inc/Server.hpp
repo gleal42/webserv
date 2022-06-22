@@ -3,47 +3,70 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/17 23:10:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/22 21:18:12 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef __SERVER_H__
+# define __SERVER_H__
 
-#include <iostream>
-#include <netinet/in.h>
-#include <sys/socket.h>
+# include <iostream>
 
-
-#include "macros.hpp"
 # include "ServerConfig.hpp"
-# include "Response.hpp"
+# include "Socket.hpp"
 # include "Request.hpp"
+# include "Response.hpp"
+
+// ************************************************************************** //
+//                               Server Class                             	  //
+// ************************************************************************** //
+
+/*
+A class to represent a single threaded HTTP Server
+
+Server will have multiple accepted sockets so maybe a vector is more adequate
+
+Needs to be able to:
+
+	- initialize a server socket for the given configuration
+	- start (Starts accepting connections from clients)
+	- stop (Stops the server from accepting new connections)
+	- shutdown (Shuts down the server and all accepted clients)
+
+*/
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
-// Server will have multiple requests and responses so maybe a vector is more adequate
+struct 	ServerConfig;
+class	Socket;
 
-class Server
-{
-	private:
-		typedef sockaddr_in SocketAddress;
+typedef std::vector<Socket *> Connections;
 
-		ServerConfig	_config;
-		SocketAddress	_address;
-		int _fd;
-		Server();
-		void	init_addr();
-	public:
-		Server(const ServerConfig &config);
-		Server(const Server &server);
-		~Server();
-		Server &operator=(const Server &server);
-		SocketAddress	&getAddress();
-		int	getFd();
+class Server {
+
+public:
+
+	Server( void );
+	Server( Server const & src );
+	Server( ServerConfig const & config );
+	~Server( void );
+	Server &	operator = ( Server const & rhs );
+
+	void		start( void );
+	void		stop( void );
+	void		shutdown( void );
+
+private:
+
+	ServerConfig	_config;
+	Socket *		_socket;
+	Connections		_connections;
+
+	void			run(Socket & socket);
+	void			service(Request & req, Response & res);
 };
 
-#endif
+#endif /* __SERVER_H__ */

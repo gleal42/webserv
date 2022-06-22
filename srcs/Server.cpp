@@ -3,60 +3,101 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/17 23:13:28 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/22 21:21:30 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-void    Server::init_addr()
+/* Constructors */
+Server::Server( void ) : _socket(NULL) { /* no-op */ }
+Server::Server( Server const & src ) : _socket(NULL) { *this = src; }
+
+Server::Server( ServerConfig const & config ) : _config(config), _socket(NULL)
 {
-    _address.sin_family = AF_INET;
-    _address.sin_port = htons(_config.getPort());
-    _address.sin_addr.s_addr = INADDR_ANY;
-    memset(_address.sin_zero, '\0', sizeof(_address.sin_zero));
+	// set some variables from the config in initialization list aswell
+	// or here if they need treating first
+	_socket = new Socket(config.port);
+	_socket->listen(config.max_clients);
+	_connections = Connections(config.max_clients);
 }
 
-Server::Server()
+/* Destructor */
+Server::~Server( void ) { if (_socket) delete _socket; }
+
+/* Assignment operator */
+Server &	Server::operator = ( Server const & rhs )
 {
+	if (this != &rhs) {
+		//value = rhs.value;
+	}
+	return *this;
 }
 
-Server::Server(const ServerConfig &config)
-: _config(config)
+// Starts accepting connections
+void	Server::start( void )
 {
-    init_addr();
-    _fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (_fd == 0)
-    {
-        ERROR("In socket\n");
-        exit(EXIT_FAILURE);
-    }
-    if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address))<0)
-    {
-        ERROR("In bind\n");
-        exit(EXIT_FAILURE);
-    }
-    if (listen(_fd, 128) < 0)
-    {
-        ERROR("In listen\n");
-        exit(EXIT_FAILURE);
-    }
+	// check if can still add
+	_connections.push_back(_socket->accept());
+
+	// code to select which connection to run
+	run(*_connections[0]);
 }
 
-Server::~Server()
-{
-    close(_fd);
+// Does necessary to service a connection
+void	Server::run(Socket & socket) {
+	Request 	req(_config);
+	Response 	res(_config);
+	try {
+		// while timeout and Running
+		req.parse(socket);
+		res.request_method = req.request_method;
+		// res.request_uri = req.request_uri;
+		// if (request_callback) {
+		// 	request_callback(req, res);
+		// }
+		service(req, res);
+	}
+	catch (std::exception error) {
+		ERROR(error.what());
+	// catch (HTTPStatus error) {
+		// res.set_error(error);
+		// if (error.code) {
+		// 	res.status = error.code;
+		// }
+	}
+	if (req.request_line != "") {
+		res.send_response(socket);
+	}
 }
 
-Server::SocketAddress	&Server::getAddress()
-{
-    return (_address);
+// Services +req+ and fills in +res+
+void	Server::service(Request & req, Response & res) {
+	// Use factory create() method on Handler interface / Abstract class
+	// Pick handler::service based on available info
+	// ..
+	// req.script_name = script_name;
+	// req.path_info = path_info;
+
+	// FileHandler 	handler;
+	// OR
+	// CGIHandler 	handler;
+
+	(void)req;
+	(void)res;
+	// handler.service(req, res);
 }
 
-int	Server::getFd()
+// Stops accepting connections
+void	Server::stop( void )
 {
-    return (_fd);
+	// TODO:
+}
+
+void	Server::shutdown( void )
+{
+	// TODO:
 }

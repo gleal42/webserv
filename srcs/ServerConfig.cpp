@@ -1,49 +1,29 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ServerConfig.cpp                                     :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/07 22:25:02 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/08 01:48:29 by gleal            ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+// /* ************************************************************************** */
+// /*                                                                            */
+// /*                                                        :::      ::::::::   */
+// /*   ServerConfig.cpp                                     :+:      :+:    :+:   */
+// /*                                                    +:+ +:+         +:+     */
+// /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+// /*                                                +#+#+#+#+#+   +#+           */
+// /*   Created: 2022/06/07 22:25:02 by gleal             #+#    #+#             */
+// /*   Updated: 2022/06/08 01:48:29 by gleal            ###   ########.fr       */
+// /*                                                                            */
+// /* ************************************************************************** */
 
-#include "ServerConfig.hpp"
-#include <fstream>
-#include <iostream>
-#include <sstream>
+// #include "ServerConfig.hpp"
 
-ServerConfig::ServerConfig()
-{
-	// default confs
-    _port = 8080;
-}
+// /* Constructors */
+// ServerConfig::ServerConfig( void ) { /* no-op */ }
+// ServerConfig::ServerConfig( ServerConfig const & src ) { *this = src; }
 
-ServerConfig::ServerConfig(std::string &config)
-{
-	// parse conf file/analyze
-	(void)config;
-    _port = 8080;
-}
+// /* Destructor */
+// ServerConfig::~ServerConfig( void ) { /* no-op */ }
 
-ServerConfig::ServerConfig(const ServerConfig &conf)
-{
-	*this = conf;
-}
-
-ServerConfig::~ServerConfig()
-{
-}
-
-ServerConfig &ServerConfig::operator=(const ServerConfig &conf)
-{
-	_port = conf._port;
-	return (*this);
-}
-
-int	ServerConfig::getPort()
-{
-	return (_port);
-}
+// /* Assignment operator */
+// ServerConfig &	ServerConfig::operator = ( ServerConfig const & rhs )
+// {
+// 	if (this != &rhs) {
+// 		//value = rhs.value;
+// 	}
+// 	return *this;
+// }

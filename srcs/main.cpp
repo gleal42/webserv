@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:14:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/21 19:10:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/22 21:00:53 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 int	main(int argc, char **argv)
 {
-	if (argc == 2)
+	if (argc != 2)
 	{
-		webserver(argv[1]);
-		// ERROR("Wrong number of arguments.");
+		ERROR("Wrong number of arguments.");
 		return (EXIT_FAILURE);
 	}
-	std::string default_str("tests/test.conf");
-	webserver(default_str);
+	// webserver(argv[1]);
+	(void)argv;
+	webserver("tests/test.conf"); // Temporary stub
 	return (EXIT_SUCCESS);
 }

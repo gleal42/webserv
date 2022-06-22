@@ -1,8 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Request.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
+/*   Updated: 2022/06/22 21:24:49 by msousa           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "Request.hpp"
 
-Request::Request(ServerConfig config){
+Request::Request( void ) { /* no-op */ }
+
+Request::Request(const ServerConfig & config){
 	// TODO (implement constructor)
+	// set member vars from config
+	input_buffer_size = config.input_buffer_size;
 }
+
 Request::Request(const Request& param) {
 	// TODO (copy constructor)
 	(void)param;
@@ -13,6 +30,7 @@ Request::~Request() {
 	// TODO (destructor)
 }
 
+// might not be needed so can be private and have no implementation
 Request& Request::operator= (const Request& param) {
 	// TODO (Assignment operatior)
 	// std::swap()
@@ -20,7 +38,7 @@ Request& Request::operator= (const Request& param) {
 	return (*this);
 }
 
-std::ostream& operator<<(std::ostream& s, const Request& param) {
+std::ostream & operator<<(std::ostream& s, const Request& param) {
 	// s << param.CONST_METHOD()
 	(void)param;
 	return (s);
@@ -40,12 +58,14 @@ void	Request::read_request_line(std::string *strptr){
 		i++;
 	str = buf.substr(0, ++i);
 
+	// Consider global constant map: 	RequestMethods[ str ]
+	// typedef std::map< std::string, RequestMethod >	RequestMethods;
 	if (str.compare("GET"))
-		_request_method = GET;
+		request_method = GET;
 	else if(str.compare("POST"))
-		_request_method = POST;
+		request_method = POST;
 	else if(str.compare("DELETE"))
-		_request_method = DELETE;
+		request_method = DELETE;
 	else
 		throw("No appropriate method");
 
@@ -82,7 +102,7 @@ void	Request::read_header(std::string *strptr){
 	std::string				buf = *strptr;
 	size_t					body_start = buf.find("\r\n\r\n");
 
-	for (int i = 0; i < body_start; i++){
+	for (size_t i = 0; i < body_start; i++){
 		if (buf[i] == ':')
 		{
 			separator = i - key_start;
@@ -103,16 +123,18 @@ void	Request::read_header(std::string *strptr){
 		this->_raw_body = buf.substr(body_start + 4);
 };
 
-void	Request::parse(int socket){
-	char					buffer[30000] = {0};
-	long					valread = recv(socket, buffer, 30000, 0);
-	std::string				str_buffer = std::string(buffer);
-	std::string				*str_ptr = &str_buffer;
-	if (str_buffer.empty() || valread < 0)
+void	Request::parse(Socket & socket){
+	int				valread;
+	std::string		raw_request;
+
+	valread = socket.receive(input_buffer_size);
+	raw_request = socket.to_s();
+
+	if (raw_request.empty() || valread < 0)
 		throw("Http header empty");
-	this->_raw_header = str_buffer.substr(0);
-	read_request_line(str_ptr);
-	read_header(str_ptr);
+	this->_raw_header = raw_request.substr(0);
+	read_request_line(&raw_request);
+	read_header(&raw_request);
 
 	// set accept_* values
 	// setup_forwarded_info();
