@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 20:45:26 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/22 08:47:55 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ public:
 	Socket &		operator = ( Socket const & rhs );
 
 	// Getters
-	int				fd( void );
-	int				port( void );
+	int				fd( void ) const;
+	int				port( void ) const;
 	// Setters
 	void			set_fd( int fd );
 
@@ -87,7 +87,7 @@ public:
 	void			send( const std::string & response );
 	int				receive( int buffer_size );
 	Socket *		accept( void );
-	std::string		to_s( void );
+	std::string		to_s( void ) const;
 
 private:
 

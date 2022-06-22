@@ -41,8 +41,13 @@ resetclean: fclean clean
 
 re: fclean all
 
-tests_unit:
+tests_unit: # compiles and runs all unit tests
 	$(MAKE) unit -C tests
+
+# To run individual unit tests from root:
+#			`make socket -C tests/unit`
+#			`make parser -C tests/unit`
+# 		etc..
 
 tests_e2e:
 	$(MAKE) e2e -C tests

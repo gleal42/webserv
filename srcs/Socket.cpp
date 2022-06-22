@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 23:08:15 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/22 09:03:31 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ Socket &	Socket::operator = ( Socket const & rhs )
 }
 
 // Getters
-int	Socket::fd( void ) { return _fd; }
-int	Socket::port( void ) { return _port; }
+int	Socket::fd( void ) const { return _fd; }
+int	Socket::port( void ) const { return _port; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
@@ -104,7 +104,7 @@ int	Socket::receive( int buffer_size ) {
 	return recv(_fd, _buffer.data(), _buffer.size(), 0);
 }
 
-std::string	Socket::to_s( void ) { return std::string(_buffer.data()); }
+std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
 Socket *	Socket::accept( void ) {
@@ -128,7 +128,6 @@ Socket *	Socket::accept( void ) {
 /* ostream override */
 std::ostream &	operator << ( std::ostream & o, Socket const & i )
 {
-	(void)i;
-	o << "Socket";
+	o << i.to_s();
 	return o;
 }

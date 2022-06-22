@@ -1,10 +1,6 @@
 // Doctest tutorial
 // https://github.com/doctest/doctest/blob/master/doc/markdown/tutorial.md
 
-/*
-Usage:
-	c++ -std=c++98 -Iinc srcs/Socket.cpp tests/Socket.test.cpp -o socket-test
-*/
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
@@ -43,6 +39,7 @@ TEST_CASE("Socket `bind` method") {
 
 	SUBCASE("doesn't get called in default constructor") {
 		Socket	a;
+
 		CHECK(a.port() == PORT_UNSET);
     }
 
@@ -58,6 +55,7 @@ TEST_CASE("Socket `bind` method") {
 		Socket	a;
 		Socket	b(PORT);
 		a.create();
+
 		CHECK_THROWS(a.bind(PORT));
 
 		try {
@@ -92,7 +90,7 @@ TEST_CASE("Socket `close` method") {
 		Socket c;
 		c.create();
 
-		CHECK(c.fd() == FD);
+		CHECK(c.fd() == FD); // `fd` used in Socket b is reusable
     }
 }
 
