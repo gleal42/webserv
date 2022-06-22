@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/20 22:15:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/21 20:43:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,16 +40,16 @@ class Server
 
 		ServerConfig	_config;
 		SocketAddress	_address;
-		std::vector<Socket>		listeners;
+		int				_fd;
 		Server();
 		void	init_addr();
 	public:
-		Server(const ServerConfig &config, int kqueue);
+		Server(const ServerConfig &config);
 		Server(const Server &server);
 		~Server();
 		Server &operator=(const Server &server);
 		SocketAddress	&getAddress();
-		std::vector<Socket>	&getListeners();
+		int getFd();
 };
 
 #endif

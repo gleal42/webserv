@@ -1,17 +1,9 @@
 #include "Request.hpp"
 
-Request::Request(int socket, sockaddr_in *sockaddr){
-	int		addressLen = sizeof(sockaddr);
-	if ((_socket = accept(socket, (struct  sockaddr *)sockaddr, (socklen_t *)&addressLen)) < 0)
-	{
-        perror("Failed because");
-		throw("Accept error");
-	}
-    if (fcntl(_socket, F_SETFL, O_NONBLOCK) < 0)
-    {
-        ERROR("In socket flags\n");
-        exit(EXIT_FAILURE);
-    }
+Request::Request(int socket, sockaddr_in *sockaddr)
+{
+	(void)socket;
+	(void)sockaddr;
 }
 Request::Request(const Request& param) {
 	// TODO (copy constructor)
@@ -73,18 +65,18 @@ std::string	Request::read_header(std::string buf){
     return (buf);
 }
 
-int	Request::parse(void){
+int	Request::parse(int read_socket){
  {
 	char		buffer[30000] = {0};
 
 	long		valread;
-	while ((valread = recv(_socket, buffer, 30000, 0)) < 1)
-		;
-	// if ((valread = recv(_socket, buffer, 30000, 0)) < 1)
-	// {
-	// 	perror("Failed because :");
-	// 	throw("Error opening file");
-	// }
+	memset(buffer, '\0', sizeof(buffer));
+	if ((valread = recv(read_socket, buffer, 30000, 0)) < 1)
+	{
+		close(read_socket);
+		perror("Failed because ");
+		throw("Error opening file");
+	}
 	if (!*buffer)
 		throw("Http header empty");
 	std::string header(buffer);

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/20 23:14:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/21 01:39:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,7 +152,7 @@ class Request {
 		// Parses a request from +socket+.  This is called internally by Server
 		std::string	read_header(std::string buf);
 		std::string	read_request_line(std::string buf);
-		int		parse(void);
+		int		parse(int read_socket);
 };
 
 std::ostream&	operator<<(std::ostream&, const Request&);

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 #include <sys/event.h>
+#include <sys/socket.h>
+#include <sys/time.h>
 
 #include "macros.hpp"
 #include "Server.hpp"
