@@ -130,11 +130,11 @@ TEST_CASE("Socket `send` method") {
 TEST_CASE("Socket `receive` method") {
 	Socket a(PORT);
 
-	SUBCASE("returns read bytes") {
-		int bytes;
+	SUBCASE("sets read bytes") {
+		a.receive(BUFFER_SIZE);
 
-		CHECK_NOTHROW(bytes = a.receive(BUFFER_SIZE));
-		// LOG(bytes); // currently outputting -1 which is the error
+		CHECK_NOTHROW(a.bytes());
+		// LOG(a.bytes()); // currently outputting -1 which is the error
     }
 }
 

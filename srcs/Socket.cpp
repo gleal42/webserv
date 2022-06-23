@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 09:03:31 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/23 10:08:39 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET) { /* No-op */ }
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0) { /* No-op */ }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _port(PORT_UNSET)
+Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
 {
 	create();
 	bind(port);
@@ -55,6 +55,7 @@ Socket &	Socket::operator = ( Socket const & rhs )
 // Getters
 int	Socket::fd( void ) const { return _fd; }
 int	Socket::port( void ) const { return _port; }
+int	Socket::bytes( void ) const { return _bytes; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
@@ -97,11 +98,11 @@ void	Socket::send( const std::string & response ) {
 }
 
 // `recv` function wrapper
-int	Socket::receive( int buffer_size ) {
+void	Socket::receive( int buffer_size ) {
 	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
 	_buffer = std::vector<char>(buffer_size, '\0');
 
-	return recv(_fd, _buffer.data(), _buffer.size(), 0);
+	_bytes = recv(_fd, _buffer.data(), _buffer.size(), 0);
 }
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }

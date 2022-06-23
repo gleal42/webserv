@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 21:34:07 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/23 10:08:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ public:
 	// Getters
 	int				fd( void ) const;
 	int				port( void ) const;
+	int				bytes( void ) const;
 	// Setters
 	void			set_fd( int fd );
 
@@ -85,7 +86,7 @@ public:
 	void			close( void );
 	void			listen( int max_connections );
 	void			send( const std::string & response );
-	int				receive( int buffer_size );
+	void			receive( int buffer_size );
 	Socket *		accept( void );
 	std::string		to_s( void ) const;
 
@@ -96,6 +97,7 @@ private:
 	int					_fd;
 	SocketAddress		_address;
 	std::vector<char>	_buffer;
+	int					_bytes;
 
 };
 

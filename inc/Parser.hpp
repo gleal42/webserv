@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 08:37:35 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 21:33:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/23 09:55:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,5 @@ private:
 	Configs			_configs;
 
 };
-
-std::ostream &	operator << ( std::ostream & o, Parser const & i );
 
 #endif /* __PARSER_H__ */

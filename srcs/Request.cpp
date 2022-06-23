@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 21:24:49 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/23 10:08:27 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ Request::Request( void ) { /* no-op */ }
 Request::Request(const ServerConfig & config){
 	// TODO (implement constructor)
 	// set member vars from config
+	// even though we aren't using in `parse` might still be needed for counting
+	// how much read and that can still read, if not remove
 	input_buffer_size = config.input_buffer_size;
 }
 
@@ -60,6 +62,7 @@ void	Request::read_request_line(std::string *strptr){
 
 	// Consider global constant map: 	RequestMethods[ str ]
 	// typedef std::map< std::string, RequestMethod >	RequestMethods;
+	// this will avoid re-doing these comparisons every time
 	if (str.compare("GET"))
 		request_method = GET;
 	else if(str.compare("POST"))
@@ -124,14 +127,11 @@ void	Request::read_header(std::string *strptr){
 };
 
 void	Request::parse(Socket & socket){
-	int				valread;
 	std::string		raw_request;
 
-	valread = socket.receive(input_buffer_size);
 	raw_request = socket.to_s();
-
-	if (raw_request.empty() || valread < 0)
-		throw("Http header empty");
+	if (raw_request.empty() || socket.bytes() < 0)
+		throw std::exception();
 	this->_raw_header = raw_request.substr(0);
 	read_request_line(&raw_request);
 	read_header(&raw_request);

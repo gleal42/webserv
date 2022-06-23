@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:13:04 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/23 09:50:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,9 +134,6 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 # include <fstream>
 # include <iostream>
 # include <sstream>
-// #include <string>
-// #include <vector>
-// #include <unistd.h>
 
 # include "ServerConfig.hpp"
 # include "Request.hpp"

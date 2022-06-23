@@ -17,7 +17,7 @@ Socket:	$(SOCKET)
 	$(COMPILE) $(SOCKET) -o $@
 
 ##---  Parser  ---##
-PARSER := Parser.test.cpp ../../srcs/Parser.cpp ../../srcs/ServerConfig.cpp
+PARSER := Parser.test.cpp ../../srcs/Parser.cpp
 
 parser: Parser # run Parser class tests
 	./Parser
@@ -28,7 +28,7 @@ Parser:	$(PARSER)
 
 ##---  webserv  ---##
 WEBSERV := webserver.test.cpp ../../srcs/webserver.cpp ../../srcs/Parser.cpp \
-	../../srcs/ServerConfig.cpp ../../srcs/Server.cpp
+	../../srcs/Server.cpp
 
 webserv: Webserv # run webserver file tests
 	./Webserv

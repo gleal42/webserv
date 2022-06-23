@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 08:37:16 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/22 17:56:56 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/23 09:55:21 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,12 +41,4 @@ void	Parser::call( void )
 	// TODO: count server blocks in file
 	_configs_amount = 1; // Temporary
 	_configs = Configs(_configs_amount);
-}
-
-/* ostream override */
-std::ostream &	operator << ( std::ostream & o, Parser const & i )
-{
-	(void)i;
-	o << "Parser";
-	return o;
 }
