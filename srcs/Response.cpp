@@ -6,15 +6,16 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/21 00:28:43 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/23 16:56:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 
-Response::Response(const ServerConfig &config)
+Response::Response(const ServerConfig &config, const Request &request)
 {
 	(void)config;
+	(void)request;
 }
 
 std::string Response::start_line(int status)

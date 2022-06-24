@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/21 20:43:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/23 19:45:46 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,12 @@
 
 // Server will have multiple requests and responses so maybe a vector is more adequate
 
+typedef sockaddr_in SocketAddress;
+
 class Server
 {
 	private:
-		typedef sockaddr_in SocketAddress;
-
+		Socket			_socket;
 		ServerConfig	_config;
 		SocketAddress	_address;
 		int				_fd;
@@ -49,7 +50,7 @@ class Server
 		~Server();
 		Server &operator=(const Server &server);
 		SocketAddress	&getAddress();
-		int getFd();
+		int				getFd();
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 01:46:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/23 19:36:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ int    accept_client(int kq, Server &serv)
 
 	// // Print the client's IP on connect
 	// std::cout << "[" << clfd << "] connected" << std::endl;
-    
-    sockaddr_in clientAddr;
+
+    SocketAddress clientAddr;
 
     int clientAddrLen = sizeof(clientAddr);
 	int req_fd = -1;
@@ -113,72 +113,69 @@ int webserver(std::string input)
                     }
                     if (ListQueue[i].filter == EVFILT_READ)
                     {
-                        Request request(ListQueue[i].ident, &sv.getAddress()); // Client file descriptor management part
+                        Request request(config, ListQueue[i].ident, &sv.getAddress()); // Client file descriptor management part
                         request.parse(ListQueue[i].ident);
-                        Response response(config);
+                        Response response(config, request);
                         response.send(ListQueue[i].ident);
                     }
                 }
             }
-                
-
-            // for (int i = 0; i < n; i++)
-            // {
-            //     if (ListQueue[i].ident == (unsigned int)sv.getFd()) // process the received event
-            //         accept_client(kq, sv.getFd());
-			// 	// std::cout << "Connections detected: " << n << std::endl;
-			// 	// std::cout << "server fd: " << sv.getFd() << std::endl;
-            //     // std::cout << "identifier: " << ListQueue[i].ident << std::endl;
-            //     // if (ListQueue[i].ident == (unsigned int)sv.getFd()) // process the received event
-            //     // {
-            //     //     std::cout << "DOESNT EXIST" << std::endl;
-			// 	// 	struct kevent new_client;
-
-            //     //     sockaddr_in client_address;
-            //     //     socklen_t client_addr_len = sizeof(client_address);
-            //     //     if ((req_fd = accept(sv.getFd(), (struct sockaddr *)&client_address, &client_addr_len) < 0))
-            //     //     {
-            //     //         perror("Failed because");
-            //     //         throw("Accept error");
-            //     //     }
-			// 	// 	std::cout << "receive fd: " << req_fd << std::endl;
-            //     //     if (fcntl(req_fd, F_SETFL, O_NONBLOCK) < 0)
-            //     //     {
-            //     //         ERROR("In socket flags\n");
-            //     //         exit(EXIT_FAILURE);
-            //     //     }
-            //     //     EV_SET(&new_client, req_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-            //     //     if (kevent(kq, &new_client, 1, NULL, 0, NULL) < 0)
-			// 	// 		perror("Kevent");
-            //     // }
-            //     else
-            //     {
-            //         std::cout << "ALREADY EXISTS" << std::endl;
-            //         if (ListQueue[i].flags & EV_EOF)
-            //         {
-            //             struct kevent new_event;
-            //             EV_SET(&new_event, ListQueue[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-            //             kevent(kq, &new_event, 1, NULL, 0, NULL);
-            //             close(ListQueue[i].ident);
-            //             continue ;
-            //         }
-            //         if (ListQueue[i].filter == EVFILT_READ)
-            //         {
-            //             Request request(ListQueue[i].ident, &sv.getAddress()); // Client file descriptor management part
-            //             request.parse(ListQueue[i].ident);
-            //             Response response(config);
-            //             response.send(request._socket);
-            //         }
-            //     }
-            // }
         }
     }
     catch (const char *str)
     {
         std::cerr << str << std::endl;
+        return (1);
     }
-
-    close(sv.getFd());
-    close(kq);
-    return 0;
+    return (0);
 }
+
+// for (int i = 0; i < n; i++)
+// {
+//     if (ListQueue[i].ident == (unsigned int)sv.getFd()) // process the received event
+//         accept_client(kq, sv.getFd());
+// 	// std::cout << "Connections detected: " << n << std::endl;
+// 	// std::cout << "server fd: " << sv.getFd() << std::endl;
+//     // std::cout << "identifier: " << ListQueue[i].ident << std::endl;
+//     // if (ListQueue[i].ident == (unsigned int)sv.getFd()) // process the received event
+//     // {
+//     //     std::cout << "DOESNT EXIST" << std::endl;
+// 	// 	struct kevent new_client;
+
+//     //     sockaddr_in client_address;
+//     //     socklen_t client_addr_len = sizeof(client_address);
+//     //     if ((req_fd = accept(sv.getFd(), (struct sockaddr *)&client_address, &client_addr_len) < 0))
+//     //     {
+//     //         perror("Failed because");
+//     //         throw("Accept error");
+//     //     }
+// 	// 	std::cout << "receive fd: " << req_fd << std::endl;
+//     //     if (fcntl(req_fd, F_SETFL, O_NONBLOCK) < 0)
+//     //     {
+//     //         ERROR("In socket flags\n");
+//     //         exit(EXIT_FAILURE);
+//     //     }
+//     //     EV_SET(&new_client, req_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+//     //     if (kevent(kq, &new_client, 1, NULL, 0, NULL) < 0)
+// 	// 		perror("Kevent");
+//     // }
+//     else
+//     {
+//         std::cout << "ALREADY EXISTS" << std::endl;
+//         if (ListQueue[i].flags & EV_EOF)
+//         {
+//             struct kevent new_event;
+//             EV_SET(&new_event, ListQueue[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+//             kevent(kq, &new_event, 1, NULL, 0, NULL);
+//             close(ListQueue[i].ident);
+//             continue ;
+//         }
+//         if (ListQueue[i].filter == EVFILT_READ)
+//         {
+//             Request request(ListQueue[i].ident, &sv.getAddress()); // Client file descriptor management part
+//             request.parse(ListQueue[i].ident);
+//             Response response(config);
+//             response.send(request._socket);
+//         }
+//     }
+// }
