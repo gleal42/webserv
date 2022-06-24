@@ -41,4 +41,8 @@ void	ConfigParser::call( void )
 	// TODO: count server blocks in file
 	_configs_amount = 1; // Temporary
 	_configs = Configs(_configs_amount);
+
+	// Temp
+	_configs[0].port = 8080;
+	_configs[0].max_clients = 10;
 }

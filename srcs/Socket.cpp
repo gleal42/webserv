@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 10:08:39 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/24 19:03:32 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,13 @@ void	Socket::set_fd( int fd ) { _fd = fd; }
 void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(strerror(errno));
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
-	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	// fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 // C `bind` function wrapper
@@ -112,17 +115,28 @@ Socket *	Socket::accept( void ) {
 	Socket *	s = new Socket();
 
 	// TODO: Need to check that these vars are actually set on new socket
-	socklen_t	length = sizeof(s->_address);
-	sockaddr *	address = (sockaddr *)&s->_address;
+	// socklen_t	length = sizeof(s->_address);
+	// sockaddr *	address = (sockaddr *)&s->_address;
 
-	s->set_fd(::accept(_fd, address, &length));
-	if ((s->fd() == FD_UNSET)) {
-		LOG(strerror(errno)); // Temporary to debug
-		delete s;
-		return NULL; // or something else later
-	}
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(::accept(_fd, NULL, NULL));
+	// s->set_fd(::accept(_fd, NULL, NULL));
+	// if ((s->fd() == FD_UNSET)) {
+	// 	LOG(strerror(errno)); // Temporary to debug
+	// 	delete s;
+	// 	return NULL; // or something else later
+	// }
 
-	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
+	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }
 
