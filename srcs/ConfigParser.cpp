@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parser.cpp                                         :+:      :+:    :+:   */
+/*   ConfigParser.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,23 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Parser.hpp"
+#include "ConfigParser.hpp"
 
 /* Constructors */
-Parser::Parser( void ) : _config_file(""), _configs_amount(0) { /* no-op */ }
-Parser::Parser( Parser const & src ) { *this = src; }
-Parser::Parser(std::string config_file) : _config_file(config_file),
+ConfigParser::ConfigParser( void ) : _config_file(""), _configs_amount(0) { /* no-op */ }
+ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
+ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file),
 	_configs_amount(0) { /* no-op */ }
 
 // Getters
-ServerConfig	Parser::config( int const index ) const { return _configs[index]; }
-int	Parser::configs_amount( void ) const { return _configs_amount; }
+ServerConfig	ConfigParser::config( int const index ) const { return _configs[index]; }
+int	ConfigParser::configs_amount( void ) const { return _configs_amount; }
 
 /* Destructor */
-Parser::~Parser( void ) { /* no-op */ }
+ConfigParser::~ConfigParser( void ) { /* no-op */ }
 
 /* Assignment operator */
-Parser &	Parser::operator = ( Parser const & rhs )
+ConfigParser &	ConfigParser::operator = ( ConfigParser const & rhs )
 {
 	if (this != &rhs) {
 		//value = rhs.value;
@@ -34,7 +34,7 @@ Parser &	Parser::operator = ( Parser const & rhs )
 	return *this;
 }
 
-void	Parser::call( void )
+void	ConfigParser::call( void )
 {
 	// TODO: validate file exists or throw error
 	// TODO: validate file contents or throw error

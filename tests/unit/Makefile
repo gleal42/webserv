@@ -4,7 +4,7 @@ INC := -I../../inc
 CPPFLAGS := $(INC)
 COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
-all:	socket parser webserv
+all:	socket parser
 
 ##---  Socket  ---##
 SOCKET := Socket.test.cpp ../../srcs/Socket.cpp
@@ -16,25 +16,14 @@ socket: Socket # run Socket class tests
 Socket:	$(SOCKET)
 	$(COMPILE) $(SOCKET) -o $@
 
-##---  Parser  ---##
-PARSER := Parser.test.cpp ../../srcs/Parser.cpp
+##---  ConfigParser  ---##
+PARSER := ConfigParser.test.cpp ../../srcs/ConfigParser.cpp
 
-parser: Parser # run Parser class tests
-	./Parser
+parser: ConfigParser # run ConfigParser class tests
+	./ConfigParser
 
-# compile Parser class tests
-Parser:	$(PARSER)
+# compile ConfigParser class tests
+ConfigParser:	$(PARSER)
 	$(COMPILE) $(PARSER) -o $@
 
-##---  webserv  ---##
-WEBSERV := webserver.test.cpp ../../srcs/webserver.cpp ../../srcs/Parser.cpp \
-	../../srcs/Server.cpp
-
-webserv: Webserv # run webserver file tests
-	./Webserv
-
-# compile webserver file tests
-Webserv:	$(WEBSERV)
-	$(COMPILE) $(WEBSERV) -o $@
-
-.PHONY: all socket parser webserv
+.PHONY: all socket parser

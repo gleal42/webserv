@@ -3,7 +3,7 @@ CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
-		Parser.cpp \
+		ConfigParser.cpp \
 		Request.cpp \
 		Response.cpp \
 		Server.cpp \

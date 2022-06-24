@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parser.hpp                                         :+:      :+:    :+:   */
+/*   ConfigParser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __PARSER_H__
-# define __PARSER_H__
+#ifndef __CONFIG_PARSER_H__
+# define __CONFIG_PARSER_H__
 
 # include <iostream>
 # include <vector>
@@ -19,7 +19,7 @@
 # include "ServerConfig.hpp"
 
 // ************************************************************************** //
-//                               Parser Class                             	  //
+//                               ConfigParser Class                             	  //
 // ************************************************************************** //
 
 /*
@@ -34,13 +34,13 @@ Needs to be able to:
 
 typedef std::vector<ServerConfig> Configs;
 
-class Parser {
+class ConfigParser {
 
 public:
 
-	Parser(std::string config_file);
-	~Parser( void );
-	Parser &	operator = ( Parser const & rhs );
+	ConfigParser(std::string config_file);
+	~ConfigParser( void );
+	ConfigParser &	operator = ( ConfigParser const & rhs );
 
 	// Getters
 	ServerConfig	config( int const index ) const;
@@ -50,12 +50,12 @@ public:
 
 private:
 
-	Parser( void );
-	Parser( Parser const & src );
+	ConfigParser( void );
+	ConfigParser( ConfigParser const & src );
 	std::string		_config_file;
 	int				_configs_amount;
 	Configs			_configs;
 
 };
 
-#endif /* __PARSER_H__ */
+#endif /* __CONFIG_PARSER_H__ */

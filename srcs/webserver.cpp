@@ -6,19 +6,19 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:29:27 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:29:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
-#include "Parser.hpp"
+#include "ConfigParser.hpp"
 #include "Server.hpp"
 
 typedef std::vector<Server> Cluster;
 
 int webserver(std::string config_file)
 {
-	Parser	parser(config_file);
+	ConfigParser	parser(config_file);
 	try {
         parser.call();
     }
