@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:18:12 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:23:02 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@
 /*
 A class to represent a single threaded HTTP Server
 
-Server will have multiple accepted sockets so maybe a vector is more adequate
+Server will have multiple accepted sockets so maybe a vector / map
+is more adequate
 
 Needs to be able to:
 
@@ -43,7 +44,8 @@ Needs to be able to:
 struct 	ServerConfig;
 class	Socket;
 
-typedef std::vector<Socket *> Connections;
+typedef std::map< int, Socket * > Connections;
+typedef std::pair< int, Socket * > Connection;
 
 class Server {
 
@@ -64,6 +66,7 @@ private:
 	ServerConfig	_config;
 	Socket *		_socket;
 	Connections		_connections;
+	size_t			_max_connections;
 
 	void			run(Socket & socket);
 	void			service(Request & req, Response & res);

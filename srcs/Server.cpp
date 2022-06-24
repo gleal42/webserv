@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 10:03:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:22:03 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,30 @@ Server::Server( ServerConfig const & config ) : _config(config), _socket(NULL)
 {
 	// set some variables from the config in initialization list aswell
 	// or here if they need treating first
-	_socket = new Socket(config.port);
-	_socket->listen(config.max_clients);
-	_connections = Connections(config.max_clients);
+	try {
+		_socket = new Socket(config.port);
+	}
+	// TODO: do specific things
+	catch(Socket::CreateError& e) { // or std::runtime_error
+		// stop(); // shutdown();
+		LOG(e.what());
+	}
+	catch(Socket::BindError& e) {
+		// stop(); // shutdown();
+		LOG(e.what());
+	}
+
+	// there should always be a socket at this point,
+	// the catches above should stop flow
+	// maybe move them to main Server initialization in `webserver()`
+	try {
+		_socket->listen(config.max_clients);
+	}
+	catch(Socket::ListenError& e) {
+		// stop(); // shutdown();
+		LOG(e.what());
+	}
+	_max_connections = config.max_clients;
 }
 
 /* Destructor */
@@ -40,11 +61,20 @@ Server &	Server::operator = ( Server const & rhs )
 // Starts accepting connections
 void	Server::start( void )
 {
+	int	temp_fd; // to make it work until we have a `select` mechanism
+
 	// check if can still add
-	_connections.push_back(_socket->accept());
+	if (_connections.size() < _max_connections) {
+		Socket *	connection = _socket->accept();
+		_connections.insert(Connection(connection->fd(), connection));
+		// temp
+		temp_fd = connection->fd();
+	} else {
+		stop();
+	}
 
 	// code to select which connection to run
-	run(*_connections[0]);
+	run(*_connections[temp_fd]);
 }
 
 // Does necessary to service a connection
