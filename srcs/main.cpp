@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:14:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:00:53 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/24 17:27:59 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,18 @@
 
 int	main(int argc, char **argv)
 {
-	if (argc != 2)
+	if (argc > 2)
 	{
 		ERROR("Wrong number of arguments.");
 		return (EXIT_FAILURE);
 	}
-	// webserver(argv[1]);
+
+	if (argc == 1)
+	{
+		webserver("tests/test.conf"); // Default
+	}
 	(void)argv;
+	// webserver(argv[1]);
 	webserver("tests/test.conf"); // Temporary stub
 	return (EXIT_SUCCESS);
 }
