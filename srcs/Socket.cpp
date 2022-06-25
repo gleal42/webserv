@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 10:08:39 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:20:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,16 +38,17 @@ Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void )
-{
-	close();
-}
+Socket::~Socket( void ) { /* No-op */ }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
 {
 	if (this != &rhs) {
 		_fd = rhs._fd;
+		_port = rhs._port;
+		_address = rhs._address;
+		_buffer = rhs._buffer;
+		_bytes = rhs._bytes;
 	}
 	return *this;
 }
@@ -67,12 +68,13 @@ void	Socket::create( void )
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
-	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	// fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 // C `bind` function wrapper
 void	Socket::bind( int port )
 {
+	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
@@ -122,7 +124,7 @@ Socket *	Socket::accept( void ) {
 		return NULL; // or something else later
 	}
 
-	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
+	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }
 

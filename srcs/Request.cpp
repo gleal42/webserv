@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 10:08:27 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:13:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ void	Request::read_request_line(std::string *strptr){
 	int								j = 0;
 	std::string						buf = *strptr;
 	std::string::iterator			iter = buf.begin();
-
 
 	for (; *iter != ' '; iter++)
 		i++;
@@ -117,10 +116,10 @@ void	Request::read_header(std::string *strptr){
 				end++;
 				i++;
 			}
-				value = buf.substr(value_start, end);
-				this->_header.insert(std::pair<std::string, std::string>(key, value));
-				key_start = i + 2;
-			}
+			value = buf.substr(value_start, end);
+			this->_header.insert(std::pair<std::string, std::string>(key, value));
+			key_start = i + 2;
+		}
 	}
 	if (body_start + 4 != buf.size())
 		this->_raw_body = buf.substr(body_start + 4);

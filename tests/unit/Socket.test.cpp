@@ -18,6 +18,8 @@ TEST_CASE("Socket constructors") {
 		Socket a;
 
 		CHECK(a.fd() == FD_UNSET);
+
+		a.close();
     }
 
 	SUBCASE("copy and assignment set the same `fd`") {
@@ -25,6 +27,9 @@ TEST_CASE("Socket constructors") {
 		Socket b(a);
 
 		CHECK(a.fd() == b.fd());
+
+		a.close();
+		b.close();
     }
 
 	SUBCASE("with `int port` argument, sets `fd` and `port`") {
@@ -32,6 +37,8 @@ TEST_CASE("Socket constructors") {
 
 		CHECK(c.fd() != FD_UNSET);
 		CHECK(c.port() != PORT_UNSET);
+
+		c.close();
     }
 }
 
@@ -41,6 +48,8 @@ TEST_CASE("Socket `bind` method") {
 		Socket	a;
 
 		CHECK(a.port() == PORT_UNSET);
+
+		a.close();
     }
 
 	SUBCASE("allows setting `port` separate from constructor") {
@@ -49,6 +58,8 @@ TEST_CASE("Socket `bind` method") {
 		a.bind(PORT);
 
 		CHECK(a.port() == PORT);
+
+		a.close();
     }
 
 	SUBCASE("doesnt allow setting the same `port` twice") {
@@ -64,6 +75,9 @@ TEST_CASE("Socket `bind` method") {
 		catch(Socket::BindError& e) {
 			CHECK(e.what() == "Failed to bind to port " + std::to_string(PORT) + ".");
 		}
+
+		a.close();
+		b.close();
     }
 }
 
@@ -78,9 +92,12 @@ TEST_CASE("Socket `close` method") {
 		CHECK_NOTHROW(b.bind(PORT));
 		CHECK(b.fd() == FD);
 		CHECK(b.port() == PORT);
+
+		a.close();
+		b.close();
     }
 
-	SUBCASE("is called on destructor") {
+	SUBCASE("is not called on destructor") {
 		Socket	*b = new Socket();
 		b->create();
 
@@ -90,7 +107,10 @@ TEST_CASE("Socket `close` method") {
 		Socket c;
 		c.create();
 
-		CHECK(c.fd() == FD); // `fd` used in Socket b is reusable
+		CHECK(c.fd() == FD + 1);
+
+		close(FD);
+		c.close();
     }
 }
 
@@ -100,6 +120,8 @@ TEST_CASE("Socket `listen` method") {
 		Socket a(PORT);
 
 		CHECK_NOTHROW(a.listen(MAX_CONNECTIONS));
+
+		a.close();
     }
 
 	SUBCASE("fails if port hasn't been set on the socket") {
@@ -113,6 +135,8 @@ TEST_CASE("Socket `listen` method") {
 		catch(Socket::ListenError& e) {
 			CHECK(std::string(e.what()) == "Failed to listen on socket.");
 		}
+
+		a.close();
     }
 }
 
@@ -124,6 +148,8 @@ TEST_CASE("Socket `send` method") {
 
 		CHECK_NOTHROW(a.send(response));
 		// TODO: more tests
+
+		a.close();
     }
 }
 
@@ -135,6 +161,8 @@ TEST_CASE("Socket `receive` method") {
 
 		CHECK_NOTHROW(a.bytes());
 		// LOG(a.bytes()); // currently outputting -1 which is the error
+
+		a.close();
     }
 }
 
@@ -142,14 +170,19 @@ TEST_CASE("Socket `accept` method") {
 	Socket server(PORT);
 	server.listen(MAX_CONNECTIONS);
 
-	SUBCASE("returns new socket connected to client") {
-		Socket *client;
-		client = server.accept();
+	// TODO: when non-blocking
+	// SUBCASE("returns new socket connected to client") {
+	// 	Socket *client;
+	// 	client = server.accept();
 
-		// CHECK(client->fd() != FD_UNSET);
-		CHECK(std::string(strerror(errno)) == "Resource temporarily unavailable");
+	// 	// CHECK(client->fd() != FD_UNSET);
+	// 	CHECK(std::string(strerror(errno)) == "Resource temporarily unavailable");
 
-		if (client)
-			delete client;
-    }
+	// 	if (client) {
+	// 		client->close();
+	// 		delete client;
+	// 	}
+    // }
+
+	server.close();
 }

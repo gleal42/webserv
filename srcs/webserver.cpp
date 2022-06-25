@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/24 17:29:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 02:46:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,14 +32,12 @@ int webserver(std::string config_file)
 	for (size_t i = 0; i < amount; ++i) {
 		// Initialize each new Server with a config from the parser
 		ServerConfig	config(parser.config(i));
-		cluster.push_back(Server(config));
+		cluster[i] = Server(config);
 	}
 
 	// Start Cluster
-	while (1) {
-		for (size_t i = 0; i < cluster.size(); ++i) {
-			cluster[i].start();
-		}
+	for (size_t i = 0; i < cluster.size(); ++i) {
+		cluster[i].start();
 	}
 
 	// Shutdown and cleanup

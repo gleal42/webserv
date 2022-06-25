@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/24 17:22:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:11:03 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,10 @@ Server::~Server( void ) { if (_socket) delete _socket; }
 Server &	Server::operator = ( Server const & rhs )
 {
 	if (this != &rhs) {
-		//value = rhs.value;
+		_config = rhs._config;
+		_socket = new Socket(*rhs._socket);
+		_connections = rhs._connections;
+		_max_connections = rhs._max_connections;
 	}
 	return *this;
 }
@@ -63,9 +66,15 @@ void	Server::start( void )
 {
 	int	temp_fd; // to make it work until we have a `select` mechanism
 
+	// while (1) {
+	//     TODO: infinite loop here with `accept` code below
+	// }
+
 	// check if can still add
 	if (_connections.size() < _max_connections) {
 		Socket *	connection = _socket->accept();
+		if (!connection)
+			return ; // add error here
 		_connections.insert(Connection(connection->fd(), connection));
 		// temp
 		temp_fd = connection->fd();
@@ -100,7 +109,12 @@ void	Server::run(Socket & socket) {
 		// 	res.status = error.code;
 		// }
 	}
-	if (req.request_line != "") {
+	// if (req.request_line != "") {
+	// 	res.send_response(socket);
+	// }
+
+	// Temporary
+	if (req._raw_header != "") {
 		res.send_response(socket);
 	}
 }
@@ -130,5 +144,10 @@ void	Server::stop( void )
 
 void	Server::shutdown( void )
 {
-	// TODO:
+	_socket->close();
+	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
+	{
+		it->second->close();
+		delete it->second;
+	}
 }
