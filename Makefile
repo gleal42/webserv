@@ -3,6 +3,7 @@ CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
+		utils.cpp \
 		ConfigParser.cpp \
 		Request.cpp \
 		Response.cpp \
@@ -42,6 +43,18 @@ resetclean: fclean clean
 
 re: fclean all
 
+vm: # compiles and runs the app in a container
+	docker run -it --rm -p 8080:8080 --name webserv webserv
+
+vm_re: # re-builds and runs the app container
+	@docker build -t webserv . && \
+	docker run -it --rm -p 8080:8080 --name webserv webserv
+
+vm_clean: # stops docker and deletes all app container images, and processes
+	@docker stop $$(docker ps -qa); \
+	docker rm $$(docker ps -qa); \
+	docker rmi -f $$(docker images -qa);
+
 tests_unit: # compiles and runs all unit tests
 	$(MAKE) -C tests/unit
 
@@ -50,7 +63,7 @@ tests_unit: # compiles and runs all unit tests
 #			`make parser -C tests/unit`
 # 		etc..
 
-tests_e2e:
-	$(MAKE) -C tests/e2e
+tests_e2e: # compiles and runs end-to-end tests in the app container
+# @docker-compose --profile test up --build --abort-on-container-exit
 
 .PHONY: all clean fclean resetclean re
