@@ -6,21 +6,22 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 10:08:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 19:49:56 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SOCKET_H__
 # define __SOCKET_H__
 
-# include <iostream>
 # include <vector>
 # include <sys/socket.h> // For socket functions
 # include <netinet/in.h> // For sockaddr_in
 # include <unistd.h> // For close()
 # include <fcntl.h>
+# include <cstring>
+# include <cerrno>
 
-# include "macros.hpp"
+# include "webserver.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1

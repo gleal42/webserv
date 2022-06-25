@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 15:11:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 18:55:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ void	Server::run(Socket & socket) {
 		// }
 		service(req, res);
 	}
-	catch (std::exception error) {
+	catch (std::exception & error) {
 		ERROR(error.what());
 	// catch (HTTPStatus error) {
 		// res.set_error(error);

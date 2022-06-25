@@ -38,3 +38,6 @@ webserv
 
 # Doctest
 *-test
+
+# Env
+.env

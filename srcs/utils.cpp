@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   macros.hpp                                         :+:      :+:    :+:   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/07 21:17:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 20:04:08 by msousa           ###   ########.fr       */
+/*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
+/*   Updated: 2022/06/25 19:50:49 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MACROS_HPP
-# define MACROS_HPP
+# include "webserver.hpp"
 
-#include <iostream>
-
-# define LOG(x) std::cout << x << std::endl
-# define ERROR(x) std::cerr << x << std::endl
-
-#endif
+std::string	to_string(int number)
+{
+	std::string			result;
+	std::ostringstream	convert;
+	convert << number;
+	return convert.str();
+}

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 15:20:41 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 19:51:16 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Socket::CreateError::CreateError( void )
 	: std::runtime_error("Failed to create socket.") { /* No-op */ }
 
 Socket::BindError::BindError( int port )
-	: std::runtime_error("Failed to bind to port " + std::to_string(port) + ".")
+	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
 	{ /* No-op */ }
 
 Socket::ListenError::ListenError( void )

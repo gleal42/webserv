@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 02:46:52 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 19:17:59 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include "ConfigParser.hpp"
 #include "Server.hpp"
 
-typedef std::vector<Server> Cluster;
+typedef std::vector<Server*> Cluster;
 
 int webserver(std::string config_file)
 {
@@ -32,17 +32,18 @@ int webserver(std::string config_file)
 	for (size_t i = 0; i < amount; ++i) {
 		// Initialize each new Server with a config from the parser
 		ServerConfig	config(parser.config(i));
-		cluster[i] = Server(config);
+		cluster[i] = new Server(config);
 	}
 
 	// Start Cluster
-	for (size_t i = 0; i < cluster.size(); ++i) {
-		cluster[i].start();
+	for (size_t i = 0; i < amount; ++i) {
+		cluster[i]->start();
 	}
 
 	// Shutdown and cleanup
-	for (size_t i = 0; i < cluster.size(); ++i) {
-		cluster[i].shutdown();
+	for (size_t i = 0; i < amount; ++i) {
+		cluster[i]->shutdown();
+		delete cluster[i];
 	}
     return 0;
 }
