@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 02:42:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 09:36:03 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ void	Server::run(Socket & socket) {
 	// if (req.request_line != "") {
 	// 	res.send_response(socket);
 	// }
-	
+
 	// Temporary
 	if (req._raw_header != "") {
 		res.send_response(socket);
@@ -144,7 +144,9 @@ void	Server::shutdown( void )
 	// for loop going through connections and closing them
 	for (Connections::iterator it = _connections.begin(); it != _connections.end(); it++)
 	{
-		close(it->first);
+		// close(it->first);
+		it->second->close();
+		// can be just the delete if we make the close in destructor work
 		delete(it->second);
 	}
 	// TODO:
