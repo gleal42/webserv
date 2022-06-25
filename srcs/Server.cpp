@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/24 18:59:31 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 02:42:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,10 @@ Server::~Server( void ) { if (_socket) delete _socket; }
 Server &	Server::operator = ( Server const & rhs )
 {
 	if (this != &rhs) {
-		//value = rhs.value;
+		_config = rhs._config;
+		_socket = new Socket(*rhs._socket);
+		_connections = rhs._connections;
+		_max_connections = rhs._max_connections;
 	}
 	return *this;
 }
@@ -66,6 +69,8 @@ void	Server::start( void )
 	// check if can still add
 	if (_connections.size() < _max_connections) {
 		Socket *	connection = _socket->accept();
+		if (!connection)
+			return ; // add error here
 		_connections.insert(Connection(connection->fd(), connection));
 		// temp
 		temp_fd = connection->fd();
@@ -100,7 +105,12 @@ void	Server::run(Socket & socket) {
 		// 	res.status = error.code;
 		// }
 	}
-	if (req.request_line != "") {
+	// if (req.request_line != "") {
+	// 	res.send_response(socket);
+	// }
+	
+	// Temporary
+	if (req._raw_header != "") {
 		res.send_response(socket);
 	}
 }
@@ -130,5 +140,12 @@ void	Server::stop( void )
 
 void	Server::shutdown( void )
 {
+	this->_socket->close();
+	// for loop going through connections and closing them
+	for (Connections::iterator it = _connections.begin(); it != _connections.end(); it++)
+	{
+		close(it->first);
+		delete(it->second);
+	}
 	// TODO:
 }

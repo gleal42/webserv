@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/24 19:03:32 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 02:43:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ Socket::Socket( Socket const & src ) { *this = src; }
 /* Destructor */
 Socket::~Socket( void )
 {
-	close();
+	// close();
 }
 
 /* Assignment operator */
@@ -48,6 +48,10 @@ Socket &	Socket::operator = ( Socket const & rhs )
 {
 	if (this != &rhs) {
 		_fd = rhs._fd;
+		_port = rhs._port;
+		_address = rhs._address;
+		_buffer = rhs._buffer;
+		_bytes = rhs._bytes;
 	}
 	return *this;
 }
@@ -76,6 +80,7 @@ void	Socket::create( void )
 // C `bind` function wrapper
 void	Socket::bind( int port )
 {
+	memset(&_address, 0, sizeof(struct sockaddr_in));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
@@ -115,26 +120,17 @@ Socket *	Socket::accept( void ) {
 	Socket *	s = new Socket();
 
 	// TODO: Need to check that these vars are actually set on new socket
+	SocketAddress clientAddr;
+	int clientAddrLen = sizeof(SocketAddress);
 	// socklen_t	length = sizeof(s->_address);
 	// sockaddr *	address = (sockaddr *)&s->_address;
 
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(::accept(_fd, NULL, NULL));
-	// s->set_fd(::accept(_fd, NULL, NULL));
-	// if ((s->fd() == FD_UNSET)) {
-	// 	LOG(strerror(errno)); // Temporary to debug
-	// 	delete s;
-	// 	return NULL; // or something else later
-	// }
+	s->set_fd(::accept(_fd, (sockaddr*)&clientAddr, (socklen_t*)&clientAddrLen));
+	if ((s->fd() == FD_UNSET)) {
+		LOG(strerror(errno)); // Temporary to debug
+		delete s;
+		return NULL; // or something else later
+	}
 
 	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;

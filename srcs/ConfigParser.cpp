@@ -45,4 +45,5 @@ void	ConfigParser::call( void )
 	// Temp
 	_configs[0].port = 8080;
 	_configs[0].max_clients = 10;
+	_configs[0].input_buffer_size = 10000;
 }
