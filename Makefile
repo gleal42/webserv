@@ -3,11 +3,12 @@ CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
-		webserver.cpp \
-		Server.cpp \
-		Response.cpp \
+		ConfigParser.cpp \
 		Request.cpp \
-		ServerConfig.cpp
+		Response.cpp \
+		Server.cpp \
+		Socket.cpp \
+		webserver.cpp
 VPATH = srcs/
 OBJ_DIR := objs/
 DEP_DIR := deps/
@@ -41,10 +42,15 @@ resetclean: fclean clean
 
 re: fclean all
 
-tests_unit:
-	$(MAKE) unit -C tests
+tests_unit: # compiles and runs all unit tests
+	$(MAKE) -C tests/unit
+
+# To run individual unit tests from root:
+#			`make socket -C tests/unit`
+#			`make parser -C tests/unit`
+# 		etc..
 
 tests_e2e:
-	$(MAKE) e2e -C tests
+	$(MAKE) -C tests/e2e
 
 .PHONY: all clean fclean resetclean re

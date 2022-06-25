@@ -3,33 +3,46 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/21 19:12:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 02:46:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserver.hpp"
+#include "ServerConfig.hpp"
+#include "ConfigParser.hpp"
+#include "Server.hpp"
 
-int webserver(std::string input)
+typedef std::vector<Server> Cluster;
+
+int webserver(std::string config_file)
 {
-    ServerConfig config(input);
-    Server sv(config);
-    try
-    {
-        Request request(config); // Client file descriptor management part
-        while (1) // Message Exchange part
-        {
-            request.parse(1);
-            Response response(config, request);
-            // response.send(request._socket);
-        }
-        // close(request._socket);
+	ConfigParser	parser(config_file);
+	try {
+        parser.call();
     }
-    catch (std::string &str)
-    {
-        std::cerr << str << std::endl;
+    catch (std::exception &e) { // Use specific errors
+		ERROR(e.what());
     }
+
+	// Initialize Cluster
+	size_t		amount = parser.configs_amount();
+	Cluster		cluster(amount);
+	for (size_t i = 0; i < amount; ++i) {
+		// Initialize each new Server with a config from the parser
+		ServerConfig	config(parser.config(i));
+		cluster[i] = Server(config);
+	}
+
+	// Start Cluster
+	for (size_t i = 0; i < cluster.size(); ++i) {
+		cluster[i].start();
+	}
+
+	// Shutdown and cleanup
+	for (size_t i = 0; i < cluster.size(); ++i) {
+		cluster[i].shutdown();
+	}
     return 0;
 }

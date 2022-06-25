@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/21 23:08:15 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:20:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,10 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET) { /* No-op */ }
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0) { /* No-op */ }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _port(PORT_UNSET)
+Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
 {
 	create();
 	bind(port);
@@ -38,23 +38,25 @@ Socket::Socket( int port ) : _port(PORT_UNSET)
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void )
-{
-	close();
-}
+Socket::~Socket( void ) { /* No-op */ }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
 {
 	if (this != &rhs) {
 		_fd = rhs._fd;
+		_port = rhs._port;
+		_address = rhs._address;
+		_buffer = rhs._buffer;
+		_bytes = rhs._bytes;
 	}
 	return *this;
 }
 
 // Getters
-int	Socket::fd( void ) { return _fd; }
-int	Socket::port( void ) { return _port; }
+int	Socket::fd( void ) const { return _fd; }
+int	Socket::port( void ) const { return _port; }
+int	Socket::bytes( void ) const { return _bytes; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
@@ -66,12 +68,13 @@ void	Socket::create( void )
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
-	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	// fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 // C `bind` function wrapper
 void	Socket::bind( int port )
 {
+	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
@@ -97,14 +100,14 @@ void	Socket::send( const std::string & response ) {
 }
 
 // `recv` function wrapper
-int	Socket::receive( int buffer_size ) {
+void	Socket::receive( int buffer_size ) {
 	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
 	_buffer = std::vector<char>(buffer_size, '\0');
 
-	return recv(_fd, _buffer.data(), _buffer.size(), 0);
+	_bytes = recv(_fd, _buffer.data(), _buffer.size(), 0);
 }
 
-std::string	Socket::to_s( void ) { return std::string(_buffer.data()); }
+std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
 Socket *	Socket::accept( void ) {
@@ -121,14 +124,13 @@ Socket *	Socket::accept( void ) {
 		return NULL; // or something else later
 	}
 
-	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
+	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }
 
 /* ostream override */
 std::ostream &	operator << ( std::ostream & o, Socket const & i )
 {
-	(void)i;
-	o << "Socket";
+	o << i.to_s();
 	return o;
 }
