@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 15:14:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:20:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,7 @@ Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void )
-{
-	// close();
-}
+Socket::~Socket( void ) { /* No-op */ }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
