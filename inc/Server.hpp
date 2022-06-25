@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/24 17:23:02 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:08:07 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ struct 	ServerConfig;
 class	Socket;
 
 typedef std::map< int, Socket * > Connections;
+typedef Connections::iterator ConnectionsIter;
 typedef std::pair< int, Socket * > Connection;
 
 class Server {

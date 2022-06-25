@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 09:37:20 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:11:03 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,10 @@ Server &	Server::operator = ( Server const & rhs )
 void	Server::start( void )
 {
 	int	temp_fd; // to make it work until we have a `select` mechanism
+
+	// while (1) {
+	//     TODO: infinite loop here with `accept` code below
+	// }
 
 	// check if can still add
 	if (_connections.size() < _max_connections) {
@@ -140,12 +144,10 @@ void	Server::stop( void )
 
 void	Server::shutdown( void )
 {
-	this->_socket->close();
-	// for loop going through connections and closing them
-	for (Connections::iterator it = _connections.begin(); it != _connections.end(); it++)
+	_socket->close();
+	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
 	{
-		close(it->first);
-		delete(it->second);
+		it->second->close();
+		delete it->second;
 	}
-	// TODO:
 }

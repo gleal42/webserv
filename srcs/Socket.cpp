@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 12:00:58 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 15:14:37 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,9 +68,6 @@ void	Socket::set_fd( int fd ) { _fd = fd; }
 void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	// LOG(_fd);
-	// LOG(_fd);
-	// LOG(strerror(errno));
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
@@ -80,7 +77,7 @@ void	Socket::create( void )
 // C `bind` function wrapper
 void	Socket::bind( int port )
 {
-	memset(&_address, 0, sizeof(struct sockaddr_in));
+	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
@@ -120,12 +117,10 @@ Socket *	Socket::accept( void ) {
 	Socket *	s = new Socket();
 
 	// TODO: Need to check that these vars are actually set on new socket
-	SocketAddress clientAddr;
-	int clientAddrLen = sizeof(SocketAddress);
-	// socklen_t	length = sizeof(s->_address);
-	// sockaddr *	address = (sockaddr *)&s->_address;
+	socklen_t	length = sizeof(s->_address);
+	sockaddr *	address = (sockaddr *)&s->_address;
 
-	s->set_fd(::accept(_fd, (sockaddr*)&clientAddr, (socklen_t*)&clientAddrLen));
+	s->set_fd(::accept(_fd, address, &length));
 	if ((s->fd() == FD_UNSET)) {
 		LOG(strerror(errno)); // Temporary to debug
 		delete s;
