@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 09:36:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 09:37:20 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,9 +144,7 @@ void	Server::shutdown( void )
 	// for loop going through connections and closing them
 	for (Connections::iterator it = _connections.begin(); it != _connections.end(); it++)
 	{
-		// close(it->first);
-		it->second->close();
-		// can be just the delete if we make the close in destructor work
+		close(it->first);
 		delete(it->second);
 	}
 	// TODO:

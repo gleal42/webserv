@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 09:34:14 by msousa           ###   ########.fr       */
+/*   Updated: 2022/06/25 12:00:58 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,6 @@ Socket::Socket( Socket const & src ) { *this = src; }
 /* Destructor */
 Socket::~Socket( void )
 {
-	// I think the problem was not using the ::close(); version
-	// so it was looping for ever
 	// close();
 }
 
@@ -70,6 +68,9 @@ void	Socket::set_fd( int fd ) { _fd = fd; }
 void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	// LOG(_fd);
+	// LOG(_fd);
+	// LOG(strerror(errno));
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
@@ -119,10 +120,12 @@ Socket *	Socket::accept( void ) {
 	Socket *	s = new Socket();
 
 	// TODO: Need to check that these vars are actually set on new socket
-	socklen_t	length = sizeof(s->_address);
-	sockaddr *	address = (sockaddr *)&s->_address;
+	SocketAddress clientAddr;
+	int clientAddrLen = sizeof(SocketAddress);
+	// socklen_t	length = sizeof(s->_address);
+	// sockaddr *	address = (sockaddr *)&s->_address;
 
-	s->set_fd(::accept(_fd, address, &length));
+	s->set_fd(::accept(_fd, (sockaddr*)&clientAddr, (socklen_t*)&clientAddrLen));
 	if ((s->fd() == FD_UNSET)) {
 		LOG(strerror(errno)); // Temporary to debug
 		delete s;
