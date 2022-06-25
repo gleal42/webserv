@@ -6,7 +6,7 @@ RUN mkdir -p /usr/src/webserv
 WORKDIR /usr/src/webserv
 
 # Copy source files
-COPY . /usr/src/webserv
+COPY srcs inc Makefile index.html /usr/src/webserv/
 
 # Compile
 RUN make

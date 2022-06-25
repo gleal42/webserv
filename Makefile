@@ -47,7 +47,7 @@ vm: # compiles and runs the app in a container
 	docker run -it --rm -p 8080:8080 --name webserv webserv
 
 vm_re: # re-builds and runs the app container
-	@docker build -t webserv . && \
+	@docker build --no-cache -t webserv . && \
 	docker run -it --rm -p 8080:8080 --name webserv webserv
 
 vm_clean: # stops docker and deletes all app container images, and processes
