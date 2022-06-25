@@ -14,6 +14,10 @@
 #include "ServerConfig.hpp"
 #include "Socket.hpp"
 
+struct KqueueError : public std::runtime_error {
+	KqueueError( void );
+};
+
 int webserver(std::string config);
 
 #endif

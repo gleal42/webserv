@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 16:57:52 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 18:36:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,39 +27,13 @@ Server::Server()
 Server::Server(const ServerConfig &config)
 : _config(config)
 {
-    Socket socket (_config.getPort());
-
-
-    _fd = socket(AF_INET, SOCK_STREAM, 0);
-    std::cout << "server fd: " << _fd << std::endl;
-    if (_fd == 0)
-    {
-        ERROR("In socket\n");
-        exit(EXIT_FAILURE);
-    }
-    // Setting socket to NONBLOCKING before binding
-    init_addr();
-    if (fcntl(_fd, F_SETFL, O_NONBLOCK) < 0)
-    {
-        ERROR("In socket flags\n");
-        exit(EXIT_FAILURE);
-    }
-
-    if (bind(_fd, (struct sockaddr *)&_address, sizeof(_address))<0)
-    {
-        ERROR("In bind\n");
-        exit(EXIT_FAILURE);
-    }
-    if (listen(_fd, 128) < 0)
-    {
-        ERROR("In listen\n");
-        exit(EXIT_FAILURE);
-    }
+    _socket = Socket(_config.getPort());
+	_socket.listen(128); // Change 128 to max connections
 }
 
 Server::~Server()
 {
-	close(_fd);
+	// close(_fd);
 }
 
 SocketAddress	&Server::getAddress()
@@ -69,6 +43,56 @@ SocketAddress	&Server::getAddress()
 
 int Server::getFd()
 {
-    return (_fd);
+    return (_socket.fd());
 }
 
+void	Server::run(int kq)
+{
+    struct kevent ListQueue[10];
+	int n = 0;
+    int fd = -1;
+    while (1)
+    {
+		std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
+        struct timespec kqTimeout = {2, 0};
+        (void)kqTimeout;
+        n = kevent(kq, NULL, 0, ListQueue, 10, NULL);
+        if (n <= 0)
+            continue;
+        for (int i = 0; i < n; i++)
+        {
+            if (ListQueue[i].ident == (unsigned int)getFd()) // New event for non-existent file descriptor
+            {
+                fd = accept_client(kq);
+                std::cout << "Kernel Event ID: " << i << std::endl;
+                std::cout << "CLIENT NEW: (" << fd << ")" << std::endl;
+            }
+            else
+            {
+                if (ListQueue[i].flags & EV_EOF)
+                {
+                    struct kevent new_event_1;
+                    EV_SET(&new_event_1, ListQueue[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL); // Stop Tracking Read Kernel Event
+                    kevent(kq, &new_event_1, 1, NULL, 0, NULL);
+                    struct kevent new_event_2;
+                    EV_SET(&new_event_2, ListQueue[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL); // Stop Tracking Write Kernel Event
+                    kevent(kq, &new_event_2, 1, NULL, 0, NULL);
+                    close(ListQueue[i].ident);
+                    continue ;
+                }
+                if (ListQueue[i].filter == EVFILT_READ)
+                {
+                    Request request(_config, ListQueue[i].ident, &getAddress()); // Client file descriptor management part
+                    request.parse(ListQueue[i].ident);
+                    Response response(_config, request);
+                    response.send(ListQueue[i].ident);
+                }
+            }
+        }
+    }
+}
+
+void	Server::shutdown( void )
+{
+	this->_socket.close();
+}

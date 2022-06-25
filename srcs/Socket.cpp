@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 20:26:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 18:01:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,9 @@ Socket::BindError::BindError( int port )
 Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
+Socket::AcceptError::AcceptError( void )
+	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
+
 /* Constructors */
 Socket::Socket( void ) : _fd(FD_UNSET), _port(PORT_UNSET) { /* No-op */ }
 
@@ -38,6 +41,8 @@ Socket::Socket( void ) : _fd(FD_UNSET), _port(PORT_UNSET) { /* No-op */ }
 Socket::Socket( int port ) : _port(PORT_UNSET)
 {
 	create();
+	setsockopt(SO_REUSEPORT);
+	setsockopt(SO_REUSEADDR);
 	bind(port);
 }
 
@@ -46,14 +51,17 @@ Socket::Socket( Socket const & src ) { *this = src; }
 /* Destructor */
 Socket::~Socket( void )
 {
-	close();
+	// close();
 }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
 {
 	if (this != &rhs) {
-		_fd = rhs._fd;
+		_fd = rhs._fd;;
+		_address = rhs._address;;
+		_port = rhs._port;;
+		_buffer = rhs._buffer;;
 	}
 	return *this;
 }
@@ -75,25 +83,23 @@ void	Socket::create( void )
 	fcntl(_fd, F_SETFL, O_NONBLOCK); // Setting socket to NONBLOCKING
 }
 
-// C 'setsockopt' function wrapper for setting Socket address as reusable
-void	Socket::set_reusable_address( void )
-{
-    const int val = 1;
-	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(int)) < 0)
-		throw Socket::ReusableAddressError();
-}
-
 // C 'setsockopt' function wrapper for setting Socket port as reusable
-void	Socket::set_reusable_port( void )
+void	Socket::setsockopt( int option )
 {
     const int val = 1;
-	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &val, sizeof(int)) < 0)
-		throw Socket::ReusablePortError();
+	if (::setsockopt(_fd, SOL_SOCKET, option, &val, sizeof(int)) < 0)
+	{
+		if (option == SO_REUSEPORT)
+			throw Socket::ReusablePortError();
+		else if (option == SO_REUSEADDR)
+			throw Socket::ReusableAddressError();
+	}
 }
 
 // C `bind` function wrapper
 void	Socket::bind( int port )
 {
+	memset(&_address, 0, sizeof(struct sockaddr_in));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);

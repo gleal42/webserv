@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 19:45:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 18:29:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,9 @@ class Server
 {
 	private:
 		Socket			_socket;
+		Socket			_connection;
 		ServerConfig	_config;
 		SocketAddress	_address;
-		int				_fd;
 		Server();
 		void	init_addr();
 	public:
@@ -51,6 +51,9 @@ class Server
 		Server &operator=(const Server &server);
 		SocketAddress	&getAddress();
 		int				getFd();
+		void		run(int kq);
+		void		shutdown( void );
+		int	accept_client( int kq );
 };
 
 #endif

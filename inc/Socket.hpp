@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 20:24:42 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/25 18:02:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,9 @@ public:
 	struct ListenError : public std::runtime_error {
 		ListenError( void );
 	};
+	struct AcceptError : public std::runtime_error {
+		AcceptError( void );
+	};
 
 	Socket( void );
 	Socket( int port );
@@ -87,8 +90,7 @@ public:
 	void			set_fd( int fd );
 
 	void 			create( void );
-	void 			set_reusable_address( void );
-	void 			set_reusable_port( void );
+	void 			setsockopt( int option );
 	void			bind( int port );
 	void			close( void );
 	void			listen( int max_connections );
