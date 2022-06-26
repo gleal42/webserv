@@ -33,6 +33,7 @@
 webserv
 
 # Tools
+.vscode
 
 # Doctest
 *-test
