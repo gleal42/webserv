@@ -10,9 +10,9 @@ SRCS := main.cpp \
 		Server.cpp \
 		Socket.cpp \
 		webserver.cpp
-VPATH = srcs/
-OBJ_DIR := objs/
-DEP_DIR := deps/
+VPATH = src/
+OBJ_DIR := obj/
+DEP_DIR := dep/
 OBJS := $(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS := $(SRCS:%.cpp=$(DEP_DIR)%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
@@ -46,24 +46,25 @@ re: fclean all
 vm: # compiles and runs the app in a container
 	docker run -it --rm -p 8080:8080 --name webserv webserv
 
-vm_re: # re-builds and runs the app container
-	@docker build --no-cache -t webserv . && \
-	docker run -it --rm -p 8080:8080 --name webserv webserv
+vm_build: # build the app in a container
+	docker build --no-cache -t webserv .
+
+vm_re: vm_build vm # re-builds and runs the app container
 
 vm_clean: # stops docker and deletes all app container images, and processes
-	@docker stop $$(docker ps -qa); \
+	docker stop $$(docker ps -qa); \
 	docker rm $$(docker ps -qa); \
 	docker rmi -f $$(docker images -qa);
 
-tests_unit: # compiles and runs all unit tests
-	$(MAKE) -C tests/unit
+test_unit: # compiles and runs all unit tests
+	$(MAKE) -C test/unit
 
 # To run individual unit tests from root:
-#			`make socket -C tests/unit`
-#			`make parser -C tests/unit`
+#			`make socket -C test/unit`
+#			`make parser -C test/unit`
 # 		etc..
 
-tests_e2e: # compiles and runs end-to-end tests in the app container
+test_e2e: # compiles and runs end-to-end tests in the app container
 # @docker-compose --profile test up --build --abort-on-container-exit
 
 .PHONY: all clean fclean resetclean re
