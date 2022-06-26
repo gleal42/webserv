@@ -51,7 +51,7 @@ vm_build: # build the app in a container
 
 vm_re: vm_build vm # re-builds and runs the app container
 
-vm_clean: # stops docker and deletes all app container images, and processes
+vm_clean: # stops docker and deletes all images, and processes
 	docker stop $$(docker ps -qa); \
 	docker rm $$(docker ps -qa); \
 	docker rmi -f $$(docker images -qa);
@@ -67,4 +67,7 @@ test_unit: # compiles and runs all unit tests
 test_e2e: # compiles and runs end-to-end tests in the app container
 # @docker-compose --profile test up --build --abort-on-container-exit
 
-.PHONY: all clean fclean resetclean re
+test:
+	cd test/e2e && npm install
+
+.PHONY: all clean fclean resetclean re test
