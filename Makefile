@@ -43,7 +43,7 @@ resetclean: fclean clean
 
 re: fclean all
 
-vm: # compiles and runs the app in a container
+vm: # runs the app in a container
 	docker run -it --rm -p 8080:8080 --name webserv webserv
 
 vm_build: # build the app in a container
@@ -70,4 +70,4 @@ test_e2e: # compiles and runs end-to-end tests in the app container
 test:
 	cd test/e2e && npm install
 
-.PHONY: all clean fclean resetclean re test
+.PHONY: all clean fclean resetclean re test vm_build vm

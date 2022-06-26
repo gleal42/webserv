@@ -1,0 +1,29 @@
+# Build
+dep
+obj
+
+# Tests
+test
+
+# Tools
+.vscode
+
+# Versioning
+.git
+
+# Sensitive data
+.env
+
+# Documentation
+*.md
+*.pdf
+
+# Notes
+http_codes.rb
+sudocode*
+
+# Executable
+webserv
+
+# Config
+Dockerfile
