@@ -73,7 +73,7 @@ TEST_CASE("Socket `bind` method") {
 			a.bind(PORT);
 		}
 		catch(Socket::BindError& e) {
-			CHECK(e.what() == "Failed to bind to port " + std::to_string(PORT) + ".");
+			CHECK(std::string(e.what()) == "Failed to bind to port 8080.");
 		}
 
 		a.close();

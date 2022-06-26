@@ -34,7 +34,6 @@ webserv
 
 # Tools
 .vscode
-.vscode/settings.json
 
 # Doctest
 *-test
