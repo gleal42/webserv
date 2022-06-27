@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 18:36:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/27 22:58:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,8 @@ Server::Server()
 }
 
 Server::Server(const ServerConfig &config)
-: _config(config)
+: _config(config), _socket(_config.getPort())
 {
-    _socket = Socket(_config.getPort());
 	_socket.listen(128); // Change 128 to max connections
 }
 
@@ -46,7 +45,7 @@ int Server::getFd()
     return (_socket.fd());
 }
 
-void	Server::run(int kq)
+void	Server::run( Kqueue &kq )
 {
     struct kevent ListQueue[10];
 	int n = 0;
@@ -56,7 +55,7 @@ void	Server::run(int kq)
 		std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
         struct timespec kqTimeout = {2, 0};
         (void)kqTimeout;
-        n = kevent(kq, NULL, 0, ListQueue, 10, NULL);
+        n = kevent(kq.getFd(), NULL, 0, ListQueue, 10, NULL);
         if (n <= 0)
             continue;
         for (int i = 0; i < n; i++)
@@ -71,12 +70,8 @@ void	Server::run(int kq)
             {
                 if (ListQueue[i].flags & EV_EOF)
                 {
-                    struct kevent new_event_1;
-                    EV_SET(&new_event_1, ListQueue[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL); // Stop Tracking Read Kernel Event
-                    kevent(kq, &new_event_1, 1, NULL, 0, NULL);
-                    struct kevent new_event_2;
-                    EV_SET(&new_event_2, ListQueue[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL); // Stop Tracking Write Kernel Event
-                    kevent(kq, &new_event_2, 1, NULL, 0, NULL);
+                    kq.updateEvent(ListQueue[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+                    kq.updateEvent(ListQueue[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
                     close(ListQueue[i].ident);
                     continue ;
                 }
@@ -95,4 +90,20 @@ void	Server::run(int kq)
 void	Server::shutdown( void )
 {
 	this->_socket.close();
+}
+
+int    Server::accept_client( Kqueue &kq )
+{
+    SocketAddress clientAddr;
+
+    int clientAddrLen = sizeof(clientAddr);
+
+    _connection.set_fd(accept(this->getFd(), (sockaddr*)&clientAddr, (socklen_t*)&clientAddrLen));
+    if (_connection.fd() == -1)
+        throw Socket::AcceptError();
+
+    fcntl(_connection.fd(), F_SETFL, O_NONBLOCK);
+    kq.updateEvent(_connection.fd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+    kq.updateEvent(_connection.fd(), EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL); // Will be used later in case we can't send the whole message
+    return (_connection.fd());
 }

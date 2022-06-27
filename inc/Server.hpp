@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 18:29:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/27 22:59:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include "Response.hpp"
 # include "Request.hpp"
 # include "Socket.hpp"
+# include "Kqueue.hpp"
 
 // Apagar depois
 #include <errno.h>
@@ -38,9 +39,9 @@ typedef sockaddr_in SocketAddress;
 class Server
 {
 	private:
+		ServerConfig	_config;
 		Socket			_socket;
 		Socket			_connection;
-		ServerConfig	_config;
 		SocketAddress	_address;
 		Server();
 		void	init_addr();
@@ -51,9 +52,9 @@ class Server
 		Server &operator=(const Server &server);
 		SocketAddress	&getAddress();
 		int				getFd();
-		void		run(int kq);
+		void		run( Kqueue &kq );
 		void		shutdown( void );
-		int	accept_client( int kq );
+		int	accept_client( Kqueue &kq );
 };
 
 #endif

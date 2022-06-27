@@ -13,6 +13,7 @@
 #include "Response.hpp"
 #include "ServerConfig.hpp"
 #include "Socket.hpp"
+#include "Kqueue.hpp"
 
 struct KqueueError : public std::runtime_error {
 	KqueueError( void );

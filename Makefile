@@ -8,6 +8,7 @@ SRCS := main.cpp \
 		Response.cpp \
 		Request.cpp \
 		Socket.cpp \
+		Kqueue.cpp \
 		ServerConfig.cpp
 VPATH = srcs/
 OBJ_DIR := objs/
