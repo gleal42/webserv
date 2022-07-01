@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 15:13:15 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/01 16:16:42 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void	Request::read_request_line(std::string *strptr){
 		request_method = DELETE;
 	else
 		throw("No appropriate method");
+		// this error should have happened at the config parsing stage and blocked the loading of the server
 
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
@@ -130,7 +131,7 @@ void	Request::parse(Socket & socket){
 
 	raw_request = socket.to_s();
 	if (raw_request.empty() || socket.bytes() < 0)
-		throw std::exception();
+		throw std::exception(); // TODO: decide what error this is
 	this->_raw_header = raw_request.substr(0);
 	read_request_line(&raw_request);
 	read_header(&raw_request);
