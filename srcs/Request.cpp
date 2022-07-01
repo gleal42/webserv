@@ -1,11 +1,16 @@
 #include "Request.hpp"
 
+Request::Request()
+{
+}
+
 Request::Request(ServerConfig config, int fd, SocketAddress	*ServerAddress){
 	(void)config;
 	(void)fd;
 	(void)ServerAddress;
 	// TODO (implement constructor)
 }
+
 Request::Request(const Request& param) {
 	// TODO (copy constructor)
 	(void)param;

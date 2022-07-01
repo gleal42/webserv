@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 17:22:33 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 15:33:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,6 +126,7 @@ class URI {
 class Request {
 	public:
 		Request(ServerConfig config, int fd, SocketAddress	*ServerAddress);
+		Request();
 		Request(const Request&);
 		~Request();
 		Request&	operator= (const Request&);

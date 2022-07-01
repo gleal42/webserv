@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/27 22:45:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 16:15:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ void	Socket::set_fd( int fd ) { _fd = fd; }
 void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
+
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
@@ -144,11 +145,10 @@ Socket *	Socket::accept( void ) {
 
 	s->set_fd(::accept(_fd, address, &length));
 	if ((s->fd() == FD_UNSET)) {
-		LOG(strerror(errno)); // Temporary to debug
 		delete s;
 		return NULL; // or something else later
+        throw Socket::AcceptError();
 	}
-
 	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }

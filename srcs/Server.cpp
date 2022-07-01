@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/27 22:58:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 16:35:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,8 @@ int Server::getFd()
 
 void	Server::run( Kqueue &kq )
 {
+    Request request;
+    Response response;
     struct kevent ListQueue[10];
 	int n = 0;
     int fd = -1;
@@ -55,32 +57,42 @@ void	Server::run( Kqueue &kq )
 		std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
         struct timespec kqTimeout = {2, 0};
         (void)kqTimeout;
-        n = kevent(kq.getFd(), NULL, 0, ListQueue, 10, NULL);
+        n = kevent(kq.fd(), NULL, 0, ListQueue, 10, NULL);
+        // std::cout << "Number of events recorded: " << n << std::endl;
         if (n <= 0)
             continue;
         for (int i = 0; i < n; i++)
         {
+            // std::cout << "Event number: " << i << std::endl;
             if (ListQueue[i].ident == (unsigned int)getFd()) // New event for non-existent file descriptor
             {
                 fd = accept_client(kq);
-                std::cout << "Kernel Event ID: " << i << std::endl;
-                std::cout << "CLIENT NEW: (" << fd << ")" << std::endl;
+                (void)fd;
             }
             else
             {
                 if (ListQueue[i].flags & EV_EOF)
                 {
-                    kq.updateEvent(ListQueue[i].ident, EVFILT_READ, EV_DELETE, 0, 0, NULL);
-                    kq.updateEvent(ListQueue[i].ident, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+                    // std::cout << "Closing Connection for client: " << ListQueue[i].ident << std::endl;
+                    kq.update_event(ListQueue[i].ident, EVFILT_READ, EV_DELETE);
+                    kq.update_event(ListQueue[i].ident, EVFILT_WRITE, EV_DELETE);
                     close(ListQueue[i].ident);
-                    continue ;
+                    // continue ;
+                    return ;
                 }
                 if (ListQueue[i].filter == EVFILT_READ)
                 {
-                    Request request(_config, ListQueue[i].ident, &getAddress()); // Client file descriptor management part
+                    std::cout << "About to read the file descriptor: " << ListQueue[i].ident << std::endl;
                     request.parse(ListQueue[i].ident);
+                    kq.update_event(ListQueue[i].ident, EVFILT_READ, EV_DISABLE);
+                    kq.update_event(ListQueue[i].ident, EVFILT_WRITE, EV_ENABLE);
+                }
+                if (ListQueue[i].filter == EVFILT_WRITE)
+                {
                     Response response(_config, request);
                     response.send(ListQueue[i].ident);
+                    kq.update_event(ListQueue[i].ident, EVFILT_READ, EV_ENABLE);
+                    kq.update_event(ListQueue[i].ident, EVFILT_WRITE, EV_DISABLE);
                 }
             }
         }
@@ -92,18 +104,45 @@ void	Server::shutdown( void )
 	this->_socket.close();
 }
 
+/* File descriptors open are:
+ * 3 - Server fd
+ * 4 - Kqueue
+ * 5 - Accept client request
+ * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
+*/
+
+/* 
+
+	int	temp_fd; // to make it work until we have a `select` mechanism
+
+	// while (1) {
+	//     TODO: infinite loop here with `accept` code below
+	// }
+
+	// check if can still add
+	if (_connections.size() < _max_connections) {
+		Socket *	connection = _socket->accept();
+		if (!connection)
+			return ; // add error here
+		_connections.insert(Connection(connection->fd(), connection));
+		// temp
+		temp_fd = connection->fd();
+	} else {
+		stop();
+	}
+
+ */
+
 int    Server::accept_client( Kqueue &kq )
 {
-    SocketAddress clientAddr;
+	Socket *	connection = _socket.accept();
+    if (!connection)
+        return (-1); // add error here
+    int client_fd = connection->fd();
+    _connections[client_fd] = connection;
+    std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
 
-    int clientAddrLen = sizeof(clientAddr);
-
-    _connection.set_fd(accept(this->getFd(), (sockaddr*)&clientAddr, (socklen_t*)&clientAddrLen));
-    if (_connection.fd() == -1)
-        throw Socket::AcceptError();
-
-    fcntl(_connection.fd(), F_SETFL, O_NONBLOCK);
-    kq.updateEvent(_connection.fd(), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-    kq.updateEvent(_connection.fd(), EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL); // Will be used later in case we can't send the whole message
-    return (_connection.fd());
+    kq.update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+    kq.update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
+    return (client_fd);
 }

@@ -6,11 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/27 23:05:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 15:30:59 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserver.hpp"
+typedef std::vector<Server*> Cluster;
 
 #include <algorithm>
 #include <arpa/inet.h>
@@ -32,7 +33,9 @@ int webserver(std::string input)
     Server sv(config);
     Kqueue kq;
 
-    kq.updateEvent(sv.getFd(), EVFILT_READ, EV_ADD, 0, 0, NULL);
+	// int test_fd = 4;
+	// std::cout << "The Server number: " << test_fd << " is now " << ((fcntl(test_fd, F_GETFD) == -1) ? "closed" : "open ");
+    kq.update_event(sv.getFd(), EVFILT_READ, EV_ADD);
     // Setting Server Event Kqueue
     try {
         sv.run(kq);

@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 16:56:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 15:34:51 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+
+Response::Response()
+{
+}
 
 Response::Response(const ServerConfig &config, const Request &request)
 {

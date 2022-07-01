@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/27 22:59:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 15:53:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,26 +35,30 @@
 // Server will have multiple requests and responses so maybe a vector is more adequate
 
 typedef sockaddr_in SocketAddress;
+typedef std::map< int, Socket * > Connections;
+typedef Connections::iterator ConnectionsIter;
+typedef std::pair< int, Socket * > Connection;
+
 
 class Server
 {
-	private:
-		ServerConfig	_config;
-		Socket			_socket;
-		Socket			_connection;
-		SocketAddress	_address;
-		Server();
-		void	init_addr();
 	public:
 		Server(const ServerConfig &config);
 		Server(const Server &server);
 		~Server();
-		Server &operator=(const Server &server);
+		Server &		operator=(const Server &server);
 		SocketAddress	&getAddress();
 		int				getFd();
-		void		run( Kqueue &kq );
-		void		shutdown( void );
-		int	accept_client( Kqueue &kq );
+		void			run( Kqueue &kq );
+		void			shutdown( void );
+		int				accept_client( Kqueue &kq );
+	private:
+		ServerConfig	_config;
+		Socket			_socket;
+		Connections		_connections;
+		SocketAddress	_address;
+		Server();
+		void	init_addr();
 };
 
 #endif

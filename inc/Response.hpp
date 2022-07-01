@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 16:54:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/01 15:34:37 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,8 +146,8 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 class Response
 {
-	Response();
 	public:
+		Response();
 		Response(const ServerConfig &config, const Request &request);
 		std::string start_line(int status);
 		void send(int socketfd);
