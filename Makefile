@@ -37,6 +37,7 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
+	kill $(lsof -i:8080 | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1')
 
 resetclean: fclean clean
 	$(RM) -r $(OBJ_DIR) $(DEP_DIR)
