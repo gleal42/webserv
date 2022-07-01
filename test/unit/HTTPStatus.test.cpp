@@ -82,6 +82,12 @@ TEST_CASE("HTTPStatus") {
 		CHECK(server_error.is_status_server_error() == true);
     }
 
+	SUBCASE("has ostream override") {
+		HTTPStatus<300> e;
+
+		LOG(e); // Should log `300: Multiple Choices`
+    }
+
 }
 
 
