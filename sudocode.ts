@@ -62,7 +62,7 @@ type ServerConfig = {
 
 // Call once per server block? So preparse to split into server blocks?
 // is there general config outside server blocks?
-class Parser {
+class ConfigParser {
   config_file: string
   constructor(config_file: string) {}
   isValid: () => boolean

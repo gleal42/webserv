@@ -14,15 +14,19 @@
 
 int	main(int argc, char **argv)
 {
-	if (argc < 2)
+	if (argc > 2)
 	{
-		std::string default_str("tests/test.conf");
-		return (webserver(default_str));
+		ERROR("Wrong number of arguments.");
+		return (EXIT_FAILURE);
 	}
-	else if (argc == 2)
+	if (argc == 1)
 	{
-		return (webserver(argv[1]));
+		webserver("tests/test.conf"); // Default
+		return (EXIT_SUCCESS);
 	}
-	ERROR("Wrong number of arguments.");
-	return (EXIT_FAILURE);
+	(void)argv;
+	// webserver(argv[1]);
+	webserver("tests/test.conf"); // Temporary stub
+	return (EXIT_SUCCESS);
+
 }

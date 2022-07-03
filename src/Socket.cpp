@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/01 16:15:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 19:00:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ Socket::ReusablePortError::ReusablePortError( void )
 	: std::runtime_error("Failed to make socket port reusable.") { /* No-op */ }
 
 Socket::BindError::BindError( int port )
-	: std::runtime_error("Failed to bind to port " + std::to_string(port) + ".")
+	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
 	{ /* No-op */ }
 
 Socket::ListenError::ListenError( void )
@@ -35,43 +35,47 @@ Socket::AcceptError::AcceptError( void )
 	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _fd(FD_UNSET), _port(PORT_UNSET) { /* No-op */ }
+Socket::Socket( void ) : request(ServerConfig()), _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _port(PORT_UNSET)
+Socket::Socket( ServerConfig config ) : request(config), _port(PORT_UNSET), _bytes(0)
 {
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
-	bind(port);
+	bind(config.port);
 }
 
-Socket::Socket( Socket const & src ) { *this = src; }
+Socket::Socket( Socket const & src ): request(src.request) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void )
-{
-	// close();
-}
+Socket::~Socket( void ) { /* No-op */ }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
 {
 	if (this != &rhs) {
-		_fd = rhs._fd;;
-		_address = rhs._address;;
-		_port = rhs._port;;
-		_buffer = rhs._buffer;;
+		_fd = rhs._fd;
+		_port = rhs._port;
+		_address = rhs._address;
+		_buffer = rhs._buffer;
+		_bytes = rhs._bytes;
 	}
 	return *this;
 }
 
 // Getters
-int	Socket::fd( void ) { return _fd; }
-int	Socket::port( void ) { return _port; }
+int	Socket::fd( void ) const { return _fd; }
+int	Socket::port( void ) const { return _port; }
+int	Socket::bytes( void ) const { return _bytes; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
+void	Socket::set_parent( Socket *server)
+{
+	request = server->request;
+	_parent = server;
+}
 
 // C `socket` function wrapper
 void	Socket::create( void )
@@ -100,7 +104,7 @@ void	Socket::setsockopt( int option )
 // C `bind` function wrapper
 void	Socket::bind( int port )
 {
-	memset(&_address, 0, sizeof(struct sockaddr_in));
+	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
@@ -126,14 +130,14 @@ void	Socket::send( const std::string & response ) {
 }
 
 // `recv` function wrapper
-int	Socket::receive( int buffer_size ) {
+void	Socket::receive( int buffer_size ) {
 	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
 	_buffer = std::vector<char>(buffer_size, '\0');
 
-	return recv(_fd, _buffer.data(), _buffer.size(), 0);
+	_bytes = recv(_fd, _buffer.data(), _buffer.size(), 0);
 }
 
-std::string	Socket::to_s( void ) { return std::string(_buffer.data()); }
+std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
 Socket *	Socket::accept( void ) {
@@ -150,13 +154,13 @@ Socket *	Socket::accept( void ) {
         throw Socket::AcceptError();
 	}
 	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
+	
 	return s;
 }
 
 /* ostream override */
 std::ostream &	operator << ( std::ostream & o, Socket const & i )
 {
-	(void)i;
-	o << "Socket";
+	o << i.to_s();
 	return o;
 }

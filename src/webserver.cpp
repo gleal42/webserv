@@ -6,18 +6,19 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/01 15:30:59 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/02 22:32:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserver.hpp"
-typedef std::vector<Server*> Cluster;
+#include "ServerConfig.hpp"
+#include "ConfigParser.hpp"
+#include "Server.hpp"
 
 #include <algorithm>
 #include <arpa/inet.h>
 
-KqueueError::KqueueError( void )
-: std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
+#include "Kqueue.hpp"
+
 
 /*
 ** Creates webserver from configuration (that can handle multiple requests)
@@ -27,23 +28,37 @@ KqueueError::KqueueError( void )
 ** @1	Create Kqueue - Will allow us to identify events and handle
 */
 
-int webserver(std::string input)
+int webserver(std::string config_file)
 {
-    ServerConfig config(input);
-    Server sv(config);
+	ConfigParser	parser(config_file);
     Kqueue kq;
 
-	// int test_fd = 4;
-	// std::cout << "The Server number: " << test_fd << " is now " << ((fcntl(test_fd, F_GETFD) == -1) ? "closed" : "open ");
-    kq.update_event(sv.getFd(), EVFILT_READ, EV_ADD);
-    // Setting Server Event Kqueue
-    try {
-        sv.run(kq);
+	try {
+        parser.call();
     }
-    catch (const char *str) {
-        std::cerr << str << std::endl;
-        return (1);
+    catch (std::exception &e) { // Use specific errors
+		ERROR(e.what());
     }
-    sv.shutdown();
-    return (0);
+
+	// Initialize Cluster
+	size_t		amount = parser.configs_amount();
+	Server		*new_server;
+	Cluster		cluster;
+	for (size_t i = 0; i < amount; ++i) {
+		// Initialize each new Server with a config from the parser
+		ServerConfig	config(parser.config(i));
+		new_server = new Server(config);
+		kq.update_event(new_server->fd(), EVFILT_READ, EV_ADD);
+		cluster[new_server->fd()] = new_server;
+	}
+
+	// Start Cluster
+	kq.run(cluster);
+
+	// Shutdown and cleanup
+	for (ClusterIter it = cluster.begin(); it != cluster.end(); ++it) {
+		it->second->shutdown();
+		delete it->second;
+	}
+    return 0;
 }

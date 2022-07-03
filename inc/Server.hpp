@@ -6,59 +6,84 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/01 15:53:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 16:33:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVER_HPP
-# define SERVER_HPP
+#ifndef __SERVER_H__
+# define __SERVER_H__
 
-#include <iostream>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <fcntl.h>
-#include <sys/event.h>
-
-#include "macros.hpp"
-# include "ServerConfig.hpp"
-# include "Response.hpp"
-# include "Request.hpp"
-# include "Socket.hpp"
-# include "Kqueue.hpp"
+# include <iostream>
+# include <netinet/in.h>
+# include <sys/socket.h>
+# include <fcntl.h>
+# include <sys/event.h>
+# include <map>
 
 // Apagar depois
-#include <errno.h>
+# include <errno.h>
 
+# include "ServerConfig.hpp"
+# include "Socket.hpp"
+# include "Response.hpp"
+
+typedef sockaddr_in SocketAddress;
+
+// ************************************************************************** //
+//                               Server Class                             	  //
+// ************************************************************************** //
+
+/*
+A class to represent a single threaded HTTP Server
+
+Server will have multiple accepted sockets so maybe a vector / map
+is more adequate
+
+Needs to be able to:
+
+	- initialize a server socket for the given configuration
+	- start (Starts accepting connections from clients)
+	- stop (Stops the server from accepting new connections)
+	- shutdown (Shuts down the server and all accepted clients)
+
+*/
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
-// Server will have multiple requests and responses so maybe a vector is more adequate
+struct 	ServerConfig;
+class	Socket;
+class	Kqueue;
 
-typedef sockaddr_in SocketAddress;
 typedef std::map< int, Socket * > Connections;
 typedef Connections::iterator ConnectionsIter;
 typedef std::pair< int, Socket * > Connection;
 
-
 class Server
 {
 	public:
-		Server(const ServerConfig &config);
-		Server(const Server &server);
-		~Server();
-		Server &		operator=(const Server &server);
+		Server( ServerConfig const & config );
+		Server( Server const & src );
+		~Server( void );
+		Server &	operator = ( Server const & rhs );
+
 		SocketAddress	&getAddress();
-		int				getFd();
+		int				fd();
 		void			run( Kqueue &kq );
+		void			accept_client( Kqueue &kq );
+		void			stop( void );
 		void			shutdown( void );
-		int				accept_client( Kqueue &kq );
-	private:
 		ServerConfig	_config;
-		Socket			_socket;
 		Connections		_connections;
+		Socket			*_socket;
+	private:
+		Server( void );
 		SocketAddress	_address;
-		Server();
-		void	init_addr();
+		size_t			_max_connections;
+		void			init_addr();
+		void			service(Request & req, Response & res);
 };
 
-#endif
+typedef std::map<int, Server*> Cluster;
+typedef Cluster::iterator ClusterIter;
+
+#endif /* __SERVER_H__ */

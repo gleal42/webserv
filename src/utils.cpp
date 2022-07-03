@@ -1,21 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/06 18:17:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/07 21:13:06 by gleal            ###   ########.fr       */
+/*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
+/*   Updated: 2022/07/01 18:22:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+# include "utils.hpp"
 
-int main()
+std::string	to_string(int number)
 {
-    std::string str("Config");
-
-    Client cl(str.c_str());
-    cl.send_msg();
+	std::string			result;
+	std::ostringstream	convert;
+	convert << number;
+	return convert.str();
 }

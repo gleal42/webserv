@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/01 15:33:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 18:31:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,18 +18,20 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
-#include <unistd.h>
-#include "macros.hpp"
-#include <map>
-#include "ServerConfig.hpp"
 #include <fcntl.h>
+#include <unistd.h>
+#include <map>
+
+#include "macros.hpp"
+#include "ServerConfig.hpp"
+
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
-/* 
+/*
 Name								Description																	Example
 
-A-IM								Acceptable instance-manipulations for the request.[12]						A-IM: feed 
+A-IM								Acceptable instance-manipulations for the request.[12]						A-IM: feed
 Accept								Media type(s) that is/are acceptable for the response. 						Accept:	text/html
 Accept-Charset						Character sets that are acceptable.											Accept-Charset: utf-8
 Accept-Datetime						Acceptable version in time.													Accept-Datetime: Thu, 31 May 2007 20:35:00 GMT
@@ -37,7 +39,7 @@ Accept-Encoding						List of acceptable encodings. See HTTP compression.							A
 Accept-Language						List of acceptable human languages for response.							Accept-Language: en-US
 Access-Control-Request-Method,																					Access-Control-Request-Method: GET
 Access-Control-Request-Headers		Initiates a request for cross-origin resource
-									sharing with Origin.												
+									sharing with Origin.
 Authorization						Authentication credentials for HTTP authentication.							Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 Cache-Control						Specify directives that *must* be obeyed by all								Cache-Control: no-cache
 									caching mechanisms along the request-response chain.
@@ -57,10 +59,10 @@ Forwarded							Disclose original information of a client connecting to a web se
 From								The email address of the user making the request.							From: user@example.com
 Host								"The domain name of the server (for virtual hosting), and the TCP port 		Host: en.wikipedia.org:8080
 									number on which the server is listening. The port number may be omitted if	Host: en.wikipedia.org
-									the port is the standard port for the service requested (Mandatory).																												
+									the port is the standard port for the service requested (Mandatory).
 If-Match							Only perform the action if the client supplied entity matches the same 		If-Match: "737060cd8c284d8af7ad3082f209582d"
-									entity on the server. This is mainly for methods like PUT to only update a	
-									resource if it has not been modified since the user last updated it.		
+									entity on the server. This is mainly for methods like PUT to only update a
+									resource if it has not been modified since the user last updated it.
 If-Modified-Since					Allows a *304 Not Modified* to be returned if content is unchanged.			If-Modified-Since: Sat, 29 Oct 1994 19:43:31 GMT
 If-None-Match						Allows a *304 Not Modified* to be returned if content is unchanged.			If-None-Match: "737060cd8c284d8af7ad3082f209582d"
 If-Range							If the entity is unchanged, send me the part(s) that I am missing; 			If-Range: "737060cd8c284d8af7ad3082f209582d"
@@ -74,20 +76,20 @@ Origin								Initiates a request for cross-origin resource sharing (asks server
 Pragma								Implementation-specific fields that may have various effects anywhere along Pragma: no-cache
 									the request-response chain.
 Prefer								Allows client to request that certain behaviors be employed by a server		Prefer: return=representation
-									while processing a request.													
+									while processing a request.
 Proxy-Authorization					Authorization credentials for connecting to a proxy.						Proxy-Authorization: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
 Range								Request only part of an entity. Bytes are numbered from 0.					Range: bytes=500-999
 Referer								This is the address of the previous web page from which a link to the 		Referer: http://en.wikipedia.org/wiki/Main_Page
-									currently requested page was followed.										
+									currently requested page was followed.
 TE									The transfer encodings the user agent is willing to accept:					TE: trailers, deflate
 									the same values as for the response header field
-									Transfer-Encoding can be used, plus the ""trailers"" value 
-									(related to the ""chunked"" transfer method) to notify the 
-									server it expects to receive additional fields in the trailer after the 
-									last, zero-sized, chunk. 													
+									Transfer-Encoding can be used, plus the ""trailers"" value
+									(related to the ""chunked"" transfer method) to notify the
+									server it expects to receive additional fields in the trailer after the
+									last, zero-sized, chunk.
 Trailer								The Trailer general field value indicates that the given set of header		Trailer: Max-Forwards
 									fields is present in the trailer of a message encoded
-									with chunked transfer coding."												
+									with chunked transfer coding."
 Transfer-Encoding					The form of encoding used to safely transfer the entity to the user.		Transfer-Encoding: chunked
 									Currently defined methods are:
 									chunked, compress, deflate, gzip, identity.
@@ -97,7 +99,6 @@ Via									Informs the server of proxies through which the request was sent.			
 Warning								A general warning about possible problems with the entity body.				Warning: 199 Miscellaneous warning
 
 */
-
 
 typedef std::map<std::string, std::string> ResponseHeader;
 typedef std::map<std::string, std::string> RequestHeader;
@@ -112,6 +113,7 @@ enum RequestMethod {
 	DELETE,
 };
 
+
 class URI {
 	std::string		host;
 	std::string		port;
@@ -123,18 +125,22 @@ class URI {
 	}
 };
 
+class Socket;
+
 class Request {
 	public:
-		Request(ServerConfig config, int fd, SocketAddress	*ServerAddress);
-		Request();
+		Request(const ServerConfig & config);
 		Request(const Request&);
 		~Request();
 		Request&	operator= (const Request&);
 
-		std::string			_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
-		RequestMethod		_request_method;
+		std::string			request_line; 		// The complete request line such as: `GET / HTTP/1.1`
+		RequestMethod		request_method;
+		URI					request_uri;		// The parsed URI of the request
+		int					input_buffer_size;		// The parsed URI of the request
+
+		// some of these will be private
 		std::string			_unparsed_uri; 		// The unparsed URI of the request
-		URI					_request_uri;		// The parsed URI of the request
 		std::string			_path;
 		std::string			_path_info;			// The script name (CGI variable)
 		std::string			_query_string;		// The query from the URI of the request
@@ -150,10 +156,14 @@ class Request {
 		std::string			_request_time;		// The local time this request was received
 		std::string			_raw_body;
 
+
 		// Parses a request from +socket+.  This is called internally by Server
-		void	read_header(std::string *buf);
-		void	read_request_line(std::string *buf);
-		void	parse(int socket);
+		void				parse(Socket & socket);
+		void				read_header(std::string *buf);
+		void				read_request_line(std::string *buf);
+
+private:
+		Request( void );
 };
 
 std::ostream&	operator<<(std::ostream&, const Request&);

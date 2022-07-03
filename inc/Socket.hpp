@@ -3,24 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 18:02:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 18:43:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SOCKET_H__
 # define __SOCKET_H__
 
-# include <iostream>
 # include <vector>
 # include <sys/socket.h> // For socket functions
 # include <netinet/in.h> // For sockaddr_in
 # include <unistd.h> // For close()
 # include <fcntl.h>
+# include <cstring>
+# include <cerrno>
+# include <string>
 
-# include "macros.hpp"
+#include "utils.hpp"
+# include "Request.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1
@@ -53,6 +56,7 @@ Implements wrappers for the following C functions
 
 typedef struct sockaddr_in 	SocketAddress;
 
+
 class Socket {
 
 public:
@@ -78,16 +82,18 @@ public:
 	};
 
 	Socket( void );
-	Socket( int port );
+	Socket( ServerConfig config );
 	Socket( Socket const & src );
 	~Socket( void );
 	Socket &		operator = ( Socket const & rhs );
 
 	// Getters
-	int				fd( void );
-	int				port( void );
+	int				fd( void ) const;
+	int				port( void ) const;
+	int				bytes( void ) const;
 	// Setters
 	void			set_fd( int fd );
+	void			set_parent( Socket *parent);
 
 	void 			create( void );
 	void 			setsockopt( int option );
@@ -95,17 +101,19 @@ public:
 	void			close( void );
 	void			listen( int max_connections );
 	void			send( const std::string & response );
-	int				receive( int buffer_size );
+	void			receive( int buffer_size );
 	Socket *		accept( void );
-	std::string		to_s( void );
-
+	std::string		to_s( void ) const;
+	Request			request;
 private:
 
 	// Should be private to avoid being set to a wrong value
-	int					_fd;
-	SocketAddress		_address;
 	int					_port;
+	int					_fd;
+	Socket *			_parent;
+	SocketAddress		_address;
 	std::vector<char>	_buffer;
+	int					_bytes;
 
 };
 

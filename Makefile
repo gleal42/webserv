@@ -4,15 +4,16 @@ CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
 		webserver.cpp \
-		Server.cpp \
-		Response.cpp \
 		Request.cpp \
+		Response.cpp \
+		Server.cpp \
 		Socket.cpp \
 		Kqueue.cpp \
-		ServerConfig.cpp
-VPATH = srcs/
-OBJ_DIR := objs/
-DEP_DIR := deps/
+		utils.cpp \
+		ConfigParser.cpp
+VPATH = src/
+OBJ_DIR := obj/
+DEP_DIR := dep/
 OBJS := $(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS := $(SRCS:%.cpp=$(DEP_DIR)%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
@@ -37,17 +38,34 @@ clean:
 
 fclean: clean
 	$(RM) $(NAME)
-	kill $(lsof -i:8080 | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1')
 
 resetclean: fclean clean
 	$(RM) -r $(OBJ_DIR) $(DEP_DIR)
 
 re: fclean all
 
-tests_unit:
-	$(MAKE) unit -C tests
+vm: # runs the app in a container
+	docker run -it --rm -p 8080:8080 --name webserv webserv
 
-tests_e2e:
-	$(MAKE) e2e -C tests
+vm_build: # build the app in a container
+	docker build --no-cache -t webserv .
 
-.PHONY: all clean fclean resetclean re
+vm_re: vm_build vm # re-builds and runs the app container
+
+vm_clean: # stops docker and deletes images, and processes
+	docker stop $$(docker ps -qa); \
+	docker rm $$(docker ps -qa); \
+	docker rmi -f $$(docker images -qa);
+
+test_unit: # compiles and runs unit tests
+	$(MAKE) -C test/unit
+
+# To run individual unit tests from root:
+#			`make socket -C test/unit`
+#			`make parser -C test/unit`
+# 		etc..
+
+test_e2e: # compiles and runs end-to-end tests
+	cd test/e2e && docker-compose up --build --abort-on-container-exit
+
+.PHONY: all clean fclean resetclean re test vm_build vm

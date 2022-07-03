@@ -31,8 +31,8 @@ struct ServerConfig {
   int			input_buffer_size;
 };
 
-class Parser {
-	Parser(std::string config_file);
+class ConfigParser {
+	ConfigParser(std::string config_file);
 	std::string		config_file;
 	bool			is_valid( void );
 	ServerConfig	get_config( void );
@@ -269,7 +269,7 @@ class Server {
 		Response 	res(config);
 		try {
 			// while timeout and Running
-			req.parse(socket);
+			req.parse(socket); // Fill in Request
 			res.request_method = req.request_method;
 			res.request_uri = req.request_uri;
 			if (request_callback) {

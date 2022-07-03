@@ -6,21 +6,22 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/01 15:34:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 16:35:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
+#include "Socket.hpp"
 
-Response::Response()
-{
-}
+Response::Response( void ) { /* no-op */ }
 
-Response::Response(const ServerConfig &config, const Request &request)
-{
-	(void)config;
+Response::Response(const Request &request){
+	// TODO (implement constructor)
+	// set member vars from config
 	(void)request;
 }
+
+Response::~Response( void ) { /* no-op */ }
 
 std::string Response::start_line(int status)
 {
@@ -33,7 +34,7 @@ std::string Response::start_line(int status)
 	return(http_version + " " + status_str + " " + status_message + "\n");
 }
 
-void Response::send(int socketfd)
+void	Response::send_response(Socket const & socket)
 {
 	std::ifstream body("index.html");
 	if ( (body.rdstate() & std::ifstream::failbit ) != 0
@@ -52,7 +53,7 @@ void Response::send(int socketfd)
 	message += "Content-Length: " + len.str() + "\n";
 	message += "Content-Type: text/html\n\n";
 	message += body_str.str();
-	::send(socketfd, message.c_str() , message.size(), 0);
+	((Socket)socket).send(message);
     printf("\n------------------Hello message sent-------------------\n");
 }
 

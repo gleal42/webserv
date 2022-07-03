@@ -1,32 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConfig.hpp                                     :+:      :+:    :+:   */
+/*   utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/07 21:16:23 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/13 17:03:23 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/01 18:20:46 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/01 18:24:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SERVERCONFIG_HPP
-# define SERVERCONFIG_HPP
+#ifndef __UTILS_H__
+# define __UTILS_H__
 
-#include <string>
+# include <string>
+# include <sstream>
 
-// Taken from Server Config Parsing.
-// Each server will have these things
-
-struct ServerConfig
-{
-	std::string		name;
-	std::string		bind_address; // following pseudo-code
-	int				port;
-	int				max_clients;
-	int				request_timeout;
-	std::string		root;
-	int				input_buffer_size;
-};
+std::string	to_string(int number);
 
 #endif
