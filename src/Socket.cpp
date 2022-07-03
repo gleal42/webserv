@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/03 19:00:00 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 21:34:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Socket::AcceptError::AcceptError( void )
 /* Constructors */
 Socket::Socket( void ) : request(ServerConfig()), _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
 
+// Changed to config parameter so that we could copy parent request to connections socket
 // TODO: will we also pass `domain`?
 Socket::Socket( ServerConfig config ) : request(config), _port(PORT_UNSET), _bytes(0)
 {

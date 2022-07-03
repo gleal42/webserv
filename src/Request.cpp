@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/03 19:07:22 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 22:07:01 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 Request::Request( void ) { /* no-op */ }
 
-Request::Request(const ServerConfig & config)
+Request::Request( ServerConfig const & config )
 {
 	// TODO (implement constructor)
 	// set member vars from config
@@ -24,7 +24,7 @@ Request::Request(const ServerConfig & config)
 	input_buffer_size = config.input_buffer_size;
 }
 
-Request::Request(const Request& param) {
+Request::Request( Request const & param ) {
 	// TODO (copy constructor)
 	(void)param;
 }
@@ -35,7 +35,7 @@ Request::~Request() {
 }
 
 // might not be needed so can be private and have no implementation
-Request& Request::operator= (const Request& param) {
+Request& Request::operator= ( Request const & param ) {
 	// TODO (Assignment operatior)
 	// std::swap()
 	request_line = param.request_line;
@@ -90,6 +90,7 @@ void	Request::read_request_line(std::string *strptr){
 		request_method = DELETE;
 	else
 		throw("No appropriate method");
+		// this error should have happened at the config parsing stage and blocked the loading of the server
 
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
@@ -145,13 +146,11 @@ void	Request::read_header(std::string *strptr){
 		this->_raw_body = buf.substr(body_start + 4);
 };
 
-void	Request::parse(Socket & socket)
-{
+void	Request::parse(Socket & socket){
 	socket.receive(input_buffer_size);
- 
 	std::string		raw_request = socket.to_s();
 	if (raw_request.empty() || socket.bytes() < 0)
-		throw std::exception();
+		throw std::exception(); // TODO: decide what error this is
 	this->_raw_header = raw_request.substr(0);
 	read_request_line(&raw_request);
 	read_header(&raw_request);

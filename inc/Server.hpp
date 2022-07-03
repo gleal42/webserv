@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 16:33:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 21:07:31 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,29 +58,27 @@ typedef std::map< int, Socket * > Connections;
 typedef Connections::iterator ConnectionsIter;
 typedef std::pair< int, Socket * > Connection;
 
-class Server
-{
-	public:
-		Server( ServerConfig const & config );
-		Server( Server const & src );
-		~Server( void );
-		Server &	operator = ( Server const & rhs );
+class Server {
 
-		SocketAddress	&getAddress();
-		int				fd();
-		void			run( Kqueue &kq );
-		void			accept_client( Kqueue &kq );
-		void			stop( void );
-		void			shutdown( void );
-		ServerConfig	_config;
-		Connections		_connections;
-		Socket			*_socket;
-	private:
-		Server( void );
-		SocketAddress	_address;
-		size_t			_max_connections;
-		void			init_addr();
-		void			service(Request & req, Response & res);
+public:
+	Server( Server const & src );
+	Server( ServerConfig const & config );
+	~Server( void );
+	Server &	operator = ( Server const & rhs );
+
+	// Server Starts listening on creation
+	void		accept_client( Kqueue &kq );
+	void		stop( void );
+	void		shutdown( void );
+	int			fd();
+	Connections		_connections;
+
+private:
+
+	Server( void );
+	ServerConfig	_config;
+	Socket *		_socket;
+	size_t			_max_connections;
 };
 
 typedef std::map<int, Server*> Cluster;

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 18:43:23 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 20:43:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,20 +73,6 @@ void	Server::shutdown( void )
 		it->second->close();
 		delete it->second;
 	}
-}
-
-void    Server::init_addr()
-{
-    memset(&_address, 0, sizeof(struct sockaddr_in));
-    _address.sin_family = AF_INET;
-    _address.sin_port = htons(_config.port);
-    _address.sin_addr.s_addr = INADDR_ANY;
-}
-
-
-SocketAddress	&Server::getAddress()
-{
-    return (_address);
 }
 
 int Server::fd()

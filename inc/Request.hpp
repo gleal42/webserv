@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 18:31:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 22:04:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,12 +100,14 @@ Warning								A general warning about possible problems with the entity body.		
 
 */
 
+
 typedef std::map<std::string, std::string> ResponseHeader;
 typedef std::map<std::string, std::string> RequestHeader;
 typedef std::map<std::string, std::string> RequestQuery;
 typedef std::map<std::string, std::string> RequestAttributes;
 typedef std::map<std::string, std::string> RequestMeta;
 typedef sockaddr_in SocketAddress;
+class Socket;
 
 enum RequestMethod {
 	GET,
@@ -125,45 +127,45 @@ class URI {
 	}
 };
 
-class Socket;
 
 class Request {
-	public:
-		Request(const ServerConfig & config);
-		Request(const Request&);
-		~Request();
-		Request&	operator= (const Request&);
+public:
+	Request( ServerConfig const & config );
+	~Request();
+	Request&	operator= ( Request const & param );
 
-		std::string			request_line; 		// The complete request line such as: `GET / HTTP/1.1`
-		RequestMethod		request_method;
-		URI					request_uri;		// The parsed URI of the request
-		int					input_buffer_size;		// The parsed URI of the request
+	std::string			request_line; 		// The complete request line such as: `GET / HTTP/1.1`
+	RequestMethod		request_method;
+	URI					request_uri;		// The parsed URI of the request
+	int					input_buffer_size;		// The parsed URI of the request
 
-		// some of these will be private
-		std::string			_unparsed_uri; 		// The unparsed URI of the request
-		std::string			_path;
-		std::string			_path_info;			// The script name (CGI variable)
-		std::string			_query_string;		// The query from the URI of the request
-		std::string			_raw_header;			// The raw header of the request
-		RequestHeader		_header;				// The parsed header of the request
-		std::string			_accept;				// The Accept header value
-		std::string			_accept_charset;		// The Accept-Charset header value
-		std::string			_accept_encoding;	// The Accept-Encoding header value
-		std::string			_accept_language;	// The Accept-Language header value
-		// SocketAddress		addr;				// The socket address of the server
-		// SocketAddress		peeraddr;			// The socket address of the client
-		RequestAttributes	_attributes;			// Map of request attributes
-		std::string			_request_time;		// The local time this request was received
-		std::string			_raw_body;
+	// some of these will be private
+	std::string			_unparsed_uri; 		// The unparsed URI of the request
+	std::string			_path;
+	std::string			_path_info;			// The script name (CGI variable)
+	std::string			_query_string;		// The query from the URI of the request
+	std::string			_raw_header;			// The raw header of the request
+	RequestHeader		_header;				// The parsed header of the request
+	std::string			_accept;				// The Accept header value
+	std::string			_accept_charset;		// The Accept-Charset header value
+	std::string			_accept_encoding;	// The Accept-Encoding header value
+	std::string			_accept_language;	// The Accept-Language header value
+	// SocketAddress		addr;				// The socket address of the server
+	// SocketAddress		peeraddr;			// The socket address of the client
+	RequestAttributes	_attributes;			// Map of request attributes
+	std::string			_request_time;		// The local time this request was received
+	std::string			_raw_body;
 
-
-		// Parses a request from +socket+.  This is called internally by Server
-		void				parse(Socket & socket);
-		void				read_header(std::string *buf);
-		void				read_request_line(std::string *buf);
+	// Parses a request from +socket+.  This is called internally by Server
+	void				parse(Socket & socket);
+	void				read_header(std::string *buf);
+	void				read_request_line(std::string *buf);
 
 private:
-		Request( void );
+
+	Request( void );
+	Request( Request const & src ); // while not implemented
+
 };
 
 std::ostream&	operator<<(std::ostream&, const Request&);
