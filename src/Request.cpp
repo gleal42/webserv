@@ -6,12 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/03 22:12:28 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 00:02:34 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Socket.hpp"
+#include "Server.hpp"
 
 Request::Request( void ) { /* no-op */ }
 
@@ -25,8 +26,8 @@ Request::Request( ServerConfig const & config )
 }
 
 Request::Request( Request const & param ) {
-	// TODO (copy constructor)
-	(void)param;
+	// TODO initializer list?
+	*this = param;
 }
 
 Request::~Request() {

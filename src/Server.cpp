@@ -6,11 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 20:43:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 00:15:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Socket.hpp"
 #include "Kqueue.hpp"
 
 /* Constructors */
@@ -48,7 +49,7 @@ void	Server::accept_client( Kqueue &kq )
 		Socket *	connection = _socket->accept();
 		if (!connection)
 			return ; // add error here
-		connection->set_parent(this->_socket);
+		connection->set_parent(this);
 		int client_fd = connection->fd();
 		_connections[client_fd] = connection;
 		std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
@@ -78,4 +79,9 @@ void	Server::shutdown( void )
 int Server::fd()
 {
     return (_socket->fd());
+}
+
+Socket *	Server::socket()
+{
+    return (_socket);
 }

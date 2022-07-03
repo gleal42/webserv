@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 18:06:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 00:12:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,14 @@ void	Kqueue::run( Cluster cluster )
             else
             {
 				ConnectionsIter connection_it = find_existing_connection(cluster, ListQueue[i].ident);
-                if (ListQueue[i].flags & EV_EOF)
-                    close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
-                if (ListQueue[i].filter == EVFILT_READ)
+                if (ListQueue[i].flags & EV_EOF) {
+                    close_connection(connection_it->second->server(), ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
+                    if (!has_active_connections(cluster))
+                        return ;
+                }
+                else if (ListQueue[i].filter == EVFILT_READ)
                     read_connection(connection_it->second);
-                if (ListQueue[i].filter == EVFILT_WRITE)
+                else if (ListQueue[i].filter == EVFILT_WRITE)
 					write_to_connection(connection_it->second);
             }
         }
@@ -103,12 +106,16 @@ ConnectionsIter	Kqueue::find_existing_connection( Cluster cluster, int event_fd 
     return (connection_it);
 }
 
-void	Kqueue::close_connection( int connection_fd )
+void	Kqueue::close_connection( Server *server, int connection_fd)
 {
     std::cout << "Closing Connection for client: " << connection_fd << std::endl;
     this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
     this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
     close(connection_fd);
+    // p connection_fd
+    // p server._connections[connection_fd]
+    delete server->_connections[connection_fd];
+    server->_connections.erase(connection_fd);
 }
 
 void	Kqueue::read_connection( Socket *connection )
@@ -126,4 +133,14 @@ void	Kqueue::write_to_connection( Socket *connection )
     response.send_response(*connection);
     this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
     this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+}
+
+bool	Kqueue::has_active_connections(Cluster cluster)
+{
+    for (ClusterIter it = cluster.begin(); it != cluster.end(); ++it)
+    {
+        if (it->second->_connections.size())
+            return true;
+    }
+    return false;
 }

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 21:07:31 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 00:05:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 # include <errno.h>
 
 # include "ServerConfig.hpp"
-# include "Socket.hpp"
 # include "Response.hpp"
 
 typedef sockaddr_in SocketAddress;
@@ -53,6 +52,9 @@ Needs to be able to:
 struct 	ServerConfig;
 class	Socket;
 class	Kqueue;
+class	Server;
+typedef std::map<int, Server*> Cluster;
+typedef Cluster::iterator ClusterIter;
 
 typedef std::map< int, Socket * > Connections;
 typedef Connections::iterator ConnectionsIter;
@@ -71,6 +73,8 @@ public:
 	void		stop( void );
 	void		shutdown( void );
 	int			fd();
+	Socket *	socket();
+	static bool	has_connections(Cluster cluster);
 	Connections		_connections;
 
 private:
@@ -80,8 +84,5 @@ private:
 	Socket *		_socket;
 	size_t			_max_connections;
 };
-
-typedef std::map<int, Server*> Cluster;
-typedef Cluster::iterator ClusterIter;
 
 #endif /* __SERVER_H__ */

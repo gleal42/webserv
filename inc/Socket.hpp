@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/03 18:43:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 00:09:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 
 #include "utils.hpp"
 # include "Request.hpp"
+# include "Server.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1
@@ -55,7 +56,6 @@ Implements wrappers for the following C functions
 */
 
 typedef struct sockaddr_in 	SocketAddress;
-
 
 class Socket {
 
@@ -89,11 +89,12 @@ public:
 
 	// Getters
 	int				fd( void ) const;
+	Server *		server( void ) const;
 	int				port( void ) const;
 	int				bytes( void ) const;
 	// Setters
 	void			set_fd( int fd );
-	void			set_parent( Socket *parent);
+	void			set_parent( Server *server );
 
 	void 			create( void );
 	void 			setsockopt( int option );
@@ -110,7 +111,7 @@ private:
 	// Should be private to avoid being set to a wrong value
 	int					_port;
 	int					_fd;
-	Socket *			_parent;
+	Server *			_server;
 	SocketAddress		_address;
 	std::vector<char>	_buffer;
 	int					_bytes;

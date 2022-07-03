@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 21:56:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 23:02:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,11 +144,13 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 // Response message generated while processing client request
 
+typedef std::map<std::string, std::string> ResponseAttributes;
+
 class Response {
 
 public:
 
-	Response( ServerConfig const & config );
+	Response( Request const & config );
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
 
@@ -159,6 +161,9 @@ public:
 	void 			send_error(int socketfd);
 
 private:
+	int 		_status;
+	std::string _body;
+	ResponseAttributes	_attributes;			// Map of request attributes
 	Response( void );
 	Response( Response const & src ); // while not implemented
 

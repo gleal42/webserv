@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/01 19:08:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 23:25:45 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,5 +42,6 @@ struct KqueueError : public std::runtime_error {
 
 // Functions
 int 		webserver(std::string config);
+
 
 #endif

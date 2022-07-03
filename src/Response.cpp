@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 21:58:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/03 23:07:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,28 @@
 
 Response::Response( void ) { /* no-op */ }
 
-Response::Response(ServerConfig const & config){
+Response::Response( Request const & request )
+: _status(200)
+{
 	// TODO (implement constructor)
 	// set member vars from config
-	(void)config;
+
+	(void)request;
 }
 
 Response::Response( Response const & src ){
 	// TODO (implement constructor)
-	(void)src;
+	*this = src;
+}
+
+Response &	Response::operator = ( Response const & rhs )
+{
+	_status = rhs._status;
+	_body = rhs._status;
+	for (ResponseAttributes::iterator it = _attributes.begin(); it != _attributes.end(); it++) {
+		_attributes = rhs._attributes;
+	}
+	return *this;
 }
 
 Response::~Response( void ) { /* no-op */ }
