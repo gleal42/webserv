@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:25:50 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/03 14:37:25 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,19 +98,22 @@ Warning								A general warning about possible problems with the entity body.		
 
 */
 
-
-typedef std::map<std::string, std::string> ResponseHeader;
-typedef std::map<std::string, std::string> RequestHeader;
-typedef std::map<std::string, std::string> RequestQuery;
-typedef std::map<std::string, std::string> RequestAttributes;
-typedef std::map<std::string, std::string> RequestMeta;
-
 enum RequestMethod {
 	GET,
 	POST,
 	DELETE,
 };
 
+typedef std::map<std::string, std::string> 		ResponseHeader;
+typedef std::map<std::string, std::string> 		RequestHeader;
+typedef std::map<std::string, std::string> 		RequestQuery;
+typedef std::map<std::string, std::string> 		RequestAttributes;
+typedef std::map<std::string, std::string> 		RequestMeta;
+typedef std::map<std::string, RequestMethod>	RequestMethods;
+
+const RequestMethods RequestMap =	{{"GET", GET},
+              						{"POST", POST},
+              						{"DELETE", DELETE}};
 class URI {
 	std::string		host;
 	std::string		port;

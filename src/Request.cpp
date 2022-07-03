@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/01 16:16:42 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/03 15:53:18 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,18 +59,12 @@ void	Request::read_request_line(std::string *strptr){
 		i++;
 	str = buf.substr(0, ++i);
 
-	// Consider global constant map: 	RequestMethods[ str ]
-	// typedef std::map< std::string, RequestMethod >	RequestMethods;
-	// this will avoid re-doing these comparisons every time
-	if (str.compare("GET"))
-		request_method = GET;
-	else if(str.compare("POST"))
-		request_method = POST;
-	else if(str.compare("DELETE"))
-		request_method = DELETE;
-	else
-		throw("No appropriate method");
+	RequestMethods::const_iterator it = RequestMap.find(str);
+    if (it == RequestMap.end())
+	    std::cout << "No appropriate method\n";
 		// this error should have happened at the config parsing stage and blocked the loading of the server
+
+	request_method = it->second;
 
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
