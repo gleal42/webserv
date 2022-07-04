@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 00:05:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 02:31:18 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,10 @@ public:
 	Socket *	socket();
 	static bool	has_connections(Cluster cluster);
 	Connections		_connections;
-
+	ServerConfig	_config;
 private:
 
 	Server( void );
-	ServerConfig	_config;
 	Socket *		_socket;
 	size_t			_max_connections;
 };

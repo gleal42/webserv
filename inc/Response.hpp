@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 23:02:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 03:18:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 # include "ServerConfig.hpp"
 # include "Request.hpp"
+# include <cerrno>
 
 // ************************************************************************** //
 //                               Response Class                               //
@@ -150,7 +151,8 @@ class Response {
 
 public:
 
-	Response( Request const & config );
+	typedef	ResponseAttributes::iterator attributes_iterator;
+	Response( Request const & request , ServerConfig config );
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
 
@@ -159,9 +161,11 @@ public:
 	std::string 	start_line(int status);
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
+	void			set_attribute(std::string name, std::string value);
 
 private:
 	int 		_status;
+	std::string _uri;
 	std::string _body;
 	ResponseAttributes	_attributes;			// Map of request attributes
 	Response( void );

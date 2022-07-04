@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 00:12:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 02:30:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,7 @@ Kqueue::Kqueue()
         throw CreateError();
 }
 
-int	Kqueue::fd() const
-{
-	return(_fd);
-}
+int	Kqueue::fd() const { return(_fd); }
 
 void Kqueue::update_event(int ident, short filter, u_short flags)
 {
@@ -72,7 +69,7 @@ void	Kqueue::run( Cluster cluster )
             {
 				ConnectionsIter connection_it = find_existing_connection(cluster, ListQueue[i].ident);
                 if (ListQueue[i].flags & EV_EOF) {
-                    close_connection(connection_it->second->server(), ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
+                    close_connection(connection_it->second->parent(), ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
                     if (!has_active_connections(cluster))
                         return ;
                 }
@@ -129,7 +126,7 @@ void	Kqueue::read_connection( Socket *connection )
 void	Kqueue::write_to_connection( Socket *connection )
 {
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
-    Response response(connection->request);
+    Response response(connection->request, connection->parent()->_config);
     response.send_response(*connection);
     this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
     this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
