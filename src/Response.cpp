@@ -6,12 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 03:19:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 18:29:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Socket.hpp"
+#include "HTTPStatus.hpp"
 
 Response::Response( void ) { /* no-op */ }
 
@@ -20,7 +21,10 @@ Response::Response( Request const & request , ServerConfig config )
 {
 	// TODO (implement constructor)
 	// set member vars from config
-	if (request._unparsed_uri == "/" || request._unparsed_uri == "/favicon.ico")
+	std::cout << "Unparsed URI " << request._unparsed_uri << std::endl;
+	if (request._unparsed_uri == "/favicon.ico")
+		return ;
+	if (request._unparsed_uri == "/")
 		_uri = "index.html";
 	else
 		_uri = request._unparsed_uri.c_str() + 1;
@@ -80,7 +84,7 @@ std::string Response::start_line(int status)
 	std::stringstream nbr;
 	nbr << status;
 	std::string status_str = nbr.str();
-	std::string status_message = "OK"; // Find matching message to status in map
+	std::string status_message = http_phrase(status);
 	return(http_version + " " + status_str + " " + status_message + "\n");
 }
 
