@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:14:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 17:26:43by gleal            ###   ########.fr       */
+/*   Updated: 2022/06/24 21:49:30 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,4 @@ int	main(int argc, char **argv)
 	// webserver(argv[1]);
 	webserver("tests/test.conf"); // Temporary stub
 	return (EXIT_SUCCESS);
-
 }

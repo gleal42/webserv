@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 03:18:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 21:16:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,6 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 # include "ServerConfig.hpp"
 # include "Request.hpp"
-# include <cerrno>
 
 // ************************************************************************** //
 //                               Response Class                               //

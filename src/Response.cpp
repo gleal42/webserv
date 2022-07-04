@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 18:29:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/04 21:33:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,3 +103,62 @@ void	Response::set_attribute(std::string name, std::string value)
 {
 	_attributes[name] = value;
 }
+
+/**
+ * Need to finish incorporating this logic.
+ * However, because reading and writing are 2 Separate Events,
+ * At the moment we are passing the Request as parameter to gain
+ * access to all the variables but we can change it.
+ * Service FILE and GCI handler logic still doesn't exist.
+**/
+
+
+// // Does necessary to service a connection
+// void   Server::run(Socket & socket) {
+//        Request         req(_config);
+//        Response        res(_config);
+//        try {
+//                // while timeout and Running
+//                socket.receive(_config.input_buffer_size);
+//                req.parse(socket);
+//                res.request_method = req.request_method;
+//                // res.request_uri = req.request_uri;
+//                // if (request_callback) {
+//                //      request_callback(req, res);
+//                // }
+//                service(req, res);
+//        }
+//        catch (std::exception & error) {
+//                ERROR(error.what());
+//        // catch (HTTPStatus error) {
+//                // res.set_error(error);
+//                // if (error.code) {
+//                //      res.status = error.code;
+//                // }
+//        }
+//        // if (req.request_line != "") {
+//        //      res.send_response(socket);
+//        // }
+
+//        // Temporary
+//        if (req._raw_header != "") {
+//                res.send_response(socket);
+//        }
+// }
+// //Services +req+ and fills in +res+
+// void   Server::service(Request & req, Response & res) {
+//        // Use factory create() method on Handler interface 
+//  Abstract class
+//        // Pick handler::service based on available info
+//        // ..
+//        // req.script_name = script_name;
+//        // req.path_info = path_info;
+// 
+//        // FileHandler  handler;
+//        // OR
+//        // CGIHandler   handler;
+// 
+//        (void)req;
+//        (void)res;
+//        // handler.service(req, res);
+// }
