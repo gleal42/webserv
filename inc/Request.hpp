@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 14:37:25 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/04 01:25:20 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,6 @@ typedef std::map<std::string, std::string> 		RequestAttributes;
 typedef std::map<std::string, std::string> 		RequestMeta;
 typedef std::map<std::string, RequestMethod>	RequestMethods;
 
-const RequestMethods RequestMap =	{{"GET", GET},
-              						{"POST", POST},
-              						{"DELETE", DELETE}};
 class URI {
 	std::string		host;
 	std::string		port;
@@ -126,9 +123,15 @@ class URI {
 };
 
 class Request {
-
 public:
-
+	class MethodNotAllowed: public std::exception {
+		public:
+			virtual const char * what() const throw();
+	};
+	class EmptyHttpRequest: public std::exception {
+		public:
+			virtual const char * what() const throw();
+	};
 	Request(const ServerConfig & config);
 	Request(const Request&);
 	~Request();

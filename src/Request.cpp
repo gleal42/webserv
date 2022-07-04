@@ -6,12 +6,17 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/03 15:53:18 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/04 01:23:54 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 
+/* Exceptions */
+const char * Request::MethodNotAllowed::what() const throw() {return ("405 Method Not Allowed");}
+const char * Request::EmptyHttpRequest::what() const throw() {return ("Http request is empty is empty");}
+
+/* Constructors */
 Request::Request( void ) { /* no-op */ }
 
 Request::Request(const ServerConfig & config){
@@ -46,6 +51,8 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 	return (s);
 }
 
+/* Methods */
+
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
 void	Request::read_request_line(std::string *strptr){
@@ -54,14 +61,21 @@ void	Request::read_request_line(std::string *strptr){
 	int								j = 0;
 	std::string						buf = *strptr;
 	std::string::iterator			iter = buf.begin();
+	RequestMethods 					RequestMap;
 
+	RequestMap.insert(std::pair<std::string, RequestMethod> ("GET", GET));
+	RequestMap.insert(std::pair<std::string, RequestMethod> ("POST", POST));
+	RequestMap.insert(std::pair<std::string, RequestMethod> ("DELETE", DELETE));
 	for (; *iter != ' '; iter++)
 		i++;
 	str = buf.substr(0, ++i);
 
+	// Had to do like this instead of RequestMethods[str]
+	// because map::operator[] would add a 4th string on the map
+	// (https://stackoverflow.com/a/23833199)
 	RequestMethods::const_iterator it = RequestMap.find(str);
     if (it == RequestMap.end())
-	    std::cout << "No appropriate method\n";
+	    throw Request::MethodNotAllowed();
 		// this error should have happened at the config parsing stage and blocked the loading of the server
 
 	request_method = it->second;
@@ -125,7 +139,7 @@ void	Request::parse(Socket & socket){
 
 	raw_request = socket.to_s();
 	if (raw_request.empty() || socket.bytes() < 0)
-		throw std::exception(); // TODO: decide what error this is
+		throw Request::EmptyHttpRequest();
 	this->_raw_header = raw_request.substr(0);
 	read_request_line(&raw_request);
 	read_header(&raw_request);
