@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 02:24:20 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 09:49:01 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -238,9 +238,6 @@ fd_set	Server::wait_on_clients( void )
 
 	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
 	{
-		it->second->close();
-		delete it->second;
-
 		FD_SET(it->first, &reads);
 		if (it->first > max_socket)
 			max_socket = it->first;
