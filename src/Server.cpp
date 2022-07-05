@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 02:19:10 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 02:24:20 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,7 +147,6 @@ void	Server::run(Socket & socket) {
 	Response 	res(_config);
 	try {
 		// while timeout and Running
-		socket.receive(); // remove
 		req.parse(socket);
 		res.request_method = req.request_method;
 		// res.request_uri = req.request_uri;
