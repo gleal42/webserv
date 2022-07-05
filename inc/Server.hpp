@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 23:42:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 18:52:13 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ private:
 	void			service(Request & req, Response & res);
 
 	Socket *		get_client( int fd );
-	void			drop_client( Socket * client );
+	void			drop_client( ConnectionsIter & it );
 	fd_set			wait_on_clients( void );
 };
 

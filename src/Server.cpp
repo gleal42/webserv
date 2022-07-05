@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 09:49:01 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 18:53:52 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,7 @@ void	Server::start( void )
 		// Our server must then handle the case where an already connected client
 		// is sending data. We first walk through the map of clients and use
 		// FD_ISSET() on each client to determine which clients have data available.
-		for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
+		for (ConnectionsIter it = _connections.begin(); it != _connections.end(); )
 		{
 			if (FD_ISSET(it->first, &reads)) {
 
@@ -108,7 +108,7 @@ void	Server::start( void )
 				}
 				catch(const std::exception& e) { // catch SocketError::Receive
 					ERROR(e.what());
-					drop_client(it->second);
+					drop_client(it);
 				}
 
 				// If the received data was written successfully, our server adds a null
@@ -135,8 +135,10 @@ void	Server::start( void )
 					}
 
 					run(*it->second);
+					drop_client(it);
 				} //if (raw_request.find
 			} //if (FD_ISSET
+			else { ++it; }
 		} //for (ConnectionsIter
 	} //while(1)
 }
@@ -169,7 +171,6 @@ void	Server::run(Socket & socket) {
 	// Temporary
 	if (req._raw_header != "") {
 		res.send_response(socket);
-		drop_client(&socket);
 	}
 }
 
@@ -218,11 +219,11 @@ Socket *	Server::get_client( int fd )
 
 // The drop_client() function searches through our map of clients and removes
 // a given client.
-void	Server::drop_client( Socket * client )
+void	Server::drop_client( ConnectionsIter & it )
 {
-	client->close();
-	_connections.erase(client->fd()); // maybe log if not found for some reason
-	delete client;
+	it->second->close();
+	delete it->second;
+	_connections.erase(it++); // maybe log if not found for some reason
 }
 
 // Our server is capable of handling many simultaneous connections. This means
