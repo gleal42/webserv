@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 01:51:46 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 02:19:10 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,8 @@ void	Server::start( void )
 	// begin an endless loop that waits on clients. We call wait_on_clients()
 	// to wait until a new client connects or an old client sends new data:
 	while(1) {
-        fd_set	reads;
-        reads = wait_on_clients();
+		fd_set	reads;
+		reads = wait_on_clients();
 
 		// The server then detects whether a new client has connected. This case
 		// is indicated by server being set in fd_set reads. We use the FD_ISSET()
@@ -85,7 +85,7 @@ void	Server::start( void )
 			if (!connection)
 				return ; // catch socket error here
 			_connections[connection->fd()] = connection;
-        }
+		}
 
 		// Our server must then handle the case where an already connected client
 		// is sending data. We first walk through the map of clients and use
@@ -98,8 +98,8 @@ void	Server::start( void )
 				// received data for client. If the client's buffer is already
 				// completely full, then we send a 400 error.
 				if (_config.input_buffer_size == it->second->bytes()) {
-                    throw HTTPStatus<400>();
-                }
+					throw HTTPStatus<400>();
+				}
 
 				// Knowing that we have at least some memory left to store received data,
 				// we can use recv() to store the client's data.
@@ -232,10 +232,10 @@ void	Server::drop_client( Socket * client )
 // sends data, or a new client attempts to connect. This function uses select()
 fd_set	Server::wait_on_clients( void )
 {
-    fd_set	reads;
-    FD_ZERO(&reads);
-    FD_SET(_socket->fd(), &reads);
-    int	max_socket = _socket->fd();
+	fd_set	reads;
+	FD_ZERO(&reads);
+	FD_SET(_socket->fd(), &reads);
+	int	max_socket = _socket->fd();
 
 	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
 	{
@@ -243,18 +243,18 @@ fd_set	Server::wait_on_clients( void )
 		delete it->second;
 
 		FD_SET(it->first, &reads);
-        if (it->first > max_socket)
-            max_socket = it->first;
+		if (it->first > max_socket)
+			max_socket = it->first;
 	}
 
-    if (::select(max_socket + 1, &reads, 0, 0, 0) < 0)
+	if (::select(max_socket + 1, &reads, 0, 0, 0) < 0)
 	{
 		// Temporary
 		ERROR("select() failed. " + std::string(strerror(errno)));
-        exit(1);
-    }
+		exit(1);
+	}
 
-    return reads;
+	return reads;
 }
 // In the preceding code, first a new fd_set is declared and zeroed-out. The server
 // socket is then added to the fd_set first. Then the code loops through the

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/05 00:49:18 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 02:20:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ std::string const FileHandler::get_content_type(std::string const path)
 		return mime_types[extension];
 	}
 
-    return "application/octet-stream";
+	return "application/octet-stream";
 }
 
 // The service() function fills in a response with a requested resource. Our
@@ -87,23 +87,23 @@ void	FileHandler::service(Request & req, Response & res)
 {
 	if (req._path == "/") req._path = "/index.html";
 
-    if (req._path.size() > 100) {
+	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
-    }
+	}
 
-    if (req._path.find("..") != std::string::npos) {
+	if (req._path.find("..") != std::string::npos) {
 		throw HTTPStatus<404>();
-    }
+	}
 
 	std::string	full_path("public" + req._path);
 	std::ifstream file(full_path);
 
 	if ( (file.rdstate() & std::ifstream::failbit ) != 0
-    	|| (file.rdstate() & std::ifstream::badbit ) != 0 )
-    {
-        ERROR("error opening " << full_path);
+		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
+	{
+		ERROR("error opening " << full_path);
 		throw HTTPStatus<404>();
-    }
+	}
 
 	res.set_content_length(file_size(full_path));
 	res.set_content_type(get_content_type(full_path));
@@ -118,13 +118,13 @@ void	FileHandler::service(Request & req, Response & res)
 std::streampos	FileHandler::file_size( std::string	full_path )
 {
 
-    std::streampos	fsize = 0;
-    std::ifstream	file( full_path, std::ios::binary );
+	std::streampos	fsize = 0;
+	std::ifstream	file( full_path, std::ios::binary );
 
-    fsize = file.tellg();
-    file.seekg( 0, std::ios::end );
-    fsize = file.tellg() - fsize;
-    file.close();
+	fsize = file.tellg();
+	file.seekg( 0, std::ios::end );
+	fsize = file.tellg() - fsize;
+	file.close();
 
-    return fsize;
+	return fsize;
 }

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 00:48:06 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 02:19:42 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	Response::send_response(Socket const & socket)
 	// We can't be reading the whole file into memory before sending
 	message += body + CRLF;
 	((Socket)socket).send(message);
-    printf("\n------------------ message sent -------------------\n");
+	printf("\n------------------ message sent -------------------\n");
 }
 // Note that the last += statement sends \r\n. This has the effect of transmitting
 // a blank line. This blank line is used by the client to delineate the HTTP
