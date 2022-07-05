@@ -40,4 +40,16 @@ status: HTTPStatus # run HTTPStatus class tests
 HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 	$(COMPILE) $(STATUS) -o $@
 
-.PHONY: all socket parser status
+
+##---  FileHandler  ---##
+FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp
+
+file_handler: FileHandler # run FileHandler class tests
+	./FileHandler
+
+# compile FileHandler class tests
+FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
+	$(COMPILE) $(FILE_HANDLER) -o $@
+
+
+.PHONY: all socket parser status file_handler

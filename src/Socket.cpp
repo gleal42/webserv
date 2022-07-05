@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 19:51:16 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 01:24:18 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void	Socket::bind( int port )
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
-	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
+	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address))) {
 		throw Socket::BindError(port);
 	}
 	_port = port;	// only set port if did't fail `bind` call
@@ -97,20 +97,31 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 // `send` function wrapper
 void	Socket::send( const std::string & response ) {
 	::send(_fd, response.c_str(), response.size(), 0);
+	// You should generally check that the number of bytes sent was as expected,
+	// and you should attempt to send the rest if it's not.
 }
 
 // `recv` function wrapper
-void	Socket::receive( int buffer_size ) {
-	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
-	_buffer = std::vector<char>(buffer_size, '\0');
+void	Socket::receive( void ) {
+	// The following code uses recv() to write new data into the client's buffer
+	// while being careful to not overflow that buffer:
 
-	_bytes = recv(_fd, _buffer.data(), _buffer.size(), 0);
+	_bytes += recv(_fd, _buffer.data() + _bytes, _buffer.size() - _bytes, 0);
+
+	// TODO: do something if `recv` fails by returning 0 or -1.
+	// If the connection is terminated by the client, recv() returns 0 or -1,
+	// depending on the circumstance.
 }
+// It is a common mistake to try printing data that's received from recv() directly
+// as a C string. There is no guarantee that the data received from recv() is null
+// terminated! If you try to print it with printf(request) or printf("%s", request),
+// you will likely receive a segmentation fault error (or at best it will print some
+// garbage).
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
-Socket *	Socket::accept( void ) {
+Socket *	Socket::accept( int buffer_size ) {
 	Socket *	s = new Socket();
 
 	// TODO: Need to check that these vars are actually set on new socket
@@ -123,6 +134,9 @@ Socket *	Socket::accept( void ) {
 		delete s;
 		return NULL; // or something else later
 	}
+
+	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
+	s->_buffer = std::vector<char>(buffer_size, '\0');
 
 	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 15:08:07 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/04 23:42:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include "Socket.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
+# include "FileHandler.hpp"
 
 // ************************************************************************** //
 //                               Server Class                             	  //
@@ -71,6 +72,10 @@ private:
 
 	void			run(Socket & socket);
 	void			service(Request & req, Response & res);
+
+	Socket *		get_client( int fd );
+	void			drop_client( Socket * client );
+	fd_set			wait_on_clients( void );
 };
 
 #endif /* __SERVER_H__ */

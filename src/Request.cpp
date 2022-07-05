@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/01 16:16:42 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 00:06:00 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,10 @@ void	Request::read_request_line(std::string *strptr){
 		j++;
 
 	_unparsed_uri = buf.substr(i, j);
+	// Temporary, TODO: make proper URI instance:
+	// request_uri.parse(_unparsed_uri);
+	// _path = request_uri.path;
+	_path = _unparsed_uri;
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;

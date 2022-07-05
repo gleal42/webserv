@@ -9,6 +9,7 @@ SRCS := main.cpp \
 		Response.cpp \
 		Server.cpp \
 		Socket.cpp \
+		FileHandler.cpp \
 		webserver.cpp
 VPATH = src/
 OBJ_DIR := obj/

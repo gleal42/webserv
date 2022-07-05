@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/22 21:34:56 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 00:48:06 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,24 +35,22 @@ std::string Response::start_line(int status)
 
 void	Response::send_response(Socket const & socket)
 {
-	std::ifstream body("index.html");
-	if ( (body.rdstate() & std::ifstream::failbit ) != 0
-    || (body.rdstate() & std::ifstream::badbit ) != 0 )
-    {
-        std::cerr << "error opening " << "index.html" << std::endl;
-		// send_error(404);
-		return ;
-    }
-	std::string message = start_line(200);
-	message += "Server: Hello\n";
-	std::stringstream body_str;
-	body_str << body.rdbuf();
+	std::string	message = start_line(200);
 	std::stringstream len;
-	len << body_str.str().size();
-	message += "Content-Length: " + len.str() + "\n";
-	message += "Content-Type: text/html\n\n";
-	message += body_str.str();
+	len << _content_length;
+	// use header object for this
+	message += "Content-Length: " + len.str() + CRLF;
+	message += "Content-Type: " + _content_type + CRLF;
+	message += CRLF;
+	// We can't be reading the whole file into memory before sending
+	message += body + CRLF;
 	((Socket)socket).send(message);
-    printf("\n------------------Hello message sent-------------------\n");
+    printf("\n------------------ message sent -------------------\n");
 }
+// Note that the last += statement sends \r\n. This has the effect of transmitting
+// a blank line. This blank line is used by the client to delineate the HTTP
+// header from the beginning of the HTTP body.
+
+void	Response::set_content_length(int length) { _content_length = length; }
+void	Response::set_content_type(std::string type) { _content_type = type; }
 

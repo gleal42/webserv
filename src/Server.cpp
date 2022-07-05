@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 18:55:15 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 01:51:46 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,26 +64,81 @@ Server &	Server::operator = ( Server const & rhs )
 // Starts accepting connections
 void	Server::start( void )
 {
-	int	temp_fd; // to make it work until we have a `select` mechanism
+	// begin an endless loop that waits on clients. We call wait_on_clients()
+	// to wait until a new client connects or an old client sends new data:
+	while(1) {
+        fd_set	reads;
+        reads = wait_on_clients();
 
-	// while (1) {
-	//     TODO: infinite loop here with `accept` code below
-	// }
+		// The server then detects whether a new client has connected. This case
+		// is indicated by server being set in fd_set reads. We use the FD_ISSET()
+		// macro to detect this condition:
+		if (FD_ISSET(_socket->fd(), &reads)
+			&& _connections.size() < _max_connections) {
 
-	// check if can still add
-	if (_connections.size() < _max_connections) {
-		Socket *	connection = _socket->accept();
-		if (!connection)
-			return ; // add error here
-		_connections.insert(Connection(connection->fd(), connection));
-		// temp
-		temp_fd = connection->fd();
-	} else {
-		stop();
-	}
+			// Once a new client connection has been detected,
+			// creates a new connection.
+			//
+			// The accept() socket function is used to accept the new connection.
+			// The new socket returned by accept() is stored in connections.
+			Socket *	connection = _socket->accept(_config.input_buffer_size);
+			if (!connection)
+				return ; // catch socket error here
+			_connections[connection->fd()] = connection;
+        }
 
-	// code to select which connection to run
-	run(*_connections[temp_fd]);
+		// Our server must then handle the case where an already connected client
+		// is sending data. We first walk through the map of clients and use
+		// FD_ISSET() on each client to determine which clients have data available.
+		for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
+		{
+			if (FD_ISSET(it->first, &reads)) {
+
+				// We then check that we have memory available to store more
+				// received data for client. If the client's buffer is already
+				// completely full, then we send a 400 error.
+				if (_config.input_buffer_size == it->second->bytes()) {
+                    throw HTTPStatus<400>();
+                }
+
+				// Knowing that we have at least some memory left to store received data,
+				// we can use recv() to store the client's data.
+				try {
+					it->second->receive();
+				}
+				catch(const std::exception& e) { // catch SocketError::Receive
+					ERROR(e.what());
+					drop_client(it->second);
+				}
+
+				// If the received data was written successfully, our server adds a null
+				// terminating character to the end of that client's data buffer.
+				// This allows us to use string find() to search the buffer, as the null
+				// terminator tells find() when to stop.
+				//
+				// Recall that the HTTP header and body is delineated by a blank line.
+				// Therefore, if find() finds a blank line (\r\n\r\n, or CRLF x2), we
+				// know that the HTTP header has been received and we can begin to service it.
+				it->second->_buffer[it->second->bytes()] = 0;
+
+				std::string		raw_request(it->second->to_s());
+				std::string		blank_line(std::string(CRLF) + std::string(CRLF));
+
+				if (raw_request.find(blank_line) != std::string::npos) {
+
+					// Temporary
+					// Our server only handles GET requests. We also enforce that any
+					// valid path should start with a slash character; strncmp() is
+					// used to detect these two conditions in the following code:
+					if (raw_request.substr(0, 5) != "GET /") {
+						throw HTTPStatus<400>();
+					}
+
+					run(*it->second);
+				} //if (raw_request.find
+			} //if (FD_ISSET
+		} //for (ConnectionsIter
+	} //while(1)
 }
 
 // Does necessary to service a connection
@@ -92,7 +147,7 @@ void	Server::run(Socket & socket) {
 	Response 	res(_config);
 	try {
 		// while timeout and Running
-		socket.receive(_config.input_buffer_size);
+		socket.receive(); // remove
 		req.parse(socket);
 		res.request_method = req.request_method;
 		// res.request_uri = req.request_uri;
@@ -101,13 +156,12 @@ void	Server::run(Socket & socket) {
 		// }
 		service(req, res);
 	}
-	catch (std::exception & error) {
+	catch (BaseStatus & error) {
 		ERROR(error.what());
-	// catch (HTTPStatus error) {
 		// res.set_error(error);
-		// if (error.code) {
-		// 	res.status = error.code;
-		// }
+		if (error.code) {
+			// res.status = error.code;
+		}
 	}
 	// if (req.request_line != "") {
 	// 	res.send_response(socket);
@@ -116,6 +170,7 @@ void	Server::run(Socket & socket) {
 	// Temporary
 	if (req._raw_header != "") {
 		res.send_response(socket);
+		drop_client(&socket);
 	}
 }
 
@@ -130,10 +185,9 @@ void	Server::service(Request & req, Response & res) {
 	// FileHandler 	handler;
 	// OR
 	// CGIHandler 	handler;
+	FileHandler handler; // probably needs config for root path etc
 
-	(void)req;
-	(void)res;
-	// handler.service(req, res);
+	handler.service(req, res);
 }
 
 // Stops accepting connections
@@ -151,3 +205,65 @@ void	Server::shutdown( void )
 		delete it->second;
 	}
 }
+
+// Our get_client() function accepts a Socket and searches through the
+// map of connected clients to return the relevant Socket. If no matching
+// Socket is found in the map, then a NULL nullptr is returned
+Socket *	Server::get_client( int fd )
+{
+	if (_connections.find(fd) == _connections.end()) {
+		return NULL;
+	}
+	return _connections[fd];
+}
+
+// The drop_client() function searches through our map of clients and removes
+// a given client.
+void	Server::drop_client( Socket * client )
+{
+	client->close();
+	_connections.erase(client->fd()); // maybe log if not found for some reason
+	delete client;
+}
+
+// Our server is capable of handling many simultaneous connections. This means
+// that our server must have a way to wait for data from multiple clients at once.
+// We define a function, wait_on_clients(), which blocks until an existing client
+// sends data, or a new client attempts to connect. This function uses select()
+fd_set	Server::wait_on_clients( void )
+{
+    fd_set	reads;
+    FD_ZERO(&reads);
+    FD_SET(_socket->fd(), &reads);
+    int	max_socket = _socket->fd();
+
+	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
+	{
+		it->second->close();
+		delete it->second;
+
+		FD_SET(it->first, &reads);
+        if (it->first > max_socket)
+            max_socket = it->first;
+	}
+
+    if (::select(max_socket + 1, &reads, 0, 0, 0) < 0)
+	{
+		// Temporary
+		ERROR("select() failed. " + std::string(strerror(errno)));
+        exit(1);
+    }
+
+    return reads;
+}
+// In the preceding code, first a new fd_set is declared and zeroed-out. The server
+// socket is then added to the fd_set first. Then the code loops through the
+// map of connected clients and adds the socket for each one in turn.
+// A variable, max_socket, is maintained throughout this process to store the
+// maximum socket number as required by select().
+//
+// After all the sockets are added to fd_set reads, the code calls select(), and
+// select() returns when one or more of the sockets in reads is ready.
+//
+// The wait_on_clients() function returns reads so that the caller can see which
+// socket is ready.

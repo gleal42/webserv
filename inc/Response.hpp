@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/23 09:50:11 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 00:36:30 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,15 +153,25 @@ public:
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
 
+	// Variables
 	RequestMethod	request_method;
+	std::string		body;
 
+	// Methods
 	std::string 	start_line(int status);
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
 
+	// Setters
+	void			set_content_length(int length);
+	void			set_content_type(std::string type);
+
 private:
 
 	Response( void );
+
+	int				_content_length;
+	std::string 	_content_type;
 
 };
 

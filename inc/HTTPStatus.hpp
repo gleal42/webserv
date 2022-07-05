@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 22:26:01 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/01 16:10:28 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/05 02:07:32 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ std::string const	http_phrase( int code )
     return statuses[code];
 }
 
-HTTPStatusGroup	const	http_group( int code )
+HTTPStatusGroup	http_group( int code )
 {
 	switch (code)
 	{
