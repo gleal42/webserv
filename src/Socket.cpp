@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/04 02:29:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/06 01:10:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,8 +127,8 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 }
 
 // `send` function wrapper
-void	Socket::send( const std::string & response ) {
-	::send(_fd, response.c_str(), response.size(), 0);
+int	Socket::send( const std::string & response ) {
+	return (::send(_fd, response.c_str(), response.size(), 0));
 }
 
 // `recv` function wrapper
@@ -137,6 +137,7 @@ void	Socket::receive( int buffer_size ) {
 	_buffer = std::vector<char>(buffer_size, '\0');
 
 	_bytes = recv(_fd, _buffer.data(), _buffer.size(), 0);
+	std::cout << _buffer.data() << std::endl;
 }
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }

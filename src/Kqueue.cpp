@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 02:30:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/05 23:51:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ void	Kqueue::run( Cluster cluster )
             continue;
         for (int i = 0; i < nbr_events; i++)
         {
-            // std::cout << "Event number: " << i << std::endl;
             ClusterIter event_fd = cluster.find(ListQueue[i].ident);
             if (event_fd != cluster.end()) // New event for non-existent file descriptor
                 event_fd->second->accept_client(*this);
@@ -126,10 +125,16 @@ void	Kqueue::read_connection( Socket *connection )
 void	Kqueue::write_to_connection( Socket *connection )
 {
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
-    Response response(connection->request, connection->parent()->_config);
-    response.send_response(*connection);
-    this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
-    this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
+    if (connection->response.is_empty())
+        connection->response.prepare_response(connection->request, connection->parent()->_config);
+    connection->response.send_response(*connection);
+    if (connection->response.is_empty())
+    {
+        std::cout << "Connection was empty after sending" << std::endl;
+        this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
+        this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+    }
 }
 
 bool	Kqueue::has_active_connections(Cluster cluster)

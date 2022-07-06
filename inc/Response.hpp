@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 21:16:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/05 22:35:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,25 +151,26 @@ class Response {
 public:
 
 	typedef	ResponseAttributes::iterator attributes_iterator;
-	Response( Request const & request , ServerConfig config );
+	Response( void );
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
 
 	RequestMethod	request_method;
 
 	std::string 	start_line(int status);
+	void			prepare_response( Request const & request , ServerConfig config );
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
 	void			set_attribute(std::string name, std::string value);
+	bool			is_empty();
 
 private:
 	int 		_status;
-	std::string _uri;
-	std::string _body;
+	std::string	_uri;
+	std::string	_body;
 	ResponseAttributes	_attributes;			// Map of request attributes
-	Response( void );
+	std::string	_message;
 	Response( Response const & src ); // while not implemented
-
 };
 
 std::ostream &	operator << ( std::ostream & o, Response const & i );

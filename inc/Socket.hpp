@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/04 02:29:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/05 22:34:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,12 @@ public:
 	void			bind( int port );
 	void			close( void );
 	void			listen( int max_connections );
-	void			send( const std::string & response );
+	int				send( const std::string & response );
 	void			receive( int buffer_size );
 	Socket *		accept( void );
 	std::string		to_s( void ) const;
 	Request			request;
+	Response		response;
 private:
 
 	// Should be private to avoid being set to a wrong value
