@@ -19,7 +19,7 @@ public:
 	void				update_event(int ident, short filter, u_short flags);
 	int					wait_for_events();
 	ConnectionsIter		find_existing_connection( Cluster cluster, int event_fd );
-	void				read_connection( Socket *connection );
+	void				read_connection( Socket *connection , struct kevent const & Event );
 	void				write_to_connection( Socket *connection );
 	void				close_connection( Server *server, int connection_fd);
 	void				run( Cluster cluster );

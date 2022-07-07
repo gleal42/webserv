@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/03 22:36:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/07 02:36:48 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,29 +138,21 @@ public:
 	std::string			request_line; 		// The complete request line such as: `GET / HTTP/1.1`
 	RequestMethod		request_method;
 	URI					request_uri;		// The parsed URI of the request
-	int					input_buffer_size;		// The parsed URI of the request
+	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private
 	std::string			_unparsed_uri; 		// The unparsed URI of the request
-	std::string			_path;
-	std::string			_path_info;			// The script name (CGI variable)
-	std::string			_query_string;		// The query from the URI of the request
-	std::string			_raw_header;			// The raw header of the request
-	RequestHeader		_header;				// The parsed header of the request
-	std::string			_accept;				// The Accept header value
-	std::string			_accept_charset;		// The Accept-Charset header value
-	std::string			_accept_encoding;	// The Accept-Encoding header value
-	std::string			_accept_language;	// The Accept-Language header value
-	// SocketAddress		addr;				// The socket address of the server
-	// SocketAddress		peeraddr;			// The socket address of the client
-	RequestAttributes	_attributes;			// Map of request attributes
-	std::string			_request_time;		// The local time this request was received
+	std::string			_raw_request;			// The raw header of the request
+	std::string			_raw_headers;			// The raw header of the request
 	std::string			_raw_body;
+	std::string			_unparsed_request;			// The raw header of the request
+	RequestAttributes	_attributes;			// Map of request attributes
 
 	// Parses a request from +socket+.  This is called internally by Server
-	void				parse(Socket & socket);
-	void				read_header(std::string *buf);
-	void				read_request_line(std::string *buf);
+	void				parse(Socket & socket, struct kevent const & Event );
+	void				read_header(std::string &strptr);
+	void				read_request_line(std::string &strptr);
+	void				read_body(std::string &strptr);
 
 private:
 

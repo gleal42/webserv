@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/06 01:10:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/06 20:02:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,9 +134,11 @@ int	Socket::send( const std::string & response ) {
 // `recv` function wrapper
 void	Socket::receive( int buffer_size ) {
 	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
-	_buffer = std::vector<char>(buffer_size, '\0');
+	_buffer = std::vector<char>(buffer_size + 1, '\0');
 
-	_bytes = recv(_fd, _buffer.data(), _buffer.size(), 0);
+	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
+	std::cout << "We just received " << _bytes << " bytes." << std::endl;
+	std::cout << "The data received was :" << std::endl;
 	std::cout << _buffer.data() << std::endl;
 }
 
