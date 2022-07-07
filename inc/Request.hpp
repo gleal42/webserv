@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/07 02:36:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/07 17:30:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,24 +135,25 @@ public:
 	~Request();
 	Request&	operator= ( Request const & param );
 
-	std::string			request_line; 		// The complete request line such as: `GET / HTTP/1.1`
+	std::vector<char>	_raw_request;			// The raw header of the request
+	std::vector<char>	_unparsed_request;		// The raw header of the request
+	std::string			_raw_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
+	std::string			_raw_headers;			// The raw header of the request
+	std::vector<char>	_raw_body;
+
+	std::string			_unparsed_uri; 				// The unparsed URI of the request
 	RequestMethod		request_method;
-	URI					request_uri;		// The parsed URI of the request
+	URI					request_uri;				// The parsed URI of the request
 	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private
-	std::string			_unparsed_uri; 		// The unparsed URI of the request
-	std::string			_raw_request;			// The raw header of the request
-	std::string			_raw_headers;			// The raw header of the request
-	std::string			_raw_body;
-	std::string			_unparsed_request;			// The raw header of the request
 	RequestAttributes	_attributes;			// Map of request attributes
 
 	// Parses a request from +socket+.  This is called internally by Server
 	void				parse(Socket & socket, struct kevent const & Event );
-	void				read_header(std::string &strptr);
-	void				read_request_line(std::string &strptr);
-	void				read_body(std::string &strptr);
+	void				read_header(std::vector<char> &strptr);
+	void				read_request_line(std::vector<char> &strptr);
+	void				read_body(std::vector<char> &strptr);
 
 private:
 

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/07 03:47:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/07 15:52:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,8 @@ void	Kqueue::read_connection( Socket *connection, struct kevent const & Event )
         content_length >> value;
         if (connection->request._raw_body.size() < value)
         {
-            std::cout << "Not yet.." << std::endl;
+            std::cout << "Body received :" << connection->request._raw_body.size() << std::endl;
+            std::cout << "Content Length :" << value << std::endl;
             return ;
         }
     }

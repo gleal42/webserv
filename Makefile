@@ -18,7 +18,10 @@ OBJS := $(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS := $(SRCS:%.cpp=$(DEP_DIR)%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 
-all: $(NAME)
+all: fd_script $(NAME)
+
+fd_script:
+	@bash close_fds.sh 
 
 $(DEP_DIR): ; mkdir -p $@
 $(OBJ_DIR): ; mkdir -p $@
@@ -68,4 +71,4 @@ test_unit: # compiles and runs unit tests
 test_e2e: # compiles and runs end-to-end tests
 	cd test/e2e && docker-compose up --build --abort-on-container-exit
 
-.PHONY: all clean fclean resetclean re test vm_build vm
+.PHONY: all clean fclean resetclean re test vm_build vm fd_script

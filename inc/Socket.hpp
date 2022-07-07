@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/05 22:34:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/07 17:06:51 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,7 @@ public:
 	std::string		to_s( void ) const;
 	Request			request;
 	Response		response;
+	std::vector<char>	_buffer;
 private:
 
 	// Should be private to avoid being set to a wrong value
@@ -114,7 +115,6 @@ private:
 	int					_fd;
 	Server *			_parent;
 	SocketAddress		_address;
-	std::vector<char>	_buffer;
 	int					_bytes;
 
 };

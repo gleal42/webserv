@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/07 03:16:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/07 18:28:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ Request::~Request() {
 Request& Request::operator= ( Request const & param ) {
 	// TODO (Assignment operatior)
 	// std::swap()
-	request_line = param.request_line;
+	_raw_request_line = param._raw_request_line;
 	request_method = param.request_method;
 	request_uri = param.request_uri;
 	client_max_body_size = param.client_max_body_size;
@@ -58,11 +58,11 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
-void	Request::read_request_line(std::string &strptr){
+void	Request::read_request_line(std::vector<char> &_unparsed_request){
 	std::string						str;
 	int								i = 0;
 	int								j = 0;
-	std::string						buf = strptr;
+	std::string						buf (std::string(_unparsed_request.data()));
 	std::string::iterator			iter = buf.begin();
 
 	for (; *iter != ' '; iter++)
@@ -90,9 +90,11 @@ void	Request::read_request_line(std::string &strptr){
 	for (iter++; *iter != '\n'; iter++)
 		j++;
 
-	request_line = buf.substr(0, i + j);
-	str = buf.substr(++j + ++i, buf.length());
-	strptr = str;
+	_raw_request_line = buf.substr(0, i + j + 2);
+	str = buf.substr(++j + ++i);
+	_unparsed_request.clear();
+	_unparsed_request = std::vector<char>(str.begin(), str.end() + 1); // in order to include the null characterq
+	
 };
 
 // 1
@@ -110,10 +112,11 @@ void	Request::read_request_line(std::string &strptr){
 // Check file upload
 
 
-void	Request::read_header(std::string &strptr)
+void	Request::read_header(std::vector<char> &_unparsed_request)
 {
 	std::string				key;
 	std::string				value;
+	std::string				strptr(_unparsed_request.data());
 	size_t					key_start = 0;
 	size_t					separator = 0;
 	size_t					value_start;
@@ -140,25 +143,37 @@ void	Request::read_header(std::string &strptr)
 			key_start = i + 2;
 		}
 	}
-	strptr = strptr.substr(body_start + 4);
+	std::string remaining = strptr.substr(body_start + 4);
+	std::vector<char> a(remaining.begin(), remaining.end() + 1);
+	_unparsed_request = a;
 }
 
-void	Request::read_body(std::string &strptr)
+void	Request::read_body(std::vector<char> &_unparsed_request)
 {
-	this->_raw_body += strptr;
-	strptr.clear();
+	// std::cout << "The body was previously " << (std::string(_raw_body.data())) << std::endl;
+	// std::cout << "Size " << _raw_body.size() << std::endl;
+	int a = (_raw_body.begin() != _raw_body.end());
+	this->_raw_body.insert(_raw_body.end() - a, _unparsed_request.begin(), _unparsed_request.end());
+	// std::cout << "But we added the string " << _unparsed_request << std::endl;
+	// std::cout << "Size " << _unparsed_request.size() << std::endl;
+	_unparsed_request.clear();
+	// std::cout << "Now body is " << (std::string(_raw_body.data())) << std::endl;
+	// std::cout << "Size " << _raw_body.size() << std::endl;
 }
 
 void	Request::parse(Socket & socket, struct kevent const & Event )
 {
 	socket.receive(Event.data);
-	std::string		raw_request = socket.to_s();
-	if (raw_request.empty() || socket.bytes() < 0)
+	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
-	this->_raw_request += raw_request.substr(0);
-	this->_unparsed_request += raw_request.substr(0);
 
-	if (request_line.empty() || request_line.find('\n') == std::string::npos)
+	int	not_empty_raw_request = !(this->_raw_request.empty());
+	this->_raw_request.insert(_raw_request.end() - not_empty_raw_request, socket._buffer.begin(), socket._buffer.end()); // - 1 because of extra '\0' character needed to convert to string
+
+	int	not_empty_unparsed_request = !(this->_unparsed_request.empty());
+	this->_unparsed_request.insert(_unparsed_request.end() - not_empty_unparsed_request, socket._buffer.begin(), socket._buffer.end()); // - 1 because of extra '\0' character needed to convert to string
+
+	if (_raw_request_line.empty() || _raw_request_line.find('\n') == std::string::npos)
 		read_request_line(_unparsed_request);
 	if (_raw_headers.empty() || _raw_headers.find("\r\n\r\n") == std::string::npos)
 		read_header(_unparsed_request);
