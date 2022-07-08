@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 01:25:20 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/08 19:31:01 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,14 +124,6 @@ class URI {
 
 class Request {
 public:
-	class MethodNotAllowed: public std::exception {
-		public:
-			virtual const char * what() const throw();
-	};
-	class EmptyHttpRequest: public std::exception {
-		public:
-			virtual const char * what() const throw();
-	};
 	Request(const ServerConfig & config);
 	Request(const Request&);
 	~Request();
