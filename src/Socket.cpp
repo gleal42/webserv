@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/06 20:02:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/07 19:51:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,12 +134,14 @@ int	Socket::send( const std::string & response ) {
 // `recv` function wrapper
 void	Socket::receive( int buffer_size ) {
 	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
-	_buffer = std::vector<char>(buffer_size + 1, '\0');
+	_buffer = std::vector<char>(buffer_size + 1, '\0'); // One more for null terminated string
 
 	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
 	std::cout << "We just received " << _bytes << " bytes." << std::endl;
-	std::cout << "The data received was :" << std::endl;
-	std::cout << _buffer.data() << std::endl;
+	if (buffer_size != _bytes)
+		throw std::runtime_error("UH OHHHHHHHHHHHH");
+	// std::cout << "The data received was :" << std::endl;
+	// std::cout << _buffer.data() << std::endl;
 }
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }

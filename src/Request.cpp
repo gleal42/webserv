@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/07 18:28:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/08 03:21:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,10 +91,11 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 		j++;
 
 	_raw_request_line = buf.substr(0, i + j + 2);
+	std::cout << "Request line is :" << _raw_request_line << std::endl;
 	str = buf.substr(++j + ++i);
 	_unparsed_request.clear();
-	_unparsed_request = std::vector<char>(str.begin(), str.end() + 1); // in order to include the null characterq
-	
+	_unparsed_request = std::vector<char>(str.begin(), str.end()); // in order to include the null characterq
+	_unparsed_request.push_back('\0');
 };
 
 // 1
@@ -126,6 +127,7 @@ void	Request::read_header(std::vector<char> &_unparsed_request)
 	if (body_start == std::string::npos)
 		return ;
 	_raw_headers += strptr.substr(0, body_start + 4);
+	std::cout << "Headers are :" << _raw_headers << std::endl;
 	for (size_t i = 0; i < body_start; i++){
 		if (_raw_headers[i] == ':')
 		{
@@ -150,15 +152,8 @@ void	Request::read_header(std::vector<char> &_unparsed_request)
 
 void	Request::read_body(std::vector<char> &_unparsed_request)
 {
-	// std::cout << "The body was previously " << (std::string(_raw_body.data())) << std::endl;
-	// std::cout << "Size " << _raw_body.size() << std::endl;
-	int a = (_raw_body.begin() != _raw_body.end());
-	this->_raw_body.insert(_raw_body.end() - a, _unparsed_request.begin(), _unparsed_request.end());
-	// std::cout << "But we added the string " << _unparsed_request << std::endl;
-	// std::cout << "Size " << _unparsed_request.size() << std::endl;
+	join_char_vectors(_raw_body, _unparsed_request);
 	_unparsed_request.clear();
-	// std::cout << "Now body is " << (std::string(_raw_body.data())) << std::endl;
-	// std::cout << "Size " << _raw_body.size() << std::endl;
 }
 
 void	Request::parse(Socket & socket, struct kevent const & Event )
@@ -167,11 +162,9 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
 
-	int	not_empty_raw_request = !(this->_raw_request.empty());
-	this->_raw_request.insert(_raw_request.end() - not_empty_raw_request, socket._buffer.begin(), socket._buffer.end()); // - 1 because of extra '\0' character needed to convert to string
-
-	int	not_empty_unparsed_request = !(this->_unparsed_request.empty());
-	this->_unparsed_request.insert(_unparsed_request.end() - not_empty_unparsed_request, socket._buffer.begin(), socket._buffer.end()); // - 1 because of extra '\0' character needed to convert to string
+	join_char_vectors(_raw_request, socket._buffer); // Maybe unnecessary
+	std::cout << "We have received [" << _raw_request.size() << "] bytes in total." << std::endl;
+	join_char_vectors(_unparsed_request, socket._buffer);
 
 	if (_raw_request_line.empty() || _raw_request_line.find('\n') == std::string::npos)
 		read_request_line(_unparsed_request);
@@ -183,4 +176,22 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	// set accept_* values
 	// setup_forwarded_info();
 	// request_uri = parse_uri(unparsed_uri);
+}
+
+void	Request::join_char_vectors(std::vector<char> &original, std::vector<char> &to_add)
+{
+	if (!original.empty())
+		original.pop_back();
+	original.insert(original.end(), to_add.begin(), to_add.end()); 
+}
+
+void	Request::clear()
+{
+	_raw_request.clear();
+	_unparsed_request.clear();
+	_raw_request_line.clear();
+	_raw_headers.clear();
+	_raw_body.clear();
+	_unparsed_uri.clear();
+	_attributes.clear();
 }

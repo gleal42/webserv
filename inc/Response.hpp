@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 22:35:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/08 01:55:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,6 +163,7 @@ public:
 	void 			send_error(int socketfd);
 	void			set_attribute(std::string name, std::string value);
 	bool			is_empty();
+	void			save_file(std::vector<char> const & body);
 
 private:
 	int 		_status;

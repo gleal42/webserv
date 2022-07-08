@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/07 15:52:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/08 01:32:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,11 @@ void	Kqueue::run( Cluster cluster )
                 else if (ListQueue[i].filter == EVFILT_READ)
                     read_connection(connection_it->second, ListQueue[i]);
                 else if (ListQueue[i].filter == EVFILT_WRITE)
+                {
 					write_to_connection(connection_it->second);
+                    if (connection_it->second->response.is_empty())
+                        connection_it->second->request.clear();
+                }
             }
         }
     }
@@ -125,13 +129,16 @@ void	Kqueue::read_connection( Socket *connection, struct kevent const & Event )
         std::stringstream content_length(connection->request._attributes["Content-Length"]);
         size_t value = 0;
         content_length >> value;
-        if (connection->request._raw_body.size() < value)
+        if (connection->request._raw_body.size() < value + 1)
         {
-            std::cout << "Body received :" << connection->request._raw_body.size() << std::endl;
+            std::cout << "Body total received :" << connection->request._raw_body.size() << std::endl;
             std::cout << "Content Length :" << value << std::endl;
+            std::cout << "Remaining :" << value - connection->request._raw_body.size() << std::endl;
             return ;
         }
     }
+    std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
+
     this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
     this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }

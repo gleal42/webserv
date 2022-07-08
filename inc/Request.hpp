@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/07 17:30:47 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/08 00:04:01 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,8 @@ public:
 	void				read_header(std::vector<char> &strptr);
 	void				read_request_line(std::vector<char> &strptr);
 	void				read_body(std::vector<char> &strptr);
+	void				join_char_vectors(std::vector<char> &original, std::vector<char>	&to_add);
+	void				clear( void );
 
 private:
 
