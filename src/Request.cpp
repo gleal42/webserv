@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/05 00:06:00 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/09 18:28:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "HTTPStatus.hpp"
 
+/* Constructors */
 Request::Request( void ) { /* no-op */ }
 
 Request::Request(const ServerConfig & config){
@@ -46,6 +48,8 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 	return (s);
 }
 
+/* Methods */
+
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
 void	Request::read_request_line(std::string *strptr){
@@ -54,23 +58,20 @@ void	Request::read_request_line(std::string *strptr){
 	int								j = 0;
 	std::string						buf = *strptr;
 	std::string::iterator			iter = buf.begin();
+	RequestMethods	request_methods;
+
+	request_methods["GET"] = GET;
+	request_methods["POST"] = POST;
+	request_methods["DELETE"] = DELETE;
 
 	for (; *iter != ' '; iter++)
 		i++;
 	str = buf.substr(0, ++i);
 
-	// Consider global constant map: 	RequestMethods[ str ]
-	// typedef std::map< std::string, RequestMethod >	RequestMethods;
-	// this will avoid re-doing these comparisons every time
-	if (str.compare("GET"))
-		request_method = GET;
-	else if(str.compare("POST"))
-		request_method = POST;
-	else if(str.compare("DELETE"))
-		request_method = DELETE;
-	else
-		throw("No appropriate method");
-		// this error should have happened at the config parsing stage and blocked the loading of the server
+	if (request_methods.find(str) == request_methods.end())
+		throw HTTPStatus<405>();
+
+	request_method = request_methods[str];
 
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
@@ -135,7 +136,7 @@ void	Request::parse(Socket & socket){
 
 	raw_request = socket.to_s();
 	if (raw_request.empty() || socket.bytes() < 0)
-		throw std::exception(); // TODO: decide what error this is
+		throw HTTPStatus<400>();
 	this->_raw_header = raw_request.substr(0);
 	read_request_line(&raw_request);
 	read_header(&raw_request);
