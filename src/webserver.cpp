@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 19:17:59 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/10 22:22:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
 #include "Server.hpp"
+#include "Kqueue.hpp"
 
 typedef std::vector<Server*> Cluster;
 
@@ -29,15 +30,19 @@ int webserver(std::string config_file)
 	// Initialize Cluster
 	size_t		amount = parser.configs_amount();
 	Cluster		cluster(amount);
+	int kq = kqueue();
 	for (size_t i = 0; i < amount; ++i) {
 		// Initialize each new Server with a config from the parser
 		ServerConfig	config(parser.config(i));
-		cluster[i] = new Server(config);
+		cluster[i] = new Server(config, kq);
 	}
 
 	// Start Cluster
-	for (size_t i = 0; i < amount; ++i) {
-		cluster[i]->start();
+	while (1)
+	{
+		for (size_t i = 0; i < amount; ++i) {
+				cluster[i]->start();
+		}
 	}
 
 	// Shutdown and cleanup

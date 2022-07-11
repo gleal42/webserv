@@ -3,20 +3,27 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/05 01:24:18 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/11 16:05:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+#include "Kqueue.hpp"
 
 /* Exceptions */
 Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
 
 Socket::CreateError::CreateError( void )
 	: std::runtime_error("Failed to create socket.") { /* No-op */ }
+
+Socket::ReusableAddressError::ReusableAddressError( void )
+	: std::runtime_error("Failed to make socket address reusable.") { /* No-op */ }
+
+Socket::ReusablePortError::ReusablePortError( void )
+	: std::runtime_error("Failed to make socket port reusable.") { /* No-op */ }
 
 Socket::BindError::BindError( int port )
 	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
@@ -26,12 +33,14 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0) { /* No-op */ }
+Socket::Socket( void ) :  _bytes(0), _port(PORT_UNSET) { /* No-op */ }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
+Socket::Socket( int port ) : _bytes(0), _port(PORT_UNSET)
 {
 	create();
+	setsockopt(SO_REUSEPORT);
+	setsockopt(SO_REUSEADDR);
 	bind(port);
 }
 
@@ -68,7 +77,19 @@ void	Socket::create( void )
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
-	// fcntl(_fd, F_SETFL, O_NONBLOCK);
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
+}
+
+void	Socket::setsockopt( int option )
+{
+    const int val = 1;
+	if (::setsockopt(_fd, SOL_SOCKET, option, &val, sizeof(int)) < 0)
+	{
+		if (option == SO_REUSEPORT)
+			throw Socket::ReusablePortError();
+		else if (option == SO_REUSEADDR)
+			throw Socket::ReusableAddressError();
+	}
 }
 
 // C `bind` function wrapper
@@ -95,8 +116,16 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 }
 
 // `send` function wrapper
-void	Socket::send( const std::string & response ) {
-	::send(_fd, response.c_str(), response.size(), 0);
+void	Socket::send( const std::string & response )
+{
+	ssize_t return_value = ::send(_fd, response.c_str(), response.size(), 0);
+	if (return_value < 1)
+	{
+		throw std::runtime_error("SEND SUCKS");
+	}
+	PRINT(return_value);
+	PRINT(response.c_str());
+	PRINT(response.size());
 	// You should generally check that the number of bytes sent was as expected,
 	// and you should attempt to send the rest if it's not.
 }
@@ -106,7 +135,10 @@ void	Socket::receive( void ) {
 	// The following code uses recv() to write new data into the client's buffer
 	// while being careful to not overflow that buffer:
 
+	PRINT("Bytes before " << _bytes);
 	_bytes += recv(_fd, _buffer.data() + _bytes, _buffer.size() - _bytes, 0);
+	PRINT("We just received " << _bytes);
+	PRINT("The message is " << _buffer.data());
 
 	// TODO: do something if `recv` fails by returning 0 or -1.
 	// If the connection is terminated by the client, recv() returns 0 or -1,
@@ -138,7 +170,9 @@ Socket *	Socket::accept( int buffer_size ) {
 	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
 	s->_buffer = std::vector<char>(buffer_size, '\0');
 
-	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
+	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
+	PRINT("We just accepted connection with fd " << s->fd());
+	
 	return s;
 }
 

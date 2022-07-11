@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/09 18:28:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 15:27:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ Request::Request(const Request& param) {
 }
 
 Request::~Request() {
-	std::cout << "Request" << " destroyed" << std::endl;
+	// std::cout << "Request" << " destroyed" << std::endl;
 	// TODO (destructor)
 }
 
@@ -66,14 +66,14 @@ void	Request::read_request_line(std::string *strptr){
 
 	for (; *iter != ' '; iter++)
 		i++;
-	str = buf.substr(0, ++i);
+	str = buf.substr(0, i++);
 
 	if (request_methods.find(str) == request_methods.end())
 		throw HTTPStatus<405>();
 
 	request_method = request_methods[str];
 
-	for (*(iter)++; *iter != ' '; iter++)
+	for (*(++iter); *iter != ' '; iter++)
 		j++;
 
 	_unparsed_uri = buf.substr(i, j);
@@ -135,9 +135,10 @@ void	Request::parse(Socket & socket){
 	std::string		raw_request;
 
 	raw_request = socket.to_s();
+	// raw_request = "GET /test.txt HTTP/1.1\r\nContent-Type: text/plain\r\n\r\n";
 	if (raw_request.empty() || socket.bytes() < 0)
 		throw HTTPStatus<400>();
-	this->_raw_header = raw_request.substr(0);
+	this->_raw_header = raw_request;
 	read_request_line(&raw_request);
 	read_header(&raw_request);
 

@@ -1,5 +1,17 @@
 <html><head>
 <title>Example Page</title>
+<script>
+
+function FetchWebserver( )
+{
+	let r = new Request("http://localhost:8080", {method : "GET"});
+	fetch(r)
+	.then(response => {
+		console.log(response);
+	});
+}
+
+</script>
 </head><body>
 
 <h1>Example Page</h1>
@@ -10,6 +22,10 @@
 or click <a href="test.txt">here</a> to download a text file.</p>
 
 <img src="smile.png"/>
+
+<button onclick="FetchWebserver()" >
+	Fetch Server
+</button>
 
 </body>
 </html>

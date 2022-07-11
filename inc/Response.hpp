@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 00:36:30 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/11 16:03:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ public:
 
 	// Methods
 	std::string 	start_line(int status);
-	void			send_response(Socket const & socket);
+	void			send_response(Socket & socket);
 	void 			send_error(int socketfd);
 
 	// Setters

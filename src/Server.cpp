@@ -3,21 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 18:53:52 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/11 16:27:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Kqueue.hpp"
 
 /* Constructors */
 Server::Server( void ) : _socket(NULL) { /* no-op */ }
 Server::Server( Server const & src ) : _socket(NULL) { *this = src; }
 
-Server::Server( ServerConfig const & config ) : _config(config), _socket(NULL)
+Server::Server( ServerConfig const & config, int kq ) : _config(config), _kq(kq) , _socket(NULL)
 {
+	
 	// set some variables from the config in initialization list aswell
 	// or here if they need treating first
 	try {
@@ -44,6 +46,7 @@ Server::Server( ServerConfig const & config ) : _config(config), _socket(NULL)
 		LOG(e.what());
 	}
 	_max_connections = config.max_clients;
+	add_event(_kq, _socket->fd(), EVFILT_READ);
 }
 
 /* Destructor */
@@ -64,83 +67,79 @@ Server &	Server::operator = ( Server const & rhs )
 // Starts accepting connections
 void	Server::start( void )
 {
-	// begin an endless loop that waits on clients. We call wait_on_clients()
-	// to wait until a new client connects or an old client sends new data:
-	while(1) {
-		fd_set	reads;
-		reads = wait_on_clients();
-
-		// The server then detects whether a new client has connected. This case
-		// is indicated by server being set in fd_set reads. We use the FD_ISSET()
-		// macro to detect this condition:
-		if (FD_ISSET(_socket->fd(), &reads)
-			&& _connections.size() < _max_connections) {
-
-			// Once a new client connection has been detected,
-			// creates a new connection.
-			//
-			// The accept() socket function is used to accept the new connection.
-			// The new socket returned by accept() is stored in connections.
+	int	nbr_events = wait_on_clients();
+	PRINT("NUMBER EVENTS: " << nbr_events);
+	if (nbr_events <= 0)
+		return ;
+	for (size_t i = 0; i < (size_t)nbr_events; i++)
+	{
+		if (_ListQueue[i].ident == (size_t)this->_socket->fd())
+		{
 			Socket *	connection = _socket->accept(_config.input_buffer_size);
 			if (!connection)
 				return ; // catch socket error here
+			add_event(_kq, connection->fd(), EVFILT_READ);
+			enable_event(_kq, connection->fd(), EVFILT_READ);
+			add_event(_kq, connection->fd(), EVFILT_WRITE);
+			disable_event(_kq, connection->fd(), EVFILT_WRITE);
 			_connections[connection->fd()] = connection;
+			PRINT( "New connection fd " << connection->fd() );
 		}
-
-		// Our server must then handle the case where an already connected client
-		// is sending data. We first walk through the map of clients and use
-		// FD_ISSET() on each client to determine which clients have data available.
-		for (ConnectionsIter it = _connections.begin(); it != _connections.end(); )
+		else
 		{
-			if (FD_ISSET(it->first, &reads)) {
-
-				// We then check that we have memory available to store more
-				// received data for client. If the client's buffer is already
-				// completely full, then we send a 400 error.
-				if (_config.input_buffer_size == it->second->bytes()) {
-					throw HTTPStatus<400>();
-				}
-
-				// Knowing that we have at least some memory left to store received data,
-				// we can use recv() to store the client's data.
-				try {
-					it->second->receive();
-				}
-				catch(const std::exception& e) { // catch SocketError::Receive
-					ERROR(e.what());
-					drop_client(it);
-				}
-
-				// If the received data was written successfully, our server adds a null
-				// terminating character to the end of that client's data buffer.
-				// This allows us to use string find() to search the buffer, as the null
-				// terminator tells find() when to stop.
-				//
-				// Recall that the HTTP header and body is delineated by a blank line.
-				// Therefore, if find() finds a blank line (\r\n\r\n, or CRLF x2), we
-				// know that the HTTP header has been received and we can begin to service it.
-				it->second->_buffer[it->second->bytes()] = 0;
-
-				std::string		raw_request(it->second->to_s());
-				std::string		blank_line(std::string(CRLF) + std::string(CRLF));
-
-				if (raw_request.find(blank_line) != std::string::npos) {
-
-					// Temporary
-					// Our server only handles GET requests. We also enforce that any
-					// valid path should start with a slash character; strncmp() is
-					// used to detect these two conditions in the following code:
-					if (raw_request.substr(0, 5) != "GET /") {
+			for (ConnectionsIter it = _connections.begin(); it != _connections.end(); ++it)
+			{
+				if (_ListQueue[i].ident == (size_t)it->first)
+				{
+					PRINT("New event for non-server fd " << _ListQueue[i].ident);
+					if (_config.input_buffer_size == it->second->bytes()) {
 						throw HTTPStatus<400>();
 					}
+					if (_ListQueue[i].flags & EV_EOF)
+					{
+							PRINT ("Closing Connection for client: " << _ListQueue[i].ident);
+							delete_event(_kq, it->first, EVFILT_READ);
+							delete_event(_kq, it->first, EVFILT_WRITE);
+							drop_client(it);
+							if (it == _connections.end())
+								break ;
+					}
+					else if (_ListQueue[i].filter == EVFILT_READ)
+					{
+						PRINT("About to read from fd " << _ListQueue[i].ident);
+						try {
+							it->second->receive();
+						}
+						catch(const std::exception& e) { // catch SocketError::Receive
+							ERROR(e.what());
+							drop_client(it);
+						}
+						disable_event(_kq, it->first, EVFILT_READ);
+						enable_event(_kq, it->first, EVFILT_WRITE);
+					}
+					else if (_ListQueue[i].filter == EVFILT_WRITE)
+					{
+						PRINT("About to write on fd " << _ListQueue[i].ident);
+						it->second->_buffer[it->second->bytes()] = 0;
 
-					run(*it->second);
-					drop_client(it);
-				} //if (raw_request.find
-			} //if (FD_ISSET
-			else { ++it; }
-		} //for (ConnectionsIter
-	} //while(1)
+						std::string		raw_request(it->second->to_s());
+						std::string		blank_line(std::string(CRLF) + std::string(CRLF));
+
+						if (raw_request.find(blank_line) != std::string::npos) {
+
+							if (raw_request.substr(0, 5) != "GET /") {
+								throw HTTPStatus<400>();
+							}
+							// check why eof with writing
+							run(*it->second);
+						} //if (raw_request.find
+						enable_event(_kq, it->first, EVFILT_READ);
+						disable_event(_kq, it->first, EVFILT_WRITE);
+					} // else if (_ListQueue->filter
+				} // if (_ListQueue->ident
+			} // for(ConnectionsIter
+		}
+	} //for (size_t i = 0
 }
 
 // Does necessary to service a connection
@@ -169,9 +168,7 @@ void	Server::run(Socket & socket) {
 	// }
 
 	// Temporary
-	if (req._raw_header != "") {
-		res.send_response(socket);
-	}
+	res.send_response(socket);
 }
 
 // Services +req+ and fills in +res+
@@ -230,28 +227,11 @@ void	Server::drop_client( ConnectionsIter & it )
 // that our server must have a way to wait for data from multiple clients at once.
 // We define a function, wait_on_clients(), which blocks until an existing client
 // sends data, or a new client attempts to connect. This function uses select()
-fd_set	Server::wait_on_clients( void )
+int	Server::wait_on_clients( void )
 {
-	fd_set	reads;
-	FD_ZERO(&reads);
-	FD_SET(_socket->fd(), &reads);
-	int	max_socket = _socket->fd();
-
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
-	{
-		FD_SET(it->first, &reads);
-		if (it->first > max_socket)
-			max_socket = it->first;
-	}
-
-	if (::select(max_socket + 1, &reads, 0, 0, 0) < 0)
-	{
-		// Temporary
-		ERROR("select() failed. " + std::string(strerror(errno)));
-		exit(1);
-	}
-
-	return reads;
+    // struct timespec kqTimeout = {2, 0};
+	std::cout << "\n+++++++ Waiting on clients ++++++++\n" << std::endl;
+    return (kevent(_kq, NULL, 0, _ListQueue, 10, NULL));
 }
 // In the preceding code, first a new fd_set is declared and zeroed-out. The server
 // socket is then added to the fd_set first. Then the code loops through the
