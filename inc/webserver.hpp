@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/03 23:25:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 22:42:38 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,16 +18,20 @@
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <map>
 
 #include "macros.hpp"
-#include "Server.hpp"
-#include "Request.hpp"
-#include "Response.hpp"
-#include "ConfigParser.hpp"
-#include "ServerConfig.hpp"
-#include "Socket.hpp"
-#include "Kqueue.hpp"
-#include "utils.hpp"
+
+typedef std::map<int, std::string> HTTPStatuses;
+
+enum HTTPStatusGroup {
+	STATUS_INVALID,
+	STATUS_INFO,
+	STATUS_SUCCESS,
+	STATUS_REDIRECT,
+	STATUS_CLIENT_ERROR,
+	STATUS_SERVER_ERROR,
+};
 
 struct KqueueError : public std::runtime_error {
 	KqueueError( void );
@@ -42,6 +46,8 @@ struct KqueueError : public std::runtime_error {
 
 // Functions
 int 		webserver(std::string config);
+std::string const	http_phrase( int code );
+HTTPStatusGroup		http_group( int code );
 
 
 #endif

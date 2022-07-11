@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/07 17:06:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 22:36:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 
 #include "utils.hpp"
 # include "Request.hpp"
-# include "Server.hpp"
+# include "Listener.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1
@@ -89,12 +89,12 @@ public:
 
 	// Getters
 	int				fd( void ) const;
-	Server *		parent( void ) const;
+	Listener *		parent( void ) const;
 	int				port( void ) const;
 	int				bytes( void ) const;
 	// Setters
 	void			set_fd( int fd );
-	void			set_parent( Server *server );
+	void			set_parent( Listener *listener );
 
 	void 			create( void );
 	void 			setsockopt( int option );
@@ -113,7 +113,7 @@ private:
 	// Should be private to avoid being set to a wrong value
 	int					_port;
 	int					_fd;
-	Server *			_parent;
+	Listener *			_parent;
 	SocketAddress		_address;
 	int					_bytes;
 

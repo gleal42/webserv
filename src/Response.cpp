@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/08 03:07:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 23:31:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ void	Response::prepare_response( Request const & request , ServerConfig config )
 	_status = 200;
 	// TODO (implement constructor)
 	// set member vars from config
-	std::cout << "Unparsed URI " << request._unparsed_uri << std::endl;
-	if (request._unparsed_uri == "/favicon.ico")
+	std::cout << "Unparsed URI " << request._path << std::endl;
+	if (request._path == "/favicon.ico")
 		return ;
-	if (request._unparsed_uri == "/")
+	if (request._path == "/")
 		_uri = "index.html";
 	else
-		_uri = request._unparsed_uri.c_str() + 1;
+		_uri = request._path.c_str() + 1;
 	std::ifstream open_file(_uri.c_str());
 	if ( (open_file.rdstate() & std::ifstream::failbit ) != 0
     || (open_file.rdstate() & std::ifstream::badbit ) != 0 )
@@ -56,7 +56,7 @@ void	Response::prepare_response( Request const & request , ServerConfig config )
 		set_attribute("Content-Type", "text/html");
 	else if (type == ".jpeg")
 		set_attribute("Content-Type", "image/jpeg");
-	save_file(request._raw_body);
+	// save_file(request._raw_body);
 }
 
 Response::Response( Response const & src ){
@@ -140,4 +140,18 @@ void	Response::save_file(std::vector<char> const & body)
 	std::stringstream body_str;
 	body_str << open_file.rdbuf();
 	std::string original_image = body_str.str();
+}
+
+void	Response::set_content_length(int length)
+{
+	_content_length = length;
+}
+void	Response::set_content_type(std::string const & type)
+{
+	_content_type = type;
+}
+
+void	Response::set_body(std::string const & body)
+{
+	_body = body;
 }

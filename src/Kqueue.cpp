@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/08 01:32:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 22:37:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,25 +97,25 @@ int	Kqueue::wait_for_events()
 ConnectionsIter	Kqueue::find_existing_connection( Cluster cluster, int event_fd )
 {
     ConnectionsIter connection_it;
-    for (ClusterIter it_server = cluster.begin(); it_server != cluster.end(); it_server++)
+    for (ClusterIter listener = cluster.begin(); listener != cluster.end(); listener++)
     {
-        connection_it = it_server->second->_connections.find(event_fd);
-        if (connection_it != it_server->second->_connections.end())
+        connection_it = listener->second->_connections.find(event_fd);
+        if (connection_it != listener->second->_connections.end())
             return (connection_it);
     }
     return (connection_it);
 }
 
-void	Kqueue::close_connection( Server *server, int connection_fd)
+void	Kqueue::close_connection( Listener *listener, int connection_fd)
 {
     std::cout << "Closing Connection for client: " << connection_fd << std::endl;
     this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
     this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
     close(connection_fd);
     // p connection_fd
-    // p server._connections[connection_fd]
-    delete server->_connections[connection_fd];
-    server->_connections.erase(connection_fd);
+    // p listener._connections[connection_fd]
+    delete listener->_connections[connection_fd];
+    listener->_connections.erase(connection_fd);
 }
 
 void	Kqueue::read_connection( Socket *connection, struct kevent const & Event )

@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Server.hpp                                         :+:      :+:    :+:   */
+/*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 02:31:18 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/11 22:29:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __SERVER_H__
-# define __SERVER_H__
+#ifndef __LISTENER_H__
+# define __LISTENER_H__
 
 # include <iostream>
 # include <netinet/in.h>
@@ -19,9 +19,6 @@
 # include <fcntl.h>
 # include <sys/event.h>
 # include <map>
-
-// Apagar depois
-# include <errno.h>
 
 # include "ServerConfig.hpp"
 # include "Response.hpp"
@@ -52,23 +49,23 @@ Needs to be able to:
 struct 	ServerConfig;
 class	Socket;
 class	Kqueue;
-class	Server;
-typedef std::map<int, Server*> Cluster;
+class	Listener;
+typedef std::map<int, Listener*> Cluster;
 typedef Cluster::iterator ClusterIter;
 
 typedef std::map< int, Socket * > Connections;
 typedef Connections::iterator ConnectionsIter;
 typedef std::pair< int, Socket * > Connection;
 
-class Server {
+class Listener {
 
 public:
-	Server( Server const & src );
-	Server( ServerConfig const & config );
-	~Server( void );
-	Server &	operator = ( Server const & rhs );
+	Listener( Listener const & src );
+	Listener( ServerConfig const & config );
+	~Listener( void );
+	Listener &	operator = ( Listener const & rhs );
 
-	// Server Starts listening on creation
+	// Listener Starts listening on creation
 	void		accept_client( Kqueue &kq );
 	void		stop( void );
 	void		shutdown( void );
@@ -79,9 +76,9 @@ public:
 	ServerConfig	_config;
 private:
 
-	Server( void );
+	Listener( void );
 	Socket *		_socket;
 	size_t			_max_connections;
 };
 
-#endif /* __SERVER_H__ */
+#endif /* __LISTENER_H__ */

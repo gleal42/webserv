@@ -12,8 +12,10 @@ SRCS := main.cpp \
 		ConfigParser.cpp \
 		Request.cpp \
 		Response.cpp \
-		Server.cpp \
+		Listener.cpp \
 		Socket.cpp \
+		FileHandler.cpp \
+		BaseStatus.cpp \
 		Kqueue.cpp \
 		webserver.cpp
 VPATH = src/

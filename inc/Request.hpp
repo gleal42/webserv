@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/08 00:04:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 23:12:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,7 +141,7 @@ public:
 	std::string			_raw_headers;			// The raw header of the request
 	std::vector<char>	_raw_body;
 
-	std::string			_unparsed_uri; 				// The unparsed URI of the request
+	std::string			_path; 				// The unparsed URI of the request
 	RequestMethod		request_method;
 	URI					request_uri;				// The parsed URI of the request
 	int					client_max_body_size;		// Max client body size

@@ -6,13 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/04 22:12:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 22:39:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
-#include "Server.hpp"
+#include "Listener.hpp"
 #include "Kqueue.hpp"
 
 
@@ -39,13 +39,13 @@ int webserver(std::string config_file)
 	// Initialize Cluster
 	size_t		amount = parser.configs_amount();
 	Cluster		cluster;
-	Server		*new_server;
+	Listener		*new_listener;
 	for (size_t i = 0; i < amount; ++i) {
-		// Initialize each new Server with a config from the parser
+		// Initialize each new Listener with a config from the parser
 		ServerConfig	config(parser.config(i));
-		new_server = new Server(config);
-		kq.update_event(new_server->fd(), EVFILT_READ, EV_ADD);
-		cluster[new_server->fd()] = new_server;
+		new_listener = new Listener(config);
+		kq.update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
+		cluster[new_listener->fd()] = new_listener;
 	}
 
 	// Start Cluster

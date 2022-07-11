@@ -6,13 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/08 03:21:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 23:13:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Socket.hpp"
-#include "Server.hpp"
+#include "Listener.hpp"
 
 Request::Request( void ) { /* no-op */ }
 
@@ -43,7 +43,7 @@ Request& Request::operator= ( Request const & param ) {
 	request_method = param.request_method;
 	request_uri = param.request_uri;
 	client_max_body_size = param.client_max_body_size;
-	_unparsed_uri = param._unparsed_uri;
+	_path = param._path;
 	_raw_request = param._raw_request;
 	_attributes = param._attributes;
 	_raw_body = param._raw_body;
@@ -85,7 +85,7 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
 
-	_unparsed_uri = buf.substr(i, j);
+	_path = buf.substr(i, j);
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;
@@ -192,6 +192,6 @@ void	Request::clear()
 	_raw_request_line.clear();
 	_raw_headers.clear();
 	_raw_body.clear();
-	_unparsed_uri.clear();
+	_path.clear();
 	_attributes.clear();
 }

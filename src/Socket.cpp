@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/07 19:51:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 22:32:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,16 +67,16 @@ Socket &	Socket::operator = ( Socket const & rhs )
 
 // Getters
 int	Socket::fd( void ) const { return _fd; }
-Server *	Socket::parent( void ) const{ return _parent; };
+Listener *	Socket::parent( void ) const{ return _parent; };
 int	Socket::port( void ) const { return _port; }
 int	Socket::bytes( void ) const { return _bytes; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
-void	Socket::set_parent( Server *server)
+void	Socket::set_parent( Listener *listener)
 {
-	request = server->socket()->request;
-	_parent = server;
+	request = listener->socket()->request;
+	_parent = listener;
 }
 
 // C `socket` function wrapper
