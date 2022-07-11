@@ -1,4 +1,9 @@
-CXX := c++
+UNAME  :=      $(shell uname)
+ifeq ($(UNAME), Darwin)
+       CXX := c++
+else
+       CXX     := g++
+endif
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
 NAME := webserv

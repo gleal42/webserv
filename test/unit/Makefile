@@ -5,8 +5,8 @@ CPPFLAGS := $(INC)
 COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
+all:	socket parser
 
-all:	socket parser kqueue
 
 ##---  Socket  ---##
 SOCKET := Socket.test.cpp ../../src/utils.cpp ../../src/Socket.cpp
@@ -40,19 +40,16 @@ status: HTTPStatus # run HTTPStatus class tests
 HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 	$(COMPILE) $(STATUS) -o $@
 
-KQUEUE := Kqueue.test.cpp \
-		../../src/Kqueue.cpp \
-		../../src/Server.cpp \
-		../../src/Socket.cpp \
-		../../src/Response.cpp \
-		../../src/utils.cpp \
-		../../src/Request.cpp
 
-kqueue: Kqueue # run Kqueue class tests
-	./Kqueue
+##---  FileHandler  ---##
+FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp
 
-# # compile Kqueue class tests
-Kqueue:	$(KQUEUE) ../../inc/Kqueue.hpp
-	$(COMPILE) $(KQUEUE) -o $@
+file_handler: FileHandler # run FileHandler class tests
+	./FileHandler
 
-.PHONY: all socket parser status kqueue
+# compile FileHandler class tests
+FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
+	$(COMPILE) $(FILE_HANDLER) -o $@
+
+
+.PHONY: all socket parser status file_handler
