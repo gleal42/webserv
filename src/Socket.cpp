@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/11 16:05:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 19:34:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,10 @@ Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) :  _bytes(0), _port(PORT_UNSET) { /* No-op */ }
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0) { /* No-op */ }
 
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _bytes(0), _port(PORT_UNSET)
+Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
 {
 	create();
 	setsockopt(SO_REUSEPORT);
@@ -116,7 +116,7 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 }
 
 // `send` function wrapper
-void	Socket::send( const std::string & response )
+void	Socket::send( const std::string & response ) const
 {
 	ssize_t return_value = ::send(_fd, response.c_str(), response.size(), 0);
 	if (return_value < 1)

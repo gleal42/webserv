@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:05:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/10 16:46:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 19:23:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ public:
 
 	Server( void );
 	Server( Server const & src );
-	Server( ServerConfig const & config, int kq );
+	Server( ServerConfig const & config );
 	~Server( void );
 	Server &	operator = ( Server const & rhs );
 

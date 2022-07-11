@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 16:27:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 19:42:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 Server::Server( void ) : _socket(NULL) { /* no-op */ }
 Server::Server( Server const & src ) : _socket(NULL) { *this = src; }
 
-Server::Server( ServerConfig const & config, int kq ) : _config(config), _kq(kq) , _socket(NULL)
+Server::Server( ServerConfig const & config ) : _config(config), _socket(NULL)
 {
-	
+	_kq = kqueue();
 	// set some variables from the config in initialization list aswell
 	// or here if they need treating first
 	try {

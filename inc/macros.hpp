@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/07 21:17:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 15:42:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 19:26:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,8 @@
 #  define PRINT(x)
 # endif
 
-// # define CR   "\x0d"		// CR (character : \r, Unicode : U+000D, ASCII : 13, hex : 0x0d)
-// # define LF   "\x0a"		// LF (character : \n, Unicode : U+000A, ASCII : 10, hex : 0x0a)
-// # define CRLF "\x0d\x0a"
-# define CR   "\r"		// CR (character : \r, Unicode : U+000D, ASCII : 13, hex : 0x0d)
-# define LF   "\n"		// LF (character : \n, Unicode : U+000A, ASCII : 10, hex : 0x0a)
-# define CRLF "\r\n"
+# define CR   "\x0d"		// CR (character : \r, Unicode : U+000D, ASCII : 13, hex : 0x0d)
+# define LF   "\x0a"		// LF (character : \n, Unicode : U+000A, ASCII : 10, hex : 0x0a)
+# define CRLF "\x0d\x0a"
 
 #endif

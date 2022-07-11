@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 16:03:22 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 19:22:26 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,8 +158,8 @@ public:
 	std::string		body;
 
 	// Methods
-	std::string 	start_line(int status);
-	void			send_response(Socket & socket);
+	std::string 	start_line(int status) const;
+	void			send_response(Socket const & socket) const;
 	void 			send_error(int socketfd);
 
 	// Setters

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 16:28:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/11 19:35:38 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ Response::Response(const ServerConfig & config){
 
 Response::~Response( void ) { /* no-op */ }
 
-std::string Response::start_line(int status)
+std::string Response::start_line(int status) const
 {
 	std::string http_version = "HTTP/1.1";
 
@@ -33,14 +33,13 @@ std::string Response::start_line(int status)
 	return(http_version + " " + status_str + " " + status_message + CRLF);
 }
 
-void	Response::send_response(Socket & socket)
+void	Response::send_response(Socket const & socket) const
 {
-	(void)socket;
 	std::string	message = start_line(200);
 	std::stringstream len;
 	len << _content_length;
 	// use header object for this
-	message += "Server: Hello\r\n";
+	message += "Content-Length: " + len.str() + CRLF;
 	message += "Content-Type: " + _content_type + CRLF;
 	// message += "Connection: keep-alive\r\n";
 	message += CRLF;
