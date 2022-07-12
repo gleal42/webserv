@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 23:29:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 15:47:46 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,13 +167,13 @@ public:
 	void			set_content_length(const int length);
 	void			set_content_type(std::string const & type);
 	void			set_body(std::string const &type);
+	std::string		_uri;
 
 private:
 	int				_content_length;
 	std::string 	_content_type;
 	std::string	_body;
 	int 		_status;
-	std::string	_uri;
 	ResponseAttributes	_attributes;			// Map of request attributes
 	std::string	_message;
 	Response( Response const & src ); // while not implemented

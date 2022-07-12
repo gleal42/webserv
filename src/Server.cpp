@@ -6,11 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 15:26:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 15:57:23 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "FileHandler.hpp"
 #include <iostream>
 
 /* 
@@ -150,7 +151,8 @@ void	Server::write_to_connection( Socket *connection )
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
 	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
     if (connection->response.is_empty())
-        connection->response.prepare_response(connection->request, connection->parent()->_config);
+        service(connection->request, connection->response);
+        // connection->response.prepare_response(connection->request, connection->parent()->_config);
     connection->response.send_response(*connection);
     if (connection->response.is_empty())
     {
@@ -168,4 +170,19 @@ bool	Server::has_active_connections(Cluster cluster)
             return true;
     }
     return false;
+}
+
+/*
+** Uses appropriate handler to service the request, creating the response
+** @param:	- [Request] request that has been received
+**			- [Response] response that will be sent
+** Line-by-line comments:
+** @1-3	FileHandler handler or CGIHandler handler
+*/
+
+void	Server::service(Request & req, Response & res)
+{
+	FileHandler handler; // probably needs config for root path etc
+
+	handler.service(req, res);
 }

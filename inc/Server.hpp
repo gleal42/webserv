@@ -23,6 +23,8 @@ public:
 	void				write_to_connection( Socket *connection );
 	void				close_connection( Listener *listener, int connection_fd);
 	void				run( Cluster cluster );
+	void				service(Request & req, Response & res);
+	
    	struct kevent 		ListQueue[10];
 private:
 	int		_fd;

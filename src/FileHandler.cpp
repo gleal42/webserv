@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/11 23:23:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 15:52:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,10 @@ std::string const FileHandler::get_content_type(std::string const path)
 // gain access to our server source code!
 void	FileHandler::service(Request & req, Response & res)
 {
-	if (req._path == "/") req._path = "/index.html";
+	if (req._path == "/")
+		res._uri = "index.html";
+	else
+		res._uri = req._path.c_str() + 1;
 
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
@@ -95,18 +98,16 @@ void	FileHandler::service(Request & req, Response & res)
 		throw HTTPStatus<404>();
 	}
 
-	std::string	full_path("public" + req._path);
-	std::ifstream file(full_path);
-
+	std::ifstream file(res._uri.c_str());
 	if ( (file.rdstate() & std::ifstream::failbit ) != 0
 		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
 	{
-		ERROR("error opening " << full_path);
+		ERROR("error opening " << res._uri.c_str());
 		throw HTTPStatus<404>();
 	}
 
-	res.set_content_length(file_size(full_path));
-	res.set_content_type(get_content_type(full_path));
+	res.set_content_length(file_size(res._uri.c_str()));
+	res.set_content_type(get_content_type(res._uri.c_str()));
 
 	std::stringstream body;
 	body << file.rdbuf();
