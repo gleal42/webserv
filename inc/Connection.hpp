@@ -6,19 +6,36 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:59:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 16:07:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:43:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CONNECTION_H__
 # define __CONNECTION_H__
 
+#include "Socket.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+
 class Connection
 {
-	Connection();
-	Connection(const Connection & src);
+public:
+	Connection( Socket * listener_socket );
 	~Connection();
-	Connection &operator=(const Connection & src);
+	int	fd();
+	Socket *socket();
+	void	shutdown( void );
+
+	Request request;
+	Response response;
+private:
+	Connection( void );
+	Connection( const Connection & src );
+	Connection &operator=( const Connection & src );
+	Socket *		_socket;
 };
+
+typedef std::map< int, Connection * > Connections;
+typedef Connections::iterator ConnectionsIter;
 
 #endif

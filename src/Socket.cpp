@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/11 22:32:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:52:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,11 +35,11 @@ Socket::AcceptError::AcceptError( void )
 	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : request(ServerConfig()), _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
 
 // Changed to config parameter so that we could copy parent request to connections socket
 // TODO: will we also pass `domain`?
-Socket::Socket( ServerConfig config ) : request(config), _port(PORT_UNSET), _bytes(0)
+Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
 	create();
 	setsockopt(SO_REUSEPORT);
@@ -47,7 +47,7 @@ Socket::Socket( ServerConfig config ) : request(config), _port(PORT_UNSET), _byt
 	bind(config.port);
 }
 
-Socket::Socket( Socket const & src ): request(src.request) { *this = src; }
+Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
 Socket::~Socket( void ) { /* No-op */ }
@@ -67,17 +67,11 @@ Socket &	Socket::operator = ( Socket const & rhs )
 
 // Getters
 int	Socket::fd( void ) const { return _fd; }
-Listener *	Socket::parent( void ) const{ return _parent; };
 int	Socket::port( void ) const { return _port; }
 int	Socket::bytes( void ) const { return _bytes; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
-void	Socket::set_parent( Listener *listener)
-{
-	request = listener->socket()->request;
-	_parent = listener;
-}
 
 // C `socket` function wrapper
 void	Socket::create( void )
@@ -157,7 +151,6 @@ Socket *	Socket::accept( void ) {
 	s->set_fd(::accept(_fd, address, &length));
 	if ((s->fd() == FD_UNSET)) {
 		delete s;
-		return NULL; // or something else later
         throw Socket::AcceptError();
 	}
 	fcntl(s->fd(), F_SETFL, O_NONBLOCK);

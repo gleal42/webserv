@@ -8,16 +8,17 @@ CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
-		utils.cpp \
+		webserver.cpp \
+		Server.cpp \
 		ConfigParser.cpp \
+		Listener.cpp \
+		Connection.cpp \
 		Request.cpp \
 		Response.cpp \
-		Listener.cpp \
 		Socket.cpp \
 		FileHandler.cpp \
 		BaseStatus.cpp \
-		Server.cpp \
-		webserver.cpp
+		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/
 DEP_DIR := dep/

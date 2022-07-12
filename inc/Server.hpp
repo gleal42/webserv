@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <sys/event.h>
 #include "Listener.hpp"
-#include "Socket.hpp"
+#include "Connection.hpp"
 #include "ConfigParser.hpp"
 
 class Server 
@@ -21,18 +21,17 @@ public:
 	void				start( void );
 	int					wait_for_events();
 	void				update_event(int ident, short filter, u_short flags);
-	void				read_connection( Socket *connection , struct kevent const & Event );
-	void				write_to_connection( Socket *connection );
-	ConnectionsIter		find_existing_connection( Cluster cluster, int event_fd );
+	void				new_connection( Listener * listener );
+	void				read_connection( Connection *connection , struct kevent const & Event );
+	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
-	void				close_connection( Listener *listener, int connection_fd);
-	
+	void				close_connection( int connection_fd );
    	struct kevent 		ListQueue[10];
+	Connections			_connections;
 private:
 	Server();
-	int			_fd;
-	Cluster		_cluster;
-	size_t		_listeners_amount;
-	bool	has_active_connections(Cluster cluster);
+	int					_fd;
+	Cluster				_cluster;
+	size_t				_listeners_amount;
 };
 #endif

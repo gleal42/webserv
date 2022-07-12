@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/11 22:36:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:51:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,12 +89,10 @@ public:
 
 	// Getters
 	int				fd( void ) const;
-	Listener *		parent( void ) const;
 	int				port( void ) const;
 	int				bytes( void ) const;
 	// Setters
 	void			set_fd( int fd );
-	void			set_parent( Listener *listener );
 
 	void 			create( void );
 	void 			setsockopt( int option );
@@ -105,15 +103,12 @@ public:
 	void			receive( int buffer_size );
 	Socket *		accept( void );
 	std::string		to_s( void ) const;
-	Request			request;
-	Response		response;
 	std::vector<char>	_buffer;
 private:
 
 	// Should be private to avoid being set to a wrong value
 	int					_port;
 	int					_fd;
-	Listener *			_parent;
 	SocketAddress		_address;
 	int					_bytes;
 

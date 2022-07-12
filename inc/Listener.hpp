@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 15:26:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:02:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,8 @@
 
 # include "ServerConfig.hpp"
 # include "Response.hpp"
+# include "Connection.hpp"
+# include "Socket.hpp"
 
 typedef sockaddr_in SocketAddress;
 
@@ -47,15 +49,8 @@ Needs to be able to:
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
 struct 	ServerConfig;
-class	Socket;
-class	Server;
-class	Listener;
-typedef std::map<int, Listener*> Cluster;
-typedef Cluster::iterator ClusterIter;
 
-typedef std::map< int, Socket * > Connections;
-typedef Connections::iterator ConnectionsIter;
-typedef std::pair< int, Socket * > Connection;
+class	Server;
 
 class Listener {
 
@@ -64,21 +59,20 @@ public:
 	Listener( ServerConfig const & config );
 	~Listener( void );
 	Listener &	operator = ( Listener const & rhs );
-
-	// Listener Starts listening on creation
-	void		accept_client( Server &kq );
+	void		accept_client( Server &server );
 	void		stop( void );
 	void		shutdown( void );
 	int			fd();
 	Socket *	socket();
-	static bool	has_connections(Cluster cluster);
-	Connections		_connections;
 	ServerConfig	_config;
 private:
-
 	Listener( void );
 	Socket *		_socket;
-	size_t			_max_connections;
+
+
 };
+
+typedef std::map<int, Listener * > Cluster;
+typedef Cluster::iterator ClusterIter;
 
 #endif /* __LISTENER_H__ */

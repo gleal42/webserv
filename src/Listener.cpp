@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 15:27:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:06:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ Listener::Listener( ServerConfig const & config ) : _config(config), _socket(NUL
 		// stop(); // shutdown();
 		LOG(e.what());
 	}
-	_max_connections = config.max_clients;
 }
 
 /* Destructor */
@@ -59,48 +58,13 @@ Listener &	Listener::operator = ( Listener const & rhs )
 	if (this != &rhs) {
 		_config = rhs._config;
 		_socket = new Socket(*rhs._socket);
-		_connections = rhs._connections;
-		_max_connections = rhs._max_connections;
 	}
 	return *this;
-}
-
-// Accepts connections
-void	Listener::accept_client( Server &kq )
-{
-	// check if can still add
-	if (_connections.size() < _max_connections) {
-		Socket *	connection = _socket->accept();
-		if (!connection)
-			return ; // add error here
-		connection->set_parent(this);
-		int client_fd = connection->fd();
-		_connections[client_fd] = connection;
-		std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
-		kq.update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
-		kq.update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
-	} else {
-		stop();
-	}
-}
-// Previous run and service logic changed to webserver.cpp and Response.cpp files
-
-
-// Stops accepting connections
-void	Listener::stop( void )
-{
-	// TODO: Add Error page exception here?
-	std::cout << "Max connections have been reached." << std::endl;
 }
 
 void	Listener::shutdown( void )
 {
 	_socket->close();
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
-	{
-		it->second->close();
-		delete it->second;
-	}
 }
 
 int Listener::fd()

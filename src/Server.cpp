@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 18:06:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:36:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,15 @@ void	Server::start( void )
         {
             ClusterIter event_fd = _cluster.find(ListQueue[i].ident);
             if (event_fd != _cluster.end()) // New event for non-existent file descriptor
-                event_fd->second->accept_client(*this);
+                new_connection(event_fd->second);
             else
             {
-				ConnectionsIter connection_it = find_existing_connection(_cluster, ListQueue[i].ident);
+				ConnectionsIter connection_it = _connections.find(ListQueue[i].ident);
+				if (connection_it == _connections.end()) // New event for non-existent file descriptor
+					throw std::runtime_error("Bad management of connections");
                 if (ListQueue[i].flags & EV_EOF) {
-                    close_connection(connection_it->second->parent(), ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
-                    if (!has_active_connections(_cluster))
+                    close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
+                    if (_connections.size() == 0)
                         return ;
                 }
                 else if (ListQueue[i].filter == EVFILT_READ)
@@ -111,6 +113,17 @@ void	Server::start( void )
     }
 }
 
+void	Server::new_connection( Listener * listener )
+{
+	// check if can still add
+	Connection * connection  = new Connection(listener->socket());
+	int client_fd = connection->fd();
+	_connections[client_fd] = connection;
+	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
+	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
+}
+
 int	Server::wait_for_events()
 {
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
@@ -119,36 +132,21 @@ int	Server::wait_for_events()
     return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
 }
 
-
-ConnectionsIter	Server::find_existing_connection( Cluster _cluster, int event_fd )
-{
-    ConnectionsIter connection_it;
-    for (ClusterIter listener = _cluster.begin(); listener != _cluster.end(); listener++)
-    {
-        connection_it = listener->second->_connections.find(event_fd);
-        if (connection_it != listener->second->_connections.end())
-            return (connection_it);
-    }
-    return (connection_it);
-}
-
-void	Server::close_connection( Listener *listener, int connection_fd)
+void	Server::close_connection( int connection_fd )
 {
     std::cout << "Closing Connection for client: " << connection_fd << std::endl;
     this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
     this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
     close(connection_fd);
-    // p connection_fd
-    // p listener._connections[connection_fd]
-    delete listener->_connections[connection_fd];
-    listener->_connections.erase(connection_fd);
+    delete _connections[connection_fd];
+    _connections.erase(connection_fd);
 }
 
-void	Server::read_connection( Socket *connection, struct kevent const & Event )
+void	Server::read_connection( Connection *connection, struct kevent const & Event )
 {
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
     std::cout << "Incoming data has size of: " << Event.data << std::endl;
-    connection->request.parse(*connection, Event);
+    connection->request.parse(*connection->socket(), Event);
     if (connection->request._attributes.count("Content-Length"))
     {
         std::cout << "Analyzing if whole body was transferred: " << std::endl;
@@ -169,30 +167,20 @@ void	Server::read_connection( Socket *connection, struct kevent const & Event )
     this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
 
-void	Server::write_to_connection( Socket *connection )
+void	Server::write_to_connection( Connection *connection )
 {
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
 	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
     if (connection->response.is_empty())
-        connection->response.prepare_response(connection->request, connection->parent()->_config);
-        // service(connection->request, connection->response);
-    connection->response.send_response(*connection);
+        service(connection->request, connection->response);
+        // connection->response.prepare_response(connection->request, connection->parent()->_config);
+    connection->response.send_response(*connection->socket());
     if (connection->response.is_empty())
     {
         std::cout << "Connection was empty after sending" << std::endl;
         this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
         this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
     }
-}
-
-bool	Server::has_active_connections(Cluster _cluster)
-{
-    for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it)
-    {
-        if (it->second->_connections.size())
-            return true;
-    }
-    return false;
 }
 
 /*
@@ -216,4 +204,10 @@ Server::~Server()
 		it->second->shutdown();
 		delete it->second;
 	}
+	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
+	{
+		it->second->shutdown();
+		delete it->second;
+	}
+    close(this->_fd);
 }

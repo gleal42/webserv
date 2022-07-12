@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 23:12:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 20:38:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,6 +131,7 @@ class URI {
 class Request {
 public:
 	Request( ServerConfig const & config );
+	Request( void );
 	Request( Request const & src ); // while not implemented
 	~Request();
 	Request&	operator= ( Request const & param );
@@ -159,7 +160,6 @@ public:
 
 private:
 
-	Request( void );
 
 };
 
