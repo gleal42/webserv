@@ -7,6 +7,24 @@
 #include "Connection.hpp"
 #include "ConfigParser.hpp"
 
+// ************************************************************************** //
+//                               Server Class                             	  //
+// ************************************************************************** //
+
+/*
+A class to represent a single threaded HTTP Server
+
+Server will have multiple accepted sockets so maybe a vector / map
+is more adequate
+
+Needs to be able to:
+
+	- initialize a server socket for the given configuration
+	- start (Starts accepting connections from clients)
+	- stop (Stops the server from accepting new connections)
+
+*/
+
 class Server 
 {
 public:

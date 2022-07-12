@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:51:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 23:39:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,23 +27,6 @@
 
 typedef sockaddr_in SocketAddress;
 
-// ************************************************************************** //
-//                               Server Class                             	  //
-// ************************************************************************** //
-
-/*
-A class to represent a single threaded HTTP Server
-
-Server will have multiple accepted sockets so maybe a vector / map
-is more adequate
-
-Needs to be able to:
-
-	- initialize a server socket for the given configuration
-	- start (Starts accepting connections from clients)
-	- stop (Stops the server from accepting new connections)
-
-*/
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
