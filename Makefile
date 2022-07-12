@@ -2,7 +2,7 @@ UNAME  :=      $(shell uname)
 ifeq ($(UNAME), Darwin)
        CXX := c++
 else
-       CXX     := g++
+       CXX := g++
 endif
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
@@ -16,7 +16,7 @@ SRCS := main.cpp \
 		Socket.cpp \
 		FileHandler.cpp \
 		BaseStatus.cpp \
-		Kqueue.cpp \
+		Server.cpp \
 		webserver.cpp
 VPATH = src/
 OBJ_DIR := obj/

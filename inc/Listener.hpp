@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 22:29:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 15:26:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ Needs to be able to:
 
 struct 	ServerConfig;
 class	Socket;
-class	Kqueue;
+class	Server;
 class	Listener;
 typedef std::map<int, Listener*> Cluster;
 typedef Cluster::iterator ClusterIter;
@@ -66,7 +66,7 @@ public:
 	Listener &	operator = ( Listener const & rhs );
 
 	// Listener Starts listening on creation
-	void		accept_client( Kqueue &kq );
+	void		accept_client( Server &kq );
 	void		stop( void );
 	void		shutdown( void );
 	int			fd();

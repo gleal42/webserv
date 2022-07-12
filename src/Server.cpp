@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Kqueue.cpp                                         :+:      :+:    :+:   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/27 19:11:20 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 22:37:56 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/12 15:26:45 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Kqueue.hpp"
+#include "Server.hpp"
 #include <iostream>
 
 /* 
@@ -23,19 +23,19 @@
     Javascript (later)
  */
 
-Kqueue::CreateError::CreateError( void )
+Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
-Kqueue::Kqueue()
+Server::Server()
 {
     _fd = kqueue();
     if (_fd < 0)
         throw CreateError();
 }
 
-int	Kqueue::fd() const { return(_fd); }
+int	Server::fd() const { return(_fd); }
 
-void Kqueue::update_event(int ident, short filter, u_short flags)
+void Server::update_event(int ident, short filter, u_short flags)
 {
     struct kevent kev;
 	EV_SET(&kev, ident, filter, flags, 0, 0, NULL);
@@ -45,12 +45,12 @@ void Kqueue::update_event(int ident, short filter, u_short flags)
 /* 
  * File descriptors open are:
  * 3 - Server fd
- * 4 - Kqueue
+ * 4 - Server
  * 5 - Accept client request
  * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
 */
 
-void	Kqueue::run( Cluster cluster )
+void	Server::run( Cluster cluster )
 {
 	int nbr_events = 0;
     while (1)
@@ -73,7 +73,9 @@ void	Kqueue::run( Cluster cluster )
                         return ;
                 }
                 else if (ListQueue[i].filter == EVFILT_READ)
+                {
                     read_connection(connection_it->second, ListQueue[i]);
+                }
                 else if (ListQueue[i].filter == EVFILT_WRITE)
                 {
 					write_to_connection(connection_it->second);
@@ -85,7 +87,7 @@ void	Kqueue::run( Cluster cluster )
     }
 }
 
-int	Kqueue::wait_for_events()
+int	Server::wait_for_events()
 {
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
     struct timespec kqTimeout = {2, 0};
@@ -94,7 +96,7 @@ int	Kqueue::wait_for_events()
 }
 
 
-ConnectionsIter	Kqueue::find_existing_connection( Cluster cluster, int event_fd )
+ConnectionsIter	Server::find_existing_connection( Cluster cluster, int event_fd )
 {
     ConnectionsIter connection_it;
     for (ClusterIter listener = cluster.begin(); listener != cluster.end(); listener++)
@@ -106,7 +108,7 @@ ConnectionsIter	Kqueue::find_existing_connection( Cluster cluster, int event_fd 
     return (connection_it);
 }
 
-void	Kqueue::close_connection( Listener *listener, int connection_fd)
+void	Server::close_connection( Listener *listener, int connection_fd)
 {
     std::cout << "Closing Connection for client: " << connection_fd << std::endl;
     this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
@@ -118,7 +120,7 @@ void	Kqueue::close_connection( Listener *listener, int connection_fd)
     listener->_connections.erase(connection_fd);
 }
 
-void	Kqueue::read_connection( Socket *connection, struct kevent const & Event )
+void	Server::read_connection( Socket *connection, struct kevent const & Event )
 {
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
     std::cout << "Incoming data has size of: " << Event.data << std::endl;
@@ -143,7 +145,7 @@ void	Kqueue::read_connection( Socket *connection, struct kevent const & Event )
     this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
 
-void	Kqueue::write_to_connection( Socket *connection )
+void	Server::write_to_connection( Socket *connection )
 {
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
 	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
@@ -158,7 +160,7 @@ void	Kqueue::write_to_connection( Socket *connection )
     }
 }
 
-bool	Kqueue::has_active_connections(Cluster cluster)
+bool	Server::has_active_connections(Cluster cluster)
 {
     for (ClusterIter it = cluster.begin(); it != cluster.end(); ++it)
     {

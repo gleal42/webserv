@@ -6,13 +6,13 @@
 #include "Listener.hpp"
 #include "Socket.hpp"
 
-class Kqueue 
+class Server 
 {
 public:
 	struct CreateError : public std::runtime_error {
 						CreateError( void );
 	};
-	Kqueue();
+	Server();
 	// Getters
 	int					fd() const;
 	// Member Functions

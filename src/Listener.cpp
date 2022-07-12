@@ -6,13 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 22:17:18 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 15:27:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Listener.hpp"
 #include "Socket.hpp"
-#include "Kqueue.hpp"
+#include "Server.hpp"
 
 /* Constructors */
 
@@ -66,7 +66,7 @@ Listener &	Listener::operator = ( Listener const & rhs )
 }
 
 // Accepts connections
-void	Listener::accept_client( Kqueue &kq )
+void	Listener::accept_client( Server &kq )
 {
 	// check if can still add
 	if (_connections.size() < _max_connections) {

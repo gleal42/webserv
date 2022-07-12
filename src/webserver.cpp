@@ -6,14 +6,14 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 22:39:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 15:28:51 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
 #include "Listener.hpp"
-#include "Kqueue.hpp"
+#include "Server.hpp"
 
 
 /*
@@ -21,13 +21,13 @@
 ** @param:	- [string] argv[1]
 ** @return:	[int] 0 == SUCCESS
 ** Line-by-line comments:
-** @1	Create Kqueue - Will allow us to identify events and handle
+** @1	Create Server - Will allow us to identify events and handle
 */
 
 int webserver(std::string config_file)
 {
 	ConfigParser	parser(config_file);
-    Kqueue kq;
+    Server webserv;
 
 	try {
         parser.call();
@@ -44,12 +44,12 @@ int webserver(std::string config_file)
 		// Initialize each new Listener with a config from the parser
 		ServerConfig	config(parser.config(i));
 		new_listener = new Listener(config);
-		kq.update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
+		webserv.update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
 		cluster[new_listener->fd()] = new_listener;
 	}
 
 	// Start Cluster
-	kq.run(cluster);
+	webserv.run(cluster);
 
 	// Shutdown and cleanup
 	for (ClusterIter it = cluster.begin(); it != cluster.end(); ++it) {
