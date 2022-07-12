@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/12 15:52:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 18:22:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,16 +106,18 @@ void	FileHandler::service(Request & req, Response & res)
 		throw HTTPStatus<404>();
 	}
 
-	res.set_content_length(file_size(res._uri.c_str()));
-	res.set_content_type(get_content_type(res._uri.c_str()));
-
+	res.set_attribute("Content-Type", get_content_type(res._uri.c_str()));
 	std::stringstream body;
 	body << file.rdbuf();
 	res.set_body(body.str());
+	std::stringstream len;
+	len << body.str().size();
+	res.set_attribute("Content-Length", len.str());
 
 	file.close();
 }
 
+// Perhaps it is better to just count body size?
 std::streampos	FileHandler::file_size( std::string	full_path )
 {
 

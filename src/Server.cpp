@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 17:06:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 18:06:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,8 +174,8 @@ void	Server::write_to_connection( Socket *connection )
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
 	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
     if (connection->response.is_empty())
-        service(connection->request, connection->response);
-        // connection->response.prepare_response(connection->request, connection->parent()->_config);
+        connection->response.prepare_response(connection->request, connection->parent()->_config);
+        // service(connection->request, connection->response);
     connection->response.send_response(*connection);
     if (connection->response.is_empty())
     {

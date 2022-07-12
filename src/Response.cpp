@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 17:14:56 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 18:07:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,7 @@ void	Response::prepare_response( Request const & request , ServerConfig config )
 		set_attribute("Content-Type", "text/html");
 	else if (type == ".jpeg")
 		set_attribute("Content-Type", "image/jpeg");
+	open_file.close();
 	// save_file(request._raw_body);
 }
 
