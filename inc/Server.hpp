@@ -22,7 +22,6 @@ public:
 	int					wait_for_events();
 	void				update_event(int ident, short filter, u_short flags);
 	void				new_connection( Listener * listener );
-	ConnectionsIter		find_connection( int connection_fd );
 	void				read_connection( Connection *connection , struct kevent const & Event );
 	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
@@ -31,8 +30,8 @@ public:
    	struct kevent 		ListQueue[10];
 private:
 	Server();
-	Server(const Server &src);
-	Server &operator=(const Server &src);
+	Server( const Server &src );
+	Server &operator=( const Server &src );
 	int					_fd;
 	Cluster				_cluster;
 	Connections			_connections;
