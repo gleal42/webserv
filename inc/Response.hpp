@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 15:47:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 23:28:34 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,7 +158,6 @@ public:
 	RequestMethod	request_method;
 
 	std::string 	start_line(int status);
-	void			prepare_response( Request const & request , ServerConfig config );
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
 	void			set_attribute(std::string name, std::string value);

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:41:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 23:22:41 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,15 @@ void	Server::new_connection( Listener * listener )
 	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
 }
 
+/**
+ * The reason why parse is done here is so that we know when we should
+ * stop receiving.
+ * When we have a big body we need to know both the Content-Length as well
+ * as when the body starts and when it ends.
+ * This causes the HTTPStatus try catch process duplicated but this analysis
+ * needs to be done. Otherwise we might risk stopping a request mid sending.
+ **/
+
 void	Server::read_connection( Connection *connection, struct kevent const & Event )
 {
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
@@ -148,7 +157,6 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
         }
     }
     std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
-
     this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
     this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
@@ -159,7 +167,6 @@ void	Server::write_to_connection( Connection *connection )
 	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
     if (connection->response.is_empty())
         service(connection->request, connection->response);
-        // connection->response.prepare_response(connection->request, connection->parent()->_config);
     connection->response.send_response(*connection->socket());
     if (connection->response.is_empty())
     {
