@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 21:56:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:27:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,48 +15,6 @@
 #include "HTTPStatus.hpp"
 
 Response::Response( void ) { /* no-op */ }
-
-// void	Response::prepare_response( Request const & request , ServerConfig config )
-// {
-// 	_status = 200;
-// 	// TODO (implement constructor)
-// 	// set member vars from config
-// 	std::cout << "Unparsed URI " << request._path << std::endl;
-// 	if (request._path == "/")
-// 		_uri = "index.html";
-// 	else
-// 		_uri = request._path.c_str() + 1;
-// 	std::ifstream open_file(_uri.c_str());
-// 	if ( (open_file.rdstate() & std::ifstream::failbit ) != 0
-//     || (open_file.rdstate() & std::ifstream::badbit ) != 0 )
-//     {
-//         std::cerr << "error opening " << _uri << std::endl;
-// 		//  send_error(404);
-// 		return ;
-//     }
-// 	std::stringstream body_str;
-// 	body_str << open_file.rdbuf();
-// 	_body = body_str.str();
-// 	// Add function/class/template with MACROS to deal with attributes
-
-// 	if (!config.name.empty())
-// 		set_attribute("Server", config.name);
-// 	std::stringstream len;
-// 	len << body_str.str().size();
-// 	set_attribute("Content-Length", len.str());
-
-// 	std::string::size_type n = _uri.find('.');
-// 	if (n == std::string::npos) {
-// 		throw std::runtime_error("Invalid File"); // Add better exception
-// 	}
-// 	std::string type = &_uri[n];
-// 	if (type == ".html")
-// 		set_attribute("Content-Type", "text/html");
-// 	else if (type == ".jpeg")
-// 		set_attribute("Content-Type", "image/jpeg");
-// 	open_file.close();
-// 	// save_file(request._raw_body);
-// }
 
 Response::Response( Response const & src ){
 	// TODO (implement constructor)

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:21:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:51:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,9 @@ public:
 	Listener( ServerConfig const & config );
 	~Listener( void );
 	Listener &	operator = ( Listener const & rhs );
-	void		accept_client( Server &server );
 	void		stop( void );
-	int			fd();
-	Socket *	socket();
+	int			fd( void );
+	Socket *	socket( void );
 	ServerConfig	_config;
 private:
 	Listener( void );

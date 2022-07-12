@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:17:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:41:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,17 +90,14 @@ void	Server::start( void )
             else
             {
 				ConnectionsIter connection_it = _connections.find(ListQueue[i].ident);
-				if (connection_it == _connections.end()) // New event for non-existent file descriptor
-					throw std::runtime_error("Bad management of connections");
-                if (ListQueue[i].flags & EV_EOF) {
+                if (ListQueue[i].flags & EV_EOF)
+                {
                     close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
                     if (_connections.size() == 0)
                         return ;
                 }
                 else if (ListQueue[i].filter == EVFILT_READ)
-                {
                     read_connection(connection_it->second, ListQueue[i]);
-                }
                 else if (ListQueue[i].filter == EVFILT_WRITE)
                 {
 					write_to_connection(connection_it->second);
@@ -112,6 +109,14 @@ void	Server::start( void )
     }
 }
 
+int	Server::wait_for_events()
+{
+	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
+    struct timespec kqTimeout = {2, 0};
+    (void)kqTimeout;
+    return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
+}
+
 void	Server::new_connection( Listener * listener )
 {
 	// check if can still add
@@ -121,31 +126,6 @@ void	Server::new_connection( Listener * listener )
 	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
 	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
 	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
-}
-
-int	Server::wait_for_events()
-{
-	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
-    struct timespec kqTimeout = {2, 0};
-    (void)kqTimeout;
-    return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
-}
-
-void	Server::close_connection( int connection_fd )
-{
-    std::cout << "Closing Connection for client: " << connection_fd << std::endl;
-    this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
-    this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
-    delete _connections[connection_fd];
-    _connections.erase(connection_fd);
-}
-
-void	Server::close_listener( int listener_fd )
-{
-    std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
-    this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
-    delete _cluster[listener_fd];
-    _connections.erase(listener_fd);
 }
 
 void	Server::read_connection( Connection *connection, struct kevent const & Event )
@@ -200,7 +180,6 @@ void	Server::write_to_connection( Connection *connection )
 void	Server::service(Request & req, Response & res)
 {
 	FileHandler handler; // probably needs config for root path etc
-
 	handler.service(req, res);
 }
 
@@ -213,4 +192,21 @@ Server::~Server()
         close_connection(it->first);
 	}
     close(this->_fd);
+}
+
+void	Server::close_listener( int listener_fd )
+{
+    std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
+    this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
+    delete _cluster[listener_fd];
+    _connections.erase(listener_fd);
+}
+
+void	Server::close_connection( int connection_fd )
+{
+    std::cout << "Closing Connection for client: " << connection_fd << std::endl;
+    this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
+    this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
+    delete _connections[connection_fd];
+    _connections.erase(connection_fd);
 }

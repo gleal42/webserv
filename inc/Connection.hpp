@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:59:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:20:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:51:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,9 @@ class Connection
 {
 public:
 	Connection( Socket * listener_socket );
-	~Connection();
-	int	fd();
-	Socket *socket();
-
+	~Connection( );
+	int	fd( void );
+	Socket *socket( void );
 	Request request;
 	Response response;
 private:
