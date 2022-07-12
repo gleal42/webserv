@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/11 23:13:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 17:18:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ void	Request::read_header(std::vector<char> &_unparsed_request)
 	if (body_start == std::string::npos)
 		return ;
 	_raw_headers += strptr.substr(0, body_start + 4);
-	std::cout << "Headers are :" << _raw_headers << std::endl;
+	// std::cout << "Headers are :" << _raw_headers << std::endl;
 	for (size_t i = 0; i < body_start; i++){
 		if (_raw_headers[i] == ':')
 		{

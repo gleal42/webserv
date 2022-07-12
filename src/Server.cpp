@@ -6,13 +6,15 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 15:57:23 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 17:06:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "FileHandler.hpp"
 #include <iostream>
+#include <stdexcept>
+
 
 /* 
     Testes a passar:
@@ -27,11 +29,29 @@
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
-Server::Server()
+Server::Server() // private
+{
+    throw std::runtime_error("Please use non-default constructor");
+    // _fd = kqueue();
+    // if (_fd < 0)
+    //     throw CreateError();
+}
+
+Server::Server(const ConfigParser &parser)
 {
     _fd = kqueue();
     if (_fd < 0)
         throw CreateError();
+	_listeners_amount = parser.configs_amount();
+	Listener		*new_listener;
+	for (size_t i = 0; i < _listeners_amount; ++i)
+    {
+		// Initialize each new Listener with a config from the parser
+		ServerConfig	config(parser.config(i));
+		new_listener = new Listener(config);
+		update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
+		_cluster[new_listener->fd()] = new_listener;
+	}
 }
 
 int	Server::fd() const { return(_fd); }
@@ -49,9 +69,12 @@ void Server::update_event(int ident, short filter, u_short flags)
  * 4 - Server
  * 5 - Accept client request
  * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
+ * 
+ * Lines:
+ * 18-19 has_active_connections only temporary for now for clean shutdown
 */
 
-void	Server::run( Cluster cluster )
+void	Server::start( void )
 {
 	int nbr_events = 0;
     while (1)
@@ -62,15 +85,15 @@ void	Server::run( Cluster cluster )
             continue;
         for (int i = 0; i < nbr_events; i++)
         {
-            ClusterIter event_fd = cluster.find(ListQueue[i].ident);
-            if (event_fd != cluster.end()) // New event for non-existent file descriptor
+            ClusterIter event_fd = _cluster.find(ListQueue[i].ident);
+            if (event_fd != _cluster.end()) // New event for non-existent file descriptor
                 event_fd->second->accept_client(*this);
             else
             {
-				ConnectionsIter connection_it = find_existing_connection(cluster, ListQueue[i].ident);
+				ConnectionsIter connection_it = find_existing_connection(_cluster, ListQueue[i].ident);
                 if (ListQueue[i].flags & EV_EOF) {
                     close_connection(connection_it->second->parent(), ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
-                    if (!has_active_connections(cluster))
+                    if (!has_active_connections(_cluster))
                         return ;
                 }
                 else if (ListQueue[i].filter == EVFILT_READ)
@@ -97,10 +120,10 @@ int	Server::wait_for_events()
 }
 
 
-ConnectionsIter	Server::find_existing_connection( Cluster cluster, int event_fd )
+ConnectionsIter	Server::find_existing_connection( Cluster _cluster, int event_fd )
 {
     ConnectionsIter connection_it;
-    for (ClusterIter listener = cluster.begin(); listener != cluster.end(); listener++)
+    for (ClusterIter listener = _cluster.begin(); listener != _cluster.end(); listener++)
     {
         connection_it = listener->second->_connections.find(event_fd);
         if (connection_it != listener->second->_connections.end())
@@ -162,9 +185,9 @@ void	Server::write_to_connection( Socket *connection )
     }
 }
 
-bool	Server::has_active_connections(Cluster cluster)
+bool	Server::has_active_connections(Cluster _cluster)
 {
-    for (ClusterIter it = cluster.begin(); it != cluster.end(); ++it)
+    for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it)
     {
         if (it->second->_connections.size())
             return true;
@@ -185,4 +208,12 @@ void	Server::service(Request & req, Response & res)
 	FileHandler handler; // probably needs config for root path etc
 
 	handler.service(req, res);
+}
+
+Server::~Server()
+{
+	for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it) {
+		it->second->shutdown();
+		delete it->second;
+	}
 }

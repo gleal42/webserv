@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/11 23:31:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 17:14:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,6 @@ void	Response::prepare_response( Request const & request , ServerConfig config )
 	// TODO (implement constructor)
 	// set member vars from config
 	std::cout << "Unparsed URI " << request._path << std::endl;
-	if (request._path == "/favicon.ico")
-		return ;
 	if (request._path == "/")
 		_uri = "index.html";
 	else

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 15:28:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 17:00:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@
 int webserver(std::string config_file)
 {
 	ConfigParser	parser(config_file);
-    Server webserv;
 
 	try {
         parser.call();
@@ -36,26 +35,13 @@ int webserver(std::string config_file)
 		ERROR(e.what());
     }
 
-	// Initialize Cluster
-	size_t		amount = parser.configs_amount();
-	Cluster		cluster;
-	Listener		*new_listener;
-	for (size_t i = 0; i < amount; ++i) {
-		// Initialize each new Listener with a config from the parser
-		ServerConfig	config(parser.config(i));
-		new_listener = new Listener(config);
-		webserv.update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
-		cluster[new_listener->fd()] = new_listener;
-	}
+	// Initialize all Listeners
+    Server webserv(parser);
+	
+	// Start waiting for events 
+	webserv.start();
 
-	// Start Cluster
-	webserv.run(cluster);
-
-	// Shutdown and cleanup
-	for (ClusterIter it = cluster.begin(); it != cluster.end(); ++it) {
-		it->second->shutdown();
-		delete it->second;
-	}
+	// Shutdown and cleanup inside destructor
     return 0;
 }
 
