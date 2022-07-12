@@ -26,12 +26,13 @@ public:
 	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
 	void				close_connection( int connection_fd );
+	void				close_listener( int listener_fd );
    	struct kevent 		ListQueue[10];
-	Connections			_connections;
 private:
 	Server();
 	int					_fd;
 	Cluster				_cluster;
+	Connections			_connections;
 	size_t				_listeners_amount;
 };
 #endif

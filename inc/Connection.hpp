@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:59:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 20:43:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:20:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@ public:
 	~Connection();
 	int	fd();
 	Socket *socket();
-	void	shutdown( void );
 
 	Request request;
 	Response response;

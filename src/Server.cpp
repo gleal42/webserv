@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 20:36:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:17:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "FileHandler.hpp"
 #include <iostream>
 #include <stdexcept>
-
 
 /* 
     Testes a passar:
@@ -137,9 +136,16 @@ void	Server::close_connection( int connection_fd )
     std::cout << "Closing Connection for client: " << connection_fd << std::endl;
     this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
     this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
-    close(connection_fd);
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
+}
+
+void	Server::close_listener( int listener_fd )
+{
+    std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
+    this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
+    delete _cluster[listener_fd];
+    _connections.erase(listener_fd);
 }
 
 void	Server::read_connection( Connection *connection, struct kevent const & Event )
@@ -201,13 +207,10 @@ void	Server::service(Request & req, Response & res)
 Server::~Server()
 {
 	for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it) {
-		it->second->shutdown();
-		delete it->second;
+        close_listener(it->first);
 	}
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
-	{
-		it->second->shutdown();
-		delete it->second;
+	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++) {
+        close_connection(it->first);
 	}
     close(this->_fd);
 }

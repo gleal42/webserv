@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 20:06:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:20:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,11 +60,6 @@ Listener &	Listener::operator = ( Listener const & rhs )
 		_socket = new Socket(*rhs._socket);
 	}
 	return *this;
-}
-
-void	Listener::shutdown( void )
-{
-	_socket->close();
 }
 
 int Listener::fd()

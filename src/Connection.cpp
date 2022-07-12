@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 19:09:38 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 20:57:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 21:09:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,4 @@ int Connection::fd()
 Socket *	Connection::socket()
 {
     return (_socket);
-}
-
-void	Connection::shutdown( void )
-{
-	_socket->close();
 }

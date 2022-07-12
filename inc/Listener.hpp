@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 20:02:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:21:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ Needs to be able to:
 	- initialize a server socket for the given configuration
 	- start (Starts accepting connections from clients)
 	- stop (Stops the server from accepting new connections)
-	- shutdown (Shuts down the server and all accepted clients)
 
 */
 
@@ -61,7 +60,6 @@ public:
 	Listener &	operator = ( Listener const & rhs );
 	void		accept_client( Server &server );
 	void		stop( void );
-	void		shutdown( void );
 	int			fd();
 	Socket *	socket();
 	ServerConfig	_config;

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/12 20:52:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/12 22:05:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void ) { /* No-op */ }
+Socket::~Socket( void ) { this->close(); }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
@@ -121,7 +121,7 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 }
 
 // `send` function wrapper
-int	Socket::send( const std::string & response ) {
+int	Socket::send( const std::string & response ) const {
 	return (::send(_fd, response.c_str(), response.size(), 0));
 }
 
