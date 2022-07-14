@@ -1,0 +1,48 @@
+*{
+	font-family: Larsseit-Bold,sans-serif;
+	color: #0f2642
+}
+
+.subtitle{
+	font-size: 18px;
+}
+
+input[type=submit] {
+	position: absolute;
+	margin-top:20px;
+	width: 170px;
+	height: 40px;
+	line-height: 1;
+	font-size: 18px;
+	font-weight: bold;
+	letter-spacing: 1px;
+	border: 3px solid #0f2642;
+	background: #fff;
+	border-radius: 40px;
+	cursor: pointer;
+	overflow: hidden;
+	transition: all .35s;
+}
+
+input[type=text]
+{
+	position: relative;
+	left: 2px;
+	line-height: 1;
+	font-size: 14px;
+	font-weight: normal;
+	letter-spacing: 1px;
+	border: 2px solid #0f2642;
+	background: #fff;
+	border-radius: 4px;
+	cursor: pointer;
+	overflow: hidden;
+}
+
+input[type=submit]:hover {
+	background: #0f2642;
+	color: #fff;
+	opacity: 1;
+	visibility: visible;
+	transition: all .35s;
+}
