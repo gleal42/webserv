@@ -55,10 +55,10 @@ class HTTPStatus: public std::exception {
 	bool 			is_server_error( void );
 };
 
-typedef std::map<std::string, std::string> ResponseHeader;
-typedef std::map<std::string, std::string> RequestHeader;
+typedef std::map<std::string, std::string> ResponseHeaders;
+typedef std::map<std::string, std::string> RequestHeaders;
 typedef std::map<std::string, std::string> RequestQuery;
-typedef std::map<std::string, std::string> RequestAttributes;
+typedef std::map<std::string, std::string> RequestHeaders;
 typedef std::map<std::string, std::string> RequestMeta;
 
 enum RequestMethod {
@@ -89,14 +89,14 @@ public:
 	std::string			path_info;			// The script name (CGI variable)
 	std::string			query_string;		// The query from the URI of the request
 	std::string			raw_header;			// The raw header of the request
-	RequestHeader		header;				// The parsed header of the request
+	RequestHeaders		header;				// The parsed header of the request
 	std::string			accept;				// The Accept header value
 	std::string			accept_charset;		// The Accept-Charset header value
 	std::string			accept_encoding;	// The Accept-Encoding header value
 	std::string			accept_language;	// The Accept-Language header value
 	SocketAddress		addr;				// The socket address of the server
 	SocketAddress		peeraddr;			// The socket address of the client
-	RequestAttributes	attributes;			// Map of request attributes
+	RequestHeaders	attributes;			// Map of request attributes
 	std::string			request_time;		// The local time this request was received
 	Request( ServerConfig config );
 
@@ -169,7 +169,7 @@ class InvalidHeader: public std::exception {};		// Error class for Header
 class Response {
 public:
 	int					status;			// Response status code (200)
-	ResponseHeader		header;
+	ResponseHeaders		header;
 	std::string			reason_phrase;	// Response reason phrase ("OK")
 
 	// Body may be:

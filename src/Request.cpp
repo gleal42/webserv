@@ -3,17 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/12 17:18:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:19:13 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
 #include "Socket.hpp"
 #include "Listener.hpp"
+#include "HTTPStatus.hpp"
 
+/* Constructors */
 Request::Request( void ) { /* no-op */ }
 
 Request::Request( ServerConfig const & config )
@@ -45,7 +47,7 @@ Request& Request::operator= ( Request const & param ) {
 	client_max_body_size = param.client_max_body_size;
 	_path = param._path;
 	_raw_request = param._raw_request;
-	_attributes = param._attributes;
+	_headers = param._headers;
 	_raw_body = param._raw_body;
 	return (*this);
 }
@@ -56,6 +58,8 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 	return (s);
 }
 
+/* Methods */
+
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
 void	Request::read_request_line(std::vector<char> &_unparsed_request){
@@ -64,28 +68,29 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 	int								j = 0;
 	std::string						buf (std::string(_unparsed_request.data()));
 	std::string::iterator			iter = buf.begin();
+	RequestMethods	request_methods;
+
+	request_methods["GET"] = GET;
+	request_methods["POST"] = POST;
+	request_methods["DELETE"] = DELETE;
 
 	for (; *iter != ' '; iter++)
 		i++;
 	str = buf.substr(0, ++i);
 
-	// Consider global constant map: 	RequestMethods[ str ]
-	// typedef std::map< std::string, RequestMethod >	RequestMethods;
-	// this will avoid re-doing these comparisons every time
-	if (str.compare("GET"))
-		request_method = GET;
-	else if(str.compare("POST"))
-		request_method = POST;
-	else if(str.compare("DELETE"))
-		request_method = DELETE;
-	else
-		throw("No appropriate method");
-		// this error should have happened at the config parsing stage and blocked the loading of the server
+	if (request_methods.find(str) == request_methods.end())
+		throw HTTPStatus<405>();
+
+	request_method = request_methods[str];
 
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
 
-	_path = buf.substr(i, j);
+	_unparsed_uri = buf.substr(i, j);
+	// Temporary, TODO: make proper URI instance:
+	// request_uri.parse(_unparsed_uri);
+	// _path = request_uri.path;
+	_path = _unparsed_uri;
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;
@@ -141,7 +146,7 @@ void	Request::read_header(std::vector<char> &_unparsed_request)
 				i++;
 			}
 			value = _raw_headers.substr(value_start, end);
-			this->_attributes.insert(std::pair<std::string, std::string>(key, value));
+			this->_headers.insert(std::pair<std::string, std::string>(key, value));
 			key_start = i + 2;
 		}
 	}
@@ -170,7 +175,7 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 		read_request_line(_unparsed_request);
 	if (_raw_headers.empty() || _raw_headers.find("\r\n\r\n") == std::string::npos)
 		read_header(_unparsed_request);
-	if (_attributes.count("Content-Length"))
+	if (_headers.count("Content-Length"))
 		read_body(_unparsed_request);
 
 	// set accept_* values
@@ -182,7 +187,7 @@ void	Request::join_char_vectors(std::vector<char> &original, std::vector<char> &
 {
 	if (!original.empty())
 		original.pop_back();
-	original.insert(original.end(), to_add.begin(), to_add.end()); 
+	original.insert(original.end(), to_add.begin(), to_add.end());
 }
 
 void	Request::clear()
@@ -193,5 +198,5 @@ void	Request::clear()
 	_raw_headers.clear();
 	_raw_body.clear();
 	_path.clear();
-	_attributes.clear();
+	_headers.clear();
 }

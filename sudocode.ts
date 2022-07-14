@@ -106,16 +106,16 @@ class HTTPStatus extends Error {
 }
 
 // C++ Maps
-type ResponseHeader = {
+type ResponseHeaders = {
   [key: string]: string
 }
-type RequestHeader = {
+type RequestHeaders = {
   [key: string]: string
 }
 type RequestQuery = {
   [key: string]: string
 }
-type RequestAttributes = {
+type RequestHeaders = {
   [key: string]: string
 }
 type RequestMeta = {
@@ -151,7 +151,7 @@ class HTTPRequest { // `Request` already used by JavaScript
   raw_header: string
 
   // The parsed header of the request
-  header: RequestHeader
+  header: RequestHeaders
 
   // The Accept header value
   accept: string
@@ -172,7 +172,7 @@ class HTTPRequest { // `Request` already used by JavaScript
   peeraddr: SocketAddress
 
   // Map of request attributes
-  attributes: RequestAttributes
+  attributes: RequestHeaders
 
   // The local time this request was received
   request_time: string
@@ -292,7 +292,7 @@ class HTTPResponse { // `Response` already used by JavaScript
   status: number
 
   // Response header
-  header: ResponseHeader
+  header: ResponseHeaders
 
   // Response reason phrase ("OK")
   reason_phrase: string

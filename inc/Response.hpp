@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 23:28:34 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:42:34 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,19 +144,22 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 // Response message generated while processing client request
 
-typedef std::map<std::string, std::string> ResponseAttributes;
+typedef std::map<std::string, std::string> ResponseHeaders;
 
 class Response {
 
 public:
 
-	typedef	ResponseAttributes::iterator attributes_iterator;
-	Response( void );
+	typedef	ResponseHeaders::iterator attributes_iterator;
+	Response( void ); // put bck private after making pointer in connection
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
 
+	// Variables
 	RequestMethod	request_method;
+	std::string		body;
 
+	// Methods
 	std::string 	start_line(int status);
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
@@ -168,14 +171,18 @@ public:
 	void			set_body(std::string const &type);
 	std::string		_uri;
 
+	// Setters
+	// void			set_content_length(int length);
+	// void			set_content_type(std::string type);
+
 private:
 	int				_content_length;
 	std::string 	_content_type;
-	std::string	_body;
-	int 		_status;
-	ResponseAttributes	_attributes;			// Map of request attributes
-	std::string	_message;
-	Response( Response const & src ); // while not implemented
+	std::string		_body;
+	int				_status;
+	ResponseHeaders	_headers;			// Map of request headers
+	std::string		_message;
+	Response( Response const & src ); 		// while not implemented
 };
 
 std::ostream &	operator << ( std::ostream & o, Response const & i );

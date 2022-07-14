@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 20:38:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:20:55 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,6 @@
 
 #include "macros.hpp"
 #include "ServerConfig.hpp"
-
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -100,13 +99,10 @@ Warning								A general warning about possible problems with the entity body.		
 
 */
 
-
-typedef std::map<std::string, std::string> ResponseHeader;
-typedef std::map<std::string, std::string> RequestHeader;
-typedef std::map<std::string, std::string> RequestQuery;
-typedef std::map<std::string, std::string> RequestAttributes;
-typedef std::map<std::string, std::string> RequestMeta;
+typedef std::map<std::string, std::string> ResponseHeaders;
+typedef std::map<std::string, std::string> RequestHeaders;
 typedef sockaddr_in SocketAddress;
+
 class Socket;
 
 enum RequestMethod {
@@ -115,12 +111,13 @@ enum RequestMethod {
 	DELETE,
 };
 
+typedef std::map<std::string, RequestMethod>	RequestMethods;
 
 class URI {
 	std::string		host;
 	std::string		port;
 	std::string		path;
-	std::string		query;
+	std::string		query; // map
 
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + port + path + query;
@@ -129,7 +126,9 @@ class URI {
 
 
 class Request {
+
 public:
+
 	Request( ServerConfig const & config );
 	Request( void );
 	Request( Request const & src ); // while not implemented
@@ -148,7 +147,7 @@ public:
 	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private
-	RequestAttributes	_attributes;			// Map of request attributes
+	RequestHeaders	_headers;			// Map of request attributes
 
 	// Parses a request from +socket+.  This is called internally by Server
 	void				parse(Socket & socket, struct kevent const & Event );
@@ -160,6 +159,7 @@ public:
 
 private:
 
+	std::string			_unparsed_uri; 				// The unparsed URI of the request
 
 };
 

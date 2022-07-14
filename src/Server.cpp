@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 23:22:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:37:05 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <iostream>
 #include <stdexcept>
 
-/* 
+/*
     Testes a passar:
     Display big images ()
     Vários Servers ao mesmo tempo
@@ -62,13 +62,13 @@ void Server::update_event(int ident, short filter, u_short flags)
 	kevent(this->_fd, &kev, 1, NULL, 0, NULL);
 }
 
-/* 
+/*
  * File descriptors open are:
  * 3 - Server fd
  * 4 - Server
  * 5 - Accept client request
  * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
- * 
+ *
  * Lines:
  * 18-19 has_active_connections only temporary for now for clean shutdown
 */
@@ -128,6 +128,51 @@ void	Server::new_connection( Listener * listener )
 	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
 }
 
+// Reference
+// Does necessary to service a connection
+// void	Server::run(Socket & socket) {
+// 	Request 	req(_config);
+// 	Response 	res(_config);
+// 	try {
+// 		// while timeout and Running
+// 		req.parse(socket);
+// 		res.request_method = req.request_method;
+// 		// res.request_uri = req.request_uri;
+// 		// if (request_callback) {
+// 		// 	request_callback(req, res);
+// 		// }
+// 		service(req, res);
+// 	}
+// 	catch (BaseStatus & error) {
+// 		ERROR(error.what());
+// 		// res.set_error(error);
+// 		if (error.code) {
+// 			// res.status = error.code;
+// 		}
+// 	}
+// 	// if (req.request_line != "") {
+// 	// 	res.send_response(socket);
+// 	// }
+
+// 	res.send_response(socket);
+// }
+
+// Services +req+ and fills in +res+
+void	Server::service(Request & req, Response & res) {
+	// Use factory create() method on Handler interface / Abstract class
+	// Pick handler::service based on available info
+	// ..
+	// req.script_name = script_name;
+	// req.path_info = path_info;
+
+	// FileHandler 	handler;
+	// OR
+	// CGIHandler 	handler;
+	FileHandler handler; // probably needs config for root path etc
+
+	handler.service(req, res);
+}
+
 /**
  * The reason why parse is done here is so that we know when we should
  * stop receiving.
@@ -136,16 +181,15 @@ void	Server::new_connection( Listener * listener )
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-
 void	Server::read_connection( Connection *connection, struct kevent const & Event )
 {
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
     std::cout << "Incoming data has size of: " << Event.data << std::endl;
     connection->request.parse(*connection->socket(), Event);
-    if (connection->request._attributes.count("Content-Length"))
+    if (connection->request._headers.count("Content-Length"))
     {
         std::cout << "Analyzing if whole body was transferred: " << std::endl;
-        std::stringstream content_length(connection->request._attributes["Content-Length"]);
+        std::stringstream content_length(connection->request._headers["Content-Length"]);
         size_t value = 0;
         content_length >> value;
         if (connection->request._raw_body.size() < value + 1)
@@ -174,20 +218,6 @@ void	Server::write_to_connection( Connection *connection )
         this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
         this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
     }
-}
-
-/*
-** Uses appropriate handler to service the request, creating the response
-** @param:	- [Request] request that has been received
-**			- [Response] response that will be sent
-** Line-by-line comments:
-** @1-3	FileHandler handler or CGIHandler handler
-*/
-
-void	Server::service(Request & req, Response & res)
-{
-	FileHandler handler; // probably needs config for root path etc
-	handler.service(req, res);
 }
 
 Server::~Server()

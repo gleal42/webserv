@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/12 22:05:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:40:54 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void	Socket::bind( int port )
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
-	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
+	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address))) {
 		throw Socket::BindError(port);
 	}
 	_port = port;	// only set port if did't fail `bind` call
@@ -137,6 +137,11 @@ void	Socket::receive( int buffer_size ) {
 	// std::cout << "The data received was :" << std::endl;
 	// std::cout << _buffer.data() << std::endl;
 }
+// It is a common mistake to try printing data that's received from recv() directly
+// as a C string. There is no guarantee that the data received from recv() is null
+// terminated! If you try to print it with printf(request) or printf("%s", request),
+// you will likely receive a segmentation fault error (or at best it will print some
+// garbage).
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
@@ -154,7 +159,7 @@ Socket *	Socket::accept( void ) {
         throw Socket::AcceptError();
 	}
 	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
-	
+
 	return s;
 }
 

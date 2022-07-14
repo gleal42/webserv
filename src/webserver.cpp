@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 17:00:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/14 23:32:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ int webserver(std::string config_file)
 
 	// Initialize all Listeners
     Server webserv(parser);
-	
-	// Start waiting for events 
+
+	// Start waiting for events
 	webserv.start();
 
 	// Shutdown and cleanup inside destructor

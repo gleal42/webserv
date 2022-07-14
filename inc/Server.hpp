@@ -1,5 +1,17 @@
-#ifndef __KQUEUE_H__
-# define __KQUEUE_H__
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
+/*   Updated: 2022/07/15 00:28:01 by msousa           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef __SERVER_H__
+# define __SERVER_H__
 
 #include <stdexcept>
 #include <sys/event.h>
@@ -25,9 +37,10 @@ Needs to be able to:
 
 */
 
-class Server 
-{
+class Server {
+
 public:
+
 	struct CreateError : public std::runtime_error {
 						CreateError( void );
 	};
@@ -36,6 +49,7 @@ public:
 	// Getters
 	int					fd() const;
 	// Member Functions
+	// TODO: check if can be private
 	void				start( void );
 	int					wait_for_events();
 	void				update_event(int ident, short filter, u_short flags);
@@ -46,13 +60,17 @@ public:
 	void				close_connection( int connection_fd );
 	void				close_listener( int listener_fd );
    	struct kevent 		ListQueue[10];
+
 private:
-	Server();
-	Server( const Server &src );
-	Server &operator=( const Server &src );
+
+	Server( void );
+	Server( Server const & src );
+	Server &operator=( Server const & src );
 	int					_fd;
 	Cluster				_cluster;
 	Connections			_connections;
 	size_t				_listeners_amount;
+
 };
+
 #endif

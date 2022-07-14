@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/12 15:14:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:26:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,9 @@
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <map>
+
+# include <cstdlib> // For EXIT_FAILURE, etc, macros
+# include <sstream>
 
 #include "macros.hpp"
 
@@ -33,14 +36,6 @@ enum HTTPStatusGroup {
 	STATUS_SERVER_ERROR,
 };
 
-struct KqueueError : public std::runtime_error {
-	KqueueError( void );
-};
-# include <string>
-# include <cstdlib> // For EXIT_FAILURE, etc, macros
-# include <sstream>
-
-# include "macros.hpp"
 // Didn't work to include all header files here, if someone wants to give it
 // a shot whilst still being able to `make`
 
@@ -48,6 +43,5 @@ struct KqueueError : public std::runtime_error {
 int 		webserver(std::string config);
 std::string const	http_phrase( int code );
 HTTPStatusGroup		http_group( int code );
-
 
 #endif

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:27:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:43:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ Response &	Response::operator = ( Response const & rhs )
 {
 	_status = rhs._status;
 	_body = rhs._status;
-	for (ResponseAttributes::iterator it = _attributes.begin(); it != _attributes.end(); it++) {
-		_attributes = rhs._attributes;
+	for (ResponseHeaders::iterator it = _headers.begin(); it != _headers.end(); it++) {
+		_headers = rhs._headers;
 	}
 	return *this;
 }
@@ -50,10 +50,10 @@ void	Response::send_response(Socket const & socket)
 	if (_message.empty())
 	{
 		_message = start_line(_status);
-		for (attributes_iterator it = _attributes.begin(); it != _attributes.end(); ++it) {
-			_message += it->first + ": " + it->second + "\n";
+		for (attributes_iterator it = _headers.begin(); it != _headers.end(); ++it) {
+			_message += it->first + ": " + it->second + CRLF;
 		}
-		_message += "\n" + _body;
+		_message += CRLF + _body;
 	}
 	int sent_chars = socket.send(_message);
 	int msg_size = _message.size();
@@ -63,10 +63,13 @@ void	Response::send_response(Socket const & socket)
 	std::cout << "Message size after is: " << _message.size() << std::endl;
     printf("\n------------------Hello message sent-------------------\n");
 }
+// Note that the last += statement sends \r\n. This has the effect of transmitting
+// a blank line. This blank line is used by the client to delineate the HTTP
+// header from the beginning of the HTTP body.
 
 void	Response::set_attribute(std::string name, std::string value)
 {
-	_attributes[name] = value;
+	_headers[name] = value;
 }
 
 bool	Response::is_empty()
@@ -80,7 +83,7 @@ void	Response::save_file(std::vector<char> const & body)
 	std::string delimiter = full_str.substr(0, full_str.find("\r\n"));
 	std::string::size_type start_file = full_str.find("\r\n\r\n") + 4;
 	std::string::size_type end_file = full_str.rfind(delimiter.c_str());
-	
+
 	std::string file = full_str.substr(start_file, end_file - start_file - 2);
     std::ofstream outfile ("forest.jpeg");
     outfile << file.c_str();
