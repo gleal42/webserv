@@ -13,10 +13,16 @@
 #ifndef __CONFIG_PARSER_H__
 # define __CONFIG_PARSER_H__
 
+#include <fstream>
+#include <cstring>
+#include <sstream>
+#include <iomanip>
 # include <iostream>
 # include <vector>
 
 # include "ServerConfig.hpp"
+# define SEPARATORS			" \t\v\n\r\f"
+
 
 // ************************************************************************** //
 //                               ConfigParser Class                             	  //
@@ -37,7 +43,18 @@ typedef std::vector<ServerConfig> Configs;
 class ConfigParser {
 
 public:
-
+	class InvalidDirectiveException: public std::exception {
+		public:
+			virtual const char * what() const throw();
+	};
+	class WrongSyntaxException: public std::exception {
+		public:
+			virtual const char * what() const throw();
+	};
+	class InvalidConfigurationFileException: public std::exception {
+		public:
+			virtual const char * what() const throw();
+	};
 	ConfigParser(std::string config_file);
 	~ConfigParser( void );
 	ConfigParser &	operator = ( ConfigParser const & rhs );
@@ -52,7 +69,7 @@ private:
 
 	ConfigParser( void );
 	ConfigParser( ConfigParser const & src );
-	std::string		_config_file;
+	char*			_config_file;
 	int				_configs_amount;
 	Configs			_configs;
 
