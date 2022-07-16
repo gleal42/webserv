@@ -18,15 +18,26 @@
 // Taken from Server Config Parsing.
 // Each server will have these things
 
+struct location
+{
+	/* data */
+};
+
+
 struct ServerConfig
 {
-	std::string		name;
-	std::string		bind_address; // following pseudo-code
-	int				port;
-	int				max_clients;
-	int				request_timeout;
-	std::string		root;
-	int				input_buffer_size;
+	std::string					server_name;
+	std::string					root;
+	std::string					cgi_bin;
+	std::string					error_page;
+	std::vector<std::string>	allowed_methods;
+	bool						auto_index;
+	std::vector<std::string>	indexes;
+	struct location				location;
+	int							client_max_body_size;
+	int							max_clients;
+	int							request_timeout;
+	std::string					bind_address; // following pseudo-code
 };
 
 #endif

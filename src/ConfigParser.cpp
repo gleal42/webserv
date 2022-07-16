@@ -12,6 +12,11 @@
 
 #include "ConfigParser.hpp"
 
+/* Exceptions */
+const char * ConfigParser::InvalidConfigurationFileException::what() const throw() {return ("Invalid File, make sure you have permissions, that the file exists and the extension is .conf");}
+const char * ConfigParser::InvalidDirectiveException::what() const throw() {return ("Directive is invalid");}
+const char * ConfigParser::WrongSyntaxException::what() const throw() {return ("Wrong Directive Syntax");}
+
 /* Constructors */
 ConfigParser::ConfigParser( void ) : _config_file(""), _configs_amount(0) { /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
@@ -34,11 +39,27 @@ ConfigParser &	ConfigParser::operator = ( ConfigParser const & rhs )
 	return *this;
 }
 
+static std::string & strtrim(std::string & str) {
+    str.erase(str.find_last_not_of(SEPARATORS) + 1);
+    str.erase(0, str.find_first_not_of(SEPARATORS));
+    return (str);
+}
+
 void	ConfigParser::call( void )
 {
 	// TODO: validate file exists or throw error
 	// TODO: validate file contents or throw error
 	// TODO: count server blocks in file
+    std::ifstream file;
+    file.open(_config_file.c_str(), std::ios::in);
+	if (!file.is_open())
+		throw(ConfigParser::InvalidConfigurationFileException());
+	std::string line;
+    while (std::getline(file, line)) {
+		line = strtrim(line);
+		if (!line.length() || line[0] == '#')
+			continue;
+	}
 	_configs_amount = 1; // Temporary
 	_configs = Configs(_configs_amount);
 
