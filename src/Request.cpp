@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/18 22:41:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:30:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ Request& Request::operator= ( Request const & param ) {
 	request_uri = param.request_uri;
 	client_max_body_size = param.client_max_body_size;
 	_path = param._path;
-	_raw_request = param._raw_request;
 	_headers = param._headers;
 	_raw_body = param._raw_body;
 	return (*this);
@@ -62,11 +61,10 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
-void	Request::read_request_line(std::vector<char> &_unparsed_request){
-	std::string						str;
+void	Request::read_request_line(std::string &_unparsed_request){
 	int								i = 0;
 	int								j = 0;
-	std::string						buf (std::string(_unparsed_request.data()));
+	std::string						buf (_unparsed_request);
 	std::string::iterator			iter = buf.begin();
 	RequestMethods	request_methods;
 
@@ -76,12 +74,20 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 
 	for (; *iter != ' '; iter++)
 		i++;
-	str = buf.substr(0, i++);
+	_unparsed_request = buf.substr(0, i++);
 
-	if (request_methods.find(str) == request_methods.end())
-		throw HTTPStatus<405>();
-
-	request_method = request_methods[str];
+	// Consider global constant map: 	RequestMethods[ _unparsed_request ]
+	// typedef std::map< std::string, RequestMethod >	RequestMethods;
+	// this will avoid re-doing these comparisons every time
+	if (_unparsed_request.compare("GET") == 0)
+		request_method = GET;
+	else if(_unparsed_request.compare("POST") == 0)
+		request_method = POST;
+	else if(_unparsed_request.compare("DELETE") == 0)
+		request_method = DELETE;
+	else
+		throw("No appropriate method");
+		// this error should have happened at the config parsing stage and blocked the loading of the server
 
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
@@ -97,10 +103,7 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 
 	_raw_request_line = buf.substr(0, i + j + 2);
 	std::cout << "Request line is :" << _raw_request_line << std::endl;
-	str = buf.substr(++j + ++i);
-	_unparsed_request.clear();
-	_unparsed_request = std::vector<char>(str.begin(), str.end()); // in order to include the null characterq
-	_unparsed_request.push_back('\0');
+	_unparsed_request = buf.substr(++j + ++i);
 };
 
 // 1
@@ -118,21 +121,20 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 // Check file upload
 
 
-void	Request::read_header(std::vector<char> &_unparsed_request)
+void	Request::read_header(std::string &_unparsed_request)
 {
 	std::string				key;
 	std::string				value;
-	std::string				strptr(_unparsed_request.data());
 	size_t					key_start = 0;
 	size_t					separator = 0;
 	size_t					value_start;
 	size_t					end;
 
-	size_t	body_start = strptr.find("\r\n\r\n");
+	size_t	body_start = _unparsed_request.find("\r\n\r\n");
 	if (body_start == std::string::npos)
 		return ;
-	_raw_headers += strptr.substr(0, body_start + 4);
-	// std::cout << "Headers are :" << _raw_headers << std::endl;
+	_raw_headers += _unparsed_request.substr(0, body_start + 4);
+	std::cout << "Headers are :" << std::endl << _raw_headers << std::endl;
 	for (size_t i = 0; i < body_start; i++){
 		if (_raw_headers[i] == ':')
 		{
@@ -150,14 +152,12 @@ void	Request::read_header(std::vector<char> &_unparsed_request)
 			key_start = i + 2;
 		}
 	}
-	std::string remaining = strptr.substr(body_start + 4);
-	std::vector<char> a(remaining.begin(), remaining.end() + 1);
-	_unparsed_request = a;
+	_unparsed_request = _unparsed_request.substr(body_start + 4);
 }
 
-void	Request::read_body(std::vector<char> &_unparsed_request)
+void	Request::read_body(std::string &_unparsed_request)
 {
-	join_char_vectors(_raw_body, _unparsed_request);
+	join_strings(_raw_body, _unparsed_request);
 	_unparsed_request.clear();
 }
 
@@ -167,9 +167,9 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
 
-	join_char_vectors(_raw_request, socket._buffer); // Maybe unnecessary
-	std::cout << "We have received [" << _raw_request.size() << "] bytes in total." << std::endl;
-	join_char_vectors(_unparsed_request, socket._buffer);
+	std::cout << "We have received [" << socket._buffer.size() << "] bytes in total." << std::endl;
+	append_buffer(_unparsed_request, socket._buffer);
+	std::cout << "Now buffer has size [" << _unparsed_request.size() << "] bytes in total." << std::endl;
 
 	if (_raw_request_line.empty() || _raw_request_line.find('\n') == std::string::npos)
 		read_request_line(_unparsed_request);
@@ -183,16 +183,27 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	// request_uri = parse_uri(unparsed_uri);
 }
 
-void	Request::join_char_vectors(std::vector<char> &original, std::vector<char> &to_add)
+// Replace by template?
+
+void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 {
-	if (!original.empty())
-		original.pop_back();
-	original.insert(original.end(), to_add.begin(), to_add.end());
+	if (!str.empty())
+		str.pop_back();
+	str.append(to_add.data(), to_add.size());
+}
+
+// Replace by template?
+
+void	Request::join_strings(std::string &str, std::string &to_add)
+{
+	if (!str.empty())
+		str.pop_back();
+	str.append(to_add.data(), to_add.size());
 }
 
 void	Request::clear()
 {
-	_raw_request.clear();
+	_received.clear();
 	_unparsed_request.clear();
 	_raw_request_line.clear();
 	_raw_headers.clear();

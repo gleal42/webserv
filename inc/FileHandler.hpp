@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 00:51:44 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/22 18:27:34 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,11 +30,12 @@ public:
 	~FileHandler( void );
 	FileHandler &	operator = ( FileHandler const & rhs );
 
-	void				service(Request & req, Response & res);
+	void				service( Request & req, Response & res );
+	void				save_file( Request & req, Response & res );
 
 private:
 
-	std::string const	get_content_type(std::string const path);
+	std::string const	get_content_type( std::string const path );
 	std::streampos		file_size( std::string full_path );
 
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/15 01:20:55 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/22 18:27:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,11 +135,11 @@ public:
 	~Request();
 	Request&	operator= ( Request const & param );
 
-	std::vector<char>	_raw_request;			// The raw header of the request
-	std::vector<char>	_unparsed_request;		// The raw header of the request
+	std::string			_received;			// The raw header of the request
+	std::string			_unparsed_request;		// The raw header of the request
 	std::string			_raw_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
 	std::string			_raw_headers;			// The raw header of the request
-	std::vector<char>	_raw_body;
+	std::string			_raw_body;
 
 	std::string			_path; 				// The unparsed URI of the request
 	RequestMethod		request_method;
@@ -151,10 +151,11 @@ public:
 
 	// Parses a request from +socket+.  This is called internally by Server
 	void				parse(Socket & socket, struct kevent const & Event );
-	void				read_header(std::vector<char> &strptr);
-	void				read_request_line(std::vector<char> &strptr);
-	void				read_body(std::vector<char> &strptr);
-	void				join_char_vectors(std::vector<char> &original, std::vector<char>	&to_add);
+	void				read_header(std::string &strptr);
+	void				read_request_line(std::string &strptr);
+	void				read_body(std::string &strptr);
+	void				append_buffer(std::string &str, std::vector<char> &to_add);
+	void				join_strings(std::string &str, std::string	&to_add);
 	void				clear( void );
 
 private:

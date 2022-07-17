@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 01:13:21 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/22 18:34:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,4 +130,30 @@ std::streampos	FileHandler::file_size( std::string	full_path )
 	file.close();
 
 	return fsize;
+}
+
+void	FileHandler::save_file(Request & req, Response & res)
+{
+	std::string full_str(req._raw_body.data());
+	std::string delimiter = full_str.substr(0, full_str.find("\r\n"));
+	std::string::size_type start_file = full_str.find("\r\n\r\n") + 4;
+	std::string::size_type end_file = full_str.rfind(delimiter.c_str());
+	
+	std::string file = full_str.substr(start_file, end_file - start_file - 2);
+    std::ofstream outfile ("forest.jpeg");
+    outfile << file.c_str();
+    outfile.close();
+
+	std::ifstream open_file("test/forest.jpeg");
+	if ( (open_file.rdstate() & std::ifstream::failbit ) != 0
+    || (open_file.rdstate() & std::ifstream::badbit ) != 0 )
+    {
+        std::cerr << "error opening " << req._path << std::endl;
+		//  send_error(404);
+		return ;
+	}
+	std::stringstream body_str;
+	body_str << open_file.rdbuf();
+	std::string original_image = body_str.str();
+	(void)res;
 }

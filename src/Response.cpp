@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/15 01:43:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/22 18:26:46 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,31 +75,6 @@ void	Response::set_attribute(std::string name, std::string value)
 bool	Response::is_empty()
 {
 	return (_message.empty());
-}
-
-void	Response::save_file(std::vector<char> const & body)
-{
-	std::string full_str(body.data());
-	std::string delimiter = full_str.substr(0, full_str.find("\r\n"));
-	std::string::size_type start_file = full_str.find("\r\n\r\n") + 4;
-	std::string::size_type end_file = full_str.rfind(delimiter.c_str());
-
-	std::string file = full_str.substr(start_file, end_file - start_file - 2);
-    std::ofstream outfile ("forest.jpeg");
-    outfile << file.c_str();
-    outfile.close();
-
-	std::ifstream open_file("test/forest.jpeg");
-	if ( (open_file.rdstate() & std::ifstream::failbit ) != 0
-    || (open_file.rdstate() & std::ifstream::badbit ) != 0 )
-    {
-        std::cerr << "error opening " << _uri << std::endl;
-		//  send_error(404);
-		return ;
-	}
-	std::stringstream body_str;
-	body_str << open_file.rdbuf();
-	std::string original_image = body_str.str();
 }
 
 void	Response::set_content_length(int length)
