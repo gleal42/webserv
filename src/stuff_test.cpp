@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 22:26:01 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/16 03:29:12 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/18 03:20:38 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,10 @@
 #include <algorithm>
 #include <sys/stat.h>
 
-# define SEPARATORS			" \t\v\n\r\f"
+# define SEPARATORS			            " \t\v\n\r\f"
+# define CONTEXT_DIRECTIVES		        8
+# define SERVER_CONTEXT		            1
+# define LOCATION_CONTEXT	            2
 
 typedef struct s_locations{
     std::vector<std::string>	_methods;
@@ -52,6 +55,7 @@ typedef struct s_config
 
 typedef std::vector<ServerConfig> Configs;
 
+
 class ConfigParser {
 
     public:
@@ -67,6 +71,12 @@ class ConfigParser {
         struct LocationPathError : public std::runtime_error {
             LocationPathError(const std::string err);
         };
+        struct NestedServerContextError : public std::runtime_error {
+            NestedServerContextError(void);
+        };
+        struct EmptyContextBlockError : public std::runtime_error {
+            EmptyContextBlockError(void);
+        };
 
         ConfigParser(char *str) : _config_file(str){};
         ~ConfigParser(void){};
@@ -75,13 +85,15 @@ class ConfigParser {
         // Getters
         ServerConfig	config(int const index) const;
         int				configs_amount(void) const;
-        void            server_parser(std::ifstream* file_ref);
-        void            location_parser(std::string &paths, std::ifstream* file_ref);
+        void            server_context_parser(std::ifstream* file_ref);
+        void            ConfigParser::location_context_parser(std::string &path, ServerConfig *new_server, std::ifstream* file_ref);
         void            call(void);
-        void            set_directive(std::string &directive, std::string &content, std::ifstream* file);
+        void            set_directive(std::string &directive, std::string &content, bool context, ServerConfig *new_server);
+        bool            server_is_empty(ServerConfig test_server);
+        void            set_location(std::string location, std::ifstream* file);
 
         // Config vector
-        Configs			_configs;
+        Configs			server_configs;
 
     private:
 
@@ -94,6 +106,13 @@ class ConfigParser {
 /*---------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------*/
 /*---------------------------------------------------------------------------------------*/
+const std::string valid_server_directives[CONTEXT_DIRECTIVES] =
+    {"root", "listen", "server_name", "error_page", "client_max_body_size",
+    "location", "index", "autoindex"};
+
+const std::string valid_location_directives[CONTEXT_DIRECTIVES] =
+        {"root", "index", "allowed_methods", "autoindex",
+        "error_page", "client_max_body_size", "cgi", "cgi-bin"};
 
 /* Exceptions */
 ConfigParser::ConfigurationFileError::ConfigurationFileError(void)
@@ -108,6 +127,13 @@ ConfigParser::ConfigurationSyntaxError::ConfigurationSyntaxError(const std::stri
 ConfigParser::LocationPathError::LocationPathError(const std::string err)
     : std::runtime_error("Error. The following path isn't accessible: " + err) { /* No-op */ }
 
+ConfigParser::NestedServerContextError::NestedServerContextError(void)
+    : std::runtime_error("Error trying to nest a server context") { /* No-op */ }
+
+ConfigParser::EmptyContextBlockError::EmptyContextBlockError(void)
+    : std::runtime_error("Error trying to add an empty context block") { /* No-op */ }
+
+
 /* Config-parsing utils */
 static std::string & strtrim(std::string & str) {
     str.erase(str.find_last_not_of(SEPARATORS) + 1);
@@ -115,27 +141,29 @@ static std::string & strtrim(std::string & str) {
     return (str);
 };
 
-static bool is_valid_directive(std::string directive){
-    std::vector<std::string>valid_server_directives =
-        {"root", "listen", "server_name", "error_page", "client_max_body_size",
-        "location", "index", "autoindex"};
-    std::vector<std::string>::iterator found;
+static bool check_directive_syntax(std::string directive){
+    std::size_t found = directive.find_first_of(SEPARATORS);
 
-    found = find(valid_server_directives.begin(), valid_server_directives.end(), directive);
-    if (found != valid_server_directives.end())
-        return (true);
-    return (false);
+    if (found == std::string::npos)
+        return (false);
+
+    std::string checking = directive.substr(found + 1);
+    if (checking.length() < 3 && checking[checking.length() - 1] != ';')
+        return (false);
 }
 
-static bool is_valid_location_directive(std::string directive){
-    std::vector<std::string>valid_location_directives =
-        {"root", "index", "allowed_methods", "autoindex", "error_page",
-        "client_max_body_size", "cgi", "cgi-bin"};
-    std::vector<std::string>::iterator found;
+static bool is_valid_directive(std::string directive, int type){
+    int                 i = 0;
+    const std::string   *valid_directives;
 
-    found = find(valid_location_directives.begin(), valid_location_directives.end(), directive);
-    if (found != valid_location_directives.end())
-        return (true);
+    if (type == LOCATION_CONTEXT)
+        valid_directives = valid_location_directives;
+    else if (type == SERVER_CONTEXT)
+        valid_directives = valid_server_directives;
+    while (i < CONTEXT_DIRECTIVES)
+        if (directive == valid_directives[i++] && check_directive_syntax(directive))
+            return (true);
+    throw ConfigParser::ConfigurationDirectiveError(directive);
     return (false);
 }
 
@@ -151,41 +179,62 @@ static bool isDirectory(const std::string & path) {
 
 /* ConfigParser methods */
 
-void    ConfigParser::location_parser(std::string &paths, std::ifstream* file_ref){
+bool    ConfigParser::server_is_empty(ServerConfig target){
+    return (!target._allowed_methods.empty() || target._auto_index
+        || !target._cgi_bin.empty() || target._client_max_body_size
+        || !target._error_page.empty() || !target._indexes.empty()
+        || !target._ip.empty() || !target._locations.empty()
+        || target._max_clients || target._port || target._request_timeout
+        || !target._root.empty() || !target._server_name.empty());
+}
+
+void    ConfigParser::location_context_parser(std::string &path, ServerConfig *new_server, std::ifstream* file_ref){
 
 };
-void    ConfigParser::set_directive(std::string &directive, std::string &content, std::ifstream* file){
+void    ConfigParser::set_directive(std::string &directive, std::string &content, bool context, ServerConfig *new_server){
 
 };
 
-void ConfigParser::server_parser(std::ifstream* file)
+void ConfigParser::server_context_parser(std::ifstream* file)
 {
 	std::string     line;
 	std::string     directive;
     std::string     content;
     ServerConfig    new_server;
+    static bool     is_global_context = true;
 
     while (std::getline(*file, line)) {
 		line = strtrim(line);
 		if (!line.length() || line[0] == '#')
 			continue;
+        if (line == "}"){
+            if (is_global_context)
+                throw ConfigurationSyntaxError(line);
+            if (server_is_empty(new_server))
+                throw ConfigParser::EmptyContextBlockError();
+            this->server_configs.push_back(new_server);
+            return ;
+        }
         directive = line.substr(0, line.find_first_of(SEPARATORS));
         if (directive == "server"){
+            if (!is_global_context)
+                throw ConfigParser::NestedServerContextError();
+            is_global_context = false;
             if (line[line.find_first_of(SEPARATORS) + 1] == '{'){
-                server_parser(file);
+                server_context_parser(file);
                 continue;
             }
             throw ConfigurationSyntaxError(line);
         }
-        if (is_valid_directive(directive)){
-            content = line.substr(line.find_first_of(SEPARATORS) + 1);
-            set_directive(directive, content, file);
-        }
-        if (line == "}"){
-            this->_configs.push_back(new_server);
-            return ;
-        }
+        content = line.substr(line.find_first_of(SEPARATORS) + 1);
+        if (directive == "location")
+            location_context_parser(content, &new_server, file);
+        else if (is_valid_directive(directive, SERVER_CONTEXT))
+            set_directive(directive, content, is_global_context, &new_server);
+        is_global_context = true;
     }
+    if (this->server_configs.empty() && !server_is_empty(new_server))
+        this->server_configs.push_back(new_server);
 };
 
 // void    tt(std::ifstream* file)
@@ -211,13 +260,15 @@ void ConfigParser::call(){
         std::cerr << "open failed\n";
         exit(1);
     }
-    ConfigParser::server_parser(&file);
+    ConfigParser::server_context_parser(&file);
     file.close();
 };
 
 int main(int ac, char **av){
+    if (ac == 2){
     ConfigParser config_parser(av[1]);
     config_parser.call();
+    }
 
     return (0);
 };
