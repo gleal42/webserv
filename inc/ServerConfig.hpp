@@ -26,7 +26,7 @@ struct ServerConfig
 	int				max_clients;
 	int				request_timeout;
 	std::string		root;
-	int				input_buffer_size;
+	int				client_max_body_size;
 };
 
 #endif

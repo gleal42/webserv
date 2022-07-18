@@ -6,27 +6,30 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/09 18:28:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/18 22:41:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "Socket.hpp"
+#include "Listener.hpp"
 #include "HTTPStatus.hpp"
 
 /* Constructors */
 Request::Request( void ) { /* no-op */ }
 
-Request::Request(const ServerConfig & config){
+Request::Request( ServerConfig const & config )
+{
 	// TODO (implement constructor)
 	// set member vars from config
 	// even though we aren't using in `parse` might still be needed for counting
 	// how much read and that can still read, if not remove
-	input_buffer_size = config.input_buffer_size;
+	client_max_body_size = config.client_max_body_size;
 }
 
-Request::Request(const Request& param) {
-	// TODO (copy constructor)
-	(void)param;
+Request::Request( Request const & param ) {
+	// TODO initializer list?
+	*this = param;
 }
 
 Request::~Request() {
@@ -35,10 +38,17 @@ Request::~Request() {
 }
 
 // might not be needed so can be private and have no implementation
-Request& Request::operator= (const Request& param) {
+Request& Request::operator= ( Request const & param ) {
 	// TODO (Assignment operatior)
 	// std::swap()
-	(void)param;
+	_raw_request_line = param._raw_request_line;
+	request_method = param.request_method;
+	request_uri = param.request_uri;
+	client_max_body_size = param.client_max_body_size;
+	_path = param._path;
+	_raw_request = param._raw_request;
+	_headers = param._headers;
+	_raw_body = param._raw_body;
 	return (*this);
 }
 
@@ -52,11 +62,11 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
-void	Request::read_request_line(std::string *strptr){
+void	Request::read_request_line(std::vector<char> &_unparsed_request){
 	std::string						str;
 	int								i = 0;
 	int								j = 0;
-	std::string						buf = *strptr;
+	std::string						buf (std::string(_unparsed_request.data()));
 	std::string::iterator			iter = buf.begin();
 	RequestMethods	request_methods;
 
@@ -66,7 +76,7 @@ void	Request::read_request_line(std::string *strptr){
 
 	for (; *iter != ' '; iter++)
 		i++;
-	str = buf.substr(0, ++i);
+	str = buf.substr(0, i++);
 
 	if (request_methods.find(str) == request_methods.end())
 		throw HTTPStatus<405>();
@@ -85,8 +95,12 @@ void	Request::read_request_line(std::string *strptr){
 	for (iter++; *iter != '\n'; iter++)
 		j++;
 
-	str = buf.substr(++j + ++i, buf.length());
-	*strptr = str;
+	_raw_request_line = buf.substr(0, i + j + 2);
+	std::cout << "Request line is :" << _raw_request_line << std::endl;
+	str = buf.substr(++j + ++i);
+	_unparsed_request.clear();
+	_unparsed_request = std::vector<char>(str.begin(), str.end()); // in order to include the null characterq
+	_unparsed_request.push_back('\0');
 };
 
 // 1
@@ -100,48 +114,89 @@ void	Request::read_request_line(std::string *strptr){
 // So I made a new class variable, _raw_body, which contains data associated with the request.
 // In case this data is present, read_header() parses it. We can, of course, make a custom function just for that.
 // Let me know what you think.
-void	Request::read_header(std::string *strptr){
+
+// Check file upload
+
+
+void	Request::read_header(std::vector<char> &_unparsed_request)
+{
 	std::string				key;
 	std::string				value;
+	std::string				strptr(_unparsed_request.data());
 	size_t					key_start = 0;
 	size_t					separator = 0;
 	size_t					value_start;
 	size_t					end;
-	std::string				buf = *strptr;
-	size_t					body_start = buf.find("\r\n\r\n");
 
+	size_t	body_start = strptr.find("\r\n\r\n");
+	if (body_start == std::string::npos)
+		return ;
+	_raw_headers += strptr.substr(0, body_start + 4);
+	// std::cout << "Headers are :" << _raw_headers << std::endl;
 	for (size_t i = 0; i < body_start; i++){
-		if (buf[i] == ':')
+		if (_raw_headers[i] == ':')
 		{
 			separator = i - key_start;
-			key = buf.substr(key_start, separator);
+			key = _raw_headers.substr(key_start, separator);
 			end = 0;
 			i += 2;
 			value_start = i;
-			while (buf[i] != '\r' && buf[i] != '\n'){
+			while (_raw_headers[i] != '\r' && _raw_headers[i] != '\n'){
 				end++;
 				i++;
 			}
-			value = buf.substr(value_start, end);
-			this->_header.insert(std::pair<std::string, std::string>(key, value));
+			value = _raw_headers.substr(value_start, end);
+			this->_headers.insert(std::pair<std::string, std::string>(key, value));
 			key_start = i + 2;
 		}
 	}
-	if (body_start + 4 != buf.size())
-		this->_raw_body = buf.substr(body_start + 4);
-};
+	std::string remaining = strptr.substr(body_start + 4);
+	std::vector<char> a(remaining.begin(), remaining.end() + 1);
+	_unparsed_request = a;
+}
 
-void	Request::parse(Socket & socket){
-	std::string		raw_request;
+void	Request::read_body(std::vector<char> &_unparsed_request)
+{
+	join_char_vectors(_raw_body, _unparsed_request);
+	_unparsed_request.clear();
+}
 
-	raw_request = socket.to_s();
-	if (raw_request.empty() || socket.bytes() < 0)
-		throw HTTPStatus<400>();
-	this->_raw_header = raw_request.substr(0);
-	read_request_line(&raw_request);
-	read_header(&raw_request);
+void	Request::parse(Socket & socket, struct kevent const & Event )
+{
+	socket.receive(Event.data);
+	if (socket._buffer.empty() || socket.bytes() < 0)
+		throw std::exception(); // TODO: decide what error this is
+
+	join_char_vectors(_raw_request, socket._buffer); // Maybe unnecessary
+	std::cout << "We have received [" << _raw_request.size() << "] bytes in total." << std::endl;
+	join_char_vectors(_unparsed_request, socket._buffer);
+
+	if (_raw_request_line.empty() || _raw_request_line.find('\n') == std::string::npos)
+		read_request_line(_unparsed_request);
+	if (_raw_headers.empty() || _raw_headers.find("\r\n\r\n") == std::string::npos)
+		read_header(_unparsed_request);
+	if (_headers.count("Content-Length"))
+		read_body(_unparsed_request);
 
 	// set accept_* values
 	// setup_forwarded_info();
 	// request_uri = parse_uri(unparsed_uri);
+}
+
+void	Request::join_char_vectors(std::vector<char> &original, std::vector<char> &to_add)
+{
+	if (!original.empty())
+		original.pop_back();
+	original.insert(original.end(), to_add.begin(), to_add.end());
+}
+
+void	Request::clear()
+{
+	_raw_request.clear();
+	_unparsed_request.clear();
+	_raw_request_line.clear();
+	_raw_headers.clear();
+	_raw_body.clear();
+	_path.clear();
+	_headers.clear();
 }

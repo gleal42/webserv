@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/08 19:31:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/15 01:20:55 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
 #include <map>
 
 #include "macros.hpp"
 #include "ServerConfig.hpp"
-#include "Socket.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -98,67 +99,67 @@ Warning								A general warning about possible problems with the entity body.		
 
 */
 
+typedef std::map<std::string, std::string> ResponseHeaders;
+typedef std::map<std::string, std::string> RequestHeaders;
+typedef sockaddr_in SocketAddress;
+
+class Socket;
+
 enum RequestMethod {
 	GET,
 	POST,
 	DELETE,
 };
 
-typedef std::map<std::string, std::string> 		ResponseHeader;
-typedef std::map<std::string, std::string> 		RequestHeader;
-typedef std::map<std::string, std::string> 		RequestQuery;
-typedef std::map<std::string, std::string> 		RequestAttributes;
-typedef std::map<std::string, std::string> 		RequestMeta;
 typedef std::map<std::string, RequestMethod>	RequestMethods;
 
 class URI {
 	std::string		host;
 	std::string		port;
 	std::string		path;
-	std::string		query;
+	std::string		query; // map
 
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + port + path + query;
 	}
 };
 
-class Request {
-public:
-	Request(const ServerConfig & config);
-	Request(const Request&);
-	~Request();
-	Request&	operator= (const Request&);
 
-	std::string			request_line; 		// The complete request line such as: `GET / HTTP/1.1`
+class Request {
+
+public:
+
+	Request( ServerConfig const & config );
+	Request( void );
+	Request( Request const & src ); // while not implemented
+	~Request();
+	Request&	operator= ( Request const & param );
+
+	std::vector<char>	_raw_request;			// The raw header of the request
+	std::vector<char>	_unparsed_request;		// The raw header of the request
+	std::string			_raw_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
+	std::string			_raw_headers;			// The raw header of the request
+	std::vector<char>	_raw_body;
+
+	std::string			_path; 				// The unparsed URI of the request
 	RequestMethod		request_method;
-	URI					request_uri;		// The parsed URI of the request
-	int					input_buffer_size;		// The parsed URI of the request
+	URI					request_uri;				// The parsed URI of the request
+	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private
-	std::string			_unparsed_uri; 		// The unparsed URI of the request
-	std::string			_path;
-	std::string			_path_info;			// The script name (CGI variable)
-	std::string			_query_string;		// The query from the URI of the request
-	std::string			_raw_header;			// The raw header of the request
-	RequestHeader		_header;				// The parsed header of the request
-	std::string			_accept;				// The Accept header value
-	std::string			_accept_charset;		// The Accept-Charset header value
-	std::string			_accept_encoding;	// The Accept-Encoding header value
-	std::string			_accept_language;	// The Accept-Language header value
-	// SocketAddress		addr;				// The socket address of the server
-	// SocketAddress		peeraddr;			// The socket address of the client
-	RequestAttributes	_attributes;			// Map of request attributes
-	std::string			_request_time;		// The local time this request was received
-	std::string			_raw_body;
+	RequestHeaders	_headers;			// Map of request attributes
 
 	// Parses a request from +socket+.  This is called internally by Server
-	void				parse(Socket & socket);
-	void				read_header(std::string *buf);
-	void				read_request_line(std::string *buf);
+	void				parse(Socket & socket, struct kevent const & Event );
+	void				read_header(std::vector<char> &strptr);
+	void				read_request_line(std::vector<char> &strptr);
+	void				read_body(std::vector<char> &strptr);
+	void				join_char_vectors(std::vector<char> &original, std::vector<char>	&to_add);
+	void				clear( void );
 
 private:
 
-	Request( void );
+	std::string			_unparsed_uri; 				// The unparsed URI of the request
 
 };
 

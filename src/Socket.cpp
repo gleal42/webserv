@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/05 01:24:18 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/15 01:40:54 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,12 @@ Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
 Socket::CreateError::CreateError( void )
 	: std::runtime_error("Failed to create socket.") { /* No-op */ }
 
+Socket::ReusableAddressError::ReusableAddressError( void )
+	: std::runtime_error("Failed to make socket address reusable.") { /* No-op */ }
+
+Socket::ReusablePortError::ReusablePortError( void )
+	: std::runtime_error("Failed to make socket port reusable.") { /* No-op */ }
+
 Socket::BindError::BindError( int port )
 	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
 	{ /* No-op */ }
@@ -25,20 +31,26 @@ Socket::BindError::BindError( int port )
 Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
 
-/* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0) { /* No-op */ }
+Socket::AcceptError::AcceptError( void )
+	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
 
+/* Constructors */
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
+
+// Changed to config parameter so that we could copy parent request to connections socket
 // TODO: will we also pass `domain`?
-Socket::Socket( int port ) : _port(PORT_UNSET), _bytes(0)
+Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
 	create();
-	bind(port);
+	setsockopt(SO_REUSEPORT);
+	setsockopt(SO_REUSEADDR);
+	bind(config.port);
 }
 
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void ) { /* No-op */ }
+Socket::~Socket( void ) { this->close(); }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
@@ -65,10 +77,24 @@ void	Socket::set_fd( int fd ) { _fd = fd; }
 void	Socket::create( void )
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
+
   	if (_fd == FD_UNSET) {
 		throw Socket::CreateError();
 	}
-	// fcntl(_fd, F_SETFL, O_NONBLOCK);
+	fcntl(_fd, F_SETFL, O_NONBLOCK); // Setting socket to NONBLOCKING
+}
+
+// C 'setsockopt' function wrapper for setting Socket port as reusable
+void	Socket::setsockopt( int option )
+{
+    const int val = 1;
+	if (::setsockopt(_fd, SOL_SOCKET, option, &val, sizeof(int)) < 0)
+	{
+		if (option == SO_REUSEPORT)
+			throw Socket::ReusablePortError();
+		else if (option == SO_REUSEADDR)
+			throw Socket::ReusableAddressError();
+	}
 }
 
 // C `bind` function wrapper
@@ -95,22 +121,21 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 }
 
 // `send` function wrapper
-void	Socket::send( const std::string & response ) {
-	::send(_fd, response.c_str(), response.size(), 0);
-	// You should generally check that the number of bytes sent was as expected,
-	// and you should attempt to send the rest if it's not.
+int	Socket::send( const std::string & response ) const {
+	return (::send(_fd, response.c_str(), response.size(), 0));
 }
 
 // `recv` function wrapper
-void	Socket::receive( void ) {
-	// The following code uses recv() to write new data into the client's buffer
-	// while being careful to not overflow that buffer:
+void	Socket::receive( int buffer_size ) {
+	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
+	_buffer = std::vector<char>(buffer_size + 1, '\0'); // One more for null terminated string
 
-	_bytes += recv(_fd, _buffer.data() + _bytes, _buffer.size() - _bytes, 0);
-
-	// TODO: do something if `recv` fails by returning 0 or -1.
-	// If the connection is terminated by the client, recv() returns 0 or -1,
-	// depending on the circumstance.
+	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
+	std::cout << "We just received " << _bytes << " bytes." << std::endl;
+	if (buffer_size != _bytes)
+		throw std::runtime_error("UH OHHHHHHHHHHHH");
+	// std::cout << "The data received was :" << std::endl;
+	// std::cout << _buffer.data() << std::endl;
 }
 // It is a common mistake to try printing data that's received from recv() directly
 // as a C string. There is no guarantee that the data received from recv() is null
@@ -121,7 +146,7 @@ void	Socket::receive( void ) {
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
-Socket *	Socket::accept( int buffer_size ) {
+Socket *	Socket::accept( void ) {
 	Socket *	s = new Socket();
 
 	// TODO: Need to check that these vars are actually set on new socket
@@ -130,15 +155,11 @@ Socket *	Socket::accept( int buffer_size ) {
 
 	s->set_fd(::accept(_fd, address, &length));
 	if ((s->fd() == FD_UNSET)) {
-		LOG(strerror(errno)); // Temporary to debug
 		delete s;
-		return NULL; // or something else later
+        throw Socket::AcceptError();
 	}
+	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 
-	// https://stackoverflow.com/questions/51318393/recv-function-for-tcp-socket-in-c
-	s->_buffer = std::vector<char>(buffer_size, '\0');
-
-	// fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }
 

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/05 00:36:30 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/15 01:42:34 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,12 +144,14 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 // Response message generated while processing client request
 
+typedef std::map<std::string, std::string> ResponseHeaders;
+
 class Response {
 
 public:
 
-	Response(const ServerConfig & config);
-	Response( Response const & src );
+	typedef	ResponseHeaders::iterator attributes_iterator;
+	Response( void ); // put bck private after making pointer in connection
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
 
@@ -161,18 +163,26 @@ public:
 	std::string 	start_line(int status);
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
+	void			set_attribute(std::string name, std::string value);
+	bool			is_empty();
+	void			save_file(std::vector<char> const & body);
+	void			set_content_length(const int length);
+	void			set_content_type(std::string const & type);
+	void			set_body(std::string const &type);
+	std::string		_uri;
 
 	// Setters
-	void			set_content_length(int length);
-	void			set_content_type(std::string type);
+	// void			set_content_length(int length);
+	// void			set_content_type(std::string type);
 
 private:
-
-	Response( void );
-
 	int				_content_length;
 	std::string 	_content_type;
-
+	std::string		_body;
+	int				_status;
+	ResponseHeaders	_headers;			// Map of request headers
+	std::string		_message;
+	Response( Response const & src ); 		// while not implemented
 };
 
 std::ostream &	operator << ( std::ostream & o, Response const & i );
