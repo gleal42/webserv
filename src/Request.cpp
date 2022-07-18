@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 01:19:13 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/18 22:41:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 
 	for (; *iter != ' '; iter++)
 		i++;
-	str = buf.substr(0, ++i);
+	str = buf.substr(0, i++);
 
 	if (request_methods.find(str) == request_methods.end())
 		throw HTTPStatus<405>();
