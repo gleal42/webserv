@@ -6,11 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:34:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:37:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "FileHandler.hpp"
+# include "FileHandler.hpp"
+# include <stdexcept>
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
@@ -134,26 +135,52 @@ std::streampos	FileHandler::file_size( std::string	full_path )
 
 void	FileHandler::save_file(Request & req, Response & res)
 {
-	std::string full_str(req._raw_body.data());
-	std::string delimiter = full_str.substr(0, full_str.find("\r\n"));
-	std::string::size_type start_file = full_str.find("\r\n\r\n") + 4;
-	std::string::size_type end_file = full_str.rfind(delimiter.c_str());
-	
-	std::string file = full_str.substr(start_file, end_file - start_file - 2);
-    std::ofstream outfile ("forest.jpeg");
-    outfile << file.c_str();
-    outfile.close();
+	std::string content_type(req._headers["Content-Type"]);
+	std::string form_type(content_type.substr(0, content_type.find(";")));
 
-	std::ifstream open_file("test/forest.jpeg");
-	if ( (open_file.rdstate() & std::ifstream::failbit ) != 0
-    || (open_file.rdstate() & std::ifstream::badbit ) != 0 )
-    {
-        std::cerr << "error opening " << req._path << std::endl;
-		//  send_error(404);
-		return ;
+	size_t start_filename = req._raw_body.find("filename=") + 10;
+	std::string filename(req._raw_body.substr(start_filename));
+	size_t end_filename = filename.find("\"");
+	filename = filename.substr(0, end_filename);
+
+	std::cout << "Filename is: [" << filename << "]" << std::endl;
+	if (form_type == "multipart/form-data")
+	{
+		std::string delimiter = content_type.substr(content_type.find("boundary=") + 9);
+		if (delimiter.empty())
+			throw std::runtime_error("No delimiter");
+		std::string::size_type start_file = req._raw_body.find("\r\n\r\n") + 4;
+		std::string file = req._raw_body.substr(start_file);
+		std::string::size_type end_file = file.find(delimiter) - 4; // -4 => "--" + "\r\n"
+	
+		file = file.substr(0, end_file);
+		// std::cout << "Another delimiter is found at position: " << end_file << std::endl;;
+		
+		std::cout << "File has size: [" << file.size() << "]" << std::endl;
+	
+		std::ofstream outfile;
+		outfile.open("post/uploads/" + filename, std::ios::binary);
+		outfile.write(file.data(), file.size());
+		outfile.close();
+
+		std::ifstream infile;
 	}
-	std::stringstream body_str;
-	body_str << open_file.rdbuf();
-	std::string original_image = body_str.str();
-	(void)res;
+	res.set_attribute("Content-Type", "text/plain");
+	std::string body("Good job");
+	res.set_body(body.c_str());
+	std::stringstream len;
+	len << body.size();
+	res.set_attribute("Content-Length", len.str());
 }
+
+// infile.open("cute.jpeg", std::ios::binary);
+// if ( (infile.rdstate() & std::ifstream::failbit ) != 0
+// 	|| (infile.rdstate() & std::ifstream::badbit ) != 0 )
+// {
+// 	ERROR("error opening " << res._uri.c_str());
+// 	throw HTTPStatus<404>();
+// }
+// std::stringstream temp;
+// temp << infile.rdbuf();
+// std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
+// infile.close();
