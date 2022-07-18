@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/13 20:36:12 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/13 20:37:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/18 14:37:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ public:
 	~CGIHandler( void );
 	CGIHandler &	operator = ( CGIHandler const & rhs );
 
-	void				service(Request & req, Response & res);
+	void				client_download(Request & req, Response & res);
 
 private:
 

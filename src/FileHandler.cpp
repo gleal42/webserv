@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:37:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:40:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ std::string const FileHandler::get_content_type(std::string const path)
 	return "application/octet-stream";
 }
 
-// The service() function fills in a response with a requested resource. Our
+// The client_download() function fills in a response with a requested resource. Our
 // server expects all hosted files to be in a subdirectory called public.
 // Ideally, our server should not allow access to any files outside of this
 // public directory. However, enforcing this restriction may be more difficult
@@ -84,7 +84,7 @@ std::string const FileHandler::get_content_type(std::string const path)
 // We do not want to provide access to any parent directory. If we allowed paths
 // with .., then a malicious client could send GET /../web_server.c HTTP/1.1 and
 // gain access to our server source code!
-void	FileHandler::service(Request & req, Response & res)
+void	FileHandler::service_client_download(Request & req, Response & res)
 {
 	if (req._path == "/")
 		res._uri = "index.html";
@@ -133,38 +133,104 @@ std::streampos	FileHandler::file_size( std::string	full_path )
 	return fsize;
 }
 
-void	FileHandler::save_file(Request & req, Response & res)
+void	FileHandler::set_content_type(Request & req)
 {
-	std::string content_type(req._headers["Content-Type"]);
-	std::string form_type(content_type.substr(0, content_type.find(";")));
+	content_type = req._headers["Content-Type"];
+}
+	
+void	FileHandler::set_form_type( const std::string &content_type )
+{
+	size_t form_type_pos = content_type.find(";");
+	if (form_type_pos == std::string::npos)
+		throw std::runtime_error("Can't identify form type");
+	form_type = content_type.substr(0, form_type_pos);
+}
 
-	size_t start_filename = req._raw_body.find("filename=") + 10;
-	std::string filename(req._raw_body.substr(start_filename));
+void	FileHandler::set_delimiter( const std::string &content_type )
+{
+	size_t boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos)
+		throw std::runtime_error("No delimiter keyword");
+	delimiter = content_type.substr(boundary_pos + 9);
+	if (delimiter.empty())
+		throw std::runtime_error("No delimiter value");
+}
+
+std::string		FileHandler::get_form_type( )
+{
+	return (form_type);
+}
+
+std::string		FileHandler::parse_file_name( const std::string &body, size_t next_delimiter )
+{
+	std::string filename;
+
+	if (body.find("filename=") == std::string::npos
+		|| body.find("filename=") > next_delimiter)
+		return filename;
+	size_t start_filename = body.find("filename=") + 10;
+	filename = body.substr(start_filename);
 	size_t end_filename = filename.find("\"");
 	filename = filename.substr(0, end_filename);
-
 	std::cout << "Filename is: [" << filename << "]" << std::endl;
-	if (form_type == "multipart/form-data")
-	{
-		std::string delimiter = content_type.substr(content_type.find("boundary=") + 9);
-		if (delimiter.empty())
-			throw std::runtime_error("No delimiter");
-		std::string::size_type start_file = req._raw_body.find("\r\n\r\n") + 4;
-		std::string file = req._raw_body.substr(start_file);
-		std::string::size_type end_file = file.find(delimiter) - 4; // -4 => "--" + "\r\n"
-	
-		file = file.substr(0, end_file);
-		// std::cout << "Another delimiter is found at position: " << end_file << std::endl;;
-		
-		std::cout << "File has size: [" << file.size() << "]" << std::endl;
-	
-		std::ofstream outfile;
-		outfile.open("post/uploads/" + filename, std::ios::binary);
-		outfile.write(file.data(), file.size());
-		outfile.close();
+	return (filename);
+}
 
-		std::ifstream infile;
+void	FileHandler::service_multi_type_form( Request & req )
+{
+	// std::string::size_type start_multi_form = req._raw_body.find("\r\n\r\n") + 4;
+	// std::string multi_form = req._raw_body.substr(start_multi_form);
+	std::string multi_form = req._raw_body;
+	std::string section_body;
+
+	size_t next_delimiter = multi_form.find(delimiter);
+	size_t last_delimiter = multi_form.find(delimiter + "--");
+	std::string::size_type start_file;
+	std::string::size_type end_file;
+
+	while (next_delimiter != last_delimiter)
+	{
+		start_file = multi_form.find("\r\n\r\n") + 4;
+		section_body = multi_form.substr(start_file);
+		end_file = section_body.find(delimiter) - 4; // -4 => "--" + "\r\n"
+		std::string filename = parse_file_name(multi_form, end_file);
+		section_body = section_body.substr(0, end_file);
+	
+		std::cout << "File has size: [" << section_body.size() << "]" << std::endl;
+	
+		if (filename.empty())
+		{
+			
+		}
+		else
+		{
+			save_file(section_body, filename);
+		}
+		multi_form.erase(0, start_file + end_file + 4);
+		next_delimiter = multi_form.find(delimiter);
+		last_delimiter = multi_form.find(delimiter + "--");
 	}
+	// DEBUG
+	// std::cout << "Another delimiter is found at position: " << end_file << std::endl;;
+}
+
+void	FileHandler::save_file( std::string &file_body, std::string filename  )
+{
+	std::ofstream outfile;
+	outfile.open("post/uploads/" + filename, std::ios::binary);
+	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
+		throw std::runtime_error("Couldn't open new file");
+	}
+	outfile.write(file_body.data(), file_body.size());
+	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0 
+		|| (outfile.rdstate() & std::ifstream::badbit ) != 0) {
+		throw std::runtime_error("Couldn't write to file");
+	}
+	outfile.close();
+}
+
+void	FileHandler::default_response( Response & res )
+{
 	res.set_attribute("Content-Type", "text/plain");
 	std::string body("Good job");
 	res.set_body(body.c_str());
@@ -173,6 +239,7 @@ void	FileHandler::save_file(Request & req, Response & res)
 	res.set_attribute("Content-Length", len.str());
 }
 
+// std::ifstream infile;
 // infile.open("cute.jpeg", std::ios::binary);
 // if ( (infile.rdstate() & std::ifstream::failbit ) != 0
 // 	|| (infile.rdstate() & std::ifstream::badbit ) != 0 )

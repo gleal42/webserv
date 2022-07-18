@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:28:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:40:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,11 +221,20 @@ void	Server::service(Request & req, Response & res)
     FileHandler handler; // probably needs config for root path etc
     if (req.request_method == GET)
     {
-        handler.service(req, res);
+        handler.service_client_download(req, res);
     }
     else if (req.request_method == POST)
     {
-        handler.save_file(req, res);
+        std::string content_type = req._headers["Content-Type"];
+        handler.set_form_type(content_type);
+        if (handler.get_form_type() == "multipart/form-data")
+        {
+            handler.set_delimiter(content_type);
+            handler.service_multi_type_form(req);
+        }
+        else
+            throw std::runtime_error("form parsing not available");
+        handler.default_response(res);
     }
 }
 
