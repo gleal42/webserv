@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:40:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:42:41 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -229,7 +229,7 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 	outfile.close();
 }
 
-void	FileHandler::default_response( Response & res )
+void	FileHandler::set_default_body( Response & res )
 {
 	res.set_attribute("Content-Type", "text/plain");
 	std::string body("Good job");
@@ -237,6 +237,37 @@ void	FileHandler::default_response( Response & res )
 	std::stringstream len;
 	len << body.size();
 	res.set_attribute("Content-Length", len.str());
+}
+
+// Duplicated code in service_client_download()
+
+void	FileHandler::set_error_body( Response & res , int error_code)
+{
+	std::stringstream to_str;
+	std::string error_str;
+	to_str << error_code;
+	to_str >> error_str;
+
+	error_str = "www/error_pages/" + error_str + ".html";
+
+	std::ifstream file;
+	file.open(error_str.c_str(), std::ios::binary);
+	if ( (file.rdstate() & std::ifstream::failbit ) != 0
+		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
+	{
+		ERROR("error opening " << res._uri.c_str());
+		throw std::runtime_error("Can't open default error file");
+	}
+
+	res.set_attribute("Content-Type", ".html");
+	std::stringstream body;
+	body << file.rdbuf();
+	res.set_body(body.str());
+	std::stringstream len;
+	len << body.str().size();
+	res.set_attribute("Content-Length", len.str());
+
+	file.close();
 }
 
 // std::ifstream infile;

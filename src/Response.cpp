@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:26:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:44:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@ Response::Response( Response const & src ){
 
 Response &	Response::operator = ( Response const & rhs )
 {
-	_status = rhs._status;
-	_body = rhs._status;
+	_body = rhs._body;
 	for (ResponseHeaders::iterator it = _headers.begin(); it != _headers.end(); it++) {
 		_headers = rhs._headers;
 	}
@@ -34,27 +33,31 @@ Response &	Response::operator = ( Response const & rhs )
 Response::~Response( void ) { /* no-op */ }
 
 // need to incorporate HTTPS Statuses here
-std::string Response::start_line(int status)
+std::string Response::start_line( BaseStatus &status )
 {
 	std::string http_version = "HTTP/1.1";
 
 	std::stringstream nbr;
-	nbr << status;
+	nbr << status.code;
 	std::string status_str = nbr.str();
-	std::string status_message = http_phrase(status);
+	std::string status_message = status.reason_phrase;
 	return(http_version + " " + status_str + " " + status_message + "\n");
+}
+
+void	Response::build_message( BaseStatus status )
+{
+	if (_message.empty())
+	{
+		_message = start_line(status);
+		for (attributes_iterator it = _headers.begin(); it != _headers.end(); ++it) {
+			_message += it->first + ": " + it->second + "\n";
+		}
+		_message += CRLF + _body;
+	}
 }
 
 void	Response::send_response(Socket const & socket)
 {
-	if (_message.empty())
-	{
-		_message = start_line(_status);
-		for (attributes_iterator it = _headers.begin(); it != _headers.end(); ++it) {
-			_message += it->first + ": " + it->second + CRLF;
-		}
-		_message += CRLF + _body;
-	}
 	int sent_chars = socket.send(_message);
 	int msg_size = _message.size();
 	std::cout << "Message size before is: " << msg_size << std::endl;

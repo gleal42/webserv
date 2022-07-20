@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:39:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:42:37 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ public:
 	void				service_client_download( Request & req, Response & res );
 	void				service_multi_type_form( Request & req );
 	void				save_file( std::string &body, std::string filename );
-	void				default_response( Response & res );
-
+	void				set_default_body( Response & res );
+	void				set_error_body( Response & res , int error_code);
 	std::string			get_form_type( void );
 
 

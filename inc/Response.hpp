@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/15 01:42:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/22 18:43:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 
 # include "ServerConfig.hpp"
 # include "Request.hpp"
+# include "HTTPStatus.hpp"
 
 // ************************************************************************** //
 //                               Response Class                               //
@@ -159,8 +160,8 @@ public:
 	RequestMethod	request_method;
 	std::string		body;
 
-	// Methods
-	std::string 	start_line(int status);
+	std::string 	start_line( BaseStatus &status );
+	void			build_message( BaseStatus status );
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
 	void			set_attribute(std::string name, std::string value);
@@ -179,10 +180,9 @@ private:
 	int				_content_length;
 	std::string 	_content_type;
 	std::string		_body;
-	int				_status;
-	ResponseHeaders	_headers;			// Map of request headers
+	ResponseHeaders	_headers;			// Map of request attributes
 	std::string		_message;
-	Response( Response const & src ); 		// while not implemented
+	Response( Response const & src ); // while not implemented
 };
 
 std::ostream &	operator << ( std::ostream & o, Response const & i );
