@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:42:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:46:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,22 +227,19 @@ void	Server::service(Request & req, Response & res)
         }
         else if (req.request_method == POST)
         {
-            std::string content_type = req._headers["Content-Type"];
-            handler.set_form_type(content_type);
-            if (handler.get_form_type() == "multipart/form-data")
+            if (req.get_form_type() == "multipart/form-data")
             {
-                handler.set_delimiter(content_type);
                 handler.service_multi_type_form(req);
             }
             else
                 throw std::runtime_error("form parsing not available");
-            handler.set_default_body(res); // temporary
+            res.set_default_body(); // temporary
         }
         res.build_message(HTTPStatus<200>());
     }
     catch (BaseStatus &error_status)
     {
-        handler.set_error_body(res, error_status.code);
+        res.set_error_body(error_status.code);
         res.build_message(error_status);
     }
 }

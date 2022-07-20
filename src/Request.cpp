@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:35:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:47:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
-void	Request::read_request_line(std::string &_unparsed_request){
+void	Request::read_request_line( std::string & _unparsed_request ) {
 	int								i = 0;
 	int								j = 0;
 	std::string						buf (_unparsed_request);
@@ -72,31 +72,22 @@ void	Request::read_request_line(std::string &_unparsed_request){
 	request_methods["POST"] = POST;
 	request_methods["DELETE"] = DELETE;
 
+	request_methods["GET"] = GET;
+	request_methods["POST"] = POST;
+	request_methods["DELETE"] = DELETE;
 	for (; *iter != ' '; iter++)
 		i++;
 	_unparsed_request = buf.substr(0, i++);
-
-	// Consider global constant map: 	RequestMethods[ _unparsed_request ]
-	// typedef std::map< std::string, RequestMethod >	RequestMethods;
-	// this will avoid re-doing these comparisons every time
-	if (_unparsed_request.compare("GET") == 0)
-		request_method = GET;
-	else if(_unparsed_request.compare("POST") == 0)
-		request_method = POST;
-	else if(_unparsed_request.compare("DELETE") == 0)
-		request_method = DELETE;
-	else
-		throw("No appropriate method");
-		// this error should have happened at the config parsing stage and blocked the loading of the server
-
+	if (request_methods.find(_unparsed_request) == request_methods.end())
+		throw HTTPStatus<405>();
+	request_method = request_methods[_unparsed_request];
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
 
-	_unparsed_uri = buf.substr(i, j);
 	// Temporary, TODO: make proper URI instance:
 	// request_uri.parse(_unparsed_uri);
 	// _path = request_uri.path;
-	_path = _unparsed_uri;
+	_path = buf.substr(i, j);
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;
@@ -183,7 +174,7 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	// request_uri = parse_uri(unparsed_uri);
 }
 
-// Replace by template?
+// Replace following 2 by template?
 
 void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 {
@@ -191,8 +182,6 @@ void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 		str.pop_back();
 	str.append(to_add.data(), to_add.size());
 }
-
-// Replace by template?
 
 void	Request::join_strings(std::string &str, std::string &to_add)
 {
@@ -203,11 +192,33 @@ void	Request::join_strings(std::string &str, std::string &to_add)
 
 void	Request::clear()
 {
-	_received.clear();
 	_unparsed_request.clear();
 	_raw_request_line.clear();
 	_raw_headers.clear();
 	_raw_body.clear();
 	_path.clear();
 	_headers.clear();
+}
+
+// Maybe these 2 could be included in the parsing?
+
+std::string		Request::get_form_type( void )
+{
+    std::string content_type = _headers["Content-Type"];
+	size_t form_type_pos = content_type.find(";");
+	if (form_type_pos == std::string::npos)
+		throw HTTPStatus<400>();
+	return (content_type.substr(0, form_type_pos));
+}
+
+std::string		Request::get_delimiter( void )
+{
+	std::string content_type = _headers["Content-Type"];
+	size_t boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos)
+		throw HTTPStatus<400>();
+	std::string delimiter = content_type.substr(boundary_pos + 9);
+	if (delimiter.empty())
+		throw HTTPStatus<400>();
+	return (delimiter);
 }

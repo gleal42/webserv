@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:42:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:48:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "Request.hpp"
 # include "Response.hpp"
 # include "HTTPStatus.hpp"
+# include <stdexcept>
 
 // ************************************************************************** //
 //                               FileHandler Class                            //
@@ -32,14 +33,6 @@ public:
 
 	void				service_client_download( Request & req, Response & res );
 	void				service_multi_type_form( Request & req );
-	void				save_file( std::string &body, std::string filename );
-	void				set_default_body( Response & res );
-	void				set_error_body( Response & res , int error_code);
-	std::string			get_form_type( void );
-
-
-	void				set_form_type( const std::string &content_type );
-	void				set_delimiter( const std::string &content_type );
 
 private:
 
@@ -48,12 +41,9 @@ private:
 
 	// POST
 
-	void				set_content_type(Request & reqo);
 	std::string			parse_file_name( const std::string &body, size_t next_delimiter );
+	void				save_file( std::string &body, std::string filename );
 
-	std::string			content_type;
-	std::string 		form_type;
-	std::string 		delimiter;
 
 };
 

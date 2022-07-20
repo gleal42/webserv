@@ -6,12 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:42:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:48:01 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "FileHandler.hpp"
-# include <stdexcept>
+#include "FileHandler.hpp"
+
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
@@ -63,7 +63,7 @@ std::string const FileHandler::get_content_type(std::string const path)
 	return "application/octet-stream";
 }
 
-// The client_download() function fills in a response with a requested resource. Our
+// The service_client_download() function fills in a response with a requested resource. Our
 // server expects all hosted files to be in a subdirectory called public.
 // Ideally, our server should not allow access to any files outside of this
 // public directory. However, enforcing this restriction may be more difficult
@@ -84,7 +84,7 @@ std::string const FileHandler::get_content_type(std::string const path)
 // We do not want to provide access to any parent directory. If we allowed paths
 // with .., then a malicious client could send GET /../web_server.c HTTP/1.1 and
 // gain access to our server source code!
-void	FileHandler::service_client_download(Request & req, Response & res)
+void	FileHandler::service_client_download( Request & req, Response & res )
 {
 	if (req._path == "/")
 		res._uri = "index.html";
@@ -133,34 +133,6 @@ std::streampos	FileHandler::file_size( std::string	full_path )
 	return fsize;
 }
 
-void	FileHandler::set_content_type(Request & req)
-{
-	content_type = req._headers["Content-Type"];
-}
-	
-void	FileHandler::set_form_type( const std::string &content_type )
-{
-	size_t form_type_pos = content_type.find(";");
-	if (form_type_pos == std::string::npos)
-		throw std::runtime_error("Can't identify form type");
-	form_type = content_type.substr(0, form_type_pos);
-}
-
-void	FileHandler::set_delimiter( const std::string &content_type )
-{
-	size_t boundary_pos = content_type.find("boundary=");
-	if (boundary_pos == std::string::npos)
-		throw std::runtime_error("No delimiter keyword");
-	delimiter = content_type.substr(boundary_pos + 9);
-	if (delimiter.empty())
-		throw std::runtime_error("No delimiter value");
-}
-
-std::string		FileHandler::get_form_type( )
-{
-	return (form_type);
-}
-
 std::string		FileHandler::parse_file_name( const std::string &body, size_t next_delimiter )
 {
 	std::string filename;
@@ -182,6 +154,7 @@ void	FileHandler::service_multi_type_form( Request & req )
 	// std::string multi_form = req._raw_body.substr(start_multi_form);
 	std::string multi_form = req._raw_body;
 	std::string section_body;
+	std::string delimiter = req.get_delimiter();
 
 	size_t next_delimiter = multi_form.find(delimiter);
 	size_t last_delimiter = multi_form.find(delimiter + "--");
@@ -196,7 +169,7 @@ void	FileHandler::service_multi_type_form( Request & req )
 		std::string filename = parse_file_name(multi_form, end_file);
 		section_body = section_body.substr(0, end_file);
 	
-		std::cout << "File has size: [" << section_body.size() << "]" << std::endl;
+		std::cout << "Form part body has size: [" << section_body.size() << "]" << std::endl;
 	
 		if (filename.empty())
 		{
@@ -229,46 +202,7 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 	outfile.close();
 }
 
-void	FileHandler::set_default_body( Response & res )
-{
-	res.set_attribute("Content-Type", "text/plain");
-	std::string body("Good job");
-	res.set_body(body.c_str());
-	std::stringstream len;
-	len << body.size();
-	res.set_attribute("Content-Length", len.str());
-}
-
-// Duplicated code in service_client_download()
-
-void	FileHandler::set_error_body( Response & res , int error_code)
-{
-	std::stringstream to_str;
-	std::string error_str;
-	to_str << error_code;
-	to_str >> error_str;
-
-	error_str = "www/error_pages/" + error_str + ".html";
-
-	std::ifstream file;
-	file.open(error_str.c_str(), std::ios::binary);
-	if ( (file.rdstate() & std::ifstream::failbit ) != 0
-		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
-	{
-		ERROR("error opening " << res._uri.c_str());
-		throw std::runtime_error("Can't open default error file");
-	}
-
-	res.set_attribute("Content-Type", ".html");
-	std::stringstream body;
-	body << file.rdbuf();
-	res.set_body(body.str());
-	std::stringstream len;
-	len << body.str().size();
-	res.set_attribute("Content-Length", len.str());
-
-	file.close();
-}
+// For comparing with original files
 
 // std::ifstream infile;
 // infile.open("cute.jpeg", std::ios::binary);

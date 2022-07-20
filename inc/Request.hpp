@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:36:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:48:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,7 +135,6 @@ public:
 	~Request();
 	Request&	operator= ( Request const & param );
 
-	std::string			_received;			// The raw header of the request
 	std::string			_unparsed_request;		// The raw header of the request
 	std::string			_raw_request_line; 		// The complete request line such as: `GET / HTTP/1.1`
 	std::string			_raw_headers;			// The raw header of the request
@@ -151,12 +150,14 @@ public:
 
 	// Parses a request from +socket+.  This is called internally by Server
 	void				parse(Socket & socket, struct kevent const & Event );
-	void				read_header(std::string &strptr);
-	void				read_request_line(std::string &strptr);
-	void				read_body(std::string &strptr);
-	void				append_buffer(std::string &str, std::vector<char> &to_add);
-	void				join_strings(std::string &str, std::string	&to_add);
+	void				read_header( std::string &strptr );
+	void				read_request_line( std::string &strptr );
+	void				read_body( std::string &strptr );
+	void				append_buffer( std::string &str, std::vector<char> &to_add );
+	void				join_strings( std::string &str, std::string	&to_add );
 	void				clear( void );
+	std::string			get_form_type( void );
+	std::string			get_delimiter( void );
 
 private:
 
