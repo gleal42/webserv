@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/25 19:49:56 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/15 00:48:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,11 @@
 # include <fcntl.h>
 # include <cstring>
 # include <cerrno>
+# include <string>
 
-# include "webserver.hpp"
+#include "utils.hpp"
+# include "Request.hpp"
+# include "Listener.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1
@@ -61,6 +64,12 @@ public:
 	struct CreateError : public std::runtime_error {
 		CreateError( void );
 	};
+	struct ReusableAddressError : public std::runtime_error {
+		ReusableAddressError( void );
+	};
+	struct ReusablePortError : public std::runtime_error {
+		ReusablePortError( void );
+	};
 	struct BindError : public std::runtime_error {
 		BindError( void );
 		BindError( int port );
@@ -68,9 +77,12 @@ public:
 	struct ListenError : public std::runtime_error {
 		ListenError( void );
 	};
+	struct AcceptError : public std::runtime_error {
+		AcceptError( void );
+	};
 
 	Socket( void );
-	Socket( int port );
+	Socket( ServerConfig config );
 	Socket( Socket const & src );
 	~Socket( void );
 	Socket &		operator = ( Socket const & rhs );
@@ -83,13 +95,15 @@ public:
 	void			set_fd( int fd );
 
 	void 			create( void );
+	void 			setsockopt( int option );
 	void			bind( int port );
 	void			close( void );
 	void			listen( int max_connections );
-	void			send( const std::string & response );
+	int				send( const std::string & response ) const;
 	void			receive( int buffer_size );
 	Socket *		accept( void );
 	std::string		to_s( void ) const;
+	std::vector<char>	_buffer;
 
 private:
 
@@ -97,7 +111,6 @@ private:
 	int					_port;
 	int					_fd;
 	SocketAddress		_address;
-	std::vector<char>	_buffer;
 	int					_bytes;
 
 };

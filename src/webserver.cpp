@@ -6,19 +6,28 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 19:17:59 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/14 23:32:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
+#include "Listener.hpp"
 #include "Server.hpp"
 
-typedef std::vector<Server*> Cluster;
+
+/*
+** Creates webserver from configuration (that can handle multiple requests)
+** @param:	- [string] argv[1]
+** @return:	[int] 0 == SUCCESS
+** Line-by-line comments:
+** @1	Create Server - Will allow us to identify events and handle
+*/
 
 int webserver(std::string config_file)
 {
 	ConfigParser	parser(config_file);
+
 	try {
         parser.call();
     }
@@ -26,24 +35,13 @@ int webserver(std::string config_file)
 		ERROR(e.what());
     }
 
-	// Initialize Cluster
-	size_t		amount = parser.configs_amount();
-	Cluster		cluster(amount);
-	for (size_t i = 0; i < amount; ++i) {
-		// Initialize each new Server with a config from the parser
-		ServerConfig	config(parser.config(i));
-		cluster[i] = new Server(config);
-	}
+	// Initialize all Listeners
+    Server webserv(parser);
 
-	// Start Cluster
-	for (size_t i = 0; i < amount; ++i) {
-		cluster[i]->start();
-	}
+	// Start waiting for events
+	webserv.start();
 
-	// Shutdown and cleanup
-	for (size_t i = 0; i < amount; ++i) {
-		cluster[i]->shutdown();
-		delete cluster[i];
-	}
+	// Shutdown and cleanup inside destructor
     return 0;
 }
+

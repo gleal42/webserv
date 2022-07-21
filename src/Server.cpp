@@ -5,119 +5,157 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/06 19:30:33 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/25 18:55:15 by msousa           ###   ########.fr       */
+/*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/15 01:37:05 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "FileHandler.hpp"
+#include <iostream>
+#include <stdexcept>
 
-/* Constructors */
-Server::Server( void ) : _socket(NULL) { /* no-op */ }
-Server::Server( Server const & src ) : _socket(NULL) { *this = src; }
+/*
+    Testes a passar:
+    Display big images ()
+    Vários Servers ao mesmo tempo
+    Várias Requests ao mesmo tempo
+    EOF working
+    HTML CSS priority
+    Javascript (later)
+ */
 
-Server::Server( ServerConfig const & config ) : _config(config), _socket(NULL)
+Server::CreateError::CreateError( void )
+: std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
+
+Server::Server() // private
 {
-	// set some variables from the config in initialization list aswell
-	// or here if they need treating first
-	try {
-		_socket = new Socket(config.port);
-	}
-	// TODO: do specific things
-	catch(Socket::CreateError& e) { // or std::runtime_error
-		// stop(); // shutdown();
-		LOG(e.what());
-	}
-	catch(Socket::BindError& e) {
-		// stop(); // shutdown();
-		LOG(e.what());
-	}
-
-	// there should always be a socket at this point,
-	// the catches above should stop flow
-	// maybe move them to main Server initialization in `webserver()`
-	try {
-		_socket->listen(config.max_clients);
-	}
-	catch(Socket::ListenError& e) {
-		// stop(); // shutdown();
-		LOG(e.what());
-	}
-	_max_connections = config.max_clients;
+    throw std::runtime_error("Please use non-default constructor");
+    // _fd = kqueue();
+    // if (_fd < 0)
+    //     throw CreateError();
 }
 
-/* Destructor */
-Server::~Server( void ) { if (_socket) delete _socket; }
-
-/* Assignment operator */
-Server &	Server::operator = ( Server const & rhs )
+Server::Server(const ConfigParser &parser)
 {
-	if (this != &rhs) {
-		_config = rhs._config;
-		_socket = new Socket(*rhs._socket);
-		_connections = rhs._connections;
-		_max_connections = rhs._max_connections;
+    _fd = kqueue();
+    if (_fd < 0)
+        throw CreateError();
+	_listeners_amount = parser.configs_amount();
+	Listener		*new_listener;
+	for (size_t i = 0; i < _listeners_amount; ++i)
+    {
+		// Initialize each new Listener with a config from the parser
+		ServerConfig	config(parser.config(i));
+		new_listener = new Listener(config);
+		update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
+		_cluster[new_listener->fd()] = new_listener;
 	}
-	return *this;
 }
 
-// Starts accepting connections
+int	Server::fd() const { return(_fd); }
+
+void Server::update_event(int ident, short filter, u_short flags)
+{
+    struct kevent kev;
+	EV_SET(&kev, ident, filter, flags, 0, 0, NULL);
+	kevent(this->_fd, &kev, 1, NULL, 0, NULL);
+}
+
+/*
+ * File descriptors open are:
+ * 3 - Server fd
+ * 4 - Server
+ * 5 - Accept client request
+ * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
+ *
+ * Lines:
+ * 18-19 has_active_connections only temporary for now for clean shutdown
+*/
+
 void	Server::start( void )
 {
-	int	temp_fd; // to make it work until we have a `select` mechanism
+	int nbr_events = 0;
+    while (1)
+    {
+		nbr_events = wait_for_events();
+		std::cout << "Number of events recorded: " << nbr_events << std::endl;
+        if (nbr_events <= 0)
+            continue;
+        for (int i = 0; i < nbr_events; i++)
+        {
+            ClusterIter event_fd = _cluster.find(ListQueue[i].ident);
+            if (event_fd != _cluster.end()) // New event for non-existent file descriptor
+                new_connection(event_fd->second);
+            else
+            {
+				ConnectionsIter connection_it = _connections.find(ListQueue[i].ident);
+                if (ListQueue[i].flags & EV_EOF)
+                {
+                    close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
+                    if (_connections.size() == 0)
+                        return ;
+                }
+                else if (ListQueue[i].filter == EVFILT_READ)
+                    read_connection(connection_it->second, ListQueue[i]);
+                else if (ListQueue[i].filter == EVFILT_WRITE)
+                {
+					write_to_connection(connection_it->second);
+                    if (connection_it->second->response.is_empty())
+                        connection_it->second->request.clear();
+                }
+            }
+        }
+    }
+}
 
-	// while (1) {
-	//     TODO: infinite loop here with `accept` code below
-	// }
+int	Server::wait_for_events()
+{
+	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
+    struct timespec kqTimeout = {2, 0};
+    (void)kqTimeout;
+    return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
+}
 
+void	Server::new_connection( Listener * listener )
+{
 	// check if can still add
-	if (_connections.size() < _max_connections) {
-		Socket *	connection = _socket->accept();
-		if (!connection)
-			return ; // add error here
-		_connections.insert(Connection(connection->fd(), connection));
-		// temp
-		temp_fd = connection->fd();
-	} else {
-		stop();
-	}
-
-	// code to select which connection to run
-	run(*_connections[temp_fd]);
+	Connection * connection  = new Connection(listener->socket());
+	int client_fd = connection->fd();
+	_connections[client_fd] = connection;
+	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
+	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
 }
 
+// Reference
 // Does necessary to service a connection
-void	Server::run(Socket & socket) {
-	Request 	req(_config);
-	Response 	res(_config);
-	try {
-		// while timeout and Running
-		socket.receive(_config.input_buffer_size);
-		req.parse(socket);
-		res.request_method = req.request_method;
-		// res.request_uri = req.request_uri;
-		// if (request_callback) {
-		// 	request_callback(req, res);
-		// }
-		service(req, res);
-	}
-	catch (std::exception & error) {
-		ERROR(error.what());
-	// catch (HTTPStatus error) {
-		// res.set_error(error);
-		// if (error.code) {
-		// 	res.status = error.code;
-		// }
-	}
-	// if (req.request_line != "") {
-	// 	res.send_response(socket);
-	// }
+// void	Server::run(Socket & socket) {
+// 	Request 	req(_config);
+// 	Response 	res(_config);
+// 	try {
+// 		// while timeout and Running
+// 		req.parse(socket);
+// 		res.request_method = req.request_method;
+// 		// res.request_uri = req.request_uri;
+// 		// if (request_callback) {
+// 		// 	request_callback(req, res);
+// 		// }
+// 		service(req, res);
+// 	}
+// 	catch (BaseStatus & error) {
+// 		ERROR(error.what());
+// 		// res.set_error(error);
+// 		if (error.code) {
+// 			// res.status = error.code;
+// 		}
+// 	}
+// 	// if (req.request_line != "") {
+// 	// 	res.send_response(socket);
+// 	// }
 
-	// Temporary
-	if (req._raw_header != "") {
-		res.send_response(socket);
-	}
-}
+// 	res.send_response(socket);
+// }
 
 // Services +req+ and fills in +res+
 void	Server::service(Request & req, Response & res) {
@@ -130,24 +168,82 @@ void	Server::service(Request & req, Response & res) {
 	// FileHandler 	handler;
 	// OR
 	// CGIHandler 	handler;
+	FileHandler handler; // probably needs config for root path etc
 
-	(void)req;
-	(void)res;
-	// handler.service(req, res);
+	handler.service(req, res);
 }
 
-// Stops accepting connections
-void	Server::stop( void )
+/**
+ * The reason why parse is done here is so that we know when we should
+ * stop receiving.
+ * When we have a big body we need to know both the Content-Length as well
+ * as when the body starts and when it ends.
+ * This causes the HTTPStatus try catch process duplicated but this analysis
+ * needs to be done. Otherwise we might risk stopping a request mid sending.
+ **/
+void	Server::read_connection( Connection *connection, struct kevent const & Event )
 {
-	// TODO:
+    std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
+    std::cout << "Incoming data has size of: " << Event.data << std::endl;
+    connection->request.parse(*connection->socket(), Event);
+    if (connection->request._headers.count("Content-Length"))
+    {
+        std::cout << "Analyzing if whole body was transferred: " << std::endl;
+        std::stringstream content_length(connection->request._headers["Content-Length"]);
+        size_t value = 0;
+        content_length >> value;
+        if (connection->request._raw_body.size() < value + 1)
+        {
+            std::cout << "Body total received :" << connection->request._raw_body.size() << std::endl;
+            std::cout << "Content Length :" << value << std::endl;
+            std::cout << "Remaining :" << value - connection->request._raw_body.size() << std::endl;
+            return ;
+        }
+    }
+    std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
+    this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
+    this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
 
-void	Server::shutdown( void )
+void	Server::write_to_connection( Connection *connection )
 {
-	_socket->close();
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++)
-	{
-		it->second->close();
-		delete it->second;
+	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
+	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
+    if (connection->response.is_empty())
+        service(connection->request, connection->response);
+    connection->response.send_response(*connection->socket());
+    if (connection->response.is_empty())
+    {
+        std::cout << "Connection was empty after sending" << std::endl;
+        this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
+        this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+    }
+}
+
+Server::~Server()
+{
+	for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it) {
+        close_listener(it->first);
 	}
+	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++) {
+        close_connection(it->first);
+	}
+    close(this->_fd);
+}
+
+void	Server::close_listener( int listener_fd )
+{
+    std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
+    this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
+    delete _cluster[listener_fd];
+    _connections.erase(listener_fd);
+}
+
+void	Server::close_connection( int connection_fd )
+{
+    std::cout << "Closing Connection for client: " << connection_fd << std::endl;
+    this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
+    this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
+    delete _connections[connection_fd];
+    _connections.erase(connection_fd);
 }

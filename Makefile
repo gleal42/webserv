@@ -1,21 +1,24 @@
-
-UNAME	:=	$(shell uname)
+UNAME  :=      $(shell uname)
 ifeq ($(UNAME), Darwin)
-	CCX := c++
+       CXX := c++
 else
-	CCX	:= g++
+       CXX := g++
 endif
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
-		utils.cpp \
+		webserver.cpp \
+		Server.cpp \
 		ConfigParser.cpp \
+		Listener.cpp \
+		Connection.cpp \
 		Request.cpp \
 		Response.cpp \
-		Server.cpp \
 		Socket.cpp \
-		webserver.cpp
+		FileHandler.cpp \
+		BaseStatus.cpp \
+		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/
 DEP_DIR := dep/
@@ -23,7 +26,10 @@ OBJS := $(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS := $(SRCS:%.cpp=$(DEP_DIR)%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 
-all: $(NAME)
+all: fd_script $(NAME)
+
+fd_script: # temporary while server doesn't clear open fd's
+	@bash close_fds.sh
 
 $(DEP_DIR): ; mkdir -p $@
 $(OBJ_DIR): ; mkdir -p $@
@@ -73,4 +79,4 @@ test_unit: # compiles and runs unit tests
 test_e2e: # compiles and runs end-to-end tests
 	cd test/e2e && docker-compose up --build --abort-on-container-exit
 
-.PHONY: all clean fclean resetclean re test vm_build vm
+.PHONY: all clean fclean resetclean re test vm_build vm fd_script
