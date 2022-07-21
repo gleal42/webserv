@@ -1,43 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ServerConfig.hpp                                     :+:      :+:    :+:   */
+/*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/07 21:16:23 by gleal             #+#    #+#             */
-/*   Updated: 2022/06/13 17:03:23 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
+/*   Updated: 2022/07/22 00:50:13 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+
 
 #ifndef SERVERCONFIG_HPP
 # define SERVERCONFIG_HPP
 
+#include <iostream>
 #include <string>
+#include <vector>
+#include <map>
 
 // Taken from Server Config Parsing.
 // Each server will have these things
 
-struct location
+typedef struct s_locations
 {
-	/* data */
-};
+    std::string                                         _root;
+    bool                                                _autoindex;
+    std::map<std::string, std::vector<int> >            _error_pages;
+    int                                                 _max_body_size;
+    std::vector<std::string>                            _indexes;
+    std::vector<std::string>                            _allowed_methods;
+    std::string                                         _cgi_bin;
+	std::map<std::string, std::vector<std::string> >    _cgi_map;
+}       LocationConfig;
 
+typedef std::map<std::string, LocationConfig> Locations;
 
-struct ServerConfig
+typedef struct s_config
 {
-	std::string					server_name;
-	std::string					root;
-	std::string					cgi_bin;
-	std::string					error_page;
-	std::vector<std::string>	allowed_methods;
-	bool						auto_index;
-	std::vector<std::string>	indexes;
-	struct location				location;
-	int							client_max_body_size;
-	int							max_clients;
-	int							request_timeout;
-	std::string					bind_address; // following pseudo-code
-};
+    std::string                                 _root;
+    bool                                        _autoindex;
+    std::map<std::string, std::vector<int> >    _error_pages;
+    int                                         _max_body_size;
+    std::vector<std::string>                    _indexes;
+    std::string                                 _ip;
+    int                                         _port;
+    std::string                                 _server_name;
+    Locations                                   _locations;
+}       ServerConfig;
+
+typedef std::vector<ServerConfig> Configs;
 
 #endif
