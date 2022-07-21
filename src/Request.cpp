@@ -3,14 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2022/07/14 22:45:52 by fmeira           ###   ########.fr       */
-=======
-/*   Updated: 2022/07/18 22:41:35 by gleal            ###   ########.fr       */
->>>>>>> dadf37134426646f3661f89522a805a8a66020c2
+/*   Updated: 2022/07/21 21:47:51 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,18 +95,12 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 	for (iter++; *iter != '\n'; iter++)
 		j++;
 
-<<<<<<< HEAD
-	str = buf.substr(++j + ++i, buf.length());
-	delete(strptr);
-	*strptr = str;
-=======
 	_raw_request_line = buf.substr(0, i + j + 2);
 	std::cout << "Request line is :" << _raw_request_line << std::endl;
 	str = buf.substr(++j + ++i);
 	_unparsed_request.clear();
 	_unparsed_request = std::vector<char>(str.begin(), str.end()); // in order to include the null characterq
 	_unparsed_request.push_back('\0');
->>>>>>> dadf37134426646f3661f89522a805a8a66020c2
 };
 
 // 1
