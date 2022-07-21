@@ -6,12 +6,11 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:48:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:51:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "FileHandler.hpp"
-
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
@@ -216,3 +215,30 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 // temp << infile.rdbuf();
 // std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
 // infile.close();
+
+typedef std::set<std::string>	Extensions;
+
+// Added a protection to prevent us from deleting a repository code or other testing data
+
+void	FileHandler::delete_file( std::string filename )
+{
+	static char const * temp_ext[8] = {
+    [0] = ".cpp",
+    [1] = ".hpp",
+    [2] = ".html",
+    [3] = ".ico",
+    [4] = ".ts",
+    [5] = ".rb",
+    [6] = ".sh",
+    [7] = ".h",
+	};
+	const Extensions	forbidden_extensions(temp_ext, temp_ext + sizeof(temp_ext) / sizeof(char const *));
+
+	std::string file_extension = get_extension(filename);
+	if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
+		throw HTTPStatus<405>();
+	}
+	std::cout << "Extension is [" << file_extension << "]" << std::endl;
+	std::cout << "Set has size [" << forbidden_extensions.size() << "]" << std::endl;
+	// std::string full_path("post/uploads/" + filename);
+}

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:49:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:51:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,11 +228,14 @@ void	Server::service(Request & req, Response & res)
         else if (req.request_method == POST)
         {
             if (req.get_form_type() == "multipart/form-data")
-            {
                 handler.service_multi_type_form(req);
-            }
             else
                 throw std::runtime_error("form parsing not available");
+            res.set_default_body(); // temporary
+        }
+        else if (req.request_method == DELETE)
+        {
+            handler.delete_file(req._path);
             res.set_default_body(); // temporary
         }
         res.build_message(HTTPStatus<200>());

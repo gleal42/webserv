@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:48:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:50:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 # include "Response.hpp"
 # include "HTTPStatus.hpp"
 # include <stdexcept>
+# include <set>
+
 
 // ************************************************************************** //
 //                               FileHandler Class                            //
@@ -33,6 +35,7 @@ public:
 
 	void				service_client_download( Request & req, Response & res );
 	void				service_multi_type_form( Request & req );
+	void				delete_file( std::string filename );
 
 private:
 
