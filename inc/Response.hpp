@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:48:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:58:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,8 +157,8 @@ public:
 	Response &	operator = ( Response const & rhs );
 
 	// Variables
+
 	RequestMethod	request_method;
-	std::string		body;
 
 	std::string 	start_line( BaseStatus &status );
 	void			build_message( BaseStatus status );

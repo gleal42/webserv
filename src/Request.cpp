@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:47:43 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:57:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,6 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	std::string						buf (_unparsed_request);
 	std::string::iterator			iter = buf.begin();
 	RequestMethods	request_methods;
-
-	request_methods["GET"] = GET;
-	request_methods["POST"] = POST;
-	request_methods["DELETE"] = DELETE;
 
 	request_methods["GET"] = GET;
 	request_methods["POST"] = POST;

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:54:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:56:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,8 +160,6 @@ public:
 	std::string			get_delimiter( void );
 
 private:
-
-	std::string			_unparsed_uri; 				// The unparsed URI of the request
 
 };
 
