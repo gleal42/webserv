@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:50:43 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:51:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,11 @@
 # include "HTTPStatus.hpp"
 # include <stdexcept>
 # include <set>
+# include <map>
+# include <cstdio>
 
+typedef std::set<std::string>	Extensions;
+typedef std::map<std::string, std::string>	Parameters;
 
 // ************************************************************************** //
 //                               FileHandler Class                            //
@@ -45,9 +49,12 @@ private:
 	// POST
 
 	std::string			parse_file_name( const std::string &body, size_t next_delimiter );
+	std::string			parse_param_name( const std::string &body, size_t next_delimiter );
+	std::string			parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter );
 	void				save_file( std::string &body, std::string filename );
+	std::string			multipart_form_body( const std::string &multi_form );
 
-
+	Parameters params;
 };
 
 #endif /* __FILE_HANDLER_H__ */

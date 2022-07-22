@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:51:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 18:52:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,18 +132,20 @@ std::streampos	FileHandler::file_size( std::string	full_path )
 	return fsize;
 }
 
-std::string		FileHandler::parse_file_name( const std::string &body, size_t next_delimiter )
+std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
 {
 	std::string filename;
+	size_t param_pos = body.find(parameter.c_str());
 
-	if (body.find("filename=") == std::string::npos
-		|| body.find("filename=") > next_delimiter)
+	if (param_pos == std::string::npos)
 		return filename;
-	size_t start_filename = body.find("filename=") + 10;
+	if (param_pos > next_delimiter)
+		return filename;
+	size_t start_filename = body.find(parameter.c_str()) + parameter.length() + 1;
 	filename = body.substr(start_filename);
 	size_t end_filename = filename.find("\"");
 	filename = filename.substr(0, end_filename);
-	std::cout << "Filename is: [" << filename << "]" << std::endl;
+	std::cout << parameter << " is: [" << filename << "]" << std::endl;
 	return (filename);
 }
 
@@ -156,34 +158,47 @@ void	FileHandler::service_multi_type_form( Request & req )
 	std::string delimiter = req.get_delimiter();
 
 	size_t next_delimiter = multi_form.find(delimiter);
+	if (next_delimiter == std::string::npos)
+		throw HTTPStatus<400>();
 	size_t last_delimiter = multi_form.find(delimiter + "--");
+	if (last_delimiter == std::string::npos)
+		throw HTTPStatus<400>();
+
 	std::string::size_type start_file;
 	std::string::size_type end_file;
-
-	while (next_delimiter != last_delimiter)
+	while (1)
 	{
+		size_t form_header_pos = next_delimiter + delimiter.size() + 2; // \r\n
+		multi_form = multi_form.substr(form_header_pos);
+		next_delimiter = multi_form.find(delimiter);
+		if (next_delimiter == std::string::npos)
+			throw HTTPStatus<400>();
+		last_delimiter = multi_form.find(delimiter + "--");
+		if (last_delimiter == std::string::npos)
+			throw HTTPStatus<400>();
+		std::string filename = parse_from_multipart_form("filename=", multi_form, next_delimiter);
+	
 		start_file = multi_form.find("\r\n\r\n") + 4;
 		section_body = multi_form.substr(start_file);
 		end_file = section_body.find(delimiter) - 4; // -4 => "--" + "\r\n"
-		std::string filename = parse_file_name(multi_form, end_file);
 		section_body = section_body.substr(0, end_file);
-	
 		std::cout << "Form part body has size: [" << section_body.size() << "]" << std::endl;
 	
 		if (filename.empty())
 		{
-			
+			std::string paramater_name = parse_from_multipart_form("name=", multi_form, next_delimiter);
+			params[paramater_name] = section_body; // Replace with insert and add BadRequest in case not unique?
 		}
 		else
 		{
 			save_file(section_body, filename);
+			filename.clear();
 		}
-		multi_form.erase(0, start_file + end_file + 4);
-		next_delimiter = multi_form.find(delimiter);
-		last_delimiter = multi_form.find(delimiter + "--");
+		// multi_form.erase(0, start_file + end_file + 4);
+		if (next_delimiter == last_delimiter)
+			return ;
 	}
-	// DEBUG
-	// std::cout << "Another delimiter is found at position: " << end_file << std::endl;;
+	// OPTIONAL: Default Servicing for params.
 }
 
 void	FileHandler::save_file( std::string &file_body, std::string filename  )
@@ -216,7 +231,6 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 // std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
 // infile.close();
 
-typedef std::set<std::string>	Extensions;
 
 // Added a protection to prevent us from deleting a repository code or other testing data
 
@@ -238,7 +252,11 @@ void	FileHandler::delete_file( std::string filename )
 	if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
 		throw HTTPStatus<405>();
 	}
+	if (filename.substr(0, 14) != "post/uploads/") // Temporary
+		throw HTTPStatus<405>();
 	std::cout << "Extension is [" << file_extension << "]" << std::endl;
-	std::cout << "Set has size [" << forbidden_extensions.size() << "]" << std::endl;
-	// std::string full_path("post/uploads/" + filename);
+	filename = filename.c_str() + 1;
+	std::cout << "Filename is [" << filename << "]" << std::endl;
+	if (remove (filename.c_str()) != 0)
+		throw HTTPStatus<404>();
 }
