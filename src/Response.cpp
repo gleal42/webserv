@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:46:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/23 17:09:48 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,8 +90,8 @@ void	Response::set_body(std::string const & body)
 
 void	Response::set_default_body( void )
 {
-	this->set_attribute("Content-Type", "text/plain");
-	std::string body("Good job");
+	this->set_attribute("Content-Type", "text/html");
+	std::string body("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h1>Success!! 😀</h1>\n</body>\n</html>");
 	this->set_body(body.c_str());
 	std::stringstream len;
 	len << body.size();

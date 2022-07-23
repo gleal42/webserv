@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/23 02:01:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/23 17:18:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,6 @@ std::string const FileHandler::get_content_type(std::string const path)
 	if (extension.size() && mime_types.find(extension) != mime_types.end()) {
 		return mime_types[extension];
 	}
-
 	return "application/octet-stream";
 }
 
@@ -120,7 +119,6 @@ void	FileHandler::service_client_download( Request & req, Response & res )
 // Perhaps it is better to just count body size?
 std::streampos	FileHandler::file_size( std::string	full_path )
 {
-
 	std::streampos	fsize = 0;
 	std::ifstream	file( full_path, std::ios::binary );
 
@@ -194,7 +192,6 @@ void	FileHandler::service_multi_type_form( Request & req )
 			save_file(section_body, filename);
 			filename.clear();
 		}
-		// multi_form.erase(0, start_file + end_file + 4);
 		if (next_delimiter == last_delimiter)
 			return ;
 	}
@@ -241,7 +238,7 @@ void	FileHandler::service_form_urlencoded( Request & req )
 	{
 		size_t separator = single_form.find('&');
 		std::string var_val = single_form.substr(0, separator);
-		decode_url(var_val);
+		url::decode(var_val);
 		size_t equal_pos = single_form.find('=');
 		if (equal_pos == std::string::npos)
 			throw HTTPStatus<400>();
@@ -256,37 +253,6 @@ void	FileHandler::service_form_urlencoded( Request & req )
 // unsigned char b = 167;
 // char a[] = "\xC3";
 // char b[] = "\xA7";
-
-void	FileHandler::decode_url( std::string & single_form )
-{
-	std::stringstream processed_url;
-
-	size_t percent = single_form.find('%');
-	while (percent != std::string::npos)
-	{
-		processed_url << single_form.substr(0, percent);
-		std::string hexa_nbr = single_form.substr(percent + 1, 2);
-		std::stringstream ss;
-		unsigned int x;
-		ss << std::hex << hexa_nbr.c_str();
-		ss >> x;
-		unsigned char y = x;
-		ss.clear();
-		processed_url << y;
-
-		single_form.erase(0, percent+3);
-		percent = single_form.find('%');
-	}
-	processed_url << single_form;
-	std::cout << processed_url.str() << std::endl;
-	single_form = processed_url.str();
-
-	for (std::string::iterator it = single_form.begin(); it != single_form.end(); it++)
-	{
-		if (*it == '+')
-			*it = ' ';
-	}
-}
 
 // Added a protection to prevent us from deleting a repository code or other testing data
 
@@ -316,4 +282,3 @@ void	FileHandler::delete_file( std::string filename )
 	if (remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
 }
-

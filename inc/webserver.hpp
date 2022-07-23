@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 01:26:15 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/23 16:55:23 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,6 @@ int 				webserver(std::string config);
 std::string const	http_phrase( int code );
 HTTPStatusGroup		http_group( int code );
 std::string 		get_extension( const std::string &filename );
+std::string			to_string( int number );
 
 #endif

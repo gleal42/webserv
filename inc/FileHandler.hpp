@@ -6,13 +6,14 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 23:08:34 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/23 17:12:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __FILE_HANDLER_H__
 # define __FILE_HANDLER_H__
 
+# include "url_utils.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
 # include "HTTPStatus.hpp"
@@ -42,7 +43,6 @@ public:
 	void				service_client_download( Request & req, Response & res );
 	void				service_multi_type_form( Request & req );
 	void				service_form_urlencoded( Request & req );
-	void				decode_url( std::string & single_form);
 	void				delete_file( std::string filename );
 
 private:
@@ -52,8 +52,6 @@ private:
 
 	// POST
 
-	std::string			parse_file_name( const std::string &body, size_t next_delimiter );
-	std::string			parse_param_name( const std::string &body, size_t next_delimiter );
 	std::string			parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter );
 	void				save_file( std::string &body, std::string filename );
 	std::string			multipart_form_body( const std::string &multi_form );

@@ -1,21 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.hpp                                          :+:      :+:    :+:   */
+/*   url_utils.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/01 18:20:46 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/01 18:24:25 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/23 16:51:55 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/23 17:00:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __UTILS_H__
-# define __UTILS_H__
+#ifndef __URL_UTILS_H__
+# define __URL_UTILS_H__
 
 # include <string>
 # include <sstream>
+# include <iostream>
 
-std::string	to_string(int number);
+namespace url
+{
+    void	decode( std::string & single_form );
+}
 
-#endif
+#endif /* __URL_UTILS_H__ */
