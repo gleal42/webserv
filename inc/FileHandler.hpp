@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:54:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 23:08:34 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include <set>
 # include <map>
 # include <cstdio>
+# include <algorithm>
+
 
 typedef std::set<std::string>	Extensions;
 typedef std::map<std::string, std::string>	Parameters;
@@ -39,6 +41,8 @@ public:
 
 	void				service_client_download( Request & req, Response & res );
 	void				service_multi_type_form( Request & req );
+	void				service_form_urlencoded( Request & req );
+	void				decode_url( std::string & single_form);
 	void				delete_file( std::string filename );
 
 private:

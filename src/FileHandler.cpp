@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:52:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/23 02:01:39 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,6 +231,62 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 // std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
 // infile.close();
 
+void	FileHandler::service_form_urlencoded( Request & req )
+{
+	size_t ending_char = req._raw_body.find('\0');
+	if (ending_char == std::string::npos)
+		throw HTTPStatus<400>();
+	std::string single_form = req._raw_body.substr(0, ending_char);
+	while (1)
+	{
+		size_t separator = single_form.find('&');
+		std::string var_val = single_form.substr(0, separator);
+		decode_url(var_val);
+		size_t equal_pos = single_form.find('=');
+		if (equal_pos == std::string::npos)
+			throw HTTPStatus<400>();
+		params[var_val.substr(0, equal_pos)] = var_val.substr(equal_pos + 1); // Replace with insert and add BadRequest in case not unique?	
+		if (separator == std::string::npos)
+			return ;
+		single_form = single_form.substr(separator+1);
+	}
+}
+
+// unsigned char a = 195;
+// unsigned char b = 167;
+// char a[] = "\xC3";
+// char b[] = "\xA7";
+
+void	FileHandler::decode_url( std::string & single_form )
+{
+	std::stringstream processed_url;
+
+	size_t percent = single_form.find('%');
+	while (percent != std::string::npos)
+	{
+		processed_url << single_form.substr(0, percent);
+		std::string hexa_nbr = single_form.substr(percent + 1, 2);
+		std::stringstream ss;
+		unsigned int x;
+		ss << std::hex << hexa_nbr.c_str();
+		ss >> x;
+		unsigned char y = x;
+		ss.clear();
+		processed_url << y;
+
+		single_form.erase(0, percent+3);
+		percent = single_form.find('%');
+	}
+	processed_url << single_form;
+	std::cout << processed_url.str() << std::endl;
+	single_form = processed_url.str();
+
+	for (std::string::iterator it = single_form.begin(); it != single_form.end(); it++)
+	{
+		if (*it == '+')
+			*it = ' ';
+	}
+}
 
 // Added a protection to prevent us from deleting a repository code or other testing data
 
@@ -260,3 +316,4 @@ void	FileHandler::delete_file( std::string filename )
 	if (remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
 }
+

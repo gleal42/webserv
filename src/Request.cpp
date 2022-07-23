@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:57:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/22 21:32:12 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,8 +202,6 @@ std::string		Request::get_form_type( void )
 {
     std::string content_type = _headers["Content-Type"];
 	size_t form_type_pos = content_type.find(";");
-	if (form_type_pos == std::string::npos)
-		throw HTTPStatus<400>();
 	return (content_type.substr(0, form_type_pos));
 }
 
