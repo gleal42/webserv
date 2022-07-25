@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 18:58:43 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 18:12:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ class Response {
 
 public:
 
-	typedef	ResponseHeaders::iterator attributes_iterator;
+	typedef	ResponseHeaders::iterator headers_iterator;
 	Response( void ); // put bck private after making pointer in connection
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
@@ -171,7 +171,7 @@ public:
 
 	// Setters
 
-	void			set_attribute(std::string name, std::string value);
+	void			set_headers(std::string name, std::string value);
 	void			set_content_type( std::string const & type );
 	void			set_body( std::string const &type );
 	void			set_default_body( void );
@@ -179,7 +179,7 @@ public:
 
 private:
 	std::string		_body;
-	ResponseHeaders	_headers;			// Map of request attributes
+	ResponseHeaders	_headers;			// Map of request headers
 	std::string		_message;
 	Response( Response const & src );		// while not implemented
 };

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/22 21:11:52 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 17:49:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,30 +219,9 @@ void	Server::write_to_connection( Connection *connection )
 void	Server::service(Request & req, Response & res)
 {
     FileHandler handler; // probably needs config for root path etc
-    try
-    {
-        if (req.request_method == GET)
-        {
-            handler.service_client_download(req, res);
-        }
-        else if (req.request_method == POST)
-        {
-            if (req.get_form_type() == "multipart/form-data")
-                handler.service_multi_type_form(req);
-            else if (req.get_form_type() == "application/x-www-form-urlencoded")
-                handler.service_form_urlencoded(req);
-            else
-                throw HTTPStatus<500>();
-            res.set_default_body(); // temporary
-        }
-        else if (req.request_method == DELETE)
-        {
-            handler.delete_file(req._path);
-            res.set_default_body(); // temporary
-        }
-        res.build_message(HTTPStatus<200>());
-    }
-    catch (BaseStatus &error_status)
+    try {
+        handler.service(req, res);
+    } catch (BaseStatus &error_status)
     {
         res.set_error_body(error_status.code);
         res.build_message(error_status);

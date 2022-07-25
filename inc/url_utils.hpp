@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 16:51:55 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/23 17:00:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 18:47:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <string>
 # include <sstream>
 # include <iostream>
+# include "webserver.hpp"
 
 namespace url
 {

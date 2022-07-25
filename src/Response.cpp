@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/23 17:09:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 18:26:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	Response::build_message( BaseStatus status )
 	if (_message.empty())
 	{
 		_message = start_line(status);
-		for (attributes_iterator it = _headers.begin(); it != _headers.end(); ++it) {
+		for (headers_iterator it = _headers.begin(); it != _headers.end(); ++it) {
 			_message += it->first + ": " + it->second + CRLF;
 		}
 		_message += CRLF + _body;
@@ -73,7 +73,7 @@ void	Response::send_response( Socket const & socket )
 // a blank line. This blank line is used by the client to delineate the HTTP
 // header from the beginning of the HTTP body.
 
-void	Response::set_attribute(std::string name, std::string value)
+void	Response::set_headers(std::string name, std::string value)
 {
 	_headers[name] = value;
 }
@@ -90,23 +90,19 @@ void	Response::set_body(std::string const & body)
 
 void	Response::set_default_body( void )
 {
-	this->set_attribute("Content-Type", "text/html");
+	this->set_headers("Content-Type", "text/html");
 	std::string body("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h1>Success!! 😀</h1>\n</body>\n</html>");
 	this->set_body(body.c_str());
 	std::stringstream len;
 	len << body.size();
-	this->set_attribute("Content-Length", len.str());
+	this->set_headers("Content-Length", len.str());
 }
 
 // Duplicated code in service_client_download()
 
 void	Response::set_error_body( int error_code )
 {
-	std::stringstream to_str;
-	std::string error_str;
-	to_str << error_code;
-	to_str >> error_str;
-
+	std::string error_str = to_string(error_code);
 	error_str = "www/error_pages/" + error_str + ".html";
 
 	std::ifstream file;
@@ -118,13 +114,13 @@ void	Response::set_error_body( int error_code )
 		throw std::runtime_error("Can't open default error file");
 	}
 
-	this->set_attribute("Content-Type", ".html");
+	this->set_headers("Content-Type", ".html");
 	std::stringstream body;
 	body << file.rdbuf();
 	this->set_body(body.str());
 	std::stringstream len;
 	len << body.str().size();
-	this->set_attribute("Content-Length", len.str());
+	this->set_headers("Content-Length", len.str());
 
 	file.close();
 }

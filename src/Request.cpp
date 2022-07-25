@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 21:32:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 18:44:03 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,8 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 void	Request::read_request_line( std::string & _unparsed_request ) {
 	int								i = 0;
 	int								j = 0;
-	std::string						buf (_unparsed_request);
-	std::string::iterator			iter = buf.begin();
+	std::string						parsed_req_method;
+	std::string::iterator			iter = _unparsed_request.begin();
 	RequestMethods	request_methods;
 
 	request_methods["GET"] = GET;
@@ -73,24 +73,24 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	request_methods["DELETE"] = DELETE;
 	for (; *iter != ' '; iter++)
 		i++;
-	_unparsed_request = buf.substr(0, i++);
-	if (request_methods.find(_unparsed_request) == request_methods.end())
+	parsed_req_method = _unparsed_request.substr(0, i++);
+	if (request_methods.find(parsed_req_method) == request_methods.end())
 		throw HTTPStatus<405>();
-	request_method = request_methods[_unparsed_request];
+	request_method = request_methods[parsed_req_method];
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
 
 	// Temporary, TODO: make proper URI instance:
 	// request_uri.parse(_unparsed_uri);
 	// _path = request_uri.path;
-	_path = buf.substr(i, j);
+	_path = _unparsed_request.substr(i, j);
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;
 
-	_raw_request_line = buf.substr(0, i + j + 2);
+	_raw_request_line = _unparsed_request.substr(0, i + j + 2);
 	std::cout << "Request line is :" << _raw_request_line << std::endl;
-	_unparsed_request = buf.substr(++j + ++i);
+	_unparsed_request = _unparsed_request.substr(++j + ++i);
 };
 
 // 1
@@ -117,7 +117,7 @@ void	Request::read_header(std::string &_unparsed_request)
 	size_t					value_start;
 	size_t					end;
 
-	size_t	body_start = _unparsed_request.find("\r\n\r\n");
+	size_t	body_start = _unparsed_request.find(D_CRLF);
 	if (body_start == std::string::npos)
 		return ;
 	_raw_headers += _unparsed_request.substr(0, body_start + 4);

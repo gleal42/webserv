@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/23 17:18:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 18:28:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,62 @@ FileHandler &	FileHandler::operator = ( FileHandler const & rhs )
 		//value = rhs.value;
 	}
 	return *this;
+}
+
+// The service() function fills in a response with a requested resource. Our
+// server expects all hosted files to be in a subdirectory called public.
+// Ideally, our server should not allow access to any files outside of this
+// public directory. However, enforcing this restriction may be more difficult
+// than it first appears.
+//
+// In a production server, we would also want to log information.
+// Most production servers log the date, time, request method, the client's
+// user-agent string, and the response code as a minimum.
+//
+// Our function then normalizes the requested path. There are a few things to
+// check for. First, if the path is /, then we need to serve a default file.
+// There is a tradition of serving a file called index in that case, and, indeed,
+// this is what our code does. This should be based on the parsed ServerConfig.
+//
+// Our code also checks that the path doesn't contain two consecutive dots—...
+// In file paths, two dots indicate a reference to a parent directory. However,
+// for security reasons, we want to allow access only into our public directory.
+// We do not want to provide access to any parent directory. If we allowed paths
+// with .., then a malicious client could send GET /../web_server.c HTTP/1.1 and
+// gain access to our server source code!
+
+void	FileHandler::do_GET( Request & req, Response & res )
+{
+	if (req._path == "/")
+		res._uri = "index.html";
+	else
+		res._uri = req._path.c_str() + 1;
+
+	if (req._path.size() > 100) {
+		throw HTTPStatus<400>(); // Example
+	}
+
+	if (req._path.find("..") != std::string::npos) {
+		throw HTTPStatus<404>();
+	}
+
+	std::ifstream file(res._uri.c_str());
+	if ( (file.rdstate() & std::ifstream::failbit ) != 0
+		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
+	{
+		ERROR("error opening " << res._uri.c_str());
+		throw HTTPStatus<404>();
+	}
+
+	res.set_headers("Content-Type", get_content_type(res._uri.c_str()));
+	std::stringstream body;
+	body << file.rdbuf();
+	res.set_body(body.str());
+	std::stringstream len;
+	len << body.str().size();
+	res.set_headers("Content-Length", len.str());
+
+	file.close();
 }
 
 typedef std::map<std::string, std::string> MimeTypes;
@@ -61,59 +117,15 @@ std::string const FileHandler::get_content_type(std::string const path)
 	return "application/octet-stream";
 }
 
-// The service_client_download() function fills in a response with a requested resource. Our
-// server expects all hosted files to be in a subdirectory called public.
-// Ideally, our server should not allow access to any files outside of this
-// public directory. However, enforcing this restriction may be more difficult
-// than it first appears.
-//
-// In a production server, we would also want to log information.
-// Most production servers log the date, time, request method, the client's
-// user-agent string, and the response code as a minimum.
-//
-// Our function then normalizes the requested path. There are a few things to
-// check for. First, if the path is /, then we need to serve a default file.
-// There is a tradition of serving a file called index in that case, and, indeed,
-// this is what our code does. This should be based on the parsed ServerConfig.
-//
-// Our code also checks that the path doesn't contain two consecutive dots—...
-// In file paths, two dots indicate a reference to a parent directory. However,
-// for security reasons, we want to allow access only into our public directory.
-// We do not want to provide access to any parent directory. If we allowed paths
-// with .., then a malicious client could send GET /../web_server.c HTTP/1.1 and
-// gain access to our server source code!
-void	FileHandler::service_client_download( Request & req, Response & res )
+void	FileHandler::do_POST( Request & req, Response & res )
 {
-	if (req._path == "/")
-		res._uri = "index.html";
+	if (req.get_form_type() == "multipart/form-data")
+		post_multi_type_form(req);
+	else if (req.get_form_type() == "application/x-www-form-urlencoded")
+		post_form_urlencoded(req);
 	else
-		res._uri = req._path.c_str() + 1;
-
-	if (req._path.size() > 100) {
-		throw HTTPStatus<400>(); // Example
-	}
-
-	if (req._path.find("..") != std::string::npos) {
-		throw HTTPStatus<404>();
-	}
-
-	std::ifstream file(res._uri.c_str());
-	if ( (file.rdstate() & std::ifstream::failbit ) != 0
-		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
-	{
-		ERROR("error opening " << res._uri.c_str());
-		throw HTTPStatus<404>();
-	}
-
-	res.set_attribute("Content-Type", get_content_type(res._uri.c_str()));
-	std::stringstream body;
-	body << file.rdbuf();
-	res.set_body(body.str());
-	std::stringstream len;
-	len << body.str().size();
-	res.set_attribute("Content-Length", len.str());
-
-	file.close();
+		throw HTTPStatus<500>();
+	res.set_default_body(); // temporary	
 }
 
 // Perhaps it is better to just count body size?
@@ -147,7 +159,7 @@ std::string		FileHandler::parse_from_multipart_form( const std::string parameter
 	return (filename);
 }
 
-void	FileHandler::service_multi_type_form( Request & req )
+void	FileHandler::post_multi_type_form( Request & req )
 {
 	// std::string::size_type start_multi_form = req._raw_body.find("\r\n\r\n") + 4;
 	// std::string multi_form = req._raw_body.substr(start_multi_form);
@@ -228,7 +240,7 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 // std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
 // infile.close();
 
-void	FileHandler::service_form_urlencoded( Request & req )
+void	FileHandler::post_form_urlencoded( Request & req )
 {
 	size_t ending_char = req._raw_body.find('\0');
 	if (ending_char == std::string::npos)
@@ -253,6 +265,12 @@ void	FileHandler::service_form_urlencoded( Request & req )
 // unsigned char b = 167;
 // char a[] = "\xC3";
 // char b[] = "\xA7";
+
+void	FileHandler::do_DELETE( Request & req , Response & res )
+{
+	delete_file(req._path);
+	res.set_default_body(); // temporary
+}
 
 // Added a protection to prevent us from deleting a repository code or other testing data
 
@@ -282,3 +300,4 @@ void	FileHandler::delete_file( std::string filename )
 	if (remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
 }
+

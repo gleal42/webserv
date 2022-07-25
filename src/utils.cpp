@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/23 17:18:19 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/25 18:46:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,4 +102,13 @@ std::string get_extension( const std::string &filename )
     if (ext_position == std::string::npos )
         return (extension);
     return (filename.substr(ext_position));
+}
+
+int	str_to_hexa(std::string hexa_nbr)
+{
+	std::stringstream ss;
+	int x;
+	ss << std::hex << hexa_nbr.c_str();
+	ss >> x;
+	return (x);
 }

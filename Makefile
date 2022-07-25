@@ -16,6 +16,7 @@ SRCS := main.cpp \
 		Request.cpp \
 		Response.cpp \
 		Socket.cpp \
+		Handler.cpp \
 		FileHandler.cpp \
 		BaseStatus.cpp \
 		url_utils.cpp \
