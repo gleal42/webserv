@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:18:08 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 16:00:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,7 +254,8 @@ void	FileHandler::post_form_urlencoded( Request & req )
 
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
-	delete_file(req._path.c_str() + 1);
+	std::string str = req._path.c_str() + 1;
+	delete_file(str);
 	res.set_default_body(); // temporary
 }
 
@@ -284,7 +285,7 @@ void	FileHandler::delete_file( std::string filename )
 	std::cout << "Extension is [" << file_extension << "]" << std::endl;
 	filename = "public/" + filename;
 	std::cout << "Filename is [" << filename << "]" << std::endl;
-	if (remove (filename.c_str()) != 0)
+	if (std::remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
 }
 

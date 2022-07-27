@@ -3,14 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 15:17:38 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 21:21:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "FileHandler.hpp"
+#include "CGIHandler.hpp"
+#include <iostream>
+#include <stdexcept>
+
+// #include <sys/epoll.h>
 
 /*
     Testes a passar:
@@ -280,14 +286,28 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service( Request & req, Response & res )
 {
-	FileHandler	handler;
-	try {
-		handler.service(req, res);
-	}
-	catch (BaseStatus &error_status) {
-		res.set_error_body(error_status.code);
-		res.build_message(error_status);
-	}
+    if (req._path == "/test/cgi/cgi_tester")
+    {
+        CGIHandler handler; // probably needs config for root path etc
+        try {
+            handler.service(req, res);
+        } catch (BaseStatus &error_status)
+        {
+            res.set_error_body(error_status.code);
+            res.build_message(error_status);
+        }
+    }
+    else
+    {
+        FileHandler handler; // probably needs config for root path etc
+        try {
+            handler.service(req, res);
+        } catch (BaseStatus &error_status)
+        {
+            res.set_error_body(error_status.code);
+            res.build_message(error_status);
+        }
+    }
 }
 
 Server::~Server( void )
