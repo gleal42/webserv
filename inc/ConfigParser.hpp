@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/07/27 20:28:45 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/27 20:44:22 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,20 +34,8 @@
 # define SERVER_CONTEXT     1
 # define LOCATION_CONTEXT   2
 
-# define ROOT				1
-# define AUTOINDEX			2
-# define ERRORPAGE			3
-# define MAXBODYSIZE    	4
-# define INDEX				5
-# define LISTEN				6
-# define SERVERNAME			7
-# define LOCATION			8
-# define ALLOWEDMETHODS		9
-# define CGI				10
-# define CGIBIN				11
-
 enum directives{
-    DIRECTIVE_INVALID,
+    //DIRECTIVE_INVALID,
     DIRECTIVE_ROOT,
     DIRECTIVE_AUTOINDEX,
     DIRECTIVE_ERRORPAGE,
@@ -56,7 +44,7 @@ enum directives{
     DIRECTIVE_LISTEN,
     DIRECTIVE_SERVERNAME,
     DIRECTIVE_LOCATION,
-    DIRECTIVE_ALLOWEDMETHODS,
+    DIRECTIVE_LIMITEXCEPT,
     DIRECTIVE_CGI,
     DIRECTIVE_CGIBIN
 };
