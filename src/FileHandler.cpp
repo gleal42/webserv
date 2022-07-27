@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:28:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/27 18:50:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ void	FileHandler::do_POST( Request & req, Response & res )
 		post_form_urlencoded(req);
 	else
 		throw HTTPStatus<500>();
-	res.set_default_body(); // temporary	
+	res.set_default_body(); // temporary
 }
 
 // Perhaps it is better to just count body size?
@@ -268,7 +268,8 @@ void	FileHandler::post_form_urlencoded( Request & req )
 
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
-	delete_file(req._path);
+	std::string str = req._path.c_str() + 1;
+	delete_file(str);
 	res.set_default_body(); // temporary
 }
 
@@ -292,12 +293,11 @@ void	FileHandler::delete_file( std::string filename )
 	if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
 		throw HTTPStatus<405>();
 	}
-	if (filename.substr(0, 14) != "post/uploads/") // Temporary
+	if (filename.substr(0, 13) != "post/uploads/") // Temporary
 		throw HTTPStatus<405>();
 	std::cout << "Extension is [" << file_extension << "]" << std::endl;
-	filename = filename.c_str() + 1;
 	std::cout << "Filename is [" << filename << "]" << std::endl;
-	if (remove (filename.c_str()) != 0)
+	if (std::remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
 }
 

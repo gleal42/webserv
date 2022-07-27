@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:47:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/27 17:18:08 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,5 +46,11 @@ HTTPStatusGroup		http_group( int code );
 std::string 		get_extension( const std::string &filename );
 std::string			to_string( int number );
 int					str_to_hexa(std::string hexa_nbr);
+
+template <typename T>
+void	print(T val)
+{
+	std::cout << val << std::endl;
+}
 
 #endif
