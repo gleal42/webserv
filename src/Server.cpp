@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/05 09:47:19 by msousa           ###   ########.fr       */
+/*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
+/*   Updated: 2022/08/06 18:49:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "FileHandler.hpp"
+#include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -221,13 +222,27 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
-    FileHandler handler; // probably needs config for root path etc
-    try {
-        handler.service(req, res);
-    } catch (BaseStatus &error_status)
+    if (req._path == "/test/cgi/cgi_tester")
     {
-        res.set_error_body(error_status.code);
-        res.build_message(error_status);
+        CGIHandler handler; // probably needs config for root path etc
+        try {
+            handler.service(req, res);
+        } catch (BaseStatus &error_status)
+        {
+            res.set_error_body(error_status.code);
+            res.build_message(error_status);
+        }
+    }
+    else
+    {
+        FileHandler handler; // probably needs config for root path etc
+        try {
+            handler.service(req, res);
+        } catch (BaseStatus &error_status)
+        {
+            res.set_error_body(error_status.code);
+            res.build_message(error_status);
+        }
     }
 }
 
