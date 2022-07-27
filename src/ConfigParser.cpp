@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/07/22 00:49:57 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/27 20:28:46 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ ConfigParser::BadDirectoryError::BadDirectoryError(const std::string err)
     : std::runtime_error("Error: " + err + ". Please provide a valid directory")
 { /* No-op */}
 
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~Config-parsing utils~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 namespace {
@@ -60,7 +61,7 @@ namespace {
 
     const std::string valid_location_directives[CONTEXT_DIRECTIVES] =
     {"root", "autoindex", "error_page", "client_max_body_size", "index",
-    "allowed_methods", "cgi", "cgi-bin"};
+    "limit_except", "cgi", "cgi-bin"};
 
     std::string &strtrim(std::string &str)
     {
@@ -117,39 +118,43 @@ namespace {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~ConfigParser member functions~~~~~~~~~~~~~~~~~~~~~~~~*/
 
+ServerConfig   ConfigParser::config( int const index ) const { return server_configs[index]; }
+
+int    ConfigParser::configs_amount( void ) const { return server_configs.size(); }
+
 bool    ConfigParser::server_is_empty(ServerConfig& target)
 {
-    return (target._root.empty() && !target._autoindex
-            && target._error_pages.empty() && !target._max_body_size
-            && target._indexes.empty() && target._ip.empty() && !target._port
-            && target._server_name.empty() && target._locations.empty());
+    return (target.root.empty() && !target.autoindex
+            && target.error_pages.empty() && !target.client_max_body_size
+            && target.indexes.empty() && target.ip.empty() && !target.port
+            && target.server_name.empty() && target.locations.empty());
 }
 
 bool    ConfigParser::location_is_empty(LocationConfig& target)
 {
-    return (target._root.empty() && !target._autoindex
-            && target._error_pages.empty() && !target._max_body_size
-            && target._indexes.empty() && target._allowed_methods.empty()
-            && target._cgi_map.empty() && target._cgi_bin.empty());
+    return (target.root.empty() && !target.autoindex
+            && target.error_pages.empty() && !target.client_max_body_size
+            && target.indexes.empty() && target.limit_except.empty()
+            && target.cgi_map.empty() && target.cgi_bin.empty());
 }
 
 // Setters
 
 template <typename T>
 void    ConfigParser::set_root(bool has_separators, std::string &content, T *new_object){
-    if (has_separators || content[content.length() - 1] != '/')
+    if (has_separators)
         throw ConfigParser::ConfigurationDirectiveError(content);
     // else if (!is_directory(content))
     //     throw ConfigParser::BadDirectoryError(content);
-    new_object->_root = content;
+    new_object->root = content;
 }
 
 template <typename T>
 void    ConfigParser::set_autoindex(std::string &content, T* new_object){
     if (content == "on")
-        new_object->_autoindex = true;
+        new_object->autoindex = true;
     else if (content == "off")
-        new_object->_autoindex = false;
+        new_object->autoindex = false;
     else
         throw ConfigurationDirectiveError(content);
 }
@@ -176,7 +181,7 @@ void ConfigParser::set_error_pages(std::string &content, T *new_object){
         stoi_converter >> converted_number;
         if (!valid_error_code(converted_number))
             throw ConfigParser::ConfigurationDirectiveError(std::string(token));
-        new_object->_error_pages[error_path].push_back(converted_number);
+        new_object->error_pages[error_path].push_back(converted_number);
         token = std::strtok(NULL, SEPARATORS);
     }
 }
@@ -212,7 +217,7 @@ void ConfigParser::set_indexes(std::string &content, T *new_object){
 
 // }
 
-// void ConfigParser::set_allowed_methods(std::string &content, LocationConfig &new_object){
+// void ConfigParser::set_limit_except(std::string &content, LocationConfig &new_object){
 
 // }
 
@@ -241,37 +246,37 @@ void    ConfigParser::set_directive(int directive, std::string& content, T* new_
 
     switch (directive)
     {
-    case ROOT:
+    case DIRECTIVE_ROOT:
         set_root(has_separators, content, new_object);
         break;
-    case AUTOINDEX:
+    case DIRECTIVE_AUTOINDEX:
         set_autoindex(content, new_object);
         break;
-    case ERRORPAGE:
+    case DIRECTIVE_ERRORPAGE:
         set_error_pages(content, new_object);
         break;
-    case MAXBODYSIZE:
+    case DIRECTIVE_MAXBODYSIZE:
         set_max_body_size(has_separators, content, new_object);
         break;
-    case INDEX:
+    case DIRECTIVE_INDEX:
         set_indexes(content, new_object);
         break;
-    // case CGI:
+    // case DIRECTIVE_CGI:
     //     set_cgi(content, new_object);
     //     break;
-    // case CGIBIN:
+    // case DIRECTIVE_CGIBIN:
     //     set_cgi_bin(content, new_object);
     //     break;
-    // case ALLOWEDMETHODS:
-    //     set_allowed_methods(content, new_object);
+    // case DIRECTIVE_ALLOWEDMETHODS:
+    //     set_limit_except(content, new_object);
     //     break;
-    // case LISTEN:
+    // case DIRECTIVE_LISTEN:
     //     // set_c(content, new_object);
     //     break;
-    // case LOCATION:
+    // case DIRECTIVE_LOCATION:
     //     // set_cgi(content, new_object);
     //     break;
-    // case SERVERNAME:
+    // case DIRECTIVE_SERVERNAME:
     //     set_server_name(content, new_object);
     //     break;
     default:
@@ -307,7 +312,7 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             else if (context == LOCATION_CONTEXT){
                 if (location_is_empty(new_location))
                     throw ConfigParser::EmptyContextBlockError();
-                server_ptr->_locations[location_path] = new_location;
+                server_ptr->locations[location_path] = new_location;
             }
             return;
         }
