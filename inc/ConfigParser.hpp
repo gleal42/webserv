@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/07/22 00:51:12 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/07/27 20:28:45 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,21 @@
 # define ALLOWEDMETHODS		9
 # define CGI				10
 # define CGIBIN				11
+
+enum directives{
+    DIRECTIVE_INVALID,
+    DIRECTIVE_ROOT,
+    DIRECTIVE_AUTOINDEX,
+    DIRECTIVE_ERRORPAGE,
+    DIRECTIVE_MAXBODYSIZE,
+    DIRECTIVE_INDEX,
+    DIRECTIVE_LISTEN,
+    DIRECTIVE_SERVERNAME,
+    DIRECTIVE_LOCATION,
+    DIRECTIVE_ALLOWEDMETHODS,
+    DIRECTIVE_CGI,
+    DIRECTIVE_CGIBIN
+};
 
 // ************************************************************************** //
 //                               ConfigParser Class                             	  //
@@ -94,7 +109,7 @@ public:
         BadDirectoryError(const std::string err);
     };
 
-    ConfigParser(char *str) : _config_file(str){};
+    ConfigParser(const char *str) : _config_file(str){};
     ~ConfigParser(void){};
     ConfigParser &operator=(ConfigParser const &rhs);
 
@@ -128,12 +143,12 @@ private:
     void            set_indexes(std::string &content, T *new_object);
     void            set_cgi_bin(std::string &content, LocationConfig *new_location);
     void            set_cgi(std::string &content, LocationConfig *new_location);
-    void            set_allowed_methods(std::string &content, LocationConfig &new_object);
+    void            set_limit_except(std::string &content, LocationConfig &new_object);
     void            set_ip(std::string &content, ServerConfig &new_object);
     void            set_port(std::string &content, ServerConfig &new_object);
     void            set_locations(std::string &content, ServerConfig &new_object);
     void            set_server_name(bool has_separators, std::string &content, ServerConfig &new_object);
 
-    char            *_config_file;
+    const char*     _config_file;
 };
 #endif /* __CONFIG_PARSER_H__ */
