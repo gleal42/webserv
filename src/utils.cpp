@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/28 15:51:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/28 16:00:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,14 +111,4 @@ int	str_to_hexa(std::string hexa_nbr)
 	ss << std::hex << hexa_nbr.c_str();
 	ss >> x;
 	return (x);
-}
-
-copy_convert_vector::copy_convert_vector(std::vector<char *> &empty_convert)
-: converted(empty_convert)
-{
-}
-
-void copy_convert_vector::operator()(std::vector<char> word)
-{
-    converted.push_back(word.data());
 }
