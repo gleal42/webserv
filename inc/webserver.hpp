@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:05:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:07:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,18 +35,15 @@ std::string			to_string( int number );
 int					str_to_hexa(std::string hexa_nbr);
 
 template <typename T>
-void	print(T val)
+void	print_data(T val)
 {
-	std::cout << val << std::endl;
+	std::cout << val.data() << std::endl;
 }
 
-struct copy_convert_vector
+template <typename T>
+void	print(T val)
 {
-public:
-	copy_convert_vector(std::vector<char *> &empty_convert);
-	void operator()(std::vector<char> word);
-private:
-	std::vector<char *> &converted;
-};
+	std::cout << val.data() << std::endl;
+}
 
 #endif

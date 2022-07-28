@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/28 15:55:47 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/28 18:23:08 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,23 +51,44 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	// {
 	// 	throw HTTPStatus<500>();
 	// }
+
 	std::vector<std::vector <char> > buf;
 	set_environment_variables(buf, req);
+
 	std::vector<char *> env_vars;
+	// std::cout << "The environment variables will be:"<< std::endl;
+	// std::for_each(buf.begin(), buf.end(), print_data<std::vector <char> >);
 
-	for_each(buf.begin(), buf.end(), copy_convert_vector(env_vars));
-
+	for (std::vector<std::vector <char> >::iterator it = buf.begin();
+		it != buf.end();
+		it++)
+	{
+		env_vars.push_back(it->data());
+	}
+	env_vars.push_back(NULL);
 	char *const *envs = env_vars.data();
 
-	std::cout << "Envs are " << envs[0] << std::endl;
+	std::vector<char *> filepath;
+	std::string fp = req._path.c_str() + 1;
+	std::vector<char> fp_vec(fp.begin(), fp.end());
+	fp_vec.push_back('\0');
+	filepath.push_back(fp_vec.data());
+	filepath.push_back(NULL);
+
+	// const char *str = req._path.c_str() + 1;
+	std::cout << "CGI Argument is " << filepath[0] << std::endl;
+
+	std::cout << "The environment variables are:" << std::endl;
+	for (size_t i = 0; i < env_vars.size() - 1; i++) {
+		std::cout << envs[i] << std::endl;
+	}
 
 	int status;
-	const char *str = req._path.c_str() + 1;
-	std::cout << "CGI Argument is " << str << std::endl;
 	pid=fork();
 	if (pid == 0)
 	{
-		execve(str, NULL, envs);
+		std::cout << "HERE we go" << std::endl;
+		execve(filepath[0], filepath.data(), envs);
 		exit(EXIT_FAILURE);
 	}
 	w_pid = waitpid(pid, &status, 0);
@@ -76,21 +97,17 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	res.set_default_body(); // temporary
 }
 
-// Can we turn Req method into char*?
+// Can we turn Req method into string instead of enum?
 
 void	CGIHandler::set_environment_variables( std::vector<std::vector <char> > &buf,  Request & req )
 {
-	setenv(buf, "REQUEST_METHOD", "GET");
-	
-	// std::string	env_var("REQUEST_METHOD=GET", strlen("REQUEST_METHOD=GET") + 1);
-	// std::vector<char> word(env_var.begin(), env_var.end());
-	// buf.push_back(word.data());
-
-
-	// for_each (buf.begin(), buf.end(), &print<char *>);
-	// buf.push_back(NULL);
-
-	(void)req;
+	std::map<enum RequestMethod, std::string> req_method;
+	req_method[GET]="GET";
+	req_method[POST]="POST";
+	req_method[DELETE]="DELETE";
+	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
+	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
+	setenv(buf, "PATH_INFO", req._path.c_str() + 1);
 }
 
 void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value)
@@ -100,17 +117,4 @@ void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * va
 	env_var += value;
 	env_var.push_back('\0');
 	buf.push_back(std::vector<char>(env_var.begin(), env_var.end()));
-
-	// std::vector<char> word(env_var.begin(), env_var.end());
-	// buf.push_back(word.data());
-	std::cout << "The environment variables will be:"<< std::endl;
-	std::cout << buf[0].data() << std::endl;
 }
-
-// if (req.request_method == GET) {
-// 	req_method = "GET";
-// } else if (req.request_method == POST) {
-// 	req_method = "POST";
-// } else if (req.request_method == DELETE) {
-// 	req_method = "DELETE";
-// }
