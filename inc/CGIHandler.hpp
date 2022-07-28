@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/27 19:44:19 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/28 15:46:12 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include "Response.hpp"
 # include "HTTPStatus.hpp"
 # include "Handler.hpp"
+# include "webserver.hpp"
 
 class CGIHandler : public Handler {
 
@@ -36,7 +37,8 @@ public:
 private:
 
 	void	execute_cgi_script( Request & req, Response & res  );
-	void	set_environment_variables( std::vector<char *> &buf,  Request & req );
+	void	set_environment_variables( std::vector<std::vector <char> > &buf,  Request & req );
+	void	setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value);
 };
 
 #endif /* __CGI_HANDLER_H__ */

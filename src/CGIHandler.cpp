@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/27 19:48:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/28 15:55:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,19 +51,19 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	// {
 	// 	throw HTTPStatus<500>();
 	// }
-	std::string	req_met("REQUEST_METHOD=GET");
-	std::vector<char> buf1(req_met.begin(), req_met.end());
-	std::vector<char *> buf;
-	buf.push_back(buf1.data());
-	buf.push_back(NULL);
+	std::vector<std::vector <char> > buf;
+	set_environment_variables(buf, req);
+	std::vector<char *> env_vars;
+
+	for_each(buf.begin(), buf.end(), copy_convert_vector(env_vars));
+
+	char *const *envs = env_vars.data();
+
+	std::cout << "Envs are " << envs[0] << std::endl;
 
 	int status;
 	const char *str = req._path.c_str() + 1;
 	std::cout << "CGI Argument is " << str << std::endl;
-
-	char *const *envs = buf.data();
-
-	std::cout << "Envs are " << envs << std::endl;
 	pid=fork();
 	if (pid == 0)
 	{
@@ -78,21 +78,39 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 
 // Can we turn Req method into char*?
 
-// void	CGIHandler::set_environment_variables( std::vector<char *> &buf,  Request & req )
-// {
-// 	std::vector<char> word(req_met, req_met + sizeof(req_met) / sizeof(char));
-// 	buf.push_back(word.data());
+void	CGIHandler::set_environment_variables( std::vector<std::vector <char> > &buf,  Request & req )
+{
+	setenv(buf, "REQUEST_METHOD", "GET");
+	
+	// std::string	env_var("REQUEST_METHOD=GET", strlen("REQUEST_METHOD=GET") + 1);
+	// std::vector<char> word(env_var.begin(), env_var.end());
+	// buf.push_back(word.data());
 
-// 	std::cout << "The environment variables will be:"<< std::endl;
-// 	for_each (buf.begin(), buf.end(), &print<char *>);
 
-// 	(void)req;
+	// for_each (buf.begin(), buf.end(), &print<char *>);
+	// buf.push_back(NULL);
+
+	(void)req;
+}
+
+void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value)
+{
+	std::string	env_var(var);
+	env_var.push_back('=');
+	env_var += value;
+	env_var.push_back('\0');
+	buf.push_back(std::vector<char>(env_var.begin(), env_var.end()));
+
+	// std::vector<char> word(env_var.begin(), env_var.end());
+	// buf.push_back(word.data());
+	std::cout << "The environment variables will be:"<< std::endl;
+	std::cout << buf[0].data() << std::endl;
+}
+
+// if (req.request_method == GET) {
+// 	req_method = "GET";
+// } else if (req.request_method == POST) {
+// 	req_method = "POST";
+// } else if (req.request_method == DELETE) {
+// 	req_method = "DELETE";
 // }
-
-	// if (req.request_method == GET) {
-	// 	req_method = "GET";
-	// } else if (req.request_method == POST) {
-	// 	req_method = "POST";
-	// } else if (req.request_method == DELETE) {
-	// 	req_method = "DELETE";
-	// }
