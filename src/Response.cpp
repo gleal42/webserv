@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:26:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/28 18:26:37 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ void	Response::send_response( Socket const & socket )
 	int sent_chars = socket.send(_message);
 	int msg_size = _message.size();
 	std::cout << "Message size before is: " << msg_size << std::endl;
+	std::cout << "Message is: " << _message << std::endl;
 	std::cout << "Sent size before is: "<< sent_chars << std::endl;
 	_message = _message.substr(sent_chars, msg_size - sent_chars);
 	std::cout << "Message size after is: " << _message.size() << std::endl;
