@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/29 20:28:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/29 22:09:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,45 +83,60 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 
 	// Shared memory
 
-	shm_unlink("shared_mem");
-	int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);
-	if (shm_fd == -1) {
-		perror("OPEN SUCKS BECAUSE");
-		throw HTTPStatus<500>();
-	}
+	// shm_unlink("shared_mem");
+	// int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);
+	// if (shm_fd == -1) {
+	// 	perror("OPEN SUCKS BECAUSE");
+	// 	throw HTTPStatus<500>();
+	// }
 
-	if (ftruncate(shm_fd, req._raw_body.size()) == -1) {
-		shm_unlink("shared_mem");
-		close(shm_fd);
-		perror("TRUNCATE BECAUSE");
-		throw HTTPStatus<500>();
-	}
+	// if (ftruncate(shm_fd, req._raw_body.size()) == -1) {
+	// 	shm_unlink("shared_mem");
+	// 	close(shm_fd);
+	// 	perror("TRUNCATE BECAUSE");
+	// 	throw HTTPStatus<500>();
+	// }
 	
-	char *shared_mem = (char *)mmap(0, req._raw_body.size() + 1, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-	if (shared_mem == (void *)-1) {
-		shm_unlink("shared_mem");
-		close(shm_fd);
-		perror("MMAP BECAUSE");
-		throw HTTPStatus<500>();
-	}
+	// char *shared_mem = (char *)mmap(0, req._raw_body.size() + 1, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+	// if (shared_mem == (void *)-1) {
+	// 	shm_unlink("shared_mem");
+	// 	close(shm_fd);
+	// 	perror("MMAP BECAUSE");
+	// 	throw HTTPStatus<500>();
+	// }
 
-	strcpy(shared_mem, "YOO");
-	std::cout << "BITCH" << std::endl << shared_mem << std::endl;
+	// shared_mem[0] = 'O';
+	// shared_mem[1] = 'L';
+	// shared_mem[2] = 'A';
+	// shared_mem[3] = '\n';
+	// shared_mem[4] = '\0';
+	
+	int fd[2];
+	int p = pipe(fd);
+	if (p == -1)
+		throw HTTPStatus<500>();
+	
 	pid_t pid = 0, w_pid = 0;
 	int status;
 	pid=fork();
 	if (pid == 0)
 	{
+		dup2(fd[0], STDIN_FILENO);
+		close(fd[1]);
 		std::cout << "HERE we go" << std::endl;
-		std::cout << "BITCH" << std::endl << shared_mem << std::endl;
+		// std::string str(shared_mem);
+		// write(0, shared_mem, 4);
 
 		execve(filepath[0], filepath.data(), envs);
 		exit(EXIT_FAILURE);
 	}
+	close(fd[0]);
+	dup2(fd[1], STDOUT_FILENO);
+	std::cout << "Baby" << std::endl;
 	w_pid = waitpid(pid, &status, 0);
-	munmap(shared_mem, req._raw_body.size());
-	shm_unlink("shared_mem");
-	close(shm_fd);
+	// munmap(shared_mem, req._raw_body.size());
+	// shm_unlink("shared_mem");
+	// close(shm_fd);
 	if (w_pid == -1 || status == EXIT_FAILURE)
 		throw HTTPStatus<500>();
 	res.set_default_body(); // temporary
@@ -140,6 +155,10 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
 	setenv(buf, "PATH_INFO", req._path.c_str() + 1);
+	// std::stringstream ss;
+	// ss << req._raw_body.size();
+	// setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
+	setenv(buf, "CONTENT_LENGTH", "4");
 	return (buf);
 }
 
