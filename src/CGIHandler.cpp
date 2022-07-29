@@ -6,11 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/28 18:23:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/29 20:28:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGIHandler.hpp"
+#include <sys/mman.h>
+#include <stdio.h>
 
 /* Constructors */
 CGIHandler::CGIHandler( void ) { /* no-op */ }
@@ -42,31 +44,34 @@ void	CGIHandler::do_DELETE( Request & req, Response & res )
 {
 	execute_cgi_script( req, res );
 }
+ 
+void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
+{
+	for (std::vector<std::vector <char> >::iterator it = vec_of_vec.begin();
+		it != vec_of_vec.end();
+		it++)
+	{
+		vec_of_charptr.push_back(it->data());
+	}
+	vec_of_charptr.push_back(NULL);
+}
 
 void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 {
-	pid_t pid, w_pid;
-	// int p[2];
-	// if (pipe(p) < 0)
-	// {
-	// 	throw HTTPStatus<500>();
-	// }
+	// Environment Variables
 
-	std::vector<std::vector <char> > buf;
-	set_environment_variables(buf, req);
-
+	std::vector<std::vector <char> > buf = environment_variables(req);
 	std::vector<char *> env_vars;
+	convert_to_charptr(buf, env_vars);
 	// std::cout << "The environment variables will be:"<< std::endl;
 	// std::for_each(buf.begin(), buf.end(), print_data<std::vector <char> >);
-
-	for (std::vector<std::vector <char> >::iterator it = buf.begin();
-		it != buf.end();
-		it++)
-	{
-		env_vars.push_back(it->data());
-	}
-	env_vars.push_back(NULL);
 	char *const *envs = env_vars.data();
+	std::cout << "The environment variables are:" << std::endl;
+	for (size_t i = 0; i < env_vars.size() - 1; i++) {
+		std::cout << envs[i] << std::endl;
+	}
+
+	// Filepath (1st and 2nd execve argument)
 
 	std::vector<char *> filepath;
 	std::string fp = req._path.c_str() + 1;
@@ -74,24 +79,49 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	fp_vec.push_back('\0');
 	filepath.push_back(fp_vec.data());
 	filepath.push_back(NULL);
-
-	// const char *str = req._path.c_str() + 1;
 	std::cout << "CGI Argument is " << filepath[0] << std::endl;
 
-	std::cout << "The environment variables are:" << std::endl;
-	for (size_t i = 0; i < env_vars.size() - 1; i++) {
-		std::cout << envs[i] << std::endl;
+	// Shared memory
+
+	shm_unlink("shared_mem");
+	int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);
+	if (shm_fd == -1) {
+		perror("OPEN SUCKS BECAUSE");
+		throw HTTPStatus<500>();
 	}
 
+	if (ftruncate(shm_fd, req._raw_body.size()) == -1) {
+		shm_unlink("shared_mem");
+		close(shm_fd);
+		perror("TRUNCATE BECAUSE");
+		throw HTTPStatus<500>();
+	}
+	
+	char *shared_mem = (char *)mmap(0, req._raw_body.size() + 1, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+	if (shared_mem == (void *)-1) {
+		shm_unlink("shared_mem");
+		close(shm_fd);
+		perror("MMAP BECAUSE");
+		throw HTTPStatus<500>();
+	}
+
+	strcpy(shared_mem, "YOO");
+	std::cout << "BITCH" << std::endl << shared_mem << std::endl;
+	pid_t pid = 0, w_pid = 0;
 	int status;
 	pid=fork();
 	if (pid == 0)
 	{
 		std::cout << "HERE we go" << std::endl;
+		std::cout << "BITCH" << std::endl << shared_mem << std::endl;
+
 		execve(filepath[0], filepath.data(), envs);
 		exit(EXIT_FAILURE);
 	}
 	w_pid = waitpid(pid, &status, 0);
+	munmap(shared_mem, req._raw_body.size());
+	shm_unlink("shared_mem");
+	close(shm_fd);
 	if (w_pid == -1 || status == EXIT_FAILURE)
 		throw HTTPStatus<500>();
 	res.set_default_body(); // temporary
@@ -99,8 +129,10 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 
 // Can we turn Req method into string instead of enum?
 
-void	CGIHandler::set_environment_variables( std::vector<std::vector <char> > &buf,  Request & req )
+std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & req )
 {
+	std::vector<std::vector <char> > buf;
+
 	std::map<enum RequestMethod, std::string> req_method;
 	req_method[GET]="GET";
 	req_method[POST]="POST";
@@ -108,6 +140,7 @@ void	CGIHandler::set_environment_variables( std::vector<std::vector <char> > &bu
 	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
 	setenv(buf, "PATH_INFO", req._path.c_str() + 1);
+	return (buf);
 }
 
 void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value)
