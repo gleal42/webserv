@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/30 01:01:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/30 18:58:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,41 +81,6 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	filepath.push_back(NULL);
 	std::cout << "CGI Argument is " << filepath[0] << std::endl;
 
-	// Shared memory
-
-	// shm_unlink("shared_mem");
-	// int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);
-	// if (shm_fd == -1) {
-	// 	perror("OPEN SUCKS BECAUSE");
-	// 	throw HTTPStatus<500>();
-	// }
-
-	// if (ftruncate(shm_fd, req._raw_body.size()) == -1) {
-	// 	shm_unlink("shared_mem");
-	// 	close(shm_fd);
-	// 	perror("TRUNCATE BECAUSE");
-	// 	throw HTTPStatus<500>();
-	// }
-	
-	// char *shared_mem = (char *)mmap(0, req._raw_body.size() + 1, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-	// if (shared_mem == (void *)-1) {
-	// 	shm_unlink("shared_mem");
-	// 	close(shm_fd);
-	// 	perror("MMAP BECAUSE");
-	// 	throw HTTPStatus<500>();
-	// }
-
-	// shared_mem[0] = 'O';
-	// shared_mem[1] = 'L';
-	// shared_mem[2] = 'A';
-	// shared_mem[3] = '\n';
-	// shared_mem[4] = '\0';
-	
-	// int fd[2];
-	// int p = pipe(fd);
-	// if (p == -1)
-	// 	throw HTTPStatus<500>();
-
 	FILE *input_file = tmpfile();
 	FILE *output_file = tmpfile();
 	if (input_file == NULL || output_file == NULL)
@@ -142,9 +107,17 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		// exit(EXIT_FAILURE);
 	}
 	w_pid = waitpid(pid, &status, 0);
-	if (w_pid == -1 || status == EXIT_FAILURE)
+	(void)w_pid;
+	// LLDB sends EINTR signal
+	// if (w_pid == -1)
+	// {
+	// 	std::cerr << "WPID ERROR" << std::endl;
+	// 	perror("Didnt work because ");
+	// 	throw HTTPStatus<500>();
+	// }
+	if (status == EXIT_FAILURE)
 	{
-		std::cerr << "WAIT ERROR" << std::endl;
+		std::cerr << "Child ERROR" << std::endl;
 		throw HTTPStatus<500>();
 	}
 	long sz = ftell(output_file);
@@ -158,7 +131,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	}
 	std::string str(file_contents, sz);
 	str.push_back('\0');
-	res.set_page(str); // temporary
+	set_response(str, res);
 	munmap(file_contents, sz);
 }
 
@@ -189,3 +162,70 @@ void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * va
 	env_var.push_back('\0');
 	buf.push_back(std::vector<char>(env_var.begin(), env_var.end()));
 }
+
+// Delete Status
+
+BaseStatus	CGIHandler::set_response( std::string bdy, Response &res )
+{
+	size_t crlf = bdy.find(D_CRLF);
+	res.save_raw_headers(bdy.substr(0, crlf));
+	std::string status = res.get_header_value("Status");
+	if (status.empty()) {
+		status = "200";
+	}
+	size_t start_digit = status.find_first_of("0123456789");
+	if (start_digit == std::string::npos)
+		throw HTTPStatus<400>();
+	size_t last_digit = status.find_last_of("0123456789");
+	status = status.substr(start_digit, last_digit);
+	if (status.find_first_not_of("0123456789") != std::string::npos)
+		throw HTTPStatus<400>();
+	std::stringstream ss(status);
+	int nbr_status;
+	ss >> nbr_status;
+	crlf = crlf+4;
+	bdy = bdy.substr(crlf);
+	if (bdy.empty() == false)
+	{
+		res.set_body(bdy.data());
+		std::stringstream len;
+		len << bdy.size();
+		res.set_header("Content-Length", len.str());
+	}
+	return HTTPStatus<200>();
+}
+
+// Shared memory
+
+// shm_unlink("shared_mem");
+// int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);
+// if (shm_fd == -1) {
+// 	perror("OPEN SUCKS BECAUSE");
+// 	throw HTTPStatus<500>();
+// }
+
+// if (ftruncate(shm_fd, req._raw_body.size()) == -1) {
+// 	shm_unlink("shared_mem");
+// 	close(shm_fd);
+// 	perror("TRUNCATE BECAUSE");
+// 	throw HTTPStatus<500>();
+// }
+
+// char *shared_mem = (char *)mmap(0, req._raw_body.size() + 1, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+// if (shared_mem == (void *)-1) {
+// 	shm_unlink("shared_mem");
+// 	close(shm_fd);
+// 	perror("MMAP BECAUSE");
+// 	throw HTTPStatus<500>();
+// }
+
+// shared_mem[0] = 'O';
+// shared_mem[1] = 'L';
+// shared_mem[2] = 'A';
+// shared_mem[3] = '\n';
+// shared_mem[4] = '\0';
+
+// int fd[2];
+// int p = pipe(fd);
+// if (p == -1)
+// 	throw HTTPStatus<500>();

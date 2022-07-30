@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/29 16:50:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/30 17:02:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ public:
 
 private:
 
+	BaseStatus		set_response( std::string bdy, Response &res );
 	void	execute_cgi_script( Request & req, Response & res  );
 	std::vector<std::vector <char> >	environment_variables( Request & req );
 	void	setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value);
