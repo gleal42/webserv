@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/27 18:50:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/30 00:22:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ void	FileHandler::do_POST( Request & req, Response & res )
 		post_form_urlencoded(req);
 	else
 		throw HTTPStatus<500>();
-	res.set_default_body(); // temporary
+	res.set_default_page(); // temporary
 }
 
 // Perhaps it is better to just count body size?
@@ -270,7 +270,7 @@ void	FileHandler::do_DELETE( Request & req , Response & res )
 {
 	std::string str = req._path.c_str() + 1;
 	delete_file(str);
-	res.set_default_body(); // temporary
+	res.set_default_page(); // temporary
 }
 
 // Added a protection to prevent us from deleting a repository code or other testing data
