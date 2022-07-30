@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/30 01:11:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/30 18:41:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	Response::send_response( Socket const & socket )
 // a blank line. This blank line is used by the client to delineate the HTTP
 // header from the beginning of the HTTP body.
 
-void	Response::set_headers(std::string name, std::string value)
+void	Response::set_header(std::string name, std::string value)
 {
 	_headers[name] = value;
 	if (name == "Content-Length")
@@ -95,23 +95,12 @@ void	Response::set_body(std::string const & body)
 
 void	Response::set_default_page( void )
 {
-	this->set_headers("Content-Type", "text/html");
+	this->set_header("Content-Type", "text/html");
 	std::string body("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h1>Success!! 😀</h1>\n</body>\n</html>");
 	this->set_body(body.c_str());
 	std::stringstream len;
 	len << body.size();
-	this->set_headers("Content-Length", len.str());
-}
-
-// Have to clear headers
-
-void	Response::set_page( std::string bdy )
-{
-	// this->set_headers("Content-Type", "text/plain");
-	this->set_body(bdy.data());
-	// std::stringstream len;
-	// len << bdy.size();
-	// this->set_headers("Content-Length", len.str());
+	this->set_header("Content-Length", len.str());
 }
 
 // Duplicated code in service_client_download()
@@ -130,13 +119,53 @@ void	Response::set_error_body( int error_code )
 		throw std::runtime_error("Can't open default error file");
 	}
 
-	this->set_headers("Content-Type", ".html");
+	this->set_header("Content-Type", ".html");
 	std::stringstream body;
 	body << file.rdbuf();
 	this->set_body(body.str());
 	std::stringstream len;
 	len << body.str().size();
-	this->set_headers("Content-Length", len.str());
+	this->set_header("Content-Length", len.str());
 
 	file.close();
+}
+
+void	Response::clear( void )
+{
+	_uri.clear();
+	_body.clear();
+	_headers.clear();
+	_message.clear();
+}
+
+void	Response::save_raw_headers( std::string headers )
+{
+	while  (1)
+	{
+		size_t next_header = headers.find(CRLF);
+		std::string single_header = headers.substr(0, next_header);
+		size_t separator = single_header.find(":");
+		if (single_header.empty() == false
+			&& separator == std::string::npos)
+			throw HTTPStatus<400>();
+		this->set_header(single_header.substr(0, separator), single_header.substr(separator+1));
+		if (next_header == std::string::npos)
+			break ;
+		headers = headers.substr(next_header + 2);
+	}
+}
+
+const std::string	Response::get_header_value(const std::string name)
+{
+	std::string str;
+	if (_headers.count(name)) {
+		str = _headers[name];
+	}
+	return (str);
+}
+
+void	Response::delete_header( const std::string name )
+{
+	std::cout << name << " header was deleted" << std::endl;
+	_headers.erase(name);
 }
