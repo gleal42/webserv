@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:07:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:08:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,10 @@ void	Response::send_response( Socket const & socket )
 void	Response::set_headers(std::string name, std::string value)
 {
 	_headers[name] = value;
+	if (name == "Content-Length")
+	{
+		std::cout << "Setting Content-Length as " << value << std::endl;
+	}
 }
 
 bool	Response::is_empty()
@@ -89,7 +93,7 @@ void	Response::set_body(std::string const & body)
 	_body = body;
 }
 
-void	Response::set_default_body( void )
+void	Response::set_default_page( void )
 {
 	this->set_headers("Content-Type", "text/html");
 	std::string body("<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h1>Success!! 😀</h1>\n</body>\n</html>");
@@ -97,6 +101,17 @@ void	Response::set_default_body( void )
 	std::stringstream len;
 	len << body.size();
 	this->set_headers("Content-Length", len.str());
+}
+
+// Have to clear headers
+
+void	Response::set_page( std::string bdy )
+{
+	// this->set_headers("Content-Type", "text/plain");
+	this->set_body(bdy.data());
+	// std::stringstream len;
+	// len << bdy.size();
+	// this->set_headers("Content-Length", len.str());
 }
 
 // Duplicated code in service_client_download()

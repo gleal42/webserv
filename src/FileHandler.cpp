@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:00:10 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
+/*   Updated: 2022/08/31 16:08:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ void	FileHandler::do_POST( Request & req, Response & res )
 		post_form_urlencoded(req);
 	else
 		throw HTTPStatus<500>();
-	res.set_default_body(); // temporary
+	res.set_default_page(); // temporary
 }
 
 std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
@@ -256,7 +256,7 @@ void	FileHandler::do_DELETE( Request & req , Response & res )
 {
 	std::string str = req._path.c_str() + 1;
 	delete_file(str);
-	res.set_default_body(); // temporary
+	res.set_default_page(); // temporary
 }
 
 // Added a protection to prevent us from deleting a repository code or other testing data

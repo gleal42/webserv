@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/29 22:09:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/30 01:01:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,35 +111,55 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	// shared_mem[3] = '\n';
 	// shared_mem[4] = '\0';
 	
-	int fd[2];
-	int p = pipe(fd);
-	if (p == -1)
+	// int fd[2];
+	// int p = pipe(fd);
+	// if (p == -1)
+	// 	throw HTTPStatus<500>();
+
+	FILE *input_file = tmpfile();
+	FILE *output_file = tmpfile();
+	if (input_file == NULL || output_file == NULL)
+	{
+		std::cerr << "Temp file error" << std::endl;
 		throw HTTPStatus<500>();
+	}
+
+	int input_fd = fileno(input_file);
+	int output_fd = fileno(output_file);
+	
+	write(input_fd, req._raw_body.c_str(), req._raw_body.size());
+	rewind(input_file);
 	
 	pid_t pid = 0, w_pid = 0;
 	int status;
 	pid=fork();
 	if (pid == 0)
 	{
-		dup2(fd[0], STDIN_FILENO);
-		close(fd[1]);
 		std::cout << "HERE we go" << std::endl;
-		// std::string str(shared_mem);
-		// write(0, shared_mem, 4);
-
+		dup2(input_fd, STDIN_FILENO);
+		dup2(output_fd, STDOUT_FILENO);
 		execve(filepath[0], filepath.data(), envs);
-		exit(EXIT_FAILURE);
+		// exit(EXIT_FAILURE);
 	}
-	close(fd[0]);
-	dup2(fd[1], STDOUT_FILENO);
-	std::cout << "Baby" << std::endl;
 	w_pid = waitpid(pid, &status, 0);
-	// munmap(shared_mem, req._raw_body.size());
-	// shm_unlink("shared_mem");
-	// close(shm_fd);
 	if (w_pid == -1 || status == EXIT_FAILURE)
+	{
+		std::cerr << "WAIT ERROR" << std::endl;
 		throw HTTPStatus<500>();
-	res.set_default_body(); // temporary
+	}
+	long sz = ftell(output_file);
+	rewind(output_file);
+	sz = sz - ftell(output_file);
+
+	std::cout << "file has size " << sz << std::endl;
+	char *file_contents = (char *) mmap(0, sz, PROT_READ, MAP_PRIVATE, output_fd, 0);
+	if (file_contents == (void *)-1) {
+		throw HTTPStatus<500>();
+	}
+	std::string str(file_contents, sz);
+	str.push_back('\0');
+	res.set_page(str); // temporary
+	munmap(file_contents, sz);
 }
 
 // Can we turn Req method into string instead of enum?
@@ -155,10 +175,9 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
 	setenv(buf, "PATH_INFO", req._path.c_str() + 1);
-	// std::stringstream ss;
-	// ss << req._raw_body.size();
-	// setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
-	setenv(buf, "CONTENT_LENGTH", "4");
+	std::stringstream ss;
+	ss << req._raw_body.size();
+	setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
 	return (buf);
 }
 
