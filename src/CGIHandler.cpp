@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/31 20:34:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/01 00:00:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,29 @@
 #include <sys/mman.h>
 #include <stdio.h>
 
+CGIExtInterpreter CGIHandler::extension_interpreter = create_extension_pairs();
+
+CGIExtInterpreter CGIHandler::create_extension_pairs( void )
+{
+	CGIExtInterpreter	temp;
+	temp[".cgi"] = full_path("/test/cgi/cpp/cgi_tester");
+	temp[".php"] = "/usr/local/bin/php-cgi";
+	return (temp);
+}
+
+bool CGIHandler::extension_is_implemented( const std::string &extension )
+{
+	return(extension_interpreter.count(extension));
+}
+
 /* Constructors */
-CGIHandler::CGIHandler( void ) { /* no-op */ }
+CGIHandler::CGIHandler( void ){ /* no-op */ }
+
+CGIHandler::CGIHandler( const std::string &requested_path )
+: extension(get_extension(requested_path)), interpreter(extension_interpreter[extension])
+{
+}
+
 CGIHandler::CGIHandler( CGIHandler const & src ) { *this = src; }
 
 /* Destructor */
@@ -73,8 +94,9 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 
 	// Filepath (1st and 2nd execve argument)
 
+	std::string file_name = filename(interpreter);
 	std::vector<char *> filepath;
-	std::vector<char> cmd_vec = convert_to_char_vector("php-cgi");
+	std::vector<char> cmd_vec = convert_to_char_vector(file_name.c_str());
 	std::vector<char> fp_vec = convert_to_char_vector(req._path.c_str() + 1);
 	filepath.push_back(cmd_vec.data());
 	filepath.push_back(fp_vec.data());
@@ -107,7 +129,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		std::cout << "HERE we go" << std::endl;
 		dup2(input_fd, STDIN_FILENO);
 		dup2(output_fd, STDOUT_FILENO);
-		execve("/usr/local/bin/php-cgi", filepath.data(), envs);
+		execve(interpreter.c_str(), filepath.data(), envs);
 		// exit(EXIT_FAILURE);
 	}
 	w_pid = waitpid(pid, &status, 0);
@@ -134,7 +156,6 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	if (file_contents == (void *)-1) {
 		throw HTTPStatus<500>();
 	}
-	std::cout << "File has size: " << file_contents << std::endl;
 	std::string str(file_contents, sz);
 	str.push_back('\0');
 	set_response(str, res);
@@ -161,14 +182,12 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 
 	std::string full_script_path = full_path(req._path.c_str());
 	setenv(buf, "PATH_INFO", full_script_path.c_str());
-	setenv(buf, "SCRIPT_FILENAME", "test/cgi/test.php");
+	setenv(buf, "SCRIPT_FILENAME", (req._path.c_str() + 1));
 
 	std::stringstream ss;
 	ss << req._raw_body.size();
 	setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
-
 	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
-
 	setenv(buf, "CONTENT_TYPE", "application/x-www-form-urlencoded");
 	
 	return (buf);
@@ -205,7 +224,7 @@ BaseStatus	CGIHandler::set_response( std::string bdy, Response &res )
 	ss >> nbr_status;
 	crlf = crlf+4;
 	bdy = bdy.substr(crlf);
-	res.set_body(bdy.data());
+	res.set_body(bdy);
 	std::stringstream len;
 	len << bdy.size();
 	res.set_header("Content-Length", len.str());

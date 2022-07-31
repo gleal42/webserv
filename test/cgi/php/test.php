@@ -6,7 +6,9 @@
    echo "</head>";
    echo "<body>";
    echo "<h1>You have been successful</h2>";
-   echo "<p>Thank you for using our CGI " . $_POST['first_name'] . " " .  $_POST['last_name'] . "!!!!!!</p>";
+   $fn = trim($_POST['first_name']);
+   $ln = trim($_POST['last_name']);
+   echo "<p>Thank you for using our CGI " . $fn . " " .  $ln . "!!!!!! </p>";
    echo "</body>";
    echo "</html>";
 ?>
