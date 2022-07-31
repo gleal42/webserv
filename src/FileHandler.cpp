@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/30 17:09:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/31 15:53:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,10 +88,7 @@ typedef std::map<std::string, std::string> MimeTypes;
 
 std::string const FileHandler::get_content_type(std::string const path)
 {
-	std::string::size_type position = path.rfind('.');
-	if (position == std::string::npos)
-		position = 0;
-	std::string extension = path.substr(position);
+	std::string extension = get_extension(path);
 
 	// Turn this into a separate mime_type function with access to static map
 	MimeTypes mime_types;
