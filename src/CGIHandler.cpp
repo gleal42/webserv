@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/30 18:58:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/31 20:34:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,15 +74,18 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	// Filepath (1st and 2nd execve argument)
 
 	std::vector<char *> filepath;
-	std::string fp = req._path.c_str() + 1;
-	std::vector<char> fp_vec(fp.begin(), fp.end());
-	fp_vec.push_back('\0');
+	std::vector<char> cmd_vec = convert_to_char_vector("php-cgi");
+	std::vector<char> fp_vec = convert_to_char_vector(req._path.c_str() + 1);
+	filepath.push_back(cmd_vec.data());
 	filepath.push_back(fp_vec.data());
 	filepath.push_back(NULL);
-	std::cout << "CGI Argument is " << filepath[0] << std::endl;
+
+	std::cout << "CGI 1 Argument is " << filepath[0] << std::endl;
+	std::cout << "CGI 2 Argument is " << filepath[1] << std::endl;
 
 	FILE *input_file = tmpfile();
 	FILE *output_file = tmpfile();
+	// FILE *output_file = fopen("Checking.txt", "w+");
 	if (input_file == NULL || output_file == NULL)
 	{
 		std::cerr << "Temp file error" << std::endl;
@@ -92,6 +95,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	int input_fd = fileno(input_file);
 	int output_fd = fileno(output_file);
 	
+	std::cout << "Body is " << req._raw_body.c_str() << std::endl;
 	write(input_fd, req._raw_body.c_str(), req._raw_body.size());
 	rewind(input_file);
 	
@@ -103,7 +107,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		std::cout << "HERE we go" << std::endl;
 		dup2(input_fd, STDIN_FILENO);
 		dup2(output_fd, STDOUT_FILENO);
-		execve(filepath[0], filepath.data(), envs);
+		execve("/usr/local/bin/php-cgi", filepath.data(), envs);
 		// exit(EXIT_FAILURE);
 	}
 	w_pid = waitpid(pid, &status, 0);
@@ -120,6 +124,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		std::cerr << "Child ERROR" << std::endl;
 		throw HTTPStatus<500>();
 	}
+	fseek(output_file, 0L, SEEK_END);
 	long sz = ftell(output_file);
 	rewind(output_file);
 	sz = sz - ftell(output_file);
@@ -129,10 +134,13 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	if (file_contents == (void *)-1) {
 		throw HTTPStatus<500>();
 	}
+	std::cout << "File has size: " << file_contents << std::endl;
 	std::string str(file_contents, sz);
 	str.push_back('\0');
 	set_response(str, res);
 	munmap(file_contents, sz);
+	fclose(input_file);
+	fclose(output_file);
 }
 
 // Can we turn Req method into string instead of enum?
@@ -146,11 +154,23 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	req_method[POST]="POST";
 	req_method[DELETE]="DELETE";
 	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
+
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
-	setenv(buf, "PATH_INFO", req._path.c_str() + 1);
+	setenv(buf, "QUERY_STRING", "test=querystring");
+	setenv(buf, "REDIRECT_STATUS", "200");
+
+	std::string full_script_path = full_path(req._path.c_str());
+	setenv(buf, "PATH_INFO", full_script_path.c_str());
+	setenv(buf, "SCRIPT_FILENAME", "test/cgi/test.php");
+
 	std::stringstream ss;
 	ss << req._raw_body.size();
 	setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
+
+	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
+
+	setenv(buf, "CONTENT_TYPE", "application/x-www-form-urlencoded");
+	
 	return (buf);
 }
 
@@ -185,13 +205,10 @@ BaseStatus	CGIHandler::set_response( std::string bdy, Response &res )
 	ss >> nbr_status;
 	crlf = crlf+4;
 	bdy = bdy.substr(crlf);
-	if (bdy.empty() == false)
-	{
-		res.set_body(bdy.data());
-		std::stringstream len;
-		len << bdy.size();
-		res.set_header("Content-Length", len.str());
-	}
+	res.set_body(bdy.data());
+	std::stringstream len;
+	len << bdy.size();
+	res.set_header("Content-Length", len.str());
 	return HTTPStatus<200>();
 }
 

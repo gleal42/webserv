@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:53:42 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 18:54:42 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,7 +222,7 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
-    if (req._path == "/test/cgi/cgi_tester")
+    if (get_extension(req._path) == ".php")
     {
         CGIHandler handler; // probably needs config for root path etc
         try {
