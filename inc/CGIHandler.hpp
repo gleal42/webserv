@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/30 17:02:52 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/31 22:56:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,20 +22,30 @@
 # include "Handler.hpp"
 # include "webserver.hpp"
 
+typedef std::map<std::string, std::string> CGIExtInterpreter;
+
 class CGIHandler : public Handler {
 
 public:
 
-	CGIHandler( void );
+	CGIHandler( const std::string &requested_path );
 	CGIHandler( CGIHandler const & src );
 	~CGIHandler( void );
 	CGIHandler &	operator = ( CGIHandler const & rhs );
 	void				do_GET( Request & req, Response & res );
 	void				do_POST( Request & req, Response & res );
 	void				do_DELETE( Request & req, Response & res );
+	static bool extension_is_implemented( const std::string &extension );
 
 private:
 
+	static CGIExtInterpreter create_extension_pairs( void );
+	static CGIExtInterpreter extension_interpreter;
+
+	std::string extension;
+	std::string interpreter;
+
+	CGIHandler( void );
 	BaseStatus		set_response( std::string bdy, Response &res );
 	void	execute_cgi_script( Request & req, Response & res  );
 	std::vector<std::vector <char> >	environment_variables( Request & req );

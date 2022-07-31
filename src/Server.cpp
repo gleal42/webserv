@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:22:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:23:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,9 +286,10 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service( Request & req, Response & res )
 {
-    if (get_extension(req._path) == ".php")
+    std::string extension = get_extension(req._path);
+    if (CGIHandler::extension_is_implemented(extension))
     {
-        CGIHandler handler; // probably needs config for root path etc
+        CGIHandler handler(req._path); // probably needs config for root path etc
         try {
             handler.service(req, res);
         } catch (BaseStatus &error_status)
