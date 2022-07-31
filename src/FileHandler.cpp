@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:09:00 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:11:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,10 +86,7 @@ void	FileHandler::do_GET( Request & req, Response & res )
 
 std::string const FileHandler::get_content_type(std::string const path)
 {
-	std::string::size_type position = path.rfind('.');
-	if (position == std::string::npos)
-		position = 0;
-	std::string extension = path.substr(position);
+	std::string extension = get_extension(path);
 
 	// Turn this into a separate mime_type function with access to static map
 	MimeTypes mime_types;

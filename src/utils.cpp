@@ -6,11 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 00:42:40 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 01:00:08 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
+#include <unistd.h>
 
 std::string	to_string(int number)
 {
@@ -111,4 +112,27 @@ int	str_to_hexa(std::string hexa_nbr)
 	ss << std::hex << hexa_nbr.c_str();
 	ss >> x;
 	return (x);
+}
+
+std::string full_path(const std::string &relative_path)
+{
+	char read_buf[200];
+	memset(read_buf, '\0', sizeof(read_buf));
+	std::string abs_path(getcwd(read_buf, 200));
+	return (abs_path + relative_path);
+}
+
+std::vector<char>	convert_to_char_vector(const std::string &string)
+{
+	std::vector<char> char_vector(string.begin(), string.end());
+	char_vector.push_back('\0');
+	return (char_vector);
+}
+
+std::string	filename(const std::string &path)
+{
+	std::string script_filename (path.substr(path.find_last_of('/')));
+	if (script_filename.empty())
+		return (path);
+	return (script_filename.c_str() + 1);
 }

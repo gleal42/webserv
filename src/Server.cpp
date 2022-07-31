@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:22:33 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:22:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,7 +286,7 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service( Request & req, Response & res )
 {
-    if (req._path == "/test/cgi/cgi_tester")
+    if (get_extension(req._path) == ".php")
     {
         CGIHandler handler; // probably needs config for root path etc
         try {
