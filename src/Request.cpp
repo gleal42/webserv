@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/18 22:41:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/07/21 21:47:51 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 	int								j = 0;
 	std::string						buf (std::string(_unparsed_request.data()));
 	std::string::iterator			iter = buf.begin();
-	RequestMethods	request_methods;
+	RequestMethods					request_methods;
 
 	request_methods["GET"] = GET;
 	request_methods["POST"] = POST;
