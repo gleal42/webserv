@@ -6,14 +6,15 @@
 	</head>
 	<body>
         <div>
-			<p class="subtitle"> WE WILL USE PHP CGI to execute this 😘:</p>
-            <form action = "/test/cgi/php/test.php" method="post" enctype="application/x-www-form-urlencoded;charset=utf-8">
+			<p class="subtitle"> This is a Multipartform using PHP CGI 😘:</p>
+            <form action = "/test/cgi/php/test.php" method="post" enctype="multipart/form-data">
                 <label>First Name: </label> <input type="text" name="first_name"><br><br>
                 <label>Surname: </label> <input type="text" name="last_name">
-			<br><br>
+                <br><br>
                 <input type="radio" name="gender" value="male"> <label> Male </label> <br>
                 <input type="radio" name="gender" value="female"> <label> Female </label> <br>
                 <input type="radio" name="gender" value="other"> <label> Other </label> <br>
+                <label>Cute picture: </label> <input type="file" name="cute_picture"><br><br>
                 <input type="submit" value="Submit form">
             </form>
             <br>

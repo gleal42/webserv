@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/31 22:56:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/01 15:18:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ class CGIHandler : public Handler {
 
 public:
 
-	CGIHandler( const std::string &requested_path );
+	CGIHandler( const std::string &uri );
 	CGIHandler( CGIHandler const & src );
 	~CGIHandler( void );
 	CGIHandler &	operator = ( CGIHandler const & rhs );
@@ -42,6 +42,8 @@ private:
 	static CGIExtInterpreter create_extension_pairs( void );
 	static CGIExtInterpreter extension_interpreter;
 
+	std::string path;
+	std::string query_string;
 	std::string extension;
 	std::string interpreter;
 

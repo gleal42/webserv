@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 01:00:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 01:05:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,8 @@ std::string full_path(const std::string &relative_path)
 	char read_buf[200];
 	memset(read_buf, '\0', sizeof(read_buf));
 	std::string abs_path(getcwd(read_buf, 200));
-	return (abs_path + relative_path);
+
+    return (abs_path + relative_path);
 }
 
 std::vector<char>	convert_to_char_vector(const std::string &string)
@@ -135,4 +136,20 @@ std::string	filename(const std::string &path)
 	if (script_filename.empty())
 		return (path);
 	return (script_filename.c_str() + 1);
+}
+
+std::string remove_query_string(const std::string &uri)
+{
+    size_t query_string_start = uri.find('?');
+    return (uri.substr(0, query_string_start));
+}
+
+std::string get_query_string(const std::string &uri)
+{
+    std::string query_string;
+
+    size_t query_string_start = uri.find('?');
+    if (query_string_start == std::string::npos)
+        return std::string();
+    return (uri.substr(query_string_start));
 }
