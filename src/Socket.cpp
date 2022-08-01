@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 01:40:54 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/22 18:57:37 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ void	Socket::bind( int port )
 	_address.sin_family = AF_INET;
 	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
-	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address))) {
+	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);
 	}
 	_port = port;	// only set port if did't fail `bind` call

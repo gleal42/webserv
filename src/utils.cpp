@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 01:24:40 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/25 18:46:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,4 +93,22 @@ HTTPStatusGroup	http_group( int code )
 	case 500 ... 599: return STATUS_SERVER_ERROR; break;
 	default: return STATUS_INVALID; break;
 	};
+}
+
+std::string get_extension( const std::string &filename )
+{
+    std::string extension;
+    size_t ext_position = filename.find_last_of('.');
+    if (ext_position == std::string::npos )
+        return (extension);
+    return (filename.substr(ext_position));
+}
+
+int	str_to_hexa(std::string hexa_nbr)
+{
+	std::stringstream ss;
+	int x;
+	ss << std::hex << hexa_nbr.c_str();
+	ss >> x;
+	return (x);
 }

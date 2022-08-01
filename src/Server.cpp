@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/15 01:37:05 by msousa           ###   ########.fr       */
+/*   Updated: 2022/07/25 17:49:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,22 +157,6 @@ void	Server::new_connection( Listener * listener )
 // 	res.send_response(socket);
 // }
 
-// Services +req+ and fills in +res+
-void	Server::service(Request & req, Response & res) {
-	// Use factory create() method on Handler interface / Abstract class
-	// Pick handler::service based on available info
-	// ..
-	// req.script_name = script_name;
-	// req.path_info = path_info;
-
-	// FileHandler 	handler;
-	// OR
-	// CGIHandler 	handler;
-	FileHandler handler; // probably needs config for root path etc
-
-	handler.service(req, res);
-}
-
 /**
  * The reason why parse is done here is so that we know when we should
  * stop receiving.
@@ -200,7 +184,11 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
             return ;
         }
     }
-    std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
+    if (connection->request._raw_body.size())
+    {
+        std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
+        std::cout << "Body :" << connection->request._raw_body.data() << std::endl;
+    }
     this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
     this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
@@ -217,6 +205,26 @@ void	Server::write_to_connection( Connection *connection )
         std::cout << "Connection was empty after sending" << std::endl;
         this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
         this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+    }
+}
+
+/*
+** Uses appropriate handler to service the request, creating the response
+** @param:	- [Request] request that has been received
+**			- [Response] response that will be sent
+** Line-by-line comments:
+** @1-3	FileHandler handler or CGIHandler handler
+*/
+
+void	Server::service(Request & req, Response & res)
+{
+    FileHandler handler; // probably needs config for root path etc
+    try {
+        handler.service(req, res);
+    } catch (BaseStatus &error_status)
+    {
+        res.set_error_body(error_status.code);
+        res.build_message(error_status);
     }
 }
 
