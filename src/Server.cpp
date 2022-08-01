@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/31 22:54:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/01 15:37:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,7 +219,8 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
-    std::string extension = get_extension(req._path);
+    std::string path = remove_query_string(req._path);
+    std::string extension = get_extension(path);
     if (CGIHandler::extension_is_implemented(extension))
     {
         CGIHandler handler(req._path); // probably needs config for root path etc

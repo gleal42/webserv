@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/01 00:00:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/01 16:50:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ bool CGIHandler::extension_is_implemented( const std::string &extension )
 /* Constructors */
 CGIHandler::CGIHandler( void ){ /* no-op */ }
 
-CGIHandler::CGIHandler( const std::string &requested_path )
-: extension(get_extension(requested_path)), interpreter(extension_interpreter[extension])
+CGIHandler::CGIHandler( const std::string &uri )
+: path(remove_query_string(uri)), query_string(get_query_string(uri)), extension(get_extension(path)), interpreter(extension_interpreter[extension])
 {
 }
 
@@ -97,7 +97,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	std::string file_name = filename(interpreter);
 	std::vector<char *> filepath;
 	std::vector<char> cmd_vec = convert_to_char_vector(file_name.c_str());
-	std::vector<char> fp_vec = convert_to_char_vector(req._path.c_str() + 1);
+	std::vector<char> fp_vec = convert_to_char_vector(path.c_str() + 1);
 	filepath.push_back(cmd_vec.data());
 	filepath.push_back(fp_vec.data());
 	filepath.push_back(NULL);
@@ -180,15 +180,18 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	setenv(buf, "QUERY_STRING", "test=querystring");
 	setenv(buf, "REDIRECT_STATUS", "200");
 
-	std::string full_script_path = full_path(req._path.c_str());
+	std::string full_script_path = full_path(path.c_str());
 	setenv(buf, "PATH_INFO", full_script_path.c_str());
-	setenv(buf, "SCRIPT_FILENAME", (req._path.c_str() + 1));
+	setenv(buf, "SCRIPT_FILENAME", (path.c_str() + 1));
 
 	std::stringstream ss;
 	ss << req._raw_body.size();
 	setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
 	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
-	setenv(buf, "CONTENT_TYPE", "application/x-www-form-urlencoded");
+
+	std::string content_type = req._headers["Content-Type"];
+	std::cout << "Content-type is " << content_type << std::endl;
+	setenv(buf, "CONTENT_TYPE", content_type.c_str());
 	
 	return (buf);
 }

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/31 17:33:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/01 15:36:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,8 @@ std::string			get_extension( const std::string &path);
 std::string 		full_path(const std::string &relative_path);
 std::vector<char>	convert_to_char_vector(const std::string &string);
 std::string			filename(const std::string &path);
+std::string			remove_query_string(const std::string &uri);
+std::string			get_query_string(const std::string &uri);
 
 template <typename T>
 void	print_data(T val)
