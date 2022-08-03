@@ -9,22 +9,30 @@ describe.skip("c10k", () => {
 
   describe("10000 x GET /", () => {
     it("should allow 10k requests without killing the server", done => {
-      chai
-        .request(SERVER_URL)
-        .get("/")
-        .end((err, res) => {
-          if (err) done(err)
+      const times: number = 10000;
+      const requests = [];
 
-          // Check the response created by the server on the console
-          console.log({res});
+      for (let i = 0; i < times; i++) {
 
-          res.should.have.status(200);
-          res.should.be.html;
-          res.text.should.include('Like a Boss');
-          done();
-        });
+        chai
+          .request(SERVER_URL)
+          .get("/")
+          .end((err, res) => {
+            if (err) done(err)
+
+            // Check the response created by the server on the console
+            console.log({ res, i });
+
+            requests.push(i)
+
+            res.should.have.status(200);
+            res.should.be.html;
+            res.text.should.include('Like a Boss');
+
+            if (requests.length === times) done();
+          });
+      }
     });
-
   });
 
 })
