@@ -5,10 +5,10 @@ chai.should();
 const SERVER_URL = process.env.APP_URL || "http://localhost:8080";
 chai.use(chaiHttp);
 
-describe("Hello", () => {
+describe("c10k", () => {
 
-  describe("GET /", () => {
-    it("should return epic index", done => {
+  describe.skip("GET /", () => {
+    it("should allow 10k requests without killing the server", done => {
       chai
         .request(SERVER_URL)
         .get("/")
