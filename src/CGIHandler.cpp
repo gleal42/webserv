@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/01 16:50:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/02 17:16:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,7 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
 
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
-	setenv(buf, "QUERY_STRING", "test=querystring");
+	setenv(buf, "QUERY_STRING", query_string.c_str());
 	setenv(buf, "REDIRECT_STATUS", "200");
 
 	std::string full_script_path = full_path(path.c_str());
