@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:56:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 18:57:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,10 @@ void	Server::start( void )
                 {
 					write_to_connection(connection_it->second);
                     if (connection_it->second->response.is_empty())
+                    {
                         connection_it->second->request.clear();
+                        connection_it->second->response.clear();
+                    }
                 }
             }
         }
@@ -222,6 +225,7 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
+    url::decode(req._path);
     std::string path = remove_query_string(req._path);
     std::string extension = get_extension(path);
     if (CGIHandler::extension_is_implemented(extension))
