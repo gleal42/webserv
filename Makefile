@@ -77,7 +77,7 @@ test_unit: # compiles and runs unit tests
 # 		etc..
 
 # Temporary while no linux version of code
-# Have ./webserv running in separate terminal
+# NOTE: Have ./webserv running in separate terminal
 test_e2e: # compiles and runs end-to-end tests
 	cd test/e2e && npm test
 #	cd test/e2e && docker-compose up --build --abort-on-container-exit

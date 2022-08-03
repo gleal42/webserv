@@ -5,9 +5,9 @@ chai.should();
 const SERVER_URL = process.env.APP_URL || "http://localhost:8080";
 chai.use(chaiHttp);
 
-describe("c10k", () => {
+describe.skip("c10k", () => {
 
-  describe.skip("GET /", () => {
+  describe("10000 x GET /", () => {
     it("should allow 10k requests without killing the server", done => {
       chai
         .request(SERVER_URL)

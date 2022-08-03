@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/15 01:37:05 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/03 21:47:04 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,8 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
             return ;
         }
     }
-    std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
+	LOG(connection->request._raw_headers);
+	std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
     this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
     this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
