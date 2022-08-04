@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/07/27 20:44:22 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/04 23:38:19 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,17 +25,16 @@
 # include <vector>
 # include <map>
 # include <algorithm>
-# include <sys/stat.h>
 # include <string.h>
+# include "utils.hpp"
 
 
-# define SEPARATORS " \t\v\n\r\f"
-# define CONTEXT_DIRECTIVES 8
+# define SEPARATORS         " \t\v\n\r\f"
+# define CONTEXT_DIRECTIVES 7
 # define SERVER_CONTEXT     1
 # define LOCATION_CONTEXT   2
 
 enum directives{
-    //DIRECTIVE_INVALID,
     DIRECTIVE_ROOT,
     DIRECTIVE_AUTOINDEX,
     DIRECTIVE_ERRORPAGE,
@@ -43,10 +42,8 @@ enum directives{
     DIRECTIVE_INDEX,
     DIRECTIVE_LISTEN,
     DIRECTIVE_SERVERNAME,
-    DIRECTIVE_LOCATION,
     DIRECTIVE_LIMITEXCEPT,
     DIRECTIVE_CGI,
-    DIRECTIVE_CGIBIN
 };
 
 // ************************************************************************** //
@@ -62,81 +59,69 @@ Needs to be able to:
 	- Create as many ServerConfigs as `server` blocks in the config_file
 
 */
+
+struct ConfigError : virtual public std::runtime_error{
+        ConfigError();
+        virtual ~ConfigError (void) throw();
+        virtual const char*		what( void ) const throw ();
+};
+
+struct ConfigurationFileError : public ConfigError{
+    ConfigurationFileError(void);
+};
+struct ConfigurationDirectiveError : public ConfigError{
+    ConfigurationDirectiveError(const std::string err);
+};
+struct ConfigurationSyntaxError : public ConfigError{
+    ConfigurationSyntaxError(void);
+};
+struct LocationPathError : public ConfigError{
+    LocationPathError(const std::string err);
+};
+struct NestedContextError : public ConfigError{
+    NestedContextError(void);
+};
+struct EmptyContextBlockError : public ConfigError{
+    EmptyContextBlockError(void);
+};
+struct DirectiveOutOfScopeError : public ConfigError{
+    DirectiveOutOfScopeError(const std::string err);
+};
+struct OpenContextBlockError : public ConfigError{
+    OpenContextBlockError(void);
+};
+struct LocationURIError : public ConfigError{
+    LocationURIError(void);
+};
+struct BadDirectoryError : public ConfigError{
+    BadDirectoryError(const std::string err);
+};
+struct MultipleArgumentsError : public ConfigError{
+    MultipleArgumentsError(const std::string err);
+};
+
+
 class ConfigParser
 {
+    public:
+        ConfigParser(std::string &config_file){};
+        ~ConfigParser(void){};
+        ConfigParser &operator=(ConfigParser const &rhs);
 
-public:
-    struct ConfigurationFileError : public std::runtime_error{
-        ConfigurationFileError(void);
-    };
-    struct ConfigurationDirectiveError : public std::runtime_error{
-        ConfigurationDirectiveError(const std::string err);
-    };
-    struct ConfigurationSyntaxError : public std::runtime_error{
-        ConfigurationSyntaxError(void);
-    };
-    struct LocationPathError : public std::runtime_error{
-        LocationPathError(const std::string err);
-    };
-    struct NestedContextError : public std::runtime_error{
-        NestedContextError(void);
-    };
-    struct EmptyContextBlockError : public std::runtime_error{
-        EmptyContextBlockError(void);
-    };
-    struct DirectiveOutOfScopeError : public std::runtime_error{
-        DirectiveOutOfScopeError(const std::string err);
-    };
-    struct OpenContextBlockError : public std::runtime_error{
-        OpenContextBlockError(void);
-    };
-    struct LocationURIError : public std::runtime_error{
-        LocationURIError(void);
-    };
-    struct BadDirectoryError : public std::runtime_error{
-        BadDirectoryError(const std::string err);
-    };
+        // Methods
+        ServerConfig    config(int const index) const;
+        int             configs_amount(void) const;
+        void            call(void);
+        template <typename T>
+        void            set_directive(int directive, std::string& content, T* new_object);
+        void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
 
-    ConfigParser(const char *str) : _config_file(str){};
-    ~ConfigParser(void){};
-    ConfigParser &operator=(ConfigParser const &rhs);
+        // Config vector
+        Configs         server_configs;
 
-    // Methods
-    ServerConfig    config(int const index) const;
-    int             configs_amount(void) const;
-    void            call(void);
-    bool            server_is_empty(ServerConfig& target);
-    bool            location_is_empty(LocationConfig& target);
-    template <typename T>
-    void            set_directive(int directive, std::string& content, T* new_object);
-    void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
-
-    // Config vector
-    Configs         server_configs;
-
-private:
-    ConfigParser(void);
-    ConfigParser(ConfigParser const &src);
-
-    // Setters
-    template <typename T>
-    void            set_root(bool has_separators, std::string &content, T *new_object);
-    template <typename T>
-    void            set_autoindex(std::string &content, T *new_object);
-    template <typename T>
-    void            set_error_pages(std::string &content, T *new_object);
-    template <typename T>
-    void            set_max_body_size(int has_separators,std::string &content, T *new_object);
-    template <typename T>
-    void            set_indexes(std::string &content, T *new_object);
-    void            set_cgi_bin(std::string &content, LocationConfig *new_location);
-    void            set_cgi(std::string &content, LocationConfig *new_location);
-    void            set_limit_except(std::string &content, LocationConfig &new_object);
-    void            set_ip(std::string &content, ServerConfig &new_object);
-    void            set_port(std::string &content, ServerConfig &new_object);
-    void            set_locations(std::string &content, ServerConfig &new_object);
-    void            set_server_name(bool has_separators, std::string &content, ServerConfig &new_object);
-
-    const char*     _config_file;
+    private:
+        ConfigParser(void);
+        ConfigParser(ConfigParser const &src);
+        std::string     _config_file;
 };
 #endif /* __CONFIG_PARSER_H__ */

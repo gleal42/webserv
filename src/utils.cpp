@@ -3,14 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 01:24:40 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/04 19:09:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
+# include <sys/stat.h>
+
 
 std::string	to_string(int number)
 {
@@ -93,4 +95,14 @@ HTTPStatusGroup	http_group( int code )
 	case 500 ... 599: return STATUS_SERVER_ERROR; break;
 	default: return STATUS_INVALID; break;
 	};
+}
+
+bool is_directory(std::string &path)
+{
+    struct stat s;
+
+    if (lstat(path.c_str(), &s) == 0)
+        if (S_ISDIR(s.st_mode))
+            return (true);
+    return (false);
 }
