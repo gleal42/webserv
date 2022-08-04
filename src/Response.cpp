@@ -6,13 +6,14 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/30 18:41:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/04 20:29:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Socket.hpp"
 #include "HTTPStatus.hpp"
+#include "utils_file.hpp"
 
 Response::Response( void ) { /* no-op */ }
 
@@ -36,7 +37,7 @@ Response &	Response::operator = ( Response const & rhs )
 Response::~Response( void ) { /* no-op */ }
 
 // need to incorporate HTTPS Statuses here
-std::string Response::start_line( BaseStatus &status )
+std::string Response::start_line( const BaseStatus &status )
 {
 	std::string http_version = "HTTP/1.1";
 
@@ -47,7 +48,7 @@ std::string Response::start_line( BaseStatus &status )
 	return(http_version + " " + status_str + " " + status_message + CRLF);
 }
 
-void	Response::build_message( BaseStatus status )
+void	Response::build_message( const BaseStatus &status )
 {
 	if (_message.empty())
 	{
@@ -103,31 +104,25 @@ void	Response::set_default_page( void )
 	this->set_header("Content-Length", len.str());
 }
 
-// Duplicated code in service_client_download()
-
-void	Response::set_error_body( int error_code )
+void    Response::set_with_file( const std::string &filename )
 {
-	std::string error_str = to_string(error_code);
-	error_str = "www/error_pages/" + error_str + ".html";
-
-	std::ifstream file;
-	file.open(error_str.c_str(), std::ios::binary);
+	std::ifstream file(filename.c_str());
 	if ( (file.rdstate() & std::ifstream::failbit ) != 0
 		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
 	{
-		ERROR("error opening " << error_str.c_str());
-		throw std::runtime_error("Can't open default error file");
+		ERROR("error opening " << filename.c_str());
+		throw HTTPStatus<404>();
 	}
 
-	this->set_header("Content-Type", ".html");
+	set_header("Content-Type", file::get_content_type(filename.c_str()));
 	std::stringstream body;
 	body << file.rdbuf();
-	this->set_body(body.str());
+	set_body(body.str());
 	std::stringstream len;
 	len << body.str().size();
-	this->set_header("Content-Length", len.str());
+	set_header("Content-Length", len.str());
 
-	file.close();
+	file.close();	
 }
 
 void	Response::clear( void )
