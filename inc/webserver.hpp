@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/05 00:01:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/08 12:19:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 #include <sys/event.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 #include <map>
 #include <vector>
 
@@ -52,6 +53,8 @@ std::vector<char>	convert_to_char_vector(const std::string &string);
 std::string			filename(const std::string &path);
 std::string			remove_query_string(const std::string &uri);
 std::string			get_query_string(const std::string &uri);
+std::string			to_string(int number);
+bool				is_directory(std::string &path);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
