@@ -96,7 +96,7 @@ public:
 	std::string			accept_language;	// The Accept-Language header value
 	SocketAddress		addr;				// The socket address of the server
 	SocketAddress		peeraddr;			// The socket address of the client
-	RequestHeaders	attributes;			// Map of request attributes
+	RequestHeaders		headers;			// Map of request headers
 	std::string			request_time;		// The local time this request was received
 	Request( ServerConfig config );
 
