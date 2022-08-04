@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:08:52 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:21:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,9 +154,8 @@ public:
 
 	RequestMethod	request_method;
 
-	std::string 	start_line( BaseStatus &status );
-	void			build_message( BaseStatus status );
-
+	std::string 	start_line( const BaseStatus &status );
+	void			build_message( const BaseStatus &status );
 	void			send_response(Socket const & socket);
 	void 			send_error(int socketfd);
 	bool			is_empty( void );
@@ -170,7 +169,7 @@ public:
 	void			set_body( std::string const &type );
 	void			set_default_page( void );
 	void			save_raw_headers( std::string headers );
-	void			set_error_body( int error_code );
+	void    		set_with_file( const std::string &filename );
 
 	// Getters
 

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:11:22 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:22:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,28 +60,10 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
 	}
-
 	if (req._path.find("..") != std::string::npos) {
 		throw HTTPStatus<404>();
 	}
-
-	std::ifstream file(res._uri.c_str());
-	if ( (file.rdstate() & std::ifstream::failbit ) != 0
-		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
-	{
-		ERROR("error opening " << res._uri.c_str());
-		throw HTTPStatus<404>();
-	}
-
-	res.set_header("Content-Type", get_content_type(res._uri.c_str()));
-	std::stringstream body;
-	body << file.rdbuf();
-	res.set_body(body.str());
-	std::stringstream len;
-	len << body.str().size();
-	res.set_header("Content-Length", len.str());
-
-	file.close();
+	res.set_with_file(res._uri);
 }
 
 std::string const FileHandler::get_content_type(std::string const path)

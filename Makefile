@@ -28,8 +28,8 @@ SRCS := main.cpp \
 		FileHandler.cpp \
 		CGIHandler.cpp \
 		BaseStatus.cpp \
-		Event.cpp \
-		url_utils.cpp \
+		utils_url.cpp \
+		utils_file.cpp \
 		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/

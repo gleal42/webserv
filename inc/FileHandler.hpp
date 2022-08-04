@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:04:49 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 16:21:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,11 @@
 # include <stdexcept>
 # include <cstdio>
 # include <algorithm>
-
-# include "url_utils.hpp"
+# include "utils_url.hpp"
+# include "utils_file.hpp"
+# include "Request.hpp"
+# include "Response.hpp"
+# include "HTTPStatus.hpp"
 # include "Handler.hpp"
 # include "HTTPStatus.hpp"
 # include "types.hpp"

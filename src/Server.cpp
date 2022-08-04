@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:25:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:25:18 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -295,10 +295,8 @@ void	Server::service( Request & req, Response & res )
         CGIHandler handler(req._path); // probably needs config for root path etc
         try {
             handler.service(req, res);
-        } catch (BaseStatus &error_status)
-        {
-            res.set_error_body(error_status.code);
-            res.build_message(error_status);
+        } catch (BaseStatus &error_status) {
+            file::build_error_page(error_status, res);
         }
     }
     else
@@ -306,10 +304,8 @@ void	Server::service( Request & req, Response & res )
         FileHandler handler; // probably needs config for root path etc
         try {
             handler.service(req, res);
-        } catch (BaseStatus &error_status)
-        {
-            res.set_error_body(error_status.code);
-            res.build_message(error_status);
+        } catch (BaseStatus &error_status) {
+            file::build_error_page(error_status, res);
         }
     }
 }
