@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/04 23:38:19 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/05 02:23:44 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,16 +104,14 @@ struct MultipleArgumentsError : public ConfigError{
 class ConfigParser
 {
     public:
-        ConfigParser(std::string &config_file){};
-        ~ConfigParser(void){};
-        ConfigParser &operator=(ConfigParser const &rhs);
+        ConfigParser(std::string);
+        ~ConfigParser(void);
+        ConfigParser(ConfigParser const &src);
 
         // Methods
         ServerConfig    config(int const index) const;
         int             configs_amount(void) const;
         void            call(void);
-        template <typename T>
-        void            set_directive(int directive, std::string& content, T* new_object);
         void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
 
         // Config vector
@@ -121,7 +119,6 @@ class ConfigParser
 
     private:
         ConfigParser(void);
-        ConfigParser(ConfigParser const &src);
         std::string     _config_file;
 };
 #endif /* __CONFIG_PARSER_H__ */

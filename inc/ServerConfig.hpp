@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/04 19:08:11 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/05 02:25:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,11 +37,12 @@ typedef std::map<std::string, std::vector<int> > errorPage;
 class BaseConfig{
     public:
     // Constructor
-        BaseConfig(){};
+        BaseConfig();
     // Destructor
         virtual ~BaseConfig();
 
     // Setters
+    virtual void                    set_directive(int directive, std::string &content);
     void                            set_root(bool has_separators, std::string &content);
     void                            set_autoindex(std::string &content);
     void                            set_error_pages(std::string &content);
@@ -69,11 +70,12 @@ class LocationConfig : public BaseConfig
     public:
         bool                        is_empty( void );
         // Setters
-        void                        set_cgi(std::string &content);
+        void                        set_directive(int directive, std::string &content);
+        // void                        set_cgi(std::string &content);
         void                        set_limit_except(std::string &content);
 
         // Getters
-        std::string                 get_cgi( void );
+        // std::string                 get_cgi( void );
         std::vector<std::string>    get_limit_except( void );
 
     private:
@@ -81,7 +83,6 @@ class LocationConfig : public BaseConfig
         std::vector<std::string>    _limit_except;
 
 };
-
 typedef std::map<std::string, LocationConfig> Locations;
 
 
@@ -93,6 +94,7 @@ class ServerConfig : public BaseConfig
         bool                        is_empty( void );
 
         // Setters
+        void                        set_directive(int directive, std::string &content);
         void                        set_listen(int has_separators, std::string &content);
         void                        set_server_name(std::string &content);
 
