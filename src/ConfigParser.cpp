@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/04 23:57:49 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/05 02:24:26 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,11 @@ MultipleArgumentsError::MultipleArgumentsError(const std::string err)
     : std::runtime_error("Error: " + err + ". This directive can only have one argument")
 { /* No-op */}
 
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Constructors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file){ /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
-ConfigParser::ConfigParser(std::string &config_file) : _config_file(config_file){ /* no-op */ }
+
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~Config-parsing utils~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -104,46 +106,6 @@ namespace {
 ServerConfig   ConfigParser::config( int const index ) const { return server_configs[index]; }
 
 int    ConfigParser::configs_amount( void ) const { return server_configs.size(); }
-
-template <typename T>
-void    ConfigParser::set_directive(int directive, std::string& content, T* new_object){
-    bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
-    if (content.empty())
-        throw (ConfigurationSyntaxError());
-
-    switch (directive)
-    {
-        case DIRECTIVE_ROOT:
-            new_object.set_root(has_separators, content);
-            break;
-        case DIRECTIVE_AUTOINDEX:
-            new_object.set_autoindex(content);
-            break;
-        case DIRECTIVE_ERRORPAGE:
-            new_object.set_error_pages(content);
-            break;
-        case DIRECTIVE_MAXBODYSIZE:
-            new_object.set_max_body_size(has_separators, content);
-            break;
-        case DIRECTIVE_INDEX:
-            new_object.set_indexes(content);
-            break;
-        // case DIRECTIVE_CGI:
-        //  new_object.   set_cgi(content);
-        //     break;
-        case DIRECTIVE_LIMITEXCEPT:
-            new_object.set_limit_except(content);
-            break;
-        case DIRECTIVE_LISTEN:
-            new_object.set_listen(has_separators, content);
-            break;
-        case DIRECTIVE_SERVERNAME:
-            new_object.set_server_name(content);
-            break;
-        default:
-            break;
-    }
-};
 
 // This function parses a context block.
 // There are two possible contexts:
@@ -200,9 +162,9 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
                 throw (ConfigurationSyntaxError());
             content = content.substr(0, content.length() - 1);
             if (context == SERVER_CONTEXT)
-                set_directive(find_directive(directive, context), content, &new_server);
+                new_server.set_directive(find_directive(directive, context), content);
             else if (context == LOCATION_CONTEXT)
-                set_directive(find_directive(directive, context), content, &new_location);
+                new_location.set_directive(find_directive(directive, context), content);
         }
     }
     throw (OpenContextBlockError());
@@ -251,8 +213,8 @@ int main(int ac, char **av)
     {
         ConfigParser config_parser(file);
         config_parser.call();
-        std::cout << "server config is " << config_parser.server_configs[0].get_error_pages();
-        std::cout << "location config is " << config_parser.server_configs[0].get_locations().begin()["bla"].get_error_pages();
+        std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
+        std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
     }
 
     return (0);

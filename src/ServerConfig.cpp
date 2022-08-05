@@ -151,8 +151,40 @@ bool    LocationConfig::is_empty( void ){
 }
 
 // LocationConfig setters
-void    LocationConfig::set_cgi(std::string &content){
-}
+
+void LocationConfig::set_directive(int directive, std::string& content){
+    bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
+    if (content.empty())
+        throw (ConfigurationSyntaxError());
+
+    switch (directive)
+    {
+        case DIRECTIVE_ROOT:
+            this->set_root(has_separators, content);
+            break;
+        case DIRECTIVE_AUTOINDEX:
+            this->set_autoindex(content);
+            break;
+        case DIRECTIVE_ERRORPAGE:
+            this->set_error_pages(content);
+            break;
+        case DIRECTIVE_MAXBODYSIZE:
+            this->set_max_body_size(has_separators, content);
+            break;
+        case DIRECTIVE_INDEX:
+            this->set_indexes(content);
+            break;
+        // case DIRECTIVE_CGI:
+        //  this->   set_cgi(content);
+        //     break;
+        case DIRECTIVE_LIMITEXCEPT:
+            this->set_limit_except(content);
+            break;
+        default:
+            break;
+    }
+};
+// void    LocationConfig::set_cgi(std::string &content){}
 
 void    LocationConfig::set_limit_except(std::string &content){
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
@@ -171,12 +203,13 @@ void    LocationConfig::set_limit_except(std::string &content){
 }
 
 // LocationConfig getters
-std::string                 LocationConfig::get_cgi( void ) {return (this->_cgi);}
+// std::string                 LocationConfig::get_cgi( void ) {return (this->_cgi);}
 std::vector<std::string>    LocationConfig::get_limit_except( void ) {return (this->_limit_except);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~ServerConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// ServerConfig utils
 bool    ServerConfig::is_empty( void ){
     return (this->_root.empty() && this->_autoindex == unset
         && this->_error_pages.empty() && this->_client_max_body_size == -1
@@ -184,7 +217,39 @@ bool    ServerConfig::is_empty( void ){
         && this->_port == 8080 && this->_server_name.empty()
         && this->_locations.empty());
 }
-// ServerConfig setter
+// ServerConfig setters
+void ServerConfig::set_directive(int directive, std::string& content){
+    bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
+    if (content.empty())
+        throw (ConfigurationSyntaxError());
+
+    switch (directive)
+    {
+        case DIRECTIVE_ROOT:
+            this->set_root(has_separators, content);
+            break;
+        case DIRECTIVE_AUTOINDEX:
+            this->set_autoindex(content);
+            break;
+        case DIRECTIVE_ERRORPAGE:
+            this->set_error_pages(content);
+            break;
+        case DIRECTIVE_MAXBODYSIZE:
+            this->set_max_body_size(has_separators, content);
+            break;
+        case DIRECTIVE_INDEX:
+            this->set_indexes(content);
+            break;
+        case DIRECTIVE_LISTEN:
+            this->set_listen(has_separators, content);
+            break;
+        case DIRECTIVE_SERVERNAME:
+            this->set_server_name(content);
+            break;
+        default:
+            break;
+    }
+};
 void    ServerConfig::set_listen(int has_separators, std::string &content){
     if (has_separators)
 	    throw (std::runtime_error(content + ": This directive can only have one argument"));
