@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 17:49:11 by gleal            ###   ########.fr       */
+/*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
+/*   Updated: 2022/08/05 09:47:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,6 +184,9 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
             return ;
         }
     }
+	LOG("|--- Headers ---|");
+	LOG(connection->request._raw_headers);
+	LOG("|--- Headers ---|");
     if (connection->request._raw_body.size())
     {
         std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
