@@ -1,21 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.hpp                                          :+:      :+:    :+:   */
+/*   url_utils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/01 18:20:46 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/01 18:24:25 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/23 16:55:52 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/25 18:46:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __UTILS_H__
-# define __UTILS_H__
+# include "url_utils.hpp"
 
-# include <string>
-# include <sstream>
-
-std::string	to_string(int number);
-
-#endif
+namespace url
+{
+    void	decode( std::string & single_form )
+    {
+        for (std::string::iterator it = single_form.begin();
+            it != single_form.end();)
+		{
+			if (*it == '%')
+			{
+				single_form.erase(it);
+				*it = str_to_hexa(std::string(it, it + 2));
+				single_form.erase(++it);
+			}
+			else if (*it == '+')
+				*it++ = ' ';
+			else
+				it++;
+		}
+	}
+}

@@ -171,7 +171,7 @@ class HTTPRequest { // `Request` already used by JavaScript
   // The socket address of the client
   peeraddr: SocketAddress
 
-  // Map of request attributes
+  // Map of request headers
   attributes: RequestHeaders
 
   // The local time this request was received

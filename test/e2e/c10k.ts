@@ -27,7 +27,7 @@ describe.skip("c10k", () => {
 
             res.should.have.status(200);
             res.should.be.html;
-            res.text.should.include('Like a Boss');
+            res.text.should.include('Welcome to our server');
 
             if (requests.length === times) done();
           });

@@ -38,7 +38,7 @@ describe.skip("General", () => {
 
           res.should.have.status(200);
           res.should.be.html;
-          res.text.should.include('Like a Boss');
+          res.text.should.include('Welcome to our server');
           done();
         });
     });

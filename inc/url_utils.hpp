@@ -1,26 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   macros.hpp                                         :+:      :+:    :+:   */
+/*   url_utils.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/07 21:17:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:43:41 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/23 16:51:55 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/25 18:47:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MACROS_HPP
-# define MACROS_HPP
+#ifndef __URL_UTILS_H__
+# define __URL_UTILS_H__
 
-#include <iostream>
+# include <string>
+# include <sstream>
+# include <iostream>
+# include "webserver.hpp"
 
-# define LOG(x) std::cout << x << std::endl
-# define ERROR(x) std::cerr << x << std::endl
+namespace url
+{
+    void	decode( std::string & single_form );
+}
 
-# define CR   "\x0d"		// CR (character : \r, Unicode : U+000D, ASCII : 13, hex : 0x0d)
-# define LF   "\x0a"		// LF (character : \n, Unicode : U+000A, ASCII : 10, hex : 0x0a)
-# define CRLF "\x0d\x0a"
-# define D_CRLF "\x0d\x0a\x0d\x0a"
-
-#endif
+#endif /* __URL_UTILS_H__ */

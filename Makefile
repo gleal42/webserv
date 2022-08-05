@@ -16,8 +16,10 @@ SRCS := main.cpp \
 		Request.cpp \
 		Response.cpp \
 		Socket.cpp \
+		Handler.cpp \
 		FileHandler.cpp \
 		BaseStatus.cpp \
+		url_utils.cpp \
 		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/
@@ -29,7 +31,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 all: fd_script $(NAME)
 
 fd_script: # temporary while server doesn't clear open fd's
-	@bash close_fds.sh
+	@bash scripts/close_fds.sh
 
 $(DEP_DIR): ; mkdir -p $@
 $(OBJ_DIR): ; mkdir -p $@
