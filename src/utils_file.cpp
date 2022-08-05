@@ -6,19 +6,18 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/04 20:21:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/04 23:46:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils_file.hpp"
 
-// Maybe better to be part of Response 
-
 namespace file
 {
+	typedef std::set<std::string>	Extensions;
 	typedef std::map<std::string, std::string> MimeTypes;
 
-	std::string const get_content_type(std::string const path)
+	std::string const content_type( const std::string & path )
 	{
 		std::string extension = get_extension(path);
 
@@ -52,5 +51,69 @@ namespace file
     	error_str = "www/error_pages/" + error_str + ".html";
         res.set_with_file(error_str);
         res.build_message(error_status);
+	}
+
+	std::streampos	size( std::string &full_path )
+	{
+		std::streampos	fsize = 0;
+		std::ifstream	file( full_path, std::ios::binary );
+
+		fsize = file.tellg();
+		file.seekg( 0, std::ios::end );
+		fsize = file.tellg() - fsize;
+		file.close();
+
+		return fsize;
+	}
+
+	long	size( FILE *open_file )
+	{
+		fseek(open_file, 0L, SEEK_END);
+		long end_file = ftell(open_file);
+		rewind(open_file);
+		return (end_file - ftell(open_file));
+	}
+
+	void	save( const std::string &file_body, const std::string & filename )
+	{
+		std::ofstream outfile;
+		outfile.open("post/uploads/" + filename, std::ios::binary);
+		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
+			throw std::runtime_error("Couldn't open new file");
+		}
+		outfile.write(file_body.data(), file_body.size());
+		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0 
+			|| (outfile.rdstate() & std::ifstream::badbit ) != 0) {
+			throw std::runtime_error("Couldn't write to file");
+		}
+		outfile.close();
+	}
+
+	// Added a protection to prevent us from deleting a repository code or other testing data
+	
+	void	remove( const std::string & filename )
+	{
+		static char const * temp_ext[8] = {
+		[0] = ".cpp",
+		[1] = ".hpp",
+		[2] = ".html",
+		[3] = ".ico",
+		[4] = ".ts",
+		[5] = ".rb",
+		[6] = ".sh",
+		[7] = ".h",
+		};
+		const Extensions	forbidden_extensions(temp_ext, temp_ext + sizeof(temp_ext) / sizeof(char const *));
+
+		std::string file_extension = get_extension(filename);
+		if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
+			throw HTTPStatus<405>();
+		}
+		if (filename.substr(0, 13) != "post/uploads/") // Temporary
+			throw HTTPStatus<405>();
+		std::cout << "Extension is [" << file_extension << "]" << std::endl;
+		std::cout << "Filename is [" << filename << "]" << std::endl;
+		if (std::remove (filename.c_str()) != 0)
+			throw HTTPStatus<404>();
 	}
 }

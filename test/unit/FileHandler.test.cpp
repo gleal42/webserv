@@ -6,12 +6,12 @@
 
 #include "FileHandler.hpp"
 
-TEST_CASE("FileHandler `get_content_type` method") {
+TEST_CASE("FileHandler `content_type` method") {
 
 	SUBCASE("accepts file path and returns mime-type") {
 		FileHandler h;
 
-		CHECK(h.get_content_type("index.html") == "text/html");
+		CHECK(h.content_type("index.html") == "text/html");
     }
 
 }

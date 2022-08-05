@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:57:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 18:57:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,6 @@
 #include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
-
-/*
-    Testes a passar:
-    Display big images ()
-    Vários Servers ao mesmo tempo
-    Várias Requests ao mesmo tempo
-    EOF working
-    HTML CSS priority
-    Javascript (later)
- */
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -132,35 +122,6 @@ void	Server::new_connection( Listener * listener )
 	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
 }
 
-// Reference
-// Does necessary to service a connection
-// void	Server::run(Socket & socket) {
-// 	Request 	req(_config);
-// 	Response 	res(_config);
-// 	try {
-// 		// while timeout and Running
-// 		req.parse(socket);
-// 		res.request_method = req.request_method;
-// 		// res.request_uri = req.request_uri;
-// 		// if (request_callback) {
-// 		// 	request_callback(req, res);
-// 		// }
-// 		service(req, res);
-// 	}
-// 	catch (BaseStatus & error) {
-// 		ERROR(error.what());
-// 		// res.set_error(error);
-// 		if (error.code) {
-// 			// res.status = error.code;
-// 		}
-// 	}
-// 	// if (req.request_line != "") {
-// 	// 	res.send_response(socket);
-// 	// }
-
-// 	res.send_response(socket);
-// }
-
 /**
  * The reason why parse is done here is so that we know when we should
  * stop receiving.
@@ -225,14 +186,15 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
-    url::decode(req._path);
-    std::string path = remove_query_string(req._path);
+    url::decode(req._path); // Interpret url as extended ASCII
+    std::string path = remove_query_string(req._path); // Could be done in Request parsing
     std::string extension = get_extension(path);
     if (CGIHandler::extension_is_implemented(extension))
     {
         CGIHandler handler(req._path); // probably needs config for root path etc
         try {
             handler.service(req, res);
+            res.build_message(handler.script_status());
         } catch (BaseStatus &error_status) {
             file::build_error_page(error_status, res);
         }
@@ -242,6 +204,7 @@ void	Server::service(Request & req, Response & res)
         FileHandler handler; // probably needs config for root path etc
         try {
             handler.service(req, res);
+            res.build_message(HTTPStatus<200>());	
         } catch (BaseStatus &error_status) {
             file::build_error_page(error_status, res);
         }
