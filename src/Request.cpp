@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/21 21:47:51 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/05 13:21:17 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@ Request& Request::operator= ( Request const & param ) {
 	request_uri = param.request_uri;
 	client_max_body_size = param.client_max_body_size;
 	_path = param._path;
-	_raw_request = param._raw_request;
 	_headers = param._headers;
 	_raw_body = param._raw_body;
 	return (*this);
@@ -62,45 +61,36 @@ std::ostream & operator<<(std::ostream& s, const Request& param) {
 
 // Reads request line, assigning the appropriate method and unparsed uri. (Will we need a parsed URI of the request?)
 // Increments strptr to the beggining of the header section
-void	Request::read_request_line(std::vector<char> &_unparsed_request){
-	std::string						str;
+void	Request::read_request_line( std::string & _unparsed_request ) {
 	int								i = 0;
 	int								j = 0;
-	std::string						buf (std::string(_unparsed_request.data()));
-	std::string::iterator			iter = buf.begin();
-	RequestMethods					request_methods;
+	std::string						parsed_req_method;
+	std::string::iterator			iter = _unparsed_request.begin();
+	RequestMethods	request_methods;
 
 	request_methods["GET"] = GET;
 	request_methods["POST"] = POST;
 	request_methods["DELETE"] = DELETE;
-
 	for (; *iter != ' '; iter++)
 		i++;
-	str = buf.substr(0, i++);
-
-	if (request_methods.find(str) == request_methods.end())
+	parsed_req_method = _unparsed_request.substr(0, i++);
+	if (request_methods.find(parsed_req_method) == request_methods.end())
 		throw HTTPStatus<405>();
-
-	request_method = request_methods[str];
-
+	request_method = request_methods[parsed_req_method];
 	for (*(iter)++; *iter != ' '; iter++)
 		j++;
 
-	_unparsed_uri = buf.substr(i, j);
 	// Temporary, TODO: make proper URI instance:
 	// request_uri.parse(_unparsed_uri);
 	// _path = request_uri.path;
-	_path = _unparsed_uri;
+	_path = _unparsed_request.substr(i, j);
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;
 
-	_raw_request_line = buf.substr(0, i + j + 2);
+	_raw_request_line = _unparsed_request.substr(0, i + j + 2);
 	std::cout << "Request line is :" << _raw_request_line << std::endl;
-	str = buf.substr(++j + ++i);
-	_unparsed_request.clear();
-	_unparsed_request = std::vector<char>(str.begin(), str.end()); // in order to include the null characterq
-	_unparsed_request.push_back('\0');
+	_unparsed_request = _unparsed_request.substr(++j + ++i);
 };
 
 // 1
@@ -118,21 +108,20 @@ void	Request::read_request_line(std::vector<char> &_unparsed_request){
 // Check file upload
 
 
-void	Request::read_header(std::vector<char> &_unparsed_request)
+void	Request::read_header(std::string &_unparsed_request)
 {
 	std::string				key;
 	std::string				value;
-	std::string				strptr(_unparsed_request.data());
 	size_t					key_start = 0;
 	size_t					separator = 0;
 	size_t					value_start;
 	size_t					end;
 
-	size_t	body_start = strptr.find("\r\n\r\n");
+	size_t	body_start = _unparsed_request.find(D_CRLF);
 	if (body_start == std::string::npos)
 		return ;
-	_raw_headers += strptr.substr(0, body_start + 4);
-	// std::cout << "Headers are :" << _raw_headers << std::endl;
+	_raw_headers += _unparsed_request.substr(0, body_start + 4);
+	std::cout << "Headers are :" << std::endl << _raw_headers << std::endl;
 	for (size_t i = 0; i < body_start; i++){
 		if (_raw_headers[i] == ':')
 		{
@@ -150,14 +139,12 @@ void	Request::read_header(std::vector<char> &_unparsed_request)
 			key_start = i + 2;
 		}
 	}
-	std::string remaining = strptr.substr(body_start + 4);
-	std::vector<char> a(remaining.begin(), remaining.end() + 1);
-	_unparsed_request = a;
+	_unparsed_request = _unparsed_request.substr(body_start + 4);
 }
 
-void	Request::read_body(std::vector<char> &_unparsed_request)
+void	Request::read_body(std::string &_unparsed_request)
 {
-	join_char_vectors(_raw_body, _unparsed_request);
+	join_strings(_raw_body, _unparsed_request);
 	_unparsed_request.clear();
 }
 
@@ -167,9 +154,9 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
 
-	join_char_vectors(_raw_request, socket._buffer); // Maybe unnecessary
-	std::cout << "We have received [" << _raw_request.size() << "] bytes in total." << std::endl;
-	join_char_vectors(_unparsed_request, socket._buffer);
+	std::cout << "We have received [" << socket._buffer.size() << "] bytes in total." << std::endl;
+	append_buffer(_unparsed_request, socket._buffer);
+	std::cout << "Now buffer has size [" << _unparsed_request.size() << "] bytes in total." << std::endl;
 
 	if (_raw_request_line.empty() || _raw_request_line.find('\n') == std::string::npos)
 		read_request_line(_unparsed_request);
@@ -183,20 +170,49 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 	// request_uri = parse_uri(unparsed_uri);
 }
 
-void	Request::join_char_vectors(std::vector<char> &original, std::vector<char> &to_add)
+// Replace following 2 by template?
+
+void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 {
-	if (!original.empty())
-		original.pop_back();
-	original.insert(original.end(), to_add.begin(), to_add.end());
+	if (!str.empty())
+		str.pop_back();
+	str.append(to_add.data(), to_add.size());
+}
+
+void	Request::join_strings(std::string &str, std::string &to_add)
+{
+	if (!str.empty())
+		str.pop_back();
+	str.append(to_add.data(), to_add.size());
 }
 
 void	Request::clear()
 {
-	_raw_request.clear();
 	_unparsed_request.clear();
 	_raw_request_line.clear();
 	_raw_headers.clear();
 	_raw_body.clear();
 	_path.clear();
 	_headers.clear();
+}
+
+// Maybe these 2 could be included in the parsing?
+
+std::string		Request::get_form_type( void )
+{
+    std::string content_type = _headers["Content-Type"];
+	size_t form_type_pos = content_type.find(";");
+	return (content_type.substr(0, form_type_pos));
+}
+
+std::string		Request::get_delimiter( void )
+{
+	std::string content_type = _headers["Content-Type"];
+	size_t boundary_pos = content_type.find("boundary=");
+	if (boundary_pos == std::string::npos)
+		throw HTTPStatus<400>();
+	std::string delimiter = content_type.substr(boundary_pos + 9);
+	if (delimiter.empty())
+		throw HTTPStatus<400>();
+	return (delimiter);
 }

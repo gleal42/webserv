@@ -3,10 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
+<<<<<<< HEAD
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
 /*   Updated: 2022/08/04 19:09:16 by fmeira           ###   ########.fr       */
+=======
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
+/*   Updated: 2022/07/25 18:46:16 by gleal            ###   ########.fr       */
+>>>>>>> master
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +104,7 @@ HTTPStatusGroup	http_group( int code )
 	};
 }
 
+<<<<<<< HEAD
 bool is_directory(std::string &path)
 {
     struct stat s;
@@ -106,3 +114,22 @@ bool is_directory(std::string &path)
             return (true);
     return (false);
 }
+=======
+std::string get_extension( const std::string &filename )
+{
+    std::string extension;
+    size_t ext_position = filename.find_last_of('.');
+    if (ext_position == std::string::npos )
+        return (extension);
+    return (filename.substr(ext_position));
+}
+
+int	str_to_hexa(std::string hexa_nbr)
+{
+	std::stringstream ss;
+	int x;
+	ss << std::hex << hexa_nbr.c_str();
+	ss >> x;
+	return (x);
+}
+>>>>>>> master

@@ -16,8 +16,10 @@ SRCS := main.cpp \
 		Request.cpp \
 		Response.cpp \
 		Socket.cpp \
+		Handler.cpp \
 		FileHandler.cpp \
 		BaseStatus.cpp \
+		url_utils.cpp \
 		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/
@@ -29,7 +31,7 @@ DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 all: fd_script $(NAME)
 
 fd_script: # temporary while server doesn't clear open fd's
-	@bash close_fds.sh
+	@bash scripts/close_fds.sh
 
 $(DEP_DIR): ; mkdir -p $@
 $(OBJ_DIR): ; mkdir -p $@
@@ -76,7 +78,10 @@ test_unit: # compiles and runs unit tests
 #			`make parser -C test/unit`
 # 		etc..
 
+# Temporary while no linux version of code
+# NOTE: Have ./webserv running in separate terminal
 test_e2e: # compiles and runs end-to-end tests
-	cd test/e2e && docker-compose up --build --abort-on-container-exit
+	cd test/e2e && npm test
+#	cd test/e2e && docker-compose up --build --abort-on-container-exit
 
 .PHONY: all clean fclean resetclean re test vm_build vm fd_script

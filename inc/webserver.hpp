@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/04 19:09:43 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/05 13:21:08 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,11 @@ enum HTTPStatusGroup {
 // a shot whilst still being able to `make`
 
 // Functions
-int 		webserver(std::string config);
+int 				webserver(std::string config);
 std::string const	http_phrase( int code );
 HTTPStatusGroup		http_group( int code );
+std::string 		get_extension( const std::string &filename );
+std::string			to_string( int number );
+int					str_to_hexa(std::string hexa_nbr);
 
 #endif

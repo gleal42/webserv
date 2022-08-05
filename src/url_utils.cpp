@@ -1,26 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   macros.hpp                                         :+:      :+:    :+:   */
+/*   url_utils.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/07 21:17:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:43:41 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/23 16:55:52 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/25 18:46:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MACROS_HPP
-# define MACROS_HPP
+# include "url_utils.hpp"
 
-#include <iostream>
-
-# define LOG(x) std::cout << x << std::endl
-# define ERROR(x) std::cerr << x << std::endl
-
-# define CR   "\x0d"		// CR (character : \r, Unicode : U+000D, ASCII : 13, hex : 0x0d)
-# define LF   "\x0a"		// LF (character : \n, Unicode : U+000A, ASCII : 10, hex : 0x0a)
-# define CRLF "\x0d\x0a"
-# define D_CRLF "\x0d\x0a\x0d\x0a"
-
-#endif
+namespace url
+{
+    void	decode( std::string & single_form )
+    {
+        for (std::string::iterator it = single_form.begin();
+            it != single_form.end();)
+		{
+			if (*it == '%')
+			{
+				single_form.erase(it);
+				*it = str_to_hexa(std::string(it, it + 2));
+				single_form.erase(++it);
+			}
+			else if (*it == '+')
+				*it++ = ' ';
+			else
+				it++;
+		}
+	}
+}

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test": "ts-mocha ./*.ts --timeout 10000 --bail"
+    "test": "ts-mocha ./*.ts --bail",
+    "test:to": "npm test --timeout 10000"
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
