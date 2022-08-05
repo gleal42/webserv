@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/05 02:24:26 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/05 02:52:06 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,16 +206,16 @@ void    ConfigParser::call()
     file.close();
 };
 
-int main(int ac, char **av)
-{
-    std::string file(av[1]);
-    if (ac == 2)
-    {
-        ConfigParser config_parser(file);
-        config_parser.call();
-        std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
-        std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
-    }
+// int main(int ac, char **av)
+// {
+//     std::string file(av[1]);
+//     if (ac == 2)
+//     {
+//         ConfigParser config_parser(file);
+//         config_parser.call();
+//         std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
+//         std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
+//     }
 
-    return (0);
-};
+//     return (0);
+// };
