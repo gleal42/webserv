@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:21:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:24:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ public:
 
 	// Unsetters
 
-	void			delete_header( const std::string name );
+	void			delete_header( const std::string & name );
 	void			clear( void );
 
 private:

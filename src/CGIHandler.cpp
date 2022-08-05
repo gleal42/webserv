@@ -6,13 +6,23 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/02 17:16:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/05 01:44:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGIHandler.hpp"
 #include <sys/mman.h>
 #include <stdio.h>
+
+/*
+	List of implemented cgi extensions
+
+	This logic will be eliminated once Parser is implemented.
+	Parser will define which executable to use
+
+	PHP CGI must be installed and php path must be correct
+	Have to check on how to make this work in other computers
+*/
 
 CGIExtInterpreter CGIHandler::extension_interpreter = create_extension_pairs();
 
@@ -30,7 +40,9 @@ bool CGIHandler::extension_is_implemented( const std::string &extension )
 }
 
 /* Constructors */
-CGIHandler::CGIHandler( void ){ /* no-op */ }
+CGIHandler::CGIHandler( void )
+: status_code(200)
+{ /* no-op */ }
 
 CGIHandler::CGIHandler( const std::string &uri )
 : path(remove_query_string(uri)), query_string(get_query_string(uri)), extension(get_extension(path)), interpreter(extension_interpreter[extension])
@@ -51,6 +63,11 @@ CGIHandler &	CGIHandler::operator = ( CGIHandler const & rhs )
 	return *this;
 }
 
+/*
+	No distinction done by server.
+	Scripts used by CGI define the different behaviours
+*/
+
 void	CGIHandler::do_GET( Request & req, Response & res )
 {
 	execute_cgi_script( req, res );
@@ -65,17 +82,6 @@ void	CGIHandler::do_DELETE( Request & req, Response & res )
 {
 	execute_cgi_script( req, res );
 }
- 
-void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
-{
-	for (std::vector<std::vector <char> >::iterator it = vec_of_vec.begin();
-		it != vec_of_vec.end();
-		it++)
-	{
-		vec_of_charptr.push_back(it->data());
-	}
-	vec_of_charptr.push_back(NULL);
-}
 
 void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 {
@@ -84,8 +90,6 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	std::vector<std::vector <char> > buf = environment_variables(req);
 	std::vector<char *> env_vars;
 	convert_to_charptr(buf, env_vars);
-	// std::cout << "The environment variables will be:"<< std::endl;
-	// std::for_each(buf.begin(), buf.end(), print_data<std::vector <char> >);
 	char *const *envs = env_vars.data();
 	std::cout << "The environment variables are:" << std::endl;
 	for (size_t i = 0; i < env_vars.size() - 1; i++) {
@@ -146,11 +150,8 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		std::cerr << "Child ERROR" << std::endl;
 		throw HTTPStatus<500>();
 	}
-	fseek(output_file, 0L, SEEK_END);
-	long sz = ftell(output_file);
-	rewind(output_file);
-	sz = sz - ftell(output_file);
-
+	
+	long sz = file::size(output_file);
 	std::cout << "file has size " << sz << std::endl;
 	char *file_contents = (char *) mmap(0, sz, PROT_READ, MAP_PRIVATE, output_fd, 0);
 	if (file_contents == (void *)-1) {
@@ -158,13 +159,30 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	}
 	std::string str(file_contents, sz);
 	str.push_back('\0');
-	set_response(str, res);
 	munmap(file_contents, sz);
+	set_response(str, res);
 	fclose(input_file);
 	fclose(output_file);
 }
 
-// Can we turn Req method into string instead of enum?
+void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
+{
+	for (std::vector<std::vector <char> >::iterator it = vec_of_vec.begin();
+		it != vec_of_vec.end();
+		it++)
+	{
+		vec_of_charptr.push_back(it->data());
+	}
+	vec_of_charptr.push_back(NULL);
+}
+
+/*
+	I set all environment variables so that CGI can have access to them.
+	These will be passed to cgi throw 3rd parameter of execve
+
+	Can we consider turning Req method into string instead of enum
+	so that std::map is not necessary for first setenv.
+*/
 
 std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & req )
 {
@@ -179,16 +197,13 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
 	setenv(buf, "QUERY_STRING", query_string.c_str());
 	setenv(buf, "REDIRECT_STATUS", "200");
-
 	std::string full_script_path = full_path(path.c_str());
 	setenv(buf, "PATH_INFO", full_script_path.c_str());
 	setenv(buf, "SCRIPT_FILENAME", (path.c_str() + 1));
-
 	std::stringstream ss;
 	ss << req._raw_body.size();
 	setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
 	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
-
 	std::string content_type = req._headers["Content-Type"];
 	std::cout << "Content-type is " << content_type << std::endl;
 	setenv(buf, "CONTENT_TYPE", content_type.c_str());
@@ -205,16 +220,28 @@ void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * va
 	buf.push_back(std::vector<char>(env_var.begin(), env_var.end()));
 }
 
-// Delete Status
+/*
+	CGI can send a Header "Status" (optional) that we then must convert to 
+	the first line of our Response.
+	First I save all headers
+	I check if one is Status and do some validations
+	then save the number inside the CGI handler so that
+	script_status() is later called when building the message
+	Then I set the body in the Response
+*/
 
-BaseStatus	CGIHandler::set_response( std::string bdy, Response &res )
+void	CGIHandler::set_response( std::string bdy, Response &res )
 {
+	// Headers Section
 	size_t crlf = bdy.find(D_CRLF);
 	res.save_raw_headers(bdy.substr(0, crlf));
 	std::string status = res.get_header_value("Status");
-	if (status.empty()) {
+	if (status.empty())
 		status = "200";
-	}
+	else
+		res.delete_header("Status");
+
+	// Status Section
 	size_t start_digit = status.find_first_of("0123456789");
 	if (start_digit == std::string::npos)
 		throw HTTPStatus<400>();
@@ -222,16 +249,126 @@ BaseStatus	CGIHandler::set_response( std::string bdy, Response &res )
 	status = status.substr(start_digit, last_digit);
 	if (status.find_first_not_of("0123456789") != std::string::npos)
 		throw HTTPStatus<400>();
-	std::stringstream ss(status);
-	int nbr_status;
-	ss >> nbr_status;
+	this->status_code = str_to_nbr<int>(status);
+
+	// Body Section
 	crlf = crlf+4;
 	bdy = bdy.substr(crlf);
 	res.set_body(bdy);
-	std::stringstream len;
-	len << bdy.size();
-	res.set_header("Content-Length", len.str());
-	return HTTPStatus<200>();
+	res.set_header("Content-Length", to_string(bdy.size()));
+}
+
+/*
+	Hammertime because HTTPS only takes const values as template parameters
+	Default is 500 because Server is expecting to receive an HTTP compliant
+	code. If it doesn't then Internal Server Error (500)
+*/
+
+BaseStatus CGIHandler::script_status( void )
+{
+    if (status_code == 100)
+        return (HTTPStatus<100>());
+    if (status_code == 101)
+        return (HTTPStatus<101>());
+    if (status_code == 200)
+        return (HTTPStatus<200>());
+    if (status_code == 201)
+        return (HTTPStatus<201>());
+    if (status_code == 202)
+        return (HTTPStatus<202>());
+    if (status_code == 203)
+        return (HTTPStatus<203>());
+    if (status_code == 204)
+        return (HTTPStatus<204>());
+    if (status_code == 205)
+        return (HTTPStatus<205>());
+    if (status_code == 206)
+        return (HTTPStatus<206>());
+    if (status_code == 207)
+        return (HTTPStatus<207>());
+    if (status_code == 300)
+		return (HTTPStatus<300>());
+	if (status_code == 301)
+		return (HTTPStatus<301>());
+	if (status_code == 302)
+		return (HTTPStatus<302>());
+	if (status_code == 303)
+		return (HTTPStatus<303>());
+	if (status_code == 304)
+		return (HTTPStatus<304>());
+	if (status_code == 305)
+		return (HTTPStatus<305>());
+	if (status_code == 307)
+		return (HTTPStatus<307>());
+	if (status_code == 400)
+		return (HTTPStatus<400>());
+	if (status_code == 401)
+		return (HTTPStatus<401>());
+	if (status_code == 402)
+		return (HTTPStatus<402>());
+	if (status_code == 403)
+		return (HTTPStatus<403>());
+	if (status_code == 404)
+		return (HTTPStatus<404>());
+	if (status_code == 405)
+		return (HTTPStatus<405>());
+	if (status_code == 406)
+		return (HTTPStatus<406>());
+	if (status_code == 407)
+		return (HTTPStatus<407>());
+	if (status_code == 408)
+		return (HTTPStatus<408>());
+	if (status_code == 409)
+		return (HTTPStatus<409>());
+	if (status_code == 410)
+		return (HTTPStatus<410>());
+	if (status_code == 411)
+		return (HTTPStatus<411>());
+	if (status_code == 412)
+		return (HTTPStatus<412>());
+	if (status_code == 413)
+		return (HTTPStatus<413>());
+	if (status_code == 414)
+		return (HTTPStatus<414>());
+	if (status_code == 415)
+		return (HTTPStatus<415>());
+	if (status_code == 416)
+		return (HTTPStatus<416>());
+	if (status_code == 417)
+		return (HTTPStatus<417>());
+	if (status_code == 422)
+		return (HTTPStatus<422>());
+	if (status_code == 423)
+		return (HTTPStatus<423>());
+	if (status_code == 424)
+		return (HTTPStatus<424>());
+	if (status_code == 426)
+		return (HTTPStatus<426>());
+	if (status_code == 428)
+		return (HTTPStatus<428>());
+	if (status_code == 429)
+		return (HTTPStatus<429>());
+	if (status_code == 431)
+		return (HTTPStatus<431>());
+	if (status_code == 451)
+		return (HTTPStatus<451>());
+	if (status_code == 500)
+		return (HTTPStatus<500>());
+	if (status_code == 501)
+		return (HTTPStatus<501>());
+	if (status_code == 502)
+		return (HTTPStatus<502>());
+	if (status_code == 503)
+		return (HTTPStatus<503>());
+	if (status_code == 504)
+		return (HTTPStatus<504>());
+	if (status_code == 505)
+		return (HTTPStatus<505>());
+	if (status_code == 507)
+		return (HTTPStatus<507>());
+	if (status_code == 511)
+		return (HTTPStatus<511>());
+	return (HTTPStatus<500>());
 }
 
 // Shared memory

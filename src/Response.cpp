@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:22:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:27:48 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ void    Response::set_with_file( const std::string &filename )
 		throw HTTPStatus<404>();
 	}
 
-	set_header("Content-Type", file::get_content_type(filename.c_str()));
+	set_header("Content-Type", file::content_type(filename.c_str()));
 	std::stringstream body;
 	body << file.rdbuf();
 	set_body(body.str());
@@ -161,7 +161,7 @@ const std::string	Response::get_header_value(const std::string name)
 	return (str);
 }
 
-void	Response::delete_header( const std::string name )
+void	Response::delete_header( const std::string & name )
 {
 	std::cout << name << " header was deleted" << std::endl;
 	_headers.erase(name);

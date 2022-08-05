@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:22:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:24:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,15 +40,12 @@ std::string			remove_query_string(const std::string &uri);
 std::string			get_query_string(const std::string &uri);
 
 template <typename T>
-void	print_data(T val)
+T	str_to_nbr(const std::string &str)
 {
-	std::cout << val.data() << std::endl;
-}
-
-template <typename T>
-void	print(T val)
-{
-	std::cout << val.data() << std::endl;
+	std::stringstream ss(str);
+	T nbr;
+	ss >> nbr;
+	return (nbr);
 }
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:21:47 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:23:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ private:
 	void				post_multi_type_form( Request & req );
 	void				post_form_urlencoded( Request & req );
 	std::string			parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter );
-	void				save_file( std::string &body, std::string filename );
 	std::string			multipart_form_body( const std::string &multi_form );
 
 	// DELETE

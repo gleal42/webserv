@@ -6,12 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 01:05:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 01:25:31 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
-#include <unistd.h>
+# include <unistd.h>
+# include "HTTPStatus.hpp"
 
 std::string	to_string(int number)
 {
@@ -153,3 +154,18 @@ std::string get_query_string(const std::string &uri)
         return std::string();
     return (uri.substr(query_string_start));
 }
+
+// For comparing with original files
+
+// std::ifstream infile;
+// infile.open("cute.jpeg", std::ios::binary);
+// if ( (infile.rdstate() & std::ifstream::failbit ) != 0
+// 	|| (infile.rdstate() & std::ifstream::badbit ) != 0 )
+// {
+// 	ERROR("error opening " << res._uri.c_str());
+// 	throw HTTPStatus<404>();
+// }
+// std::stringstream temp;
+// temp << infile.rdbuf();
+// std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
+// infile.close();

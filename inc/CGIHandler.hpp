@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/01 15:18:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/05 01:04:23 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include "HTTPStatus.hpp"
 # include "Handler.hpp"
 # include "webserver.hpp"
+# include "utils_file.hpp"
 
 typedef std::map<std::string, std::string> CGIExtInterpreter;
 
@@ -35,7 +36,8 @@ public:
 	void				do_GET( Request & req, Response & res );
 	void				do_POST( Request & req, Response & res );
 	void				do_DELETE( Request & req, Response & res );
-	static bool extension_is_implemented( const std::string &extension );
+	static bool			extension_is_implemented( const std::string &extension );
+	BaseStatus 			script_status( void );
 
 private:
 
@@ -46,13 +48,14 @@ private:
 	std::string query_string;
 	std::string extension;
 	std::string interpreter;
+	int			status_code;
 
 	CGIHandler( void );
-	BaseStatus		set_response( std::string bdy, Response &res );
-	void	execute_cgi_script( Request & req, Response & res  );
+	void			set_response( std::string bdy, Response &res );
+	void			execute_cgi_script( Request & req, Response & res  );
 	std::vector<std::vector <char> >	environment_variables( Request & req );
-	void	setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value);
-	void	convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr);
+	void			setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value);
+	void			convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr);
 };
 
 #endif /* __CGI_HANDLER_H__ */

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:25:18 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:25:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,6 @@
 #include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
-
-// #include <sys/epoll.h>
-
-/*
-    Testes a passar:
-    EOF working
-    HTML CSS priority
-    Javascript (later)
- */
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -154,35 +145,6 @@ void	Server::connection_new( Listener * listener )
 #endif
 }
 
-// Reference
-// Does necessary to service a connection
-// void	Server::run(Socket & socket) {
-// 	Request 	req(_config);
-// 	Response 	res(_config);
-// 	try {
-// 		// while timeout and Running
-// 		req.parse(socket);
-// 		res.request_method = req.request_method;
-// 		// res.request_uri = req.request_uri;
-// 		// if (request_callback) {
-// 		// 	request_callback(req, res);
-// 		// }
-// 		service(req, res);
-// 	}
-// 	catch (BaseStatus & error) {
-// 		ERROR(error.what());
-// 		// res.set_error(error);
-// 		if (error.code) {
-// 			// res.status = error.code;
-// 		}
-// 	}
-// 	// if (req.request_line != "") {
-// 	// 	res.send_response(socket);
-// 	// }
-
-// 	res.send_response(socket);
-// }
-
 /**
  * The reason why parse is done here is so that we know when we should
  * stop receiving.
@@ -287,14 +249,15 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service( Request & req, Response & res )
 {
-    url::decode(req._path);
-    std::string path = remove_query_string(req._path);
+    url::decode(req._path); // Interpret url as extended ASCII
+    std::string path = remove_query_string(req._path); // Could be done in Request parsing
     std::string extension = get_extension(path);
     if (CGIHandler::extension_is_implemented(extension))
     {
         CGIHandler handler(req._path); // probably needs config for root path etc
         try {
             handler.service(req, res);
+            res.build_message(handler.script_status());
         } catch (BaseStatus &error_status) {
             file::build_error_page(error_status, res);
         }
@@ -304,6 +267,7 @@ void	Server::service( Request & req, Response & res )
         FileHandler handler; // probably needs config for root path etc
         try {
             handler.service(req, res);
+            res.build_message(HTTPStatus<200>());	
         } catch (BaseStatus &error_status) {
             file::build_error_page(error_status, res);
         }

@@ -6,7 +6,8 @@
 	</head>
 	<body>
         <div>
-			<p class="subtitle"> Please give us your personal information (we are GDPR compliant) 😘:</p>
+			<h2> Please give us your personal information (we are GDPR compliant) 😘:</h2>
+			<h3> Using application/x-www-form-urlencoded</h3>
             <form method="post" enctype="application/x-www-form-urlencoded">
                 <label>First Name: </label> <input type="text" name="first_name"><br><br>
                 <label>Surname: </label> <input type="text" name="last_name">
@@ -14,6 +15,8 @@
                 <input type="radio" name="gender" value="male"> <label> Male </label> <br>
                 <input type="radio" name="gender" value="female"> <label> Female </label> <br>
                 <input type="radio" name="gender" value="other"> <label> Other </label> <br>
+                <label for="file">Choose file to upload</label>
+                <input type="file" id="file" name="file">
                 <input type="submit" value="Submit form">
             </form>
             <br>
