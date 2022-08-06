@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:24:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:35:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,7 +164,7 @@ public:
 
 	// Setters
 
-	void			set_header(std::string name, std::string value);
+	void			set_header(const std::string &name, const std::string &value);
 	void			set_content_type( std::string const & type );
 	void			set_body( std::string const &type );
 	void			set_default_page( void );
@@ -176,7 +176,7 @@ public:
 	std::string		message( void );
 
 	// Getters
-	const std::string	get_header_value(const std::string name);
+	const std::string	get_header_value( const std::string &name );
 
 	// Unsetters
 

@@ -67,7 +67,7 @@ function upload_file()
 function thank_user()
 {
    $intro = "";
-   if (isset($gender))
+   if (isset($_POST['gender']))
    {
       $gender = set_name_separator($_POST['gender'], "");
       $intro = appropriate_intro($gender);
