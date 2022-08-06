@@ -6,12 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/05 01:44:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 17:02:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "CGIHandler.hpp"
-#include <sys/mman.h>
+
 #include <stdio.h>
 
 /*
@@ -83,46 +83,55 @@ void	CGIHandler::do_DELETE( Request & req, Response & res )
 	execute_cgi_script( req, res );
 }
 
+/*
+	https://github.com/gleal42/webserv/issues/18
+
+	So CGI basically needs 3 things:
+	- Standard Input with request body (in case of Post requests)
+	- Script to execute as argument
+	- Environment Variables
+		- QUERY_STRING for GET Requests
+		- Others defined in RFC
+
+	In order to send environment variables we use fork and execve:
+	
+	However there are 4 ways to achieve interprocess communication:
+	- Memory Mapped files
+	- Shared memory
+	- Named pipes
+	- Local TCP/UDP sockets
+	
+	These are ordered in from most performant to least performant
+	(check issue links)
+
+	I considered using shared memory however we couldn't perform
+	dup2 on shared memory fds.
+	I might try to use mmap instead of writing (will compare performance).
+	
+	Usually in C we allocate memory using malloc/strdup. However I used the
+	allocator from vector. The problem is that when we leave scope vector
+	frees memory. This sucks because the function is quite big and there's
+	not much I can do about it.
+	
+	Waitpid terminates with signals and debugger lldb sends an interrupt
+	signal. Don't know how to handle this.
+
+	This line was used to debug what was being written:
+	FILE *output_file = fopen("Checking.txt", "w+");
+*/
+
 void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 {
-	// Environment Variables
-
-	std::vector<std::vector <char> > buf = environment_variables(req);
-	std::vector<char *> env_vars;
-	convert_to_charptr(buf, env_vars);
-	char *const *envs = env_vars.data();
-	std::cout << "The environment variables are:" << std::endl;
-	for (size_t i = 0; i < env_vars.size() - 1; i++) {
-		std::cout << envs[i] << std::endl;
-	}
-
-	// Filepath (1st and 2nd execve argument)
-
-	std::string file_name = filename(interpreter);
-	std::vector<char *> filepath;
-	std::vector<char> cmd_vec = convert_to_char_vector(file_name.c_str());
-	std::vector<char> fp_vec = convert_to_char_vector(path.c_str() + 1);
-	filepath.push_back(cmd_vec.data());
-	filepath.push_back(fp_vec.data());
-	filepath.push_back(NULL);
-
-	std::cout << "CGI 1 Argument is " << filepath[0] << std::endl;
-	std::cout << "CGI 2 Argument is " << filepath[1] << std::endl;
-
 	FILE *input_file = tmpfile();
 	FILE *output_file = tmpfile();
-	// FILE *output_file = fopen("Checking.txt", "w+");
-	if (input_file == NULL || output_file == NULL)
-	{
+	if (input_file == NULL || output_file == NULL) {
 		std::cerr << "Temp file error" << std::endl;
 		throw HTTPStatus<500>();
 	}
-
 	int input_fd = fileno(input_file);
 	int output_fd = fileno(output_file);
-	
-	std::cout << "Body is " << req._raw_body.c_str() << std::endl;
-	write(input_fd, req._raw_body.c_str(), req._raw_body.size());
+	std::cout << "Body is " << req._raw_body.data() << std::endl;
+	write(input_fd, req._raw_body.data(), req._raw_body.size());
 	rewind(input_file);
 	
 	pid_t pid = 0, w_pid = 0;
@@ -130,40 +139,50 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	pid=fork();
 	if (pid == 0)
 	{
-		std::cout << "HERE we go" << std::endl;
+		// Environment Variables
+		std::vector<char *> env_vars;
+		std::vector<std::vector <char> > buf = environment_variables(req);
+		convert_to_charptr(buf, env_vars);
+		char *const *envs = env_vars.data();
+		std::cout << "The environment variables are:" << std::endl;
+		for (size_t i = 0; i < env_vars.size() - 1; i++) {
+			std::cout << envs[i] << std::endl;
+		}
+
+		// CGI arguments (1st and 2nd execve argument)
+		std::vector<char *> cgi_args;
+		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
+		std::vector<char> fp_vec = convert_to_char_vector(path.c_str() + 1);
+		cgi_args.push_back(cmd_vec.data());
+		cgi_args.push_back(fp_vec.data());
+		cgi_args.push_back(NULL);
+		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
+		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
+	
 		dup2(input_fd, STDIN_FILENO);
 		dup2(output_fd, STDOUT_FILENO);
-		execve(interpreter.c_str(), filepath.data(), envs);
+		execve(interpreter.c_str(), cgi_args.data(), envs);
 		// exit(EXIT_FAILURE);
 	}
 	w_pid = waitpid(pid, &status, 0);
 	(void)w_pid;
-	// LLDB sends EINTR signal
-	// if (w_pid == -1)
-	// {
-	// 	std::cerr << "WPID ERROR" << std::endl;
-	// 	perror("Didnt work because ");
+	// if (w_pid == -1) // LLDB sends EINTR signal{
 	// 	throw HTTPStatus<500>();
 	// }
-	if (status == EXIT_FAILURE)
-	{
-		std::cerr << "Child ERROR" << std::endl;
+	if (status == EXIT_FAILURE) {
+		// std::cerr << "Child ERROR" << std::endl;
 		throw HTTPStatus<500>();
 	}
-	
-	long sz = file::size(output_file);
-	std::cout << "file has size " << sz << std::endl;
-	char *file_contents = (char *) mmap(0, sz, PROT_READ, MAP_PRIVATE, output_fd, 0);
-	if (file_contents == (void *)-1) {
-		throw HTTPStatus<500>();
-	}
-	std::string str(file_contents, sz);
-	str.push_back('\0');
-	munmap(file_contents, sz);
-	set_response(str, res);
+	set_response(file::get_string(output_file, output_fd), res);
 	fclose(input_file);
 	fclose(output_file);
 }
+
+/*
+	Converts vector of chars to string by accessing data.
+	We need to use a refence to vector so that strings continue
+	valid when we leave function scope.
+*/
 
 void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
 {
@@ -177,41 +196,36 @@ void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec
 }
 
 /*
-	I set all environment variables so that CGI can have access to them.
+	I set all environment variables so that CGI can have access to them
+	in the script.
 	These will be passed to cgi throw 3rd parameter of execve
 
-	Can we consider turning Req method into string instead of enum
-	so that std::map is not necessary for first setenv.
+	Does it make sense to turn Req method into string instead of enum
+	so that this temporary std::map is not necessary for first setenv.
 */
 
 std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & req )
 {
 	std::vector<std::vector <char> > buf;
-
 	std::map<enum RequestMethod, std::string> req_method;
 	req_method[GET]="GET";
 	req_method[POST]="POST";
 	req_method[DELETE]="DELETE";
-	setenv(buf, "REQUEST_METHOD", req_method[req.request_method].c_str());
-
+	setenv(buf, "REQUEST_METHOD", req_method[req.request_method]);
 	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
-	setenv(buf, "QUERY_STRING", query_string.c_str());
+	setenv(buf, "QUERY_STRING", query_string);
 	setenv(buf, "REDIRECT_STATUS", "200");
-	std::string full_script_path = full_path(path.c_str());
-	setenv(buf, "PATH_INFO", full_script_path.c_str());
-	setenv(buf, "SCRIPT_FILENAME", (path.c_str() + 1));
-	std::stringstream ss;
-	ss << req._raw_body.size();
-	setenv(buf, "CONTENT_LENGTH", ss.str().c_str());
+	std::string full_script_path = full_path(path);
+	setenv(buf, "PATH_INFO", full_script_path);
+	setenv(buf, "SCRIPT_FILENAME", std::string(path.c_str() + 1, (path.size() - 1)));
+	setenv(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
 	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
-	std::string content_type = req._headers["Content-Type"];
-	std::cout << "Content-type is " << content_type << std::endl;
-	setenv(buf, "CONTENT_TYPE", content_type.c_str());
-	
+	std::cout << "Content-type is " << req._headers["Content-Type"] << std::endl;
+	setenv(buf, "CONTENT_TYPE", req._headers["Content-Type"].c_str());
 	return (buf);
 }
 
-void	CGIHandler::setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value)
+void	CGIHandler::setenv( std::vector<std::vector <char> > &buf, const std::string &var, const std::string & value)
 {
 	std::string	env_var(var);
 	env_var.push_back('=');
@@ -259,19 +273,31 @@ void	CGIHandler::set_response( std::string bdy, Response &res )
 }
 
 /*
+	https://www.rfc-editor.org/rfc/rfc3875.html#section-6.3.3
+
 	Hammertime because HTTPS only takes const values as template parameters
 	Default is 500 because Server is expecting to receive an HTTP compliant
-	code. If it doesn't then Internal Server Error (500)
+	code. If it doesn't then Internal Server Error (500).
+
+	Regarding the order I followed the one specified in the link:
+	However, most times status will be 200.
 */
 
 BaseStatus CGIHandler::script_status( void )
 {
+    if (status_code == 200)
+        return (HTTPStatus<200>());
+	if (status_code == 302)
+		return (HTTPStatus<302>());
+	if (status_code == 400)
+		return (HTTPStatus<400>());
+	if (status_code == 511)
+		return (HTTPStatus<511>());
+
     if (status_code == 100)
         return (HTTPStatus<100>());
     if (status_code == 101)
         return (HTTPStatus<101>());
-    if (status_code == 200)
-        return (HTTPStatus<200>());
     if (status_code == 201)
         return (HTTPStatus<201>());
     if (status_code == 202)
@@ -290,8 +316,6 @@ BaseStatus CGIHandler::script_status( void )
 		return (HTTPStatus<300>());
 	if (status_code == 301)
 		return (HTTPStatus<301>());
-	if (status_code == 302)
-		return (HTTPStatus<302>());
 	if (status_code == 303)
 		return (HTTPStatus<303>());
 	if (status_code == 304)
@@ -300,8 +324,6 @@ BaseStatus CGIHandler::script_status( void )
 		return (HTTPStatus<305>());
 	if (status_code == 307)
 		return (HTTPStatus<307>());
-	if (status_code == 400)
-		return (HTTPStatus<400>());
 	if (status_code == 401)
 		return (HTTPStatus<401>());
 	if (status_code == 402)
@@ -366,12 +388,10 @@ BaseStatus CGIHandler::script_status( void )
 		return (HTTPStatus<505>());
 	if (status_code == 507)
 		return (HTTPStatus<507>());
-	if (status_code == 511)
-		return (HTTPStatus<511>());
 	return (HTTPStatus<500>());
 }
 
-// Shared memory
+// Example of Using Shared memory of inter process communication!
 
 // shm_unlink("shared_mem");
 // int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);

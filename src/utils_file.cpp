@@ -6,11 +6,12 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:34:22 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 16:35:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils_file.hpp"
+#include <sys/mman.h>
 
 namespace file
 {
@@ -115,5 +116,19 @@ namespace file
 		std::cout << "Filename is [" << filename << "]" << std::endl;
 		if (std::remove (filename.c_str()) != 0)
 			throw HTTPStatus<404>();
+	}
+
+	std::string	get_string(FILE *file_ptr, int file_fd )
+	{
+		long sz = file::size(file_ptr);
+		std::cout << "file has size " << sz << std::endl;
+		char *file_contents = (char *) mmap(0, sz, PROT_READ, MAP_PRIVATE, file_fd, 0);
+		if (file_contents == (void *)-1) {
+			throw HTTPStatus<500>();
+		}
+		std::string str(file_contents, sz);
+		str.push_back('\0');
+		munmap(file_contents, sz);
+		return (str);
 	}
 }

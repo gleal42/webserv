@@ -58,6 +58,7 @@ function upload_file()
       echo "<p>The file ". basename(htmlspecialchars( $file_to_upload )). " has been uploaded.</p>";
    } else {
       echo "Sorry, there was an error uploading your file.";
+      echo "Not uploaded because of error #".$_FILES["cute_picture"]["error"];
    }
    return (true);
 
