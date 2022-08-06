@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handler.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/25 17:10:13 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:27:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 17:41:18 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,26 +36,26 @@ void	Handler::service( Request & req, Response & res )
 	} else if (req.request_method == DELETE) {
 		do_DELETE(req, res);
 	}
-	res.build_message(HTTPStatus<200>());	
+	res.build_message(HTTPStatus<200>());
 }
 
 void  Handler::do_GET( Request & req, Response & res )
 {
 	(void)req;
 	(void)res;
-	throw HTTPStatus<501>();
+	throw std::runtime_error("You need to implement `do_GET` when inheriting from Handler!");
 }
 
 void  Handler::do_POST( Request & req, Response & res )
 {
 	(void)req;
 	(void)res;
-	throw HTTPStatus<501>();
+	throw std::runtime_error("You need to implement `do_POST` when inheriting from Handler!");
 }
 
 void  Handler::do_DELETE( Request & req, Response & res )
 {
 	(void)req;
 	(void)res;
-	throw HTTPStatus<501>();
+	throw std::runtime_error("You need to implement `do_DELETE` when inheriting from Handler!");
 }

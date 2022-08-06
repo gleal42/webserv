@@ -41,6 +41,19 @@ HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 	$(COMPILE) $(STATUS) -o $@
 
 
+##---  Handler  ---##
+HANDLER := Handler.test.cpp ../../src/Handler.cpp \
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
+	../../src/Request.cpp ../../src/Socket.cpp ../../src/Response.cpp
+
+handler: Handler # run Handler class tests
+	./Handler
+
+# compile Handler class tests
+Handler:	$(HANDLER) ../../inc/Handler.hpp
+	$(COMPILE) $(HANDLER) -o $@
+
+
 ##---  FileHandler  ---##
 FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
