@@ -42,7 +42,10 @@ HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 
 
 ##---  FileHandler  ---##
-FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp
+FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
+	../../src/Handler.cpp ../../src/Request.cpp ../../src/Socket.cpp \
+	../../src/Response.cpp
 
 file_handler: FileHandler # run FileHandler class tests
 	./FileHandler
