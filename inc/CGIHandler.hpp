@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/05 01:04:23 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/05 19:48:34 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ private:
 	void			set_response( std::string bdy, Response &res );
 	void			execute_cgi_script( Request & req, Response & res  );
 	std::vector<std::vector <char> >	environment_variables( Request & req );
-	void			setenv( std::vector<std::vector <char> > &buf,  const char * var, const char * value);
+	void			setenv( std::vector<std::vector <char> > &buf, const std::string &var, const std::string & value);
 	void			convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr);
 };
 

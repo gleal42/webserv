@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:21:06 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/04 23:46:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/05 19:32:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ namespace file
 	long				size( FILE *open_file );
 	void				save( const std::string &file_body, const std::string & filename );
 	void				remove( const std::string & filename );
+	std::string			get_string(FILE *file_ptr, int file_fd );
 }
 
 
