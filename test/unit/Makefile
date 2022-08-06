@@ -31,7 +31,7 @@ ConfigParser:	$(PARSER) ../../inc/ConfigParser.hpp
 
 
 ##---  HTTPStatus  ---##
-STATUS := HTTPStatus.test.cpp
+STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp ../../src/utils.cpp
 
 status: HTTPStatus # run HTTPStatus class tests
 	./HTTPStatus
