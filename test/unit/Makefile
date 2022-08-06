@@ -5,7 +5,7 @@ CPPFLAGS := $(INC)
 COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket parser
+all:	socket parser status file_handler
 
 
 ##---  Socket  ---##

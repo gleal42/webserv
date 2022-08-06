@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/05 09:47:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/06 14:17:10 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,8 @@ void	Server::new_connection( Listener * listener )
 	_connections[client_fd] = connection;
 	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
 	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
-	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
+	// Will be used later in case we can't send the whole message
+	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
 }
 
 // Reference
