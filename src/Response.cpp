@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/05 01:29:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 18:10:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void	Response::send_response( Socket const & socket )
 // a blank line. This blank line is used by the client to delineate the HTTP
 // header from the beginning of the HTTP body.
 
-void	Response::set_header(std::string name, std::string value)
+void	Response::set_header(const std::string &name, const std::string &value)
 {
 	_headers[name] = value;
 	if (name == "Content-Length")
@@ -150,7 +150,7 @@ void	Response::save_raw_headers( std::string headers )
 	}
 }
 
-const std::string	Response::get_header_value(const std::string name)
+const std::string	Response::get_header_value(const std::string &name)
 {
 	std::string str;
 	if (_headers.count(name)) {
