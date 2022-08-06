@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.hpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:28:19 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 18:22:45 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,12 @@ public:
 	FileHandler( FileHandler const & src );
 	~FileHandler( void );
 	FileHandler &	operator = ( FileHandler const & rhs );
+
+private:
+
 	void				do_GET( Request & req, Response & res );
 	void				do_POST( Request & req, Response & res );
 	void				do_DELETE( Request & req, Response & res );
-
-private:
 
 	// GET
 
@@ -61,7 +62,7 @@ private:
 	// DELETE
 
 	void				delete_file( std::string filename );
-	Parameters params;
+	Parameters			params;
 };
 
 #endif /* __FILE_HANDLER_H__ */

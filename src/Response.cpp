@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:26:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 20:27:23 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ std::string Response::start_line( BaseStatus &status )
 
 	std::stringstream nbr;
 	nbr << status.code;
-	std::string status_str = nbr.str();
+	std::string	status_str = nbr.str();
 	std::string status_message = status.reason_phrase;
 	return(http_version + " " + status_str + " " + status_message + CRLF);
 }
@@ -52,12 +52,14 @@ void	Response::build_message( BaseStatus status )
 	if (_message.empty())
 	{
 		_message = start_line(status);
-		for (headers_iterator it = _headers.begin(); it != _headers.end(); ++it) {
+		for (ResponseHeaders_it it = _headers.begin(); it != _headers.end(); ++it) {
 			_message += it->first + ": " + it->second + CRLF;
 		}
 		_message += CRLF + _body;
 	}
 }
+
+std::string		Response::message( void ) { return _message; }
 
 void	Response::send_response( Socket const & socket )
 {

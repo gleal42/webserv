@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/06 14:17:10 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/06 19:25:18 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,12 +84,12 @@ void	Server::start( void )
             continue;
         for (int i = 0; i < nbr_events; i++)
         {
-            ClusterIter event_fd = _cluster.find(ListQueue[i].ident);
+            Cluster_it event_fd = _cluster.find(ListQueue[i].ident);
             if (event_fd != _cluster.end()) // New event for non-existent file descriptor
                 new_connection(event_fd->second);
             else
             {
-				ConnectionsIter connection_it = _connections.find(ListQueue[i].ident);
+				Connections_it connection_it = _connections.find(ListQueue[i].ident);
                 if (ListQueue[i].flags & EV_EOF)
                 {
                     close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
@@ -234,10 +234,10 @@ void	Server::service(Request & req, Response & res)
 
 Server::~Server()
 {
-	for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it) {
+	for (Cluster_it it = _cluster.begin(); it != _cluster.end(); ++it) {
         close_listener(it->first);
 	}
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++) {
+	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
         close_connection(it->first);
 	}
     close(this->_fd);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:12:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 20:26:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ class Response {
 
 public:
 
-	typedef	ResponseHeaders::iterator headers_iterator;
+	typedef	ResponseHeaders::iterator ResponseHeaders_it;
 	Response( void ); // put bck private after making pointer in connection
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
@@ -176,6 +176,10 @@ public:
 	void			set_body( std::string const &type );
 	void			set_default_body( void );
 	void			set_error_body( int error_code );
+
+	// Getters
+
+	std::string		message( void );
 
 private:
 	std::string		_body;

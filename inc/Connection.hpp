@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:59:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:51:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 19:24:37 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,6 @@ private:
 };
 
 typedef std::map< int, Connection * > Connections;
-typedef Connections::iterator ConnectionsIter;
+typedef Connections::iterator Connections_it;
 
 #endif
