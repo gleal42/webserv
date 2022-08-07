@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:58:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/07 18:20:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,9 +149,9 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
             return ;
         }
     }
-	LOG("|--- Headers ---|");
-	LOG(connection->request._raw_headers);
-	LOG("|--- Headers ---|");
+	// LOG("|--- Headers ---|");
+	// LOG(connection->request._raw_headers);
+	// LOG("|--- Headers ---|");
     if (connection->request._raw_body.size())
     {
         std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;

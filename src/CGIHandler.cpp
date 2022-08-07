@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:11:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/07 18:29:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ CGIExtInterpreter CGIHandler::extension_interpreter = create_extension_pairs();
 CGIExtInterpreter CGIHandler::create_extension_pairs( void )
 {
 	CGIExtInterpreter	temp;
-	temp[".cgi"] = full_path("/test/cgi/cpp/cgi_tester");
+	temp[".cgi"] = full_path("test/cgi/cpp/cgi_tester");
 	temp[".php"] = "/usr/local/bin/php-cgi";
 	return (temp);
 }
@@ -151,8 +151,8 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 
 		// CGI arguments (1st and 2nd execve argument)
 		std::vector<char *> cgi_args;
-		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
-		std::vector<char> fp_vec = convert_to_char_vector(path.c_str() + 1);
+		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter));
+		std::vector<char> fp_vec = convert_to_char_vector(path);
 		cgi_args.push_back(cmd_vec.data());
 		cgi_args.push_back(fp_vec.data());
 		cgi_args.push_back(NULL);
@@ -217,7 +217,7 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	setenv(buf, "REDIRECT_STATUS", "200");
 	std::string full_script_path = full_path(path);
 	setenv(buf, "PATH_INFO", full_script_path);
-	setenv(buf, "SCRIPT_FILENAME", std::string(path.c_str() + 1, (path.size() - 1)));
+	setenv(buf, "SCRIPT_FILENAME", std::string(path.c_str(), (path.size())));
 	setenv(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
 	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
 	std::cout << "Content-type is " << req._headers["Content-Type"] << std::endl;

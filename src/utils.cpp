@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/05 00:48:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/07 18:28:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,7 +121,7 @@ std::string full_path(const std::string &relative_path)
 	memset(read_buf, '\0', sizeof(read_buf));
 	std::string abs_path(getcwd(read_buf, 200));
 
-    return (abs_path + relative_path);
+    return (abs_path + '/' + relative_path);
 }
 
 std::vector<char>	convert_to_char_vector(const std::string &string)

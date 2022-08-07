@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:44:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/07 20:03:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,13 +83,16 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	// Temporary, TODO: make proper URI instance:
 	// request_uri.parse(_unparsed_uri);
 	// _path = request_uri.path;
-	_path = _unparsed_request.substr(i, j);
+	_path = "public" + _unparsed_request.substr(i, j);
+	if (request_methods.find("..") != request_methods.end())
+		throw HTTPStatus<405>();
 
 	for (iter++; *iter != '\n'; iter++)
 		j++;
 
 	_raw_request_line = _unparsed_request.substr(0, i + j + 2);
 	std::cout << "Request line is :" << _raw_request_line << std::endl;
+	std::cout << "Path is :" << _path << std::endl;
 	_unparsed_request = _unparsed_request.substr(++j + ++i);
 };
 
