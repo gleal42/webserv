@@ -1,10 +1,13 @@
 #include "ServerConfig.hpp"
-#include "utils.hpp"
+#include "webserver.hpp"
 #include "ConfigParser.hpp"
 
 // Constructors
-BaseConfig::BaseConfig() : _autoindex(unset), _client_max_body_size(-1){};
-ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){};
+BaseConfig::BaseConfig() : _autoindex(unset), _client_max_body_size(-1){}
+
+BaseConfig::~BaseConfig(){}
+
+ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){}
 
 // ServerConfig utils
 namespace {
@@ -134,11 +137,11 @@ void    BaseConfig::set_indexes(std::string &content){
 }
 
 // BaseConfig Getters
-std::string                 BaseConfig::get_root( void ) {return (this->_root);}
-autobool                    BaseConfig::get_autoindex( void ) {return (this->_autoindex);}
-errorPage                   BaseConfig::get_error_pages( void ) {return (this->_error_pages);}
-int                         BaseConfig::get_max_body_size( void ) {return (this->_client_max_body_size);}
-std::vector<std::string>    BaseConfig::get_indexes( void ) {return (this->_indexes);}
+std::string                 BaseConfig::get_root( void ) const {return (this->_root);}
+autobool                    BaseConfig::get_autoindex( void ) const  {return (this->_autoindex);}
+errorPage                   BaseConfig::get_error_pages( void ) const  {return (this->_error_pages);}
+int                         BaseConfig::get_max_body_size( void ) const  {return (this->_client_max_body_size);}
+std::vector<std::string>    BaseConfig::get_indexes( void ) const  {return (this->_indexes);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~LocationConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -174,17 +177,22 @@ void LocationConfig::set_directive(int directive, std::string& content){
         case DIRECTIVE_INDEX:
             this->set_indexes(content);
             break;
-        // case DIRECTIVE_CGI:
-        //  this->   set_cgi(content);
-        //     break;
         case DIRECTIVE_LIMITEXCEPT:
             this->set_limit_except(content);
+            break;
+        case DIRECTIVE_CGI:
+            this->set_cgi(content);
             break;
         default:
             break;
     }
 };
-// void    LocationConfig::set_cgi(std::string &content){}
+
+void    LocationConfig::set_cgi(std::string &content)
+{
+    this->_cgi = content;
+}
+
 
 void    LocationConfig::set_limit_except(std::string &content){
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
@@ -203,7 +211,7 @@ void    LocationConfig::set_limit_except(std::string &content){
 }
 
 // LocationConfig getters
-// std::string                 LocationConfig::get_cgi( void ) {return (this->_cgi);}
+std::string                 LocationConfig::get_cgi( void ) {return (this->_cgi);}
 std::vector<std::string>    LocationConfig::get_limit_except( void ) {return (this->_limit_except);}
 
 
@@ -250,7 +258,7 @@ void ServerConfig::set_directive(int directive, std::string& content){
             break;
     }
 };
-void    ServerConfig::set_listen(int has_separators, std::string &content){
+void    ServerConfig::set_listen(int has_separators, const std::string &content){
     if (has_separators)
 	    throw (std::runtime_error(content + ": This directive can only have one argument"));
 
@@ -287,7 +295,7 @@ void    ServerConfig::set_listen(int has_separators, std::string &content){
     }
 }
 
-void    ServerConfig::set_server_name(std::string &content){
+void    ServerConfig::set_server_name(const std::string &content){
     std::string tmp(content);
     char *token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
 
@@ -295,4 +303,21 @@ void    ServerConfig::set_server_name(std::string &content){
         this->_server_name.push_back(token);
         token = strtok(NULL, SEPARATORS);
     }
+}
+
+std::string                 ServerConfig::get_ip( void )
+{
+	return (this->_ip);
+}
+int                         ServerConfig::get_port( void )
+{
+	return (this->_port);
+}
+std::vector<std::string>    ServerConfig::get_server_name( void )
+{
+	return (this->_server_name);
+}
+Locations                   ServerConfig::get_locations( void )
+{
+	return (this->_locations);
 }

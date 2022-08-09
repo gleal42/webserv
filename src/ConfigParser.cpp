@@ -3,16 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/05 02:52:06 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/08 18:48:03 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigParser.hpp"
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Exceptions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+ConfigError::ConfigError()
+: std::runtime_error("")
+{
+}
+
+ConfigError::~ConfigError (void) throw()
+{
+}
+
 
 ConfigurationFileError::ConfigurationFileError(void)
     : std::runtime_error("Error while opening configuration file")
@@ -63,6 +73,10 @@ MultipleArgumentsError::MultipleArgumentsError(const std::string err)
 ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file){ /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
 
+ConfigParser::~ConfigParser(void)
+{
+	
+}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~Config-parsing utils~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -82,6 +96,8 @@ namespace {
         return (str);
     };
 
+    // Não se pode usar este numero se depois switch case
+    // vão usar um enum comum
     int find_directive(std::string &directive, int context)
     {
         const std::string   *valid_directives;
@@ -93,7 +109,7 @@ namespace {
             valid_directives = valid_server_directives;
 
         while (i < CONTEXT_DIRECTIVES)
-            if (directive == valid_directives[i++])
+            if (directive == valid_directives[++i])
                 return (i);
 
         throw (ConfigurationDirectiveError(directive));
@@ -219,3 +235,17 @@ void    ConfigParser::call()
 
 //     return (0);
 // };
+
+
+void            ConfigParser::set_general_conf(void)
+{
+    ServerConfig general_server;
+    general_server.set_listen(0, "8080");
+    general_server.set_server_name("Bosses");
+    server_configs.push_back(general_server);
+}
+
+void            ConfigParser::set_tester_conf(void)
+{
+    
+}

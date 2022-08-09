@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:12:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/08 23:02:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ Warning								A general warning about possible problems with the entity body.		
 
 typedef std::map<std::string, std::string> ResponseHeaders;
 typedef std::map<std::string, std::string> RequestHeaders;
-typedef sockaddr_in SocketAddress;
+typedef struct sockaddr_in SocketAddress;
 
 class Socket;
 
@@ -123,7 +123,6 @@ class URI {
 		return std::string("http://") + host + std::string(":") + port + path + query;
 	}
 };
-
 
 class Request {
 

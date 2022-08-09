@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/08 12:17:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/08 12:35:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ Request::Request( ServerConfig const & config )
 	// set member vars from config
 	// even though we aren't using in `parse` might still be needed for counting
 	// how much read and that can still read, if not remove
-	client_max_body_size = config.client_max_body_size;
+	client_max_body_size = config.get_max_body_size();
 }
 
 Request::Request( Request const & param ) {

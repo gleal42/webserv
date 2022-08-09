@@ -6,11 +6,16 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:57:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/09 01:57:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+#include <arpa/inet.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 /* Exceptions */
 Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
@@ -44,7 +49,7 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
-	bind(config.port);
+	bind(config.get_port());
 }
 
 Socket::Socket( Socket const & src ) { *this = src; }
@@ -102,7 +107,7 @@ void	Socket::bind( int port )
 {
 	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	_address.sin_addr.s_addr = INADDR_ANY;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);

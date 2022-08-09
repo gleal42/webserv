@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/07 18:20:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/08 18:48:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ Server::Server(const ConfigParser &parser)
 	Listener		*new_listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
     {
+        std::cout << "Listener Number " << i + 1 << std::endl;
 		// Initialize each new Listener with a config from the parser
 		ServerConfig	config(parser.config(i));
 		new_listener = new Listener(config);

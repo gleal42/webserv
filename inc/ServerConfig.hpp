@@ -3,14 +3,12 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/05 02:25:32 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/08 16:48:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-
 
 #ifndef SERVERCONFIG_HPP
 # define SERVERCONFIG_HPP
@@ -42,7 +40,7 @@ class BaseConfig{
         virtual ~BaseConfig();
 
     // Setters
-    virtual void                    set_directive(int directive, std::string &content);
+    virtual void                    set_directive(int directive, std::string &content) = 0;
     void                            set_root(bool has_separators, std::string &content);
     void                            set_autoindex(std::string &content);
     void                            set_error_pages(std::string &content);
@@ -50,11 +48,11 @@ class BaseConfig{
     void                            set_indexes(std::string &content);
 
     // Getters
-    std::string                     get_root( void );
-    autobool                        get_autoindex( void );
-    errorPage                       get_error_pages( void );
-    int                             get_max_body_size( void );
-    std::vector<std::string>        get_indexes( void );
+    std::string                     get_root( void ) const;
+    autobool                        get_autoindex( void ) const;
+    errorPage                       get_error_pages( void ) const;
+    int                             get_max_body_size( void ) const;
+    std::vector<std::string>        get_indexes( void ) const;
 
     protected:
         std::string                 _root;
@@ -71,11 +69,11 @@ class LocationConfig : public BaseConfig
         bool                        is_empty( void );
         // Setters
         void                        set_directive(int directive, std::string &content);
-        // void                        set_cgi(std::string &content);
+        void                        set_cgi(std::string &content);
         void                        set_limit_except(std::string &content);
 
         // Getters
-        // std::string                 get_cgi( void );
+        std::string                 get_cgi( void );
         std::vector<std::string>    get_limit_except( void );
 
     private:
@@ -95,8 +93,8 @@ class ServerConfig : public BaseConfig
 
         // Setters
         void                        set_directive(int directive, std::string &content);
-        void                        set_listen(int has_separators, std::string &content);
-        void                        set_server_name(std::string &content);
+        void                        set_listen(int has_separators, const std::string &content);
+        void                        set_server_name(const std::string &content);
 
         // Getters
         std::string                 get_ip( void );

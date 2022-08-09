@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 23:39:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/08 12:33:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ typedef sockaddr_in SocketAddress;
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
-struct 	ServerConfig;
 
 class	Server;
 

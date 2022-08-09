@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/05 02:23:44 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/08 16:18:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # include <map>
 # include <algorithm>
 # include <string.h>
-# include "utils.hpp"
+# include "webserver.hpp"
 
 
 # define SEPARATORS         " \t\v\n\r\f"
@@ -42,8 +42,8 @@ enum directives{
     DIRECTIVE_INDEX,
     DIRECTIVE_LISTEN,
     DIRECTIVE_SERVERNAME,
-    DIRECTIVE_LIMITEXCEPT,
     DIRECTIVE_CGI,
+    DIRECTIVE_LIMITEXCEPT
 };
 
 // ************************************************************************** //
@@ -63,7 +63,6 @@ Needs to be able to:
 struct ConfigError : virtual public std::runtime_error{
         ConfigError();
         virtual ~ConfigError (void) throw();
-        virtual const char*		what( void ) const throw ();
 };
 
 struct ConfigurationFileError : public ConfigError{
@@ -112,6 +111,8 @@ class ConfigParser
         ServerConfig    config(int const index) const;
         int             configs_amount(void) const;
         void            call(void);
+        void            set_tester_conf(void);
+        void            set_general_conf(void);
         void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
 
         // Config vector

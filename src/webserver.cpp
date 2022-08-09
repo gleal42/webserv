@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/03 21:29:20 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/08 16:20:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,8 @@ int webserver(std::string config_file)
 	ConfigParser	parser(config_file);
 
 	try {
-        parser.call();
+        // parser.call();
+        parser.set_general_conf();
     }
     catch (std::exception &e) { // Use specific errors
 		ERROR(e.what());
