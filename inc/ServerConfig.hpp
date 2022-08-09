@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/09 18:36:16 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/09 21:11:13 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@
 // Each server will have these things
 
 enum autobool{
-    off,
-    on,
-    unset
+    AUTOINDEX_OFF,
+    AUTOINDEX_ON,
+    AUTOINDEX_UNSET
 };
 
 typedef std::map<std::string, std::vector<int> > errorPage;
@@ -54,7 +54,7 @@ class BaseConfig{
     std::string                     get_root( void );
     autobool                        get_autoindex( void );
     errorPage                       get_error_pages( void );
-    int                             get_max_body_size( void );
+    int                             get_max_body_size( void ) const;
     std::vector<std::string>        get_indexes( void );
 
     protected:
@@ -95,7 +95,8 @@ class ServerConfig : public BaseConfig
     public:
         ServerConfig();
         ~ServerConfig();
-        ServerConfig(ServerConfig&);
+        ServerConfig(const ServerConfig&);
+        ServerConfig& operator= (const ServerConfig&);
 
         bool                        is_empty( void );
 
@@ -119,7 +120,6 @@ class ServerConfig : public BaseConfig
 };
 
 typedef std::vector<ServerConfig> Configs;
-ServerConfig& operator= (const ServerConfig&);
 std::ostream&   operator<<(std::ostream&, ServerConfig&);
 
 #endif

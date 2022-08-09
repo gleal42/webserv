@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/09 19:03:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/09 21:16:12 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,14 +151,13 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
 // This function opens the _config_file, and then parses the file while looking for an opening server block (aka "server {")
 // Then, calls context_parser() to parse the server block
 // OBS: So far, the new ServerConfig object is being stored inside the ConfigParser
-void    ConfigParser::call()
+const Configs ConfigParser::call()
 {
     std::ifstream   file;
     std::string     line;
     std::string     directive;
     size_t          separator;
 
-    try{
         file.open(this->_config_file.c_str());
         if (!file.is_open())
             throw ConfigurationFileError();
@@ -177,9 +176,6 @@ void    ConfigParser::call()
             else
                 throw DirectiveOutOfScopeError(directive);
         }
-    }
-    catch (ConfigError &e) {
-		    ERROR(e.what());
-    }
     file.close();
+    return (this->server_configs);
 };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:44:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/09 20:58:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Socket.hpp"
 #include "Listener.hpp"
 #include "HTTPStatus.hpp"
+#include <sys/epoll.h>
 
 /* Constructors */
 Request::Request( void ) { /* no-op */ }
@@ -24,7 +25,7 @@ Request::Request( ServerConfig const & config )
 	// set member vars from config
 	// even though we aren't using in `parse` might still be needed for counting
 	// how much read and that can still read, if not remove
-	client_max_body_size = config.client_max_body_size;
+	client_max_body_size = config.get_max_body_size();
 }
 
 Request::Request( Request const & param ) {
@@ -148,9 +149,9 @@ void	Request::read_body(std::string &_unparsed_request)
 	_unparsed_request.clear();
 }
 
-void	Request::parse(Socket & socket, struct kevent const & Event )
+void	Request::parse(Socket & socket, struct epoll_event const & Event )
 {
-	socket.receive(Event.data);
+	socket.receive(Event.data.u32);
 	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
 
@@ -175,14 +176,14 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 {
 	if (!str.empty())
-		str.pop_back();
+		str.erase(str.end());
 	str.append(to_add.data(), to_add.size());
 }
 
 void	Request::join_strings(std::string &str, std::string &to_add)
 {
 	if (!str.empty())
-		str.pop_back();
+		str.erase(str.end());
 	str.append(to_add.data(), to_add.size());
 }
 

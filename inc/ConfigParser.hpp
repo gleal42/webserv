@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/09 15:07:37 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/09 21:16:13 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define __CONFIG_PARSER_H__
 
 # include "ServerConfig.hpp"
-# include "inc/webserver.hpp"
+# include "webserver.hpp"
 # include <macros.hpp>
 
 
@@ -40,10 +40,10 @@ enum directives{
     DIRECTIVE_ERRORPAGE,
     DIRECTIVE_MAXBODYSIZE,
     DIRECTIVE_INDEX,
-    DIRECTIVE_LISTEN,
-    DIRECTIVE_SERVERNAME,
-    DIRECTIVE_LIMITEXCEPT,
-    DIRECTIVE_CGI,
+    DIRECTIVE_CGI = 5,
+    DIRECTIVE_LIMITEXCEPT = 6,
+    DIRECTIVE_LISTEN = 5,
+    DIRECTIVE_SERVERNAME = 6,
 };
 
 // ************************************************************************** //
@@ -62,8 +62,7 @@ Needs to be able to:
 
 struct ConfigError : virtual public std::runtime_error{
         ConfigError();
-        virtual ~ConfigError (void) throw(){};
-        virtual const char*		what( void ) const throw ();
+        virtual ~ConfigError (void) throw(){}
 };
 
 struct ConfigurationFileError : public ConfigError{
@@ -111,7 +110,7 @@ class ConfigParser
         // Methods
         // ServerConfig    config(int const index) const;
         int             configs_amount(void) const;
-        void            call(void);
+        const Configs            call(void);
         void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
 
         // Config vector
