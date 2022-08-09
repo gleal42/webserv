@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/08 18:48:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/10 00:26:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,6 @@ void    ConfigParser::call()
 //     if (ac == 2)
 //     {
 //         ConfigParser config_parser(file);
-//         config_parser.call();
 //         std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
 //         std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
 //     }
@@ -237,15 +236,24 @@ void    ConfigParser::call()
 // };
 
 
-void            ConfigParser::set_general_conf(void)
+void	ConfigParser::set_general_conf(void)
 {
     ServerConfig general_server;
     general_server.set_listen(0, "8080");
-    general_server.set_server_name("Bosses");
+    general_server.set_server_name("boss_group");
+    general_server.set_indexes("index.html");
+    LocationConfig default_location;
+    default_location.set_limit_except("GET POST PUT DELETE");
+    general_server.set_location("/", default_location);
     server_configs.push_back(general_server);
 }
 
-void            ConfigParser::set_tester_conf(void)
+void	ConfigParser::set_tester_conf(void)
 {
-    
+    ServerConfig general_server;
+    general_server.set_listen(0, "8080");
+    general_server.set_server_name("boss_group");
+    general_server.set_indexes("index.html");
+
+    server_configs.push_back(general_server);
 }

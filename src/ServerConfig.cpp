@@ -127,7 +127,7 @@ void    BaseConfig::set_max_body_size(int has_separators,std::string &content){
     this->_client_max_body_size = max_size;
 }
 
-void    BaseConfig::set_indexes(std::string &content){
+void    BaseConfig::set_indexes(const std::string &content){
     std::string tmp(content);
     char*       token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
     while (token != NULL){
@@ -194,7 +194,7 @@ void    LocationConfig::set_cgi(std::string &content)
 }
 
 
-void    LocationConfig::set_limit_except(std::string &content){
+void    LocationConfig::set_limit_except(const std::string &content){
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
 
     while (token){
@@ -320,4 +320,9 @@ std::vector<std::string>    ServerConfig::get_server_name( void )
 Locations                   ServerConfig::get_locations( void )
 {
 	return (this->_locations);
+}
+
+void	ServerConfig::set_location( const std::string &name, const LocationConfig &location )
+{
+    _locations[name]=location;
 }

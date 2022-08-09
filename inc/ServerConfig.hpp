@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/08 16:48:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/10 00:25:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ class BaseConfig{
     void                            set_autoindex(std::string &content);
     void                            set_error_pages(std::string &content);
     void                            set_max_body_size(int has_separators,std::string &content);
-    void                            set_indexes(std::string &content);
+    void                            set_indexes(const std::string &content);
 
     // Getters
     std::string                     get_root( void ) const;
@@ -70,13 +70,14 @@ class LocationConfig : public BaseConfig
         // Setters
         void                        set_directive(int directive, std::string &content);
         void                        set_cgi(std::string &content);
-        void                        set_limit_except(std::string &content);
+        void                        set_limit_except(const std::string &content);
 
         // Getters
         std::string                 get_cgi( void );
         std::vector<std::string>    get_limit_except( void );
 
     private:
+        std::string                 _name;
         std::string                 _cgi;
         std::vector<std::string>    _limit_except;
 
@@ -95,6 +96,7 @@ class ServerConfig : public BaseConfig
         void                        set_directive(int directive, std::string &content);
         void                        set_listen(int has_separators, const std::string &content);
         void                        set_server_name(const std::string &content);
+        void                        set_location(const std::string &name, const LocationConfig& location);
 
         // Getters
         std::string                 get_ip( void );
