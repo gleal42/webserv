@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/09 01:57:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/10 17:29:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void	Socket::bind( int port )
 {
 	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = INADDR_ANY;
+	_address.sin_addr.s_addr = INADDR_ANY; // This value will depend on ip from config
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);

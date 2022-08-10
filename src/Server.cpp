@@ -150,9 +150,7 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
             return ;
         }
     }
-	// LOG("|--- Headers ---|");
-	// LOG(connection->request._raw_headers);
-	// LOG("|--- Headers ---|");
+
     if (connection->request._raw_body.size())
     {
         std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
@@ -185,8 +183,34 @@ void	Server::write_to_connection( Connection *connection )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
+// first listener should be default since fds are usually increasing in number
+
 void	Server::service(Request & req, Response & res)
 {
+    // ipaddress = X
+    // port = X
+    // host = X
+	ServerConfig to_use;
+	std::string hostname = req._headers["Host"];
+    for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
+    {
+		// or it->second->_config.get_ip() == ANYADDR
+       if (it->second->_config.get_ip() == req.request_uri.host
+	   		&& it->second->_config.get_port() == req.request_uri.port)
+		{
+			// if (it->second.is_default())
+			if (to_use.is_empty())
+				to_use = it->second->_config;
+			std::vector<std::string> server_names = it->second->_config.get_server_name();
+			for (std::vector<std::string>::iterator it_s = server_names.begin();
+				it_s != server_names.end();
+				it_s++)
+			{
+				if (*it_s == hostname)
+					to_use = it->second->_config;
+			}
+		}
+    }
     url::decode(req._path); // Interpret url as extended ASCII
     std::string path = remove_query_string(req._path); // Could be done in Request parsing
     std::string extension = get_extension(path);

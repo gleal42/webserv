@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/10 00:26:47 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/10 18:26:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,13 @@ ConfigParser::~ConfigParser(void)
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~Config-parsing utils~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/*
+    Autoindex: off
+    Limit_body_size: -1 (no limit)
+    When listen doesn't specify a port: 8080
+    When listen doesn't specify an IP address: localhost (127.0.0.1)
+*/
 
 namespace {
     const std::string valid_server_directives[CONTEXT_DIRECTIVES] =

@@ -27,8 +27,11 @@ namespace {
          || code == 505 || code == 507 || code == 511);
     }
 
-    bool valid_method(std::string str){
-        return (str == "GET" || str == "POST" || str == "DELETE");}
+    bool valid_method(std::string str)
+    {
+        return (str == "GET" || str == "POST" || str == "DELETE"
+                || str == "PUT");
+    }
 
     bool is_number(const std::string& str){
         return (!str.empty() && (str.find_first_not_of("[0123456789]") == std::string::npos));
@@ -198,7 +201,7 @@ void    LocationConfig::set_limit_except(const std::string &content){
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
 
     while (token){
-        if (!(valid_method(content)))
+        if (!(valid_method(token)))
 	        throw (ConfigurationDirectiveError(content));
         std::vector<std::string>::iterator last = this->_limit_except.end();
         std::vector<std::string>::iterator tmp = this->_limit_except.begin();
@@ -258,6 +261,7 @@ void ServerConfig::set_directive(int directive, std::string& content){
             break;
     }
 };
+
 void    ServerConfig::set_listen(int has_separators, const std::string &content){
     if (has_separators)
 	    throw (std::runtime_error(content + ": This directive can only have one argument"));
