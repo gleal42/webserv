@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/09 21:11:13 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/09 21:42:43 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ class BaseConfig{
     void                            set_root(bool has_separators, std::string &content);
     void                            set_autoindex(std::string &content);
     void                            set_error_pages(std::string &content);
-    void                            set_max_body_size(int has_separators,std::string &content);
+    void                            set_max_body_size(bool has_separators,std::string &content);
     void                            set_indexes(std::string &content);
 
     // Getters
@@ -76,7 +76,7 @@ class LocationConfig : public BaseConfig
         // Setters
         int                         find_directive(std::string &content);
         void                        set_directive(int directive, std::string &content);
-        void                        set_cgi(std::string &content);
+        void                        set_cgi(bool has_separators, std::string &content);
         void                        set_limit_except(std::string &content);
 
         // Getters
@@ -103,7 +103,7 @@ class ServerConfig : public BaseConfig
         // Setters
         int                         find_directive(std::string &content);
         void                        set_directive(int directive, std::string &content);
-        void                        set_listen(int has_separators, std::string &content);
+        void                        set_listen(bool has_separators, std::string &content);
         void                        set_server_name(std::string &content);
 
         // Getters

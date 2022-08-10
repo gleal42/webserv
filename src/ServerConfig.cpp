@@ -8,7 +8,7 @@ ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){};
 
 // Destructors
 BaseConfig::~BaseConfig(){};
-LocationConfig::~LocationConfig(){};
+LocationConfig::~LocationConfig(){ if (this->is_empty()) std::cout << "location destroyed\n";};
 ServerConfig::~ServerConfig(){};
 
 // Copy constructor
@@ -130,7 +130,7 @@ void    BaseConfig::set_error_pages(std::string &content){
     }
 }
 
-void    BaseConfig::set_max_body_size(int has_separators,std::string &content){
+void    BaseConfig::set_max_body_size(bool has_separators,std::string &content){
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
     int                 max_size;
@@ -207,7 +207,7 @@ void LocationConfig::set_directive(int directive, std::string& content){
             this->set_indexes(content);
             break;
         case DIRECTIVE_CGI:
-         this->set_cgi(content);
+         this->set_cgi(has_separators, content);
             break;
         case DIRECTIVE_LIMITEXCEPT:
             this->set_limit_except(content);
@@ -215,16 +215,15 @@ void LocationConfig::set_directive(int directive, std::string& content){
         default:
             break;
     }
-};
-void    LocationConfig::set_cgi(std::string &content)
-{
-    this->_cgi = content.c_str();
-    //   if (has_separators)
-	//     throw (MultipleArgumentsError(content));
-    // else if (!is_directory(content))
-	//     throw (BadDirectoryError(content));
-    // this->_root = content;
 }
+
+void    LocationConfig::set_cgi(bool has_separators, std::string &content)
+{
+    if (has_separators)
+	    throw (MultipleArgumentsError(content));
+    else if (!is_directory(content))
+	    throw (BadDirectoryError(content));
+    this->_cgi = content;
 }
 
 void    LocationConfig::set_limit_except(std::string &content){
@@ -306,7 +305,7 @@ void ServerConfig::set_directive(int directive, std::string& content){
             break;
     }
 };
-void    ServerConfig::set_listen(int has_separators, std::string &content){
+void    ServerConfig::set_listen(bool has_separators, std::string &content){
     if (has_separators)
 	    throw (std::runtime_error(content + ": This directive can only have one argument"));
 
@@ -370,55 +369,67 @@ ServerConfig& ServerConfig::operator= (const ServerConfig& param){
 
 std::ostream& operator<<(std::ostream & s, ServerConfig & param) {
     s << "|**********************************************|"<< std::endl;
-    s << "| Server " << param.get_ip() << ":" << param.get_port() << std::endl;
-    s << "| - root path " << param.get_root() << std::endl;
-    s << "| - errors map [" << std::endl;
-    std::map<std::string, std::vector<int> >::const_iterator it_m = param.get_error_pages().begin();
-    std::vector<int>::const_iterator it_v;
-	for (; it_m != param.get_error_pages().end() ; it_m++) {
-        s << "|     " << it_m->first << ": [";
-		for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
-            s << *it_v << " ";
-        s << "]" << std::endl;
-    }
-    std::cout << "|   ]" << std::endl;
-    s << "| - server names [";
-    std::vector<std::string> s_list(param.get_server_name());
-    std::vector<std::string>::iterator s_it(s_list.begin());
-    for (; s_it != s_list.end() ; ++s_it)
-        s << *s_it << " ";
-    s << "]" << std::endl;
-    s << "| - autoindex " << (param.get_autoindex() == AUTOINDEX_ON ? "on" : "off") << std::endl;
-    s << "| - max_body_size " << param.get_max_body_size() << std::endl;
-    s << "| - [" << param.get_locations().size() << "] locations " << std::endl;
-    Locations list = param.get_locations();
-    Locations::iterator it(list.begin());
-    for (; it != list.end() ; ++it) {
-        s << "|     root path " << it->second.get_root() << std::endl;
-        s << "|     errors map [" << std::endl;
-        std::map<std::string, std::vector<int> >::const_iterator it_m = it->second.get_error_pages().begin();
+    if (!(param.get_ip().empty())) s << "| Server " << param.get_ip() << ":" << param.get_port() << std::endl;
+    if (!(param.get_root().empty()))  s << "| - root path " << param.get_root() << std::endl;
+    if (!(param.get_error_pages().empty())){
+        s << "| - errors map [" << std::endl;
+        std::map<std::string, std::vector<int> >::const_iterator it_m = param.get_error_pages().begin();
         std::vector<int>::const_iterator it_v;
-        for (; it_m !=  it->second.get_error_pages().end() ; it_m++) {
-            s << "|       " << it_m->first << ": [";
+        for (; it_m != param.get_error_pages().end() ; it_m++) {
+            s << "|     " << it_m->first << ": [";
             for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
                 s << *it_v << " ";
             s << "]" << std::endl;
         }
-        std::cout << "|     ]" << std::endl;
-        s << "|     autoindex " << ((it->second.get_autoindex() == AUTOINDEX_ON) ? "on" : "off") << std::endl;
-        s << "|     max_body_size " << it->second.get_max_body_size() << std::endl;
-        s << "|     Index [";
-        std::vector<std::string>::iterator i_it(it->second.get_indexes().begin());
-        for (; i_it != it->second.get_indexes().end() ; ++i_it)
-            s << *i_it << " ";
+        std::cout << "|   ]" << std::endl;
+    }
+    if (!(param.get_ip().empty())){
+        s << "| - server names [";
+        std::vector<std::string> s_list(param.get_server_name());
+        std::vector<std::string>::iterator s_it(s_list.begin());
+        for (; s_it != s_list.end() ; ++s_it)
+            s << *s_it << " ";
         s << "]" << std::endl;
-        s << "|     Methods [";
-        std::vector<std::string>::iterator m_it(it->second.get_limit_except().begin());
-        for (; m_it != it->second.get_limit_except().end() ; ++m_it)
-            s << *m_it << " ";
-        s << "]" << std::endl;
-        s << "|     CGI " << it->second.get_cgi() << std::endl;
-        s << "|     ]" << std::endl;
+    }
+    if (param.get_autoindex() != AUTOINDEX_UNSET) s << "| - autoindex " << (param.get_autoindex() == AUTOINDEX_ON ? "on" : "off") << std::endl;
+    if (param.get_max_body_size() != -1) s << "| - max_body_size " << param.get_max_body_size() << std::endl;
+    if (!(param.get_locations().empty())){
+        s << "| - [" << param.get_locations().size() << "] locations " << std::endl;
+        Locations list = param.get_locations();
+        Locations::iterator it(list.begin());
+        for (; it != list.end() ; ++it) {
+            if (!(param.get_root().empty())) s << "|     root path " << it->second.get_root() << std::endl;
+            if (!(param.get_error_pages().empty())){
+                s << "|     errors map [" << std::endl;
+                std::map<std::string, std::vector<int> >::const_iterator it_m = it->second.get_error_pages().begin();
+                std::vector<int>::const_iterator it_v;
+                for (; it_m !=  it->second.get_error_pages().end() ; it_m++) {
+                    s << "|       " << it_m->first << ": [";
+                    for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
+                        s << *it_v << " ";
+                    s << "]" << std::endl;
+                }
+                std::cout << "|     ]" << std::endl;
+            }
+            if (it->second.get_autoindex() != AUTOINDEX_UNSET)s << "|     autoindex " << ((it->second.get_autoindex() == AUTOINDEX_ON) ? "on" : "off") << std::endl;
+            if (it->second.get_max_body_size() != -1) s << "|     max_body_size " << it->second.get_max_body_size() << std::endl;
+            if(!(it->second.get_indexes().empty())){
+                s << "|     Index [";
+                std::vector<std::string>::iterator i_it(it->second.get_indexes().begin());
+                for (; i_it != it->second.get_indexes().end() ; ++i_it)
+                    s << *i_it << " ";
+                s << "]" << std::endl;
+            }
+            if(!(it->second.get_limit_except().empty())){
+                s << "|     Methods [";
+                std::vector<std::string>::iterator m_it(it->second.get_limit_except().begin());
+                for (; m_it != it->second.get_limit_except().end() ; ++m_it)
+                    s << *m_it << " ";
+                s << "]" << std::endl;
+            }
+            if(!(it->second.get_cgi().empty())) s << "|     CGI " << it->second.get_cgi() << std::endl;
+            s << "|     ]" << std::endl;
+        }
     }
     s << "|**********************************************|"<< std::endl;
     return (s);

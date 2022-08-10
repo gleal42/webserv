@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/09 21:16:12 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/10 01:17:14 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,8 +113,12 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             else if (context == LOCATION_CONTEXT){
                 if (new_location.is_empty())
                     throw (EmptyContextBlockError());
-                if (is_directory(location_path))
-                    server_ptr->get_locations()[location_path] = new_location;
+                if (server_ptr->is_empty()) std::cout << "server empty\n";
+                std::cout << "putting " << new_location.get_error_pages()["/home/user/Desktop/playground/tmpdir"][0] << " in " << location_path << "\n";
+                if (!(is_directory(location_path)))
+	                throw (BadDirectoryError(content));
+                server_ptr->get_locations()[location_path] = new_location;
+                if (server_ptr->get_locations().empty()) std::cout << "location empty\n"; //TO DO: CLEAR MEM LEAKS HERE
             }
             return;
         }
@@ -177,5 +181,10 @@ const Configs ConfigParser::call()
                 throw DirectiveOutOfScopeError(directive);
         }
     file.close();
+    if (server_configs[0].get_locations().empty()) std::cout << "emptyyyyy\n";
+    else std::cout << server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages()["/home/user/Desktop/playground/tmpdir"][0];
+    // std::vector<ServerConfig>::iterator it = server_configs.begin();
+    // for(; it != server_configs.end(); it++)
+    //     std::cout << *it;
     return (this->server_configs);
 };

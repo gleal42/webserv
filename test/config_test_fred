@@ -1,0 +1,6 @@
+server {
+		error_page 404 /home/user/Desktop/playground/tmpdir;
+	location /home/user/Desktop/git/webserv/test {
+		error_page 207 /home/user/Desktop/playground/tmpdir;
+	}
+}
