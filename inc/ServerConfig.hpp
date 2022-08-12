@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/12 13:23:20 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/12 16:07:13 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ class BaseConfig{
     // Getters
     std::string                     get_root( void );
     autobool                        get_autoindex( void );
-    errorPage                       get_error_pages( void );
+    errorPage&                      get_error_pages( void );
     int                             get_max_body_size( void ) const;
     std::vector<std::string>        get_indexes( void );
 
@@ -111,14 +111,14 @@ class ServerConfig : public BaseConfig
         // Getters
         std::string                 get_ip( void );
         int                         get_port( void );
-        Locations                   get_locations( void );
+        Locations&                  get_locations( void );
         std::vector<std::string>    get_server_name( void );
 
+        Locations                   _locations;
     private:
         std::string                 _ip;
         int                         _port;
         std::vector<std::string>    _server_name;
-        Locations                   _locations;
 };
 
 typedef std::vector<ServerConfig> Configs;

@@ -3,7 +3,7 @@
 
 // Constructors
 BaseConfig::BaseConfig() : _autoindex(AUTOINDEX_UNSET), _client_max_body_size(-1){};
-LocationConfig::LocationConfig(){std::cout << "DEF\n";};
+LocationConfig::LocationConfig(){};
 ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){};
 
 // Destructors
@@ -163,7 +163,7 @@ void    BaseConfig::set_indexes(std::string &content){
 // BaseConfig Getters
 std::string                 BaseConfig::get_root( void ) {return (this->_root);}
 autobool                    BaseConfig::get_autoindex( void ) {return (this->_autoindex);}
-errorPage                   BaseConfig::get_error_pages( void ) {return (this->_error_pages);}
+errorPage&                  BaseConfig::get_error_pages( void ) {return (this->_error_pages);}
 int                         BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
 std::vector<std::string>    BaseConfig::get_indexes( void ) {return (this->_indexes);}
 
@@ -366,7 +366,7 @@ void    ServerConfig::set_server_name(std::string &content){
 
 std::string                 ServerConfig::get_ip( void ) {return (this->_ip);}
 int                         ServerConfig::get_port( void ) {return (this->_port);}
-Locations                   ServerConfig::get_locations( void ) {return (this->_locations);}
+Locations&                  ServerConfig::get_locations( void ) {return (this->_locations);}
 std::vector<std::string>    ServerConfig::get_server_name( void ) {return (this->_server_name);}
 
 
