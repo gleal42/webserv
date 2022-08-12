@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/08 18:48:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/12 19:00:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,53 +187,58 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
-    // ipaddress = X
-    // port = X
-    // host = X
-	ServerConfig to_use;
-	std::string hostname = req._headers["Host"];
-    for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
+    try
     {
-		// or it->second->_config.get_ip() == ANYADDR
-       if (it->second->_config.get_ip() == req.request_uri.host
-	   		&& it->second->_config.get_port() == req.request_uri.port)
-		{
-			// if (it->second.is_default())
-			if (to_use.is_empty())
-				to_use = it->second->_config;
-			std::vector<std::string> server_names = it->second->_config.get_server_name();
-			for (std::vector<std::string>::iterator it_s = server_names.begin();
-				it_s != server_names.end();
-				it_s++)
-			{
-				if (*it_s == hostname)
-					to_use = it->second->_config;
-			}
-		}
-    }
-    url::decode(req._path); // Interpret url as extended ASCII
-    std::string path = remove_query_string(req._path); // Could be done in Request parsing
-    std::string extension = get_extension(path);
-    if (CGIHandler::extension_is_implemented(extension))
-    {
-        CGIHandler handler(req._path); // probably needs config for root path etc
-        try {
+		if (req.request_uri.host.empty())
+			throw HTTPStatus<400>();
+        ServerConfig to_use = find_config_to_use(req);
+        url::decode(req._path); // Interpret url as extended ASCII
+        std::string path = remove_query_string(req._path); // Could be done in Request parsing
+        std::string extension = get_extension(path);
+
+        if (CGIHandler::extension_is_implemented(extension))
+        {
+            CGIHandler handler(req._path); // probably needs config for root path etc
             handler.service(req, res);
             res.build_message(handler.script_status());
-        } catch (BaseStatus &error_status) {
-            file::build_error_page(error_status, res);
         }
-    }
-    else
-    {
-        FileHandler handler; // probably needs config for root path etc
-        try {
+        else
+        {
+            FileHandler handler; // probably needs config for root path etc
             handler.service(req, res);
             res.build_message(HTTPStatus<200>());	
-        } catch (BaseStatus &error_status) {
-            file::build_error_page(error_status, res);
+        }
+    } catch (BaseStatus &error_status) {
+        file::build_error_page(error_status, res);
+    }
+}
+
+ServerConfig	Server::find_config_to_use(const Request & req)
+{
+    ServerConfig to_use;
+
+    for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
+    {
+        // or it->second->_config.get_ip() == ANYADDR
+		if (it->second->_config.get_ip() == req.request_uri.host
+            && it->second->_config.get_port() == req.request_uri.port)
+        {
+            // if (it->second.is_default())
+            if (to_use.is_empty())
+                to_use = it->second->_config;
+            std::vector<std::string> server_names = it->second->_config.get_server_name();
+            for (std::vector<std::string>::iterator it_s = server_names.begin();
+                it_s != server_names.end();
+                it_s++)
+            {
+                if (*it_s == req.request_uri.host)
+                    to_use = it->second->_config;
+            }
         }
     }
+    if (to_use.get_server_name().size())
+        std::cout << "We will use config with server_name " << to_use.get_server_name()[0] << std::endl;
+    return (to_use);
 }
 
 Server::~Server()

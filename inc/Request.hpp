@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/11 00:10:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/12 17:41:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 
 #include "macros.hpp"
 #include "ServerConfig.hpp"
+#include "webserver.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -121,7 +122,7 @@ public:
 	std::string		query; // map
 
 	std::string		to_s( void ) {
-		return std::string("http://") + host + std::string(":") + port + path + query;
+		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
 };
 

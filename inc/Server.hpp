@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 00:28:01 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/12 18:35:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ public:
 	void				read_connection( Connection *connection , struct kevent const & Event );
 	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
+	ServerConfig		find_config_to_use(const Request & req);
 	void				close_connection( int connection_fd );
 	void				close_listener( int listener_fd );
    	struct kevent 		ListQueue[10];

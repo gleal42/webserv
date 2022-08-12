@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/08 12:35:22 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/12 18:56:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,6 +142,11 @@ void	Request::read_header(std::string &_unparsed_request)
 			key_start = i + 2;
 		}
 	}
+	// Defining Host to be used in Service
+
+	request_uri.host = _headers["Host"];
+	request_uri.host = request_uri.host.substr(0, request_uri.host.find('?'));
+	request_uri.host = request_uri.host.substr(0, request_uri.host.find(':'));
 	_unparsed_request = _unparsed_request.substr(body_start + 4);
 }
 
