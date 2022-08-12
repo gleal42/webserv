@@ -1,6 +1,6 @@
 server {
-		error_page 404 /home/user/Desktop/playground/tmpdir;
-	location /home/user/Desktop/git/webserv/test {
-		error_page 207 /home/user/Desktop/playground/tmpdir;
+	error_page 404 /home/user/Desktop/git;
+	location /home/user/Desktop {
+		client_max_body_size 13;
 	}
 }

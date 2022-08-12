@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/09 21:42:43 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/12 13:23:20 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ class LocationConfig : public BaseConfig
     public:
         LocationConfig();
         ~LocationConfig();
+        LocationConfig(const LocationConfig&);
+        LocationConfig& operator= (const LocationConfig&);
 
         bool                        is_empty( void );
         // Setters

@@ -3,12 +3,12 @@
 
 // Constructors
 BaseConfig::BaseConfig() : _autoindex(AUTOINDEX_UNSET), _client_max_body_size(-1){};
-LocationConfig::LocationConfig(){};
+LocationConfig::LocationConfig(){std::cout << "DEF\n";};
 ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){};
 
 // Destructors
 BaseConfig::~BaseConfig(){};
-LocationConfig::~LocationConfig(){ if (this->is_empty()) std::cout << "location destroyed\n";};
+LocationConfig::~LocationConfig(){};
 ServerConfig::~ServerConfig(){};
 
 // Copy constructor
@@ -19,6 +19,16 @@ ServerConfig::ServerConfig(const ServerConfig& param){
     this->_client_max_body_size = param._client_max_body_size;
     this->_indexes = param._indexes;
     this->_locations = param._locations;
+}
+
+LocationConfig::LocationConfig(const LocationConfig& param){
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_cgi = param._cgi;
+    this->_limit_except = param._limit_except;
 }
 
 // ServerConfig utils
@@ -230,8 +240,8 @@ void    LocationConfig::set_limit_except(std::string &content){
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
 
     while (token){
-        if (!(valid_method(content)))
-	        throw (ConfigurationDirectiveError(content));
+        if (!(valid_method(token)))
+	        throw (ConfigurationDirectiveError(token));
         std::vector<std::string>::iterator last = this->_limit_except.end();
         std::vector<std::string>::iterator tmp = this->_limit_except.begin();
         for (; tmp != last; ++tmp)
@@ -360,10 +370,36 @@ Locations                   ServerConfig::get_locations( void ) {return (this->_
 std::vector<std::string>    ServerConfig::get_server_name( void ) {return (this->_server_name);}
 
 
-
 // Operators
 ServerConfig& ServerConfig::operator= (const ServerConfig& param){
-    (void)param;
+    if (this == &param)
+        return (*this);
+
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_ip = param._ip;
+    this->_port = param._port;
+    this->_server_name = param._server_name;
+    this->_locations = param._locations;
+
+    return (*this);
+}
+
+LocationConfig& LocationConfig::operator= (const LocationConfig& param){
+    if (this == &param)
+        return (*this);
+
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_cgi = param._cgi;
+    this->_limit_except = param._limit_except;
+
     return (*this);
 }
 
