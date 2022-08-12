@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/10 18:26:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/11 19:48:33 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -245,14 +245,23 @@ void    ConfigParser::call()
 
 void	ConfigParser::set_general_conf(void)
 {
-    ServerConfig general_server;
-    general_server.set_listen(0, "8080");
-    general_server.set_server_name("boss_group");
-    general_server.set_indexes("index.html");
-    LocationConfig default_location;
-    default_location.set_limit_except("GET POST PUT DELETE");
-    general_server.set_location("/", default_location);
-    server_configs.push_back(general_server);
+    ServerConfig server_block_1;
+    server_block_1.set_listen(0, "8080");
+    server_block_1.set_server_name("first");
+    server_block_1.set_indexes("index.html");
+    LocationConfig location_1;
+    location_1.set_limit_except("GET POST PUT DELETE");
+    server_block_1.set_location("/", location_1);
+    server_configs.push_back(server_block_1);
+
+    ServerConfig server_block_2;
+    server_block_2.set_listen(0, "8080");
+    server_block_2.set_server_name("second");
+    server_block_2.set_indexes("ms_index.html");
+    LocationConfig location_2;
+    location_2.set_limit_except("GET POST PUT DELETE");
+    server_block_2.set_location("/", location_2);
+    server_configs.push_back(server_block_2);
 }
 
 void	ConfigParser::set_tester_conf(void)
