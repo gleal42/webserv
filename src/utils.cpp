@@ -6,13 +6,16 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/08 12:18:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/14 18:16:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
 # include <unistd.h>
 # include "HTTPStatus.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 std::string	to_string(int number)
 {
@@ -178,4 +181,34 @@ bool is_directory(std::string &path)
         if (S_ISDIR(s.st_mode))
             return (true);
     return (false);
+}
+
+struct addrinfo *get_host(const std::string &hostname )
+{
+	struct addrinfo *host;
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	int resolve_req_host = getaddrinfo(hostname.c_str(), NULL, NULL, &host);
+	if (resolve_req_host != 0)
+        throw HTTPStatus<500>(); // temporary
+	return host;
+}
+
+bool is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host)
+{
+    struct addrinfo *listener_host;
+    int resolve_listener_host = getaddrinfo(listener_address.c_str(), NULL, NULL, &listener_host);
+    if (resolve_listener_host != 0)
+		throw HTTPStatus<500>(); // temporary 
+	const struct sockaddr_in *listener_addr = (const struct sockaddr_in *)listener_host->ai_addr;
+	if (listener_addr->sin_addr.s_addr == 0
+		|| listener_addr->sin_addr.s_addr == req_host->sin_addr.s_addr)
+	{
+		freeaddrinfo(listener_host);
+		return true;
+	}
+	freeaddrinfo(listener_host);
+	return false;
 }

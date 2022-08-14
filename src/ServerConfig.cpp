@@ -7,7 +7,7 @@ BaseConfig::BaseConfig() : _autoindex(unset), _client_max_body_size(-1){}
 
 BaseConfig::~BaseConfig(){}
 
-ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){}
+ServerConfig::ServerConfig() : _ip("0.0.0.0"), _port(80){}
 
 // ServerConfig utils
 namespace {
@@ -224,8 +224,8 @@ std::vector<std::string>    LocationConfig::get_limit_except( void ) {return (th
 bool    ServerConfig::is_empty( void ){
     return (this->_root.empty() && this->_autoindex == unset
         && this->_error_pages.empty() && this->_client_max_body_size == -1
-        && this->_indexes.empty() && this->_ip == "127.0.0.1"
-        && this->_port == 8080 && this->_server_name.empty()
+        && this->_indexes.empty() && this->_ip == "0.0.0.0"
+        && this->_port == 80 && this->_server_name.empty()
         && this->_locations.empty());
 }
 // ServerConfig setters

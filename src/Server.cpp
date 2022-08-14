@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/12 19:00:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/14 18:19:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 #include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -216,9 +219,12 @@ void	Server::service(Request & req, Response & res)
 ServerConfig	Server::find_config_to_use(const Request & req)
 {
     ServerConfig to_use;
+    struct addrinfo *host = get_host(req.request_uri.host);
 
+    // HERE
     for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
     {
+        if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr))
         // or it->second->_config.get_ip() == ANYADDR
 		if (it->second->_config.get_ip() == req.request_uri.host
             && it->second->_config.get_port() == req.request_uri.port)
@@ -236,6 +242,7 @@ ServerConfig	Server::find_config_to_use(const Request & req)
             }
         }
     }
+    freeaddrinfo(host);
     if (to_use.get_server_name().size())
         std::cout << "We will use config with server_name " << to_use.get_server_name()[0] << std::endl;
     return (to_use);
