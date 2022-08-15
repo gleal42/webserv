@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/14 18:19:43 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/15 00:23:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,12 +221,9 @@ ServerConfig	Server::find_config_to_use(const Request & req)
     ServerConfig to_use;
     struct addrinfo *host = get_host(req.request_uri.host);
 
-    // HERE
     for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
     {
-        if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr))
-        // or it->second->_config.get_ip() == ANYADDR
-		if (it->second->_config.get_ip() == req.request_uri.host
+        if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
             && it->second->_config.get_port() == req.request_uri.port)
         {
             // if (it->second.is_default())

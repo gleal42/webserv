@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/12 18:56:52 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/15 01:42:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Socket.hpp"
 #include "Listener.hpp"
 #include "HTTPStatus.hpp"
+#include <algorithm>
 
 /* Constructors */
 Request::Request( void ) { /* no-op */ }
@@ -142,12 +143,25 @@ void	Request::read_header(std::string &_unparsed_request)
 			key_start = i + 2;
 		}
 	}
+	_unparsed_request = _unparsed_request.substr(body_start + 4);
 	// Defining Host to be used in Service
 
-	request_uri.host = _headers["Host"];
-	request_uri.host = request_uri.host.substr(0, request_uri.host.find('?'));
-	request_uri.host = request_uri.host.substr(0, request_uri.host.find(':'));
-	_unparsed_request = _unparsed_request.substr(body_start + 4);
+	std::string raw_host = _headers["Host"];
+	size_t port_start = raw_host.find(':');
+	size_t query_string_start = raw_host.find('?');
+	request_uri.host = raw_host.substr(0, std::min(query_string_start, port_start));
+
+	if (port_start == std::string::npos)
+		request_uri.port = 80; // default port for HTTP
+	else
+	{
+		std::string port = raw_host.substr(port_start + 1, query_string_start);
+		// std::cout << "PORT SHOULD BE " << port << std::endl;
+		request_uri.port = str_to_nbr<int>(port);
+		std::cout << "PORT IS " << request_uri.port << std::endl;
+	}
+	if (query_string_start != std::string::npos)
+		request_uri.query = raw_host.substr(query_string_start);
 }
 
 void	Request::read_body(std::string &_unparsed_request)

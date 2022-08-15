@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/14 17:47:18 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/14 22:44:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ std::string			remove_query_string(const std::string &uri);
 std::string			get_query_string(const std::string &uri);
 std::string			to_string(int number);
 bool				is_directory(std::string &path);
+struct addrinfo *	get_host(const std::string &hostname );
 bool				is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host);
 
 template <typename T>
