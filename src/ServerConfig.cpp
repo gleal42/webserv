@@ -1,10 +1,44 @@
 #include "ServerConfig.hpp"
-#include "utils.hpp"
 #include "ConfigParser.hpp"
 
 // Constructors
-BaseConfig::BaseConfig() : _autoindex(unset), _client_max_body_size(-1){};
-ServerConfig::ServerConfig() : _ip("127.0.0.1"),_port(8080){};
+BaseConfig::BaseConfig() : _autoindex(AUTOINDEX_UNSET), _client_max_body_size(-1){};
+LocationConfig::LocationConfig(){};
+ServerConfig::ServerConfig(){
+    Listen  init_listen;
+
+    init_listen.ip = "127.0.0.1";
+    init_listen.port = 8080;
+    init_listen.is_set = false;
+    this->_listens.push_back(init_listen);
+};
+
+// Destructors
+BaseConfig::~BaseConfig(){};
+LocationConfig::~LocationConfig(){};
+ServerConfig::~ServerConfig(){};
+
+// Copy constructor
+ServerConfig::ServerConfig(const ServerConfig& param){
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_locations = param._locations;
+    this->_listens = param._listens;
+    this->_server_names = param._server_names;
+}
+
+LocationConfig::LocationConfig(const LocationConfig& param){
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_cgi = param._cgi;
+    this->_limit_except = param._limit_except;
+}
 
 // ServerConfig utils
 namespace {
@@ -49,7 +83,7 @@ namespace {
         if (ip == "0.0.0.0" || ip == "localhost" || ip == "*")
             return (true);
 
-        std::vector<std::string> ip_vec          = split(ip, '.');
+        std::vector<std::string> ip_vec = split(ip, '.');
 
         if (ip_vec.size() != 4)
             return (false);
@@ -70,6 +104,8 @@ namespace {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~BaseConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // BaseConfig Setters
+// void BaseConfig::set_directive(int directive, std::string& content)
+
 void    BaseConfig::set_root(bool has_separators, std::string &content){
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
@@ -80,9 +116,9 @@ void    BaseConfig::set_root(bool has_separators, std::string &content){
 
 void    BaseConfig::set_autoindex(std::string &content){
     if (content == "on")
-        this->_autoindex = on;
+        this->_autoindex = AUTOINDEX_ON;
     else if (content == "off")
-        this->_autoindex = off;
+        this->_autoindex = AUTOINDEX_OFF;
     else
 	    throw (ConfigurationDirectiveError(content));
 }
@@ -113,7 +149,7 @@ void    BaseConfig::set_error_pages(std::string &content){
     }
 }
 
-void    BaseConfig::set_max_body_size(int has_separators,std::string &content){
+void    BaseConfig::set_max_body_size(bool has_separators,std::string &content){
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
     int                 max_size;
@@ -128,27 +164,45 @@ void    BaseConfig::set_indexes(std::string &content){
     std::string tmp(content);
     char*       token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
     while (token != NULL){
-        this->_indexes.push_back(token);
+        std::string tokstr = std::string(token);
+        if (!(is_file(tokstr)))
+	        throw (BadFileError(tokstr));
+        this->_indexes.push_back(tokstr);
         token = strtok(NULL, SEPARATORS);
     }
 }
 
 // BaseConfig Getters
-std::string                 BaseConfig::get_root( void ) {return (this->_root);}
-autobool                    BaseConfig::get_autoindex( void ) {return (this->_autoindex);}
-errorPage                   BaseConfig::get_error_pages( void ) {return (this->_error_pages);}
-int                         BaseConfig::get_max_body_size( void ) {return (this->_client_max_body_size);}
-std::vector<std::string>    BaseConfig::get_indexes( void ) {return (this->_indexes);}
+std::string&                BaseConfig::get_root( void ) {return (this->_root);}
+AutoBool                    BaseConfig::get_autoindex( void ) {return (this->_autoindex);}
+ErrorPage&                  BaseConfig::get_error_pages( void ) {return (this->_error_pages);}
+int                         BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
+std::vector<std::string>&   BaseConfig::get_indexes( void ) {return (this->_indexes);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~LocationConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 bool    LocationConfig::is_empty( void ){
-    return (this->_root.empty() && this->_autoindex == unset
+    return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
         && this->_indexes.empty() && this->_limit_except.empty()
         && this->_cgi.empty());
 }
+
+int     LocationConfig::find_directive(std::string &directive){
+    const std::string   valid_location_directives[CONTEXT_DIRECTIVES] =
+    {"root", "autoindex", "error_page", "client_max_body_size", "index",
+    "cgi", "limit_except"};
+
+    int                 i = -1;
+
+    while (++i < CONTEXT_DIRECTIVES)
+        if (directive == valid_location_directives[i])
+        return (i);
+    throw (ConfigurationDirectiveError(directive));
+    return (0);
+}
+
 
 // LocationConfig setters
 
@@ -174,24 +228,32 @@ void LocationConfig::set_directive(int directive, std::string& content){
         case DIRECTIVE_INDEX:
             this->set_indexes(content);
             break;
-        // case DIRECTIVE_CGI:
-        //  this->   set_cgi(content);
-        //     break;
+        case DIRECTIVE_CGI:
+         this->set_cgi(has_separators, content);
+            break;
         case DIRECTIVE_LIMITEXCEPT:
             this->set_limit_except(content);
             break;
         default:
             break;
     }
-};
-// void    LocationConfig::set_cgi(std::string &content){}
+}
+
+void    LocationConfig::set_cgi(bool has_separators, std::string &content)
+{
+    if (has_separators)
+	    throw (MultipleArgumentsError(content));
+    else if (!is_directory(content))
+	    throw (BadDirectoryError(content));
+    this->_cgi = content;
+}
 
 void    LocationConfig::set_limit_except(std::string &content){
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
 
     while (token){
-        if (!(valid_method(content)))
-	        throw (ConfigurationDirectiveError(content));
+        if (!(valid_method(token)))
+	        throw (ConfigurationDirectiveError(token));
         std::vector<std::string>::iterator last = this->_limit_except.end();
         std::vector<std::string>::iterator tmp = this->_limit_except.begin();
         for (; tmp != last; ++tmp)
@@ -203,20 +265,35 @@ void    LocationConfig::set_limit_except(std::string &content){
 }
 
 // LocationConfig getters
-// std::string                 LocationConfig::get_cgi( void ) {return (this->_cgi);}
-std::vector<std::string>    LocationConfig::get_limit_except( void ) {return (this->_limit_except);}
+std::string&                LocationConfig::get_cgi( void ) {return (this->_cgi);}
+std::vector<std::string>&   LocationConfig::get_limit_except( void ) {return (this->_limit_except);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~ServerConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // ServerConfig utils
 bool    ServerConfig::is_empty( void ){
-    return (this->_root.empty() && this->_autoindex == unset
+    return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
-        && this->_indexes.empty() && this->_ip == "127.0.0.1"
-        && this->_port == 8080 && this->_server_name.empty()
+        && this->_indexes.empty() && this->_listens[0].ip == "127.0.0.1"
+        && this->_listens[0].port == 8080 && this->_server_names.empty()
         && this->_locations.empty());
 }
+
+int     ServerConfig::find_directive(std::string &directive){
+    const std::string   valid_server_directives[CONTEXT_DIRECTIVES] =
+    {"root","autoindex", "error_page", "client_max_body_size", "index",
+    "listen","server_name"};
+
+    int                 i = -1;
+
+    while (++i < CONTEXT_DIRECTIVES)
+        if (directive == valid_server_directives[i])
+            return (i);
+    throw (ConfigurationDirectiveError(directive));
+    return (0);
+}
+
 // ServerConfig setters
 void ServerConfig::set_directive(int directive, std::string& content){
     bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
@@ -250,11 +327,13 @@ void ServerConfig::set_directive(int directive, std::string& content){
             break;
     }
 };
-void    ServerConfig::set_listen(int has_separators, std::string &content){
+
+void    ServerConfig::set_listen(bool has_separators, std::string &content){
     if (has_separators)
-	    throw (std::runtime_error(content + ": This directive can only have one argument"));
+	    throw (MultipleArgumentsError(content));
 
     std::stringstream   stoi;
+    Listen              new_listen;
 
     if (content.find(':') != std::string::npos){
         std::string ip_str = content.substr(0, content.find(':'));
@@ -262,29 +341,38 @@ void    ServerConfig::set_listen(int has_separators, std::string &content){
         if (!valid_ip(ip_str) || port_str.empty())
 	        throw (ConfigurationDirectiveError(content));
         else if (ip_str == "*")
-            this->_ip = "0.0.0.0";
+            new_listen.ip = "0.0.0.0";
         else if (ip_str == "localhost")
-            this->_ip = "127.0.0.1";
+            new_listen.ip = "127.0.0.1";
         else
-            this->_ip = ip_str;
+            new_listen.ip = ip_str;
         stoi << port_str;
-        stoi >> this->_port;
+        stoi >> new_listen.port;
     }
     else if (valid_ip(content)){
         if (content == "*")
-            this->_ip = "0.0.0.0";
+            new_listen.ip = "0.0.0.0";
         else if (content == "localhost")
-            this->_ip = "127.0.0.1";
+            new_listen.ip = "127.0.0.1";
         else
-            this->_ip = content;
+            new_listen.ip = content;
+        new_listen.port = 8080;
     }
     else
     {
         stoi << content;
-        stoi >> this->_port;
-        if (this->_port > PORT_MAX || this->_port <= PORT_MIN)
+        stoi >> new_listen.port;
+        if (new_listen.port > PORT_MAX || new_listen.port <= PORT_MIN)
 	        throw (ConfigurationDirectiveError(content));
+        new_listen.ip = "127.0.0.1";
     }
+    if (this->_listens[0].is_set == false){
+        this->_listens[0].ip = new_listen.ip;
+        this->_listens[0].port = new_listen.port;
+        this->_listens[0].is_set = true;
+    }
+    else
+        this->_listens.push_back(new_listen);
 }
 
 void    ServerConfig::set_server_name(std::string &content){
@@ -292,7 +380,133 @@ void    ServerConfig::set_server_name(std::string &content){
     char *token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
 
     while (token != NULL){
-        this->_server_name.push_back(token);
+        this->_server_names.push_back(std::string(token));
         token = strtok(NULL, SEPARATORS);
     }
+}
+
+// ServerConfig Getters
+
+std::vector<Listen>&        ServerConfig::get_listens( void ) {return (this->_listens);}
+Locations&                  ServerConfig::get_locations( void ) {return (this->_locations);}
+std::vector<std::string>&   ServerConfig::get_server_names( void ) {return (this->_server_names);}
+
+
+// Operators
+ServerConfig& ServerConfig::operator= (const ServerConfig& param){
+    if (this == &param)
+        return (*this);
+
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_listens = param._listens;
+    this->_server_names = param._server_names;
+    this->_locations = param._locations;
+
+    return (*this);
+}
+
+LocationConfig& LocationConfig::operator= (const LocationConfig& param){
+    if (this == &param)
+        return (*this);
+
+    this->_root = param._root;
+    this->_autoindex = param._autoindex;
+    this->_error_pages = param._error_pages;
+    this->_client_max_body_size = param._client_max_body_size;
+    this->_indexes = param._indexes;
+    this->_cgi = param._cgi;
+    this->_limit_except = param._limit_except;
+
+    return (*this);
+}
+
+std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
+    s << "|**********************************************|"<< std::endl;
+    s << "| Server";
+    s << "{" << std::endl;
+    if (!(server.get_listens().empty()) && server.get_listens()[0].is_set == true){
+        s << "| - listens [" << std::endl;
+        std::vector<Listen> l_list(server.get_listens());
+        std::vector<Listen>::iterator l_it(l_list.begin());
+        for (; l_it != l_list.end() ; ++l_it)
+            s << "|     " << l_it->ip << ":" << l_it->port << std::endl;
+        s << "]" << std::endl;
+    }
+    if (!(server.get_root().empty()))  s << "| - root path " << server.get_root() << std::endl;
+    if (!(server.get_error_pages().empty())){
+        s << "| - errors map [" << std::endl;
+        std::map<std::string, std::vector<int> >::const_iterator it_m = server.get_error_pages().begin();
+        std::vector<int>::const_iterator it_v;
+        for (; it_m != server.get_error_pages().end() ; it_m++) {
+            s << "|     " << it_m->first << ": [";
+            for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
+                s << " " << *it_v << " ";
+            s << "]" << std::endl;
+        }
+        std::cout << "|   ]" << std::endl;
+    }
+    if (!(server.get_server_names().empty())){
+        s << "| - server names [";
+        std::vector<std::string> s_list(server.get_server_names());
+        std::vector<std::string>::iterator s_it(s_list.begin());
+        for (; s_it != s_list.end() ; ++s_it)
+            s << " " << *s_it << " ";
+        s << "]" << std::endl;
+    }
+    if (server.get_autoindex() != AUTOINDEX_UNSET) s << "| - autoindex " << (server.get_autoindex() == AUTOINDEX_ON ? "on" : "off") << std::endl;
+    if(!(server.get_indexes().empty())){
+                s << "|      Index [";
+                std::vector<std::string>::iterator i_it(server.get_indexes().begin());
+                for (; i_it != server.get_indexes().end() ; ++i_it)
+                    s << *i_it;
+                s << "]" << std::endl;
+            }
+    if (server.get_max_body_size() != -1) s << "| - max_body_size " << server.get_max_body_size() << std::endl;
+    if (!(server.get_locations().empty())){
+        s << "| - [" << server.get_locations().size() << "] locations {" << std::endl;
+        Locations list = server.get_locations();
+        Locations::iterator it(list.begin());
+        for (; it != list.end() ; ++it) {
+            s << "|   -location for " << it->first << "{ \n";
+            if (!(it->second.get_root().empty())) s << "|      root path " << it->second.get_root() << std::endl;
+            if (!(server.get_error_pages().empty())){
+                s << "|      errors map [" << std::endl;
+                std::map<std::string, std::vector<int> >::const_iterator it_m = it->second.get_error_pages().begin();
+                std::vector<int>::const_iterator it_v;
+                for (; it_m !=  it->second.get_error_pages().end() ; it_m++) {
+                    s << "|        " << it_m->first << ": [";
+                    for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
+                        s << " " << *it_v << " ";
+                    s << "]" << std::endl;
+                }
+                std::cout << "|      ]" << std::endl;
+            }
+            if (it->second.get_autoindex() != AUTOINDEX_UNSET)s << "|      autoindex " << ((it->second.get_autoindex() == AUTOINDEX_ON) ? "on" : "off") << std::endl;
+            if (it->second.get_max_body_size() != -1) s << "|      max_body_size " << it->second.get_max_body_size() << std::endl;
+            if(!(it->second.get_indexes().empty())){
+                s << "|      Index [";
+                std::vector<std::string>::iterator i_it(it->second.get_indexes().begin());
+                for (; i_it != it->second.get_indexes().end() ; ++i_it)
+                    s << *i_it;
+                s << "]" << std::endl;
+            }
+            if(!(it->second.get_limit_except().empty())){
+                s << "|      Accepted methods [";
+                std::vector<std::string>::iterator m_it(it->second.get_limit_except().begin());
+                for (; m_it != it->second.get_limit_except().end() ; ++m_it)
+                    s << " " << *m_it << " ";
+                s << "]" << std::endl;
+            }
+            if(!(it->second.get_cgi().empty())) s << "|      CGI " << it->second.get_cgi() << std::endl;
+            s << "|    }" << std::endl;
+        }
+        s << "|   }" << std::endl;
+    }
+    s << "| }\n";
+    s << "|**********************************************|"<< std::endl;
+    return (s);
 }

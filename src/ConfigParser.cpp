@@ -6,11 +6,12 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/05 02:52:06 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:22:59 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigParser.hpp"
+
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Exceptions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -54,58 +55,39 @@ BadDirectoryError::BadDirectoryError(const std::string err)
     : std::runtime_error("Error: " + err + ". Please provide a valid directory")
 { /* No-op */}
 
+BadFileError::BadFileError(const std::string err)
+    : std::runtime_error("Error: " + err + ". Please provide a valid file")
+{ /* No-op */}
+
 MultipleArgumentsError::MultipleArgumentsError(const std::string err)
     : std::runtime_error("Error: " + err + ". This directive can only have one argument")
 { /* No-op */}
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Constructors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+ConfigError::ConfigError() : std::runtime_error("Error in configuration"){};
 ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file){ /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
+
+ConfigParser::~ConfigParser(){};
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~Config-parsing utils~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 namespace {
-    const std::string valid_server_directives[CONTEXT_DIRECTIVES] =
-    {"root","autoindex", "error_page", "client_max_body_size", "index",
-    "listen","server_name"};
-
-    const std::string valid_location_directives[CONTEXT_DIRECTIVES] =
-    {"root", "autoindex", "error_page", "client_max_body_size", "index",
-    "limit_except","cgi"};
-
     std::string &strtrim(std::string &str)
     {
         str.erase(str.find_last_not_of(SEPARATORS) + 1);
         str.erase(0, str.find_first_not_of(SEPARATORS));
         return (str);
     };
-
-    int find_directive(std::string &directive, int context)
-    {
-        const std::string   *valid_directives;
-        int                 i = 0;
-
-        if (context == LOCATION_CONTEXT)
-            valid_directives = valid_location_directives;
-        else if (context == SERVER_CONTEXT)
-            valid_directives = valid_server_directives;
-
-        while (i < CONTEXT_DIRECTIVES)
-            if (directive == valid_directives[i++])
-                return (i);
-
-        throw (ConfigurationDirectiveError(directive));
-        return (0);
-    }
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~ConfigParser member functions~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-ServerConfig   ConfigParser::config( int const index ) const { return server_configs[index]; }
+// const ServerConfig   ConfigParser::config( int const index ) const { return (server_configs[index]); }
 
-int    ConfigParser::configs_amount( void ) const { return server_configs.size(); }
+int    ConfigParser::configs_amount( void ) const { return (server_configs.size()); }
 
 // This function parses a context block.
 // There are two possible contexts:
@@ -135,15 +117,16 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             else if (context == LOCATION_CONTEXT){
                 if (new_location.is_empty())
                     throw (EmptyContextBlockError());
-                if (is_directory(location_path))
-                    server_ptr->get_locations()[location_path] = new_location;
+                if (!(is_directory(location_path)))
+	                throw (BadDirectoryError(content));
+                server_ptr->get_locations()[location_path] = new_location;
             }
             return;
         }
         separator = line.find_first_of(SEPARATORS);
         directive = line.substr(0, separator);
         content = line.substr(separator + 1);
-        std::cout << std::left << (context == LOCATION_CONTEXT ? "Location" : "Server") << " context: " << "[" << directive << "]" << " - [" << content << "]\n";
+        // std::cout << std::left << (context == LOCATION_CONTEXT ? "Location" : "Server") << " context: " << "[" << directive << "]" << " - [" << content << "]\n";
         if (directive == "server")
             throw (NestedContextError());
         else if (directive == "location"){
@@ -158,13 +141,14 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             context_parser(file, LOCATION_CONTEXT, content, &new_server);
         }
         else{
-            if (content[content.length() - 1] != ';')
+            if (content[content.length() - 1] != ';'){
                 throw (ConfigurationSyntaxError());
+            }
             content = content.substr(0, content.length() - 1);
             if (context == SERVER_CONTEXT)
-                new_server.set_directive(find_directive(directive, context), content);
+                new_server.set_directive((new_server.find_directive(directive)), content);
             else if (context == LOCATION_CONTEXT)
-                new_location.set_directive(find_directive(directive, context), content);
+                new_location.set_directive((new_location.find_directive(directive)), content);
         }
     }
     throw (OpenContextBlockError());
@@ -173,49 +157,35 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
 // This function opens the _config_file, and then parses the file while looking for an opening server block (aka "server {")
 // Then, calls context_parser() to parse the server block
 // OBS: So far, the new ServerConfig object is being stored inside the ConfigParser
-void    ConfigParser::call()
+const Configs ConfigParser::call()
 {
     std::ifstream   file;
     std::string     line;
     std::string     directive;
     size_t          separator;
 
-    try{
-        file.open(this->_config_file.c_str());
-        if (!file.is_open())
-            throw ConfigurationFileError();
-        while (std::getline(file, line))
-        {
-            line = strtrim(line);
-            if (!line.length() || line[0] == '#')
-                continue;
-            separator = line.find_first_of(SEPARATORS);
-            directive = line.substr(0, separator);
-            if (directive == "server"){
-                if (line[separator + 1] != '{')
-                    throw ConfigurationSyntaxError();
-                context_parser(&file, SERVER_CONTEXT);
-            }
-            else
-                throw DirectiveOutOfScopeError(directive);
+    std::cout << "\n\n";
+    file.open(this->_config_file.c_str());
+    if (!file.is_open())
+        throw ConfigurationFileError();
+    while (std::getline(file, line))
+    {
+        line = strtrim(line);
+        if (!line.length() || line[0] == '#')
+            continue;
+        separator = line.find_first_of(SEPARATORS);
+        directive = line.substr(0, separator);
+        if (directive == "server"){
+            if (line[separator + 1] != '{')
+                throw ConfigurationSyntaxError();
+            context_parser(&file, SERVER_CONTEXT);
         }
-    }
-    catch (ConfigError &e) {
-		    ERROR(e.what());
+        else
+            throw DirectiveOutOfScopeError(directive);
     }
     file.close();
+    // std::vector<ServerConfig>::iterator it = server_configs.begin();
+    // for(; it != server_configs.end(); it++)
+    //     std::cout << *it;
+    return (this->server_configs);
 };
-
-// int main(int ac, char **av)
-// {
-//     std::string file(av[1]);
-//     if (ac == 2)
-//     {
-//         ConfigParser config_parser(file);
-//         config_parser.call();
-//         std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
-//         std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
-//     }
-
-//     return (0);
-// };

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/05 09:47:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/09 20:51:55 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
     Várias Requests ao mesmo tempo
     EOF working
     HTML CSS priority
-    Javascript (later)
+    Javascript (later)q
  */
 
 Server::CreateError::CreateError( void )
@@ -36,30 +36,44 @@ Server::Server() // private
     //     throw CreateError();
 }
 
-Server::Server(const ConfigParser &parser)
+Server::Server(const Configs &server_vecs)
 {
-    _fd = kqueue();
-    if (_fd < 0)
-        throw CreateError();
-	_listeners_amount = parser.configs_amount();
+    _fd = epoll_create(1);
+    if (_fd < 0){
+        throw CreateError();}
+	_listeners_amount = server_vecs.size();
 	Listener		*new_listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
     {
 		// Initialize each new Listener with a config from the parser
-		ServerConfig	config(parser.config(i));
-		new_listener = new Listener(config);
-		update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
+		new_listener = new Listener(server_vecs[i]);
+		add_event(new_listener->fd(), (EPOLLIN | EPOLLET));
 		_cluster[new_listener->fd()] = new_listener;
 	}
 }
 
 int	Server::fd() const { return(_fd); }
 
-void Server::update_event(int ident, short filter, u_short flags)
+void Server::add_event(int ident, uint32_t events)
 {
-    struct kevent kev;
-	EV_SET(&kev, ident, filter, flags, 0, 0, NULL);
-	kevent(this->_fd, &kev, 1, NULL, 0, NULL);
+    struct epoll_event ev;
+   	ev.events = events;
+	epoll_ctl(this->_fd, EPOLL_CTL_ADD, ident, &ev);
+}
+
+void Server::switch_event_to(int ident, uint32_t events)
+{
+    struct epoll_event ev;
+   	ev.events = events;
+	epoll_ctl(this->_fd, EPOLL_CTL_MOD, ident, &ev);
+}
+
+
+void Server::delete_event(int ident)
+{
+    struct epoll_event ev;
+   	ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
+	epoll_ctl(this->_fd, EPOLL_CTL_DEL, ident, &ev);
 }
 
 /*
@@ -84,21 +98,21 @@ void	Server::start( void )
             continue;
         for (int i = 0; i < nbr_events; i++)
         {
-            ClusterIter event_fd = _cluster.find(ListQueue[i].ident);
+            ClusterIter event_fd = _cluster.find(ListQueue[i].data.fd);
             if (event_fd != _cluster.end()) // New event for non-existent file descriptor
                 new_connection(event_fd->second);
             else
             {
-				ConnectionsIter connection_it = _connections.find(ListQueue[i].ident);
-                if (ListQueue[i].flags & EV_EOF)
+				ConnectionsIter connection_it = _connections.find(ListQueue[i].data.fd);
+                if (ListQueue[i].events & EPOLLRDHUP)
                 {
-                    close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
+                    close_connection(ListQueue[i].data.fd); // If there are no more connections open in any server do cleanup(return)
                     if (_connections.size() == 0)
                         return ;
                 }
-                else if (ListQueue[i].filter == EVFILT_READ)
+                else if (ListQueue[i].events == EPOLLIN)
                     read_connection(connection_it->second, ListQueue[i]);
-                else if (ListQueue[i].filter == EVFILT_WRITE)
+                else if (ListQueue[i].events == EPOLLOUT)
                 {
 					write_to_connection(connection_it->second);
                     if (connection_it->second->response.is_empty())
@@ -114,7 +128,7 @@ int	Server::wait_for_events()
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
     struct timespec kqTimeout = {2, 0};
     (void)kqTimeout;
-    return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
+    return (epoll_wait(this->fd(), ListQueue, 10, -1));
 }
 
 void	Server::new_connection( Listener * listener )
@@ -124,8 +138,7 @@ void	Server::new_connection( Listener * listener )
 	int client_fd = connection->fd();
 	_connections[client_fd] = connection;
 	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
-	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
-	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
+	add_event(client_fd, (EPOLLIN | EPOLLOUT | EPOLLET));
 }
 
 // Reference
@@ -165,10 +178,10 @@ void	Server::new_connection( Listener * listener )
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-void	Server::read_connection( Connection *connection, struct kevent const & Event )
+void	Server::read_connection( Connection *connection, struct epoll_event const & Event )
 {
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
-    std::cout << "Incoming data has size of: " << Event.data << std::endl;
+    std::cout << "Incoming data has size of: " << Event.data.fd << std::endl;
     connection->request.parse(*connection->socket(), Event);
     if (connection->request._headers.count("Content-Length"))
     {
@@ -192,22 +205,21 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
         std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
         std::cout << "Body :" << connection->request._raw_body.data() << std::endl;
     }
-    this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
-    this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
+    this->switch_event_to(connection->fd(), EPOLLOUT | EPOLLET);
 }
 
 void	Server::write_to_connection( Connection *connection )
 {
 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
-	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
+	std::cout << "The socket has the following size to write " << ListQueue[0].data.fd << std::endl;
+    // Could use for better size efficiency
     if (connection->response.is_empty())
         service(connection->request, connection->response);
     connection->response.send_response(*connection->socket());
     if (connection->response.is_empty())
     {
         std::cout << "Connection was empty after sending" << std::endl;
-        this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
-        this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+        this->switch_event_to(connection->fd(), EPOLLIN | EPOLLET);
     }
 }
 
@@ -245,7 +257,7 @@ Server::~Server()
 void	Server::close_listener( int listener_fd )
 {
     std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
-    this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
+    this->delete_event(listener_fd);
     delete _cluster[listener_fd];
     _connections.erase(listener_fd);
 }
@@ -253,8 +265,7 @@ void	Server::close_listener( int listener_fd )
 void	Server::close_connection( int connection_fd )
 {
     std::cout << "Closing Connection for client: " << connection_fd << std::endl;
-    this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
-    this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
+    this->delete_event(connection_fd);
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
 }

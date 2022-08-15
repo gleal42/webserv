@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/03 21:29:20 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/09 21:39:39 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,23 +23,22 @@
 ** Line-by-line comments:
 ** @1	Create Server - Will allow us to identify events and handle
 */
-
 int webserver(std::string config_file)
 {
-	ConfigParser	parser(config_file);
-
+	ConfigParser				parser(config_file);
+	std::vector<ServerConfig>	server_vec;
 	try {
-        parser.call();
+		server_vec = parser.call();
     }
     catch (std::exception &e) { // Use specific errors
 		ERROR(e.what());
     }
 
-	// Initialize all Listeners
-    Server webserv(parser);
+	// // Initialize all Listeners
+    // Server webserv(server_vec);
 
-	// Start waiting for events
-	webserv.start();
+	// // Start waiting for events
+	// webserv.start();
 
 	// Shutdown and cleanup inside destructor
     return 0;

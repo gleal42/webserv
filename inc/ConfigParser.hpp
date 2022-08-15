@@ -6,27 +6,18 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/05 02:23:44 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:17:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CONFIG_PARSER_H__
 # define __CONFIG_PARSER_H__
 
-# include "ServerConfig.hpp"
-# include <macros.hpp>
-
-
-# include <fstream>
-# include <cstring>
-# include <sstream>
-# include <iomanip>
 # include <iostream>
 # include <vector>
 # include <map>
 # include <algorithm>
 # include <string.h>
-# include "utils.hpp"
 
 
 # define SEPARATORS         " \t\v\n\r\f"
@@ -40,10 +31,10 @@ enum directives{
     DIRECTIVE_ERRORPAGE,
     DIRECTIVE_MAXBODYSIZE,
     DIRECTIVE_INDEX,
-    DIRECTIVE_LISTEN,
-    DIRECTIVE_SERVERNAME,
-    DIRECTIVE_LIMITEXCEPT,
-    DIRECTIVE_CGI,
+    DIRECTIVE_CGI = 5,
+    DIRECTIVE_LIMITEXCEPT = 6,
+    DIRECTIVE_LISTEN = 5,
+    DIRECTIVE_SERVERNAME = 6,
 };
 
 // ************************************************************************** //
@@ -62,7 +53,7 @@ Needs to be able to:
 
 struct ConfigError : virtual public std::runtime_error{
         ConfigError();
-        virtual ~ConfigError (void) throw();
+        virtual ~ConfigError (void) throw(){}
         virtual const char*		what( void ) const throw ();
 };
 
@@ -95,6 +86,9 @@ struct LocationURIError : public ConfigError{
 };
 struct BadDirectoryError : public ConfigError{
     BadDirectoryError(const std::string err);
+};
+struct BadFileError : public ConfigError{
+    BadFileError(const std::string err);
 };
 struct MultipleArgumentsError : public ConfigError{
     MultipleArgumentsError(const std::string err);

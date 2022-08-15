@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:20:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/09 20:52:23 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ Listener::Listener( ServerConfig const & config ) : _config(config), _socket(NUL
 	// the catches above should stop flow
 	// maybe move them to main Listener initialization in `webserver()`
 	try {
-		_socket->listen(config.max_clients);
+		_socket->listen(SOMAXCONN);
 	}
 	catch(Socket::ListenError& e) {
 		// stop(); // shutdown();

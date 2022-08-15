@@ -3,18 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:28:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/09 21:07:30 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "FileHandler.hpp"
+#include <fstream>
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
-FileHandler::FileHandler( FileHandler const & src ) { *this = src; }
+FileHandler::FileHandler( FileHandler const & src )
+: Handler(src)
+{ *this = src; }
 
 /* Destructor */
 FileHandler::~FileHandler( void ) { /* no-op */ }
@@ -125,14 +128,15 @@ void	FileHandler::do_POST( Request & req, Response & res )
 		post_form_urlencoded(req);
 	else
 		throw HTTPStatus<500>();
-	res.set_default_body(); // temporary	
+	res.set_default_body(); // temporary
 }
 
 // Perhaps it is better to just count body size?
 std::streampos	FileHandler::file_size( std::string	full_path )
 {
 	std::streampos	fsize = 0;
-	std::ifstream	file( full_path, std::ios::binary );
+	std::ifstream	file;
+	file.open(full_path.c_str(), std::ios::binary);
 
 	fsize = file.tellg();
 	file.seekg( 0, std::ios::end );
@@ -187,13 +191,13 @@ void	FileHandler::post_multi_type_form( Request & req )
 		if (last_delimiter == std::string::npos)
 			throw HTTPStatus<400>();
 		std::string filename = parse_from_multipart_form("filename=", multi_form, next_delimiter);
-	
+
 		start_file = multi_form.find("\r\n\r\n") + 4;
 		section_body = multi_form.substr(start_file);
 		end_file = section_body.find(delimiter) - 4; // -4 => "--" + "\r\n"
 		section_body = section_body.substr(0, end_file);
 		std::cout << "Form part body has size: [" << section_body.size() << "]" << std::endl;
-	
+
 		if (filename.empty())
 		{
 			std::string paramater_name = parse_from_multipart_form("name=", multi_form, next_delimiter);
@@ -213,12 +217,12 @@ void	FileHandler::post_multi_type_form( Request & req )
 void	FileHandler::save_file( std::string &file_body, std::string filename  )
 {
 	std::ofstream outfile;
-	outfile.open("post/uploads/" + filename, std::ios::binary);
+	outfile.open(("post/uploads/" + filename).c_str(), std::ios::binary);
 	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 		throw std::runtime_error("Couldn't open new file");
 	}
 	outfile.write(file_body.data(), file_body.size());
-	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0 
+	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0
 		|| (outfile.rdstate() & std::ifstream::badbit ) != 0) {
 		throw std::runtime_error("Couldn't write to file");
 	}
@@ -254,7 +258,7 @@ void	FileHandler::post_form_urlencoded( Request & req )
 		size_t equal_pos = single_form.find('=');
 		if (equal_pos == std::string::npos)
 			throw HTTPStatus<400>();
-		params[var_val.substr(0, equal_pos)] = var_val.substr(equal_pos + 1); // Replace with insert and add BadRequest in case not unique?	
+		params[var_val.substr(0, equal_pos)] = var_val.substr(equal_pos + 1); // Replace with insert and add BadRequest in case not unique?
 		if (separator == std::string::npos)
 			return ;
 		single_form = single_form.substr(separator+1);
