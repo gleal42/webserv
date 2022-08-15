@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/16 00:20:23 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:50:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,8 @@
 #ifndef SERVERCONFIG_HPP
 # define SERVERCONFIG_HPP
 
-# include <iostream>
-# include <string>
-# include <vector>
-# include <map>
+# include "webserver.hpp"
+# include "ConfigParser.hpp"
 
 # define PORT_MAX   65535
 # define PORT_MIN   1

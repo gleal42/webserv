@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/16 00:22:59 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:48:42 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,9 +141,8 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             context_parser(file, LOCATION_CONTEXT, content, &new_server);
         }
         else{
-            if (content[content.length() - 1] != ';'){
+            if (content[content.length() - 1] != ';')
                 throw (ConfigurationSyntaxError());
-            }
             content = content.substr(0, content.length() - 1);
             if (context == SERVER_CONTEXT)
                 new_server.set_directive((new_server.find_directive(directive)), content);

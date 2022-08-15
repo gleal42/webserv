@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/16 00:17:32 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:49:47 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 # include <map>
 # include <algorithm>
 # include <string.h>
+# include "webserver.hpp"
+# include "ServerConfig.hpp"
 
 
 # define SEPARATORS         " \t\v\n\r\f"

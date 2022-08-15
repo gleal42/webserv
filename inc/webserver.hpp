@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/16 00:20:53 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:48:02 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <map>
+#include <cstring>
 
 # include <cstdlib> // For EXIT_FAILURE, etc, macros
 # include <sstream>

@@ -243,8 +243,8 @@ void    LocationConfig::set_cgi(bool has_separators, std::string &content)
 {
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
-    else if (!is_directory(content))
-	    throw (BadDirectoryError(content));
+    else if (!is_file(content))
+	    throw (BadFileError(content));
     this->_cgi = content;
 }
 
