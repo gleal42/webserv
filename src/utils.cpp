@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/09 19:01:49 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/15 22:30:52 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,16 @@ bool is_directory(std::string &path)
 
     if (lstat(path.c_str(), &s) == 0)
         if (S_ISDIR(s.st_mode))
+            return (true);
+    return (false);
+}
+
+bool is_file(std::string &path)
+{
+    struct stat s;
+
+    if (lstat(path.c_str(), &s) == 0)
+        if (S_ISREG(s.st_mode))
             return (true);
     return (false);
 }

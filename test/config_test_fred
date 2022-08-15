@@ -1,8 +1,27 @@
 server {
-	error_page 404 /home/user/Desktop/git;
+	error_page 404 /home/user/Desktop/git/pipex;
+	error_page 502 /home/user/Desktop/git/pipex;
+	error_page 203 /home/user/Desktop/git/libft;
+	root	/home/user/Desktop/git;
 	location /home/user/Desktop {
 		client_max_body_size 13;
 		error_page 207 /home/user/Desktop/git/webserv;
 		cgi /home/user/Desktop/git/webserv;
 	}
+	location /home/user/Desktop/playground {
+		client_max_body_size 33;
+		error_page 200 /home/user/Desktop/git/webserv;
+		cgi /home/user/Desktop/playground;
+		limit_except DELETE POST;
+	}
+	autoindex on;
+}
+
+server {
+	server_name www.example.com www.google.com;
+	listen *:7777;
+	listen 192.168.000.254;
+	listen 8888;
+	error_page 405 /home/user/Desktop/git/webserv/src;
+	index /home/user/Desktop/git/webserv/src/ServerConfig.cpp;
 }

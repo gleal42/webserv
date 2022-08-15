@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/12 14:45:41 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/15 22:48:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,9 @@ struct LocationURIError : public ConfigError{
 };
 struct BadDirectoryError : public ConfigError{
     BadDirectoryError(const std::string err);
+};
+struct BadFileError : public ConfigError{
+    BadFileError(const std::string err);
 };
 struct MultipleArgumentsError : public ConfigError{
     MultipleArgumentsError(const std::string err);

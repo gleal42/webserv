@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/12 16:06:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/16 00:02:34 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,10 @@ LocationURIError::LocationURIError(void)
 
 BadDirectoryError::BadDirectoryError(const std::string err)
     : std::runtime_error("Error: " + err + ". Please provide a valid directory")
+{ /* No-op */}
+
+BadFileError::BadFileError(const std::string err)
+    : std::runtime_error("Error: " + err + ". Please provide a valid file")
 { /* No-op */}
 
 MultipleArgumentsError::MultipleArgumentsError(const std::string err)
@@ -160,6 +164,7 @@ const Configs ConfigParser::call()
     std::string     directive;
     size_t          separator;
 
+    std::cout << "\n\n";
     file.open(this->_config_file.c_str());
     if (!file.is_open())
         throw ConfigurationFileError();
@@ -179,10 +184,8 @@ const Configs ConfigParser::call()
             throw DirectiveOutOfScopeError(directive);
     }
     file.close();
-    // std::cout << "saiu\n";
-    // std::cout << "location outside is " << server_configs[0].get_locations()["/home/user/Desktop"].get_max_body_size() << "\n";
     // std::vector<ServerConfig>::iterator it = server_configs.begin();
     // for(; it != server_configs.end(); it++)
-    std::cout << server_configs[0];
+    //     std::cout << *it;
     return (this->server_configs);
 };
