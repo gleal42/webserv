@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/15 00:17:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/15 23:43:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,9 @@ struct addrinfo *get_host(const std::string &hostname )
 
 bool is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host)
 {
+	print_address("Req", (struct sockaddr *)req_host);
     struct addrinfo *listener_host = get_host(listener_address.c_str());
+	print_address("Listener", listener_host->ai_addr);
 	const struct sockaddr_in *listener_addr = (const struct sockaddr_in *)listener_host->ai_addr;
 	if (listener_addr->sin_addr.s_addr == 0
 		|| listener_addr->sin_addr.s_addr == req_host->sin_addr.s_addr)
@@ -217,3 +219,18 @@ bool is_address_being_listened(const std::string & listener_address, const struc
 	return false;
 }
 
+void	print_address(const std::string &name, struct sockaddr *address)
+{
+	std::vector<char> address_str(30);
+	getnameinfo((struct sockaddr *)address, sizeof(struct sockaddr), address_str.data(), 30, NULL, 0, NI_NUMERICHOST);
+	std::cout << name << " address is :" << address_str.data() << std::endl;
+}
+
+void	remove_directory(std::string &path)
+{
+	size_t backslash_pos = path.find_last_of('/');
+	if (backslash_pos == std::string::npos)
+		path.clear();
+	else
+		path = path.substr(0, backslash_pos);
+}

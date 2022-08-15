@@ -309,19 +309,19 @@ void    ServerConfig::set_server_name(const std::string &content){
     }
 }
 
-std::string                 ServerConfig::get_ip( void )
+const std::string			&ServerConfig::get_ip( void ) const
 {
 	return (this->_ip);
 }
-int                         ServerConfig::get_port( void )
+int                         ServerConfig::get_port( void ) const
 {
 	return (this->_port);
 }
-std::vector<std::string>    ServerConfig::get_server_name( void )
+const std::vector<std::string>    &ServerConfig::get_server_name( void ) const
 {
 	return (this->_server_name);
 }
-Locations                   ServerConfig::get_locations( void )
+Locations				ServerConfig::get_locations( void ) const
 {
 	return (this->_locations);
 }

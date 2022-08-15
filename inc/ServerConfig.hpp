@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/10 00:25:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/15 19:52:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,10 +99,10 @@ class ServerConfig : public BaseConfig
         void                        set_location(const std::string &name, const LocationConfig& location);
 
         // Getters
-        std::string                 get_ip( void );
-        int                         get_port( void );
-        std::vector<std::string>    get_server_name( void );
-        Locations                   get_locations( void );
+		const std::string					&get_ip( void ) const;
+		int									get_port( void ) const;
+        const std::vector<std::string>		&get_server_name( void ) const;
+		Locations							get_locations( void ) const;
 
     private:
         std::string                 _ip;

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/14 22:44:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/15 19:51:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ std::string			to_string(int number);
 bool				is_directory(std::string &path);
 struct addrinfo *	get_host(const std::string &hostname );
 bool				is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host);
+void				print_address(const std::string &name, struct sockaddr *address);
+void				remove_directory(std::string &path);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
