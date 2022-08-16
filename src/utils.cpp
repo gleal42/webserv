@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/15 23:43:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 00:42:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,12 +173,22 @@ std::string get_query_string(const std::string &uri)
 // std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
 // infile.close();
 
-bool is_directory(std::string &path)
+bool is_directory(const std::string &path)
 {
     struct stat s;
 
     if (lstat(path.c_str(), &s) == 0)
         if (S_ISDIR(s.st_mode))
+            return (true);
+    return (false);
+}
+
+bool is_file(std::string &path)
+{
+    struct stat s;
+
+    if (lstat(path.c_str(), &s) == 0)
+        if (S_ISREG(s.st_mode))
             return (true);
     return (false);
 }
@@ -202,6 +212,17 @@ struct addrinfo *get_host(const std::string &hostname )
         throw HTTPStatus<500>();
 	return host;
 }
+
+/**
+ * Checks if interface to which Listeners is bound
+ * (addresses being listened) include that of the request.
+ * This is done by resolving the request hostname and checking
+ * the address
+ * 
+ * @param listener_address listen 'address':port (address part)
+ * @param req_host Host: 'hostname':80 (hostname part)
+ * @return Request was sent to an interface which this listener is bound to
+ */
 
 bool is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host)
 {
@@ -232,5 +253,5 @@ void	remove_directory(std::string &path)
 	if (backslash_pos == std::string::npos)
 		path.clear();
 	else
-		path = path.substr(0, backslash_pos);
+		path = path.substr(0, (backslash_pos+1));
 }

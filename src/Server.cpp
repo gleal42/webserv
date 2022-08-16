@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/15 23:48:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 00:35:38 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,15 +192,15 @@ void	Server::service(Request & req, Response & res)
 {
     try
     {
+        url::decode(req.request_uri.path); // Interpret url as extended ASCII
+
 		if (req.request_uri.host.empty())
 			throw HTTPStatus<400>();
         ServerConfig config_to_use = find_config_to_use(req);
-        LocationConfig location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
-    
+        Locations::const_iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
         if (req.request_uri.path.back() == '/')
             resolve_path(req.request_uri.path, config_to_use, location_to_use);
 
-        url::decode(req.request_uri.path); // Interpret url as extended ASCII
         std::string extension = get_extension(req.request_uri.path);
 
         if (CGIHandler::extension_is_implemented(extension))
@@ -249,28 +249,36 @@ ServerConfig	Server::find_config_to_use(const Request & req)
     return (to_use);
 }
 
-LocationConfig	Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
+Locations::const_iterator	Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
 {
-	// Fix favicon
-    std::string matching_path = path;
+    std::string path_directory = path;
     Locations locations = server_block.get_locations();
-    while (matching_path.empty() == false)
+    while (path_directory.empty() == false)
     {
         for (Locations::const_iterator it = locations.begin();
             it != locations.end();
             it++)
             {
-                if ("public" + (it->first) == path)
-                    return (it->second);
+                if ("public" + (it->first) == path_directory)
+                    return (it);
             }
-        remove_directory(matching_path);
+        remove_directory(path_directory);
     }
+    // return locations["/"];
     throw HTTPStatus<404>();
 }
 
-void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, const LocationConfig &location_conf)
+// Create URL object
+
+void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::const_iterator location_conf)
 {
-	(void)path, (void)server_conf, (void)location_conf;
+    (void)path;
+    std::string root = location_conf->second.get_root();
+    if (root.empty())
+		root = server_conf.get_root();
+    if (root.empty())
+		root = "public/";
+    root = root + location_conf->first;
 }
 
 Server::~Server()

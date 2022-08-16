@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/15 19:52:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/16 23:11:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class BaseConfig{
 
     // Setters
     virtual void                    set_directive(int directive, std::string &content) = 0;
-    void                            set_root(bool has_separators, std::string &content);
+    void                            set_root(bool has_separators, const std::string &content);
     void                            set_autoindex(std::string &content);
     void                            set_error_pages(std::string &content);
     void                            set_max_body_size(int has_separators,std::string &content);

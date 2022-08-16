@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/11 19:48:33 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 00:42:45 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -246,12 +246,20 @@ void    ConfigParser::call()
 void	ConfigParser::set_general_conf(void)
 {
     ServerConfig server_block_1;
+    server_block_1.set_root(0, "public/");
     server_block_1.set_listen(0, "8080");
     server_block_1.set_server_name("first");
     server_block_1.set_indexes("index.html");
-    LocationConfig location_1;
-    location_1.set_limit_except("GET POST PUT DELETE");
-    server_block_1.set_location("/", location_1);
+
+    LocationConfig location_1a;
+    location_1a.set_limit_except("GET POST PUT DELETE");
+    server_block_1.set_location("/", location_1a);
+
+    LocationConfig location_1b;
+    location_1b.set_limit_except("GET POST PUT DELETE");
+    location_1b.set_root(false, "public/mid_folder/");
+    server_block_1.set_location("/post/", location_1b);
+
     server_configs.push_back(server_block_1);
 
     ServerConfig server_block_2;

@@ -76,7 +76,7 @@ namespace {
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~BaseConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // BaseConfig Setters
-void    BaseConfig::set_root(bool has_separators, std::string &content){
+void    BaseConfig::set_root(bool has_separators, const std::string &content){
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
     else if (!is_directory(content))

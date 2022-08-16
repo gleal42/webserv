@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/15 23:43:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 00:33:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,9 @@ public:
 	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
 
-	ServerConfig		find_config_to_use(const Request & req);
-	LocationConfig		find_location_to_use(const ServerConfig &server_block, const std::string & path);
-	void				resolve_path(std::string & path, const ServerConfig & server_conf, const LocationConfig &location_conf);
+	ServerConfig				find_config_to_use(const Request & req);
+	Locations::const_iterator	find_location_to_use(const ServerConfig &server_block, const std::string & path);
+	void						resolve_path(std::string & path, const ServerConfig & server_conf, const Locations::const_iterator location_conf);
 
 	void				close_connection( int connection_fd );
 	void				close_listener( int listener_fd );
