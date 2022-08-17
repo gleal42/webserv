@@ -144,7 +144,7 @@ std::string                 BaseConfig::get_root( void ) const {return (this->_r
 autobool                    BaseConfig::get_autoindex( void ) const  {return (this->_autoindex);}
 errorPage                   BaseConfig::get_error_pages( void ) const  {return (this->_error_pages);}
 int                         BaseConfig::get_max_body_size( void ) const  {return (this->_client_max_body_size);}
-std::vector<std::string>    BaseConfig::get_indexes( void ) const  {return (this->_indexes);}
+const std::vector<std::string>    &BaseConfig::get_indexes( void ) const  {return (this->_indexes);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~LocationConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -321,7 +321,7 @@ const std::vector<std::string>    &ServerConfig::get_server_name( void ) const
 {
 	return (this->_server_name);
 }
-Locations				ServerConfig::get_locations( void ) const
+const   Locations				&ServerConfig::get_locations( void ) const
 {
 	return (this->_locations);
 }

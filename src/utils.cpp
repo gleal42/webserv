@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/17 00:42:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 21:37:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -183,7 +183,7 @@ bool is_directory(const std::string &path)
     return (false);
 }
 
-bool is_file(std::string &path)
+bool is_file(const std::string &path)
 {
     struct stat s;
 

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/17 00:42:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 22:58:14 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,7 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
                 if (new_location.is_empty())
                     throw (EmptyContextBlockError());
                 if (is_directory(location_path))
-                    server_ptr->get_locations()[location_path] = new_location;
+                    server_ptr->set_location(location_path, new_location);
             }
             return;
         }

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/05 19:31:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 23:31:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,5 +130,16 @@ namespace file
 		str.push_back('\0');
 		munmap(file_contents, sz);
 		return (str);
+	}
+	std::vector<std::string>::const_iterator find_valid_index(const std::string &root, const std::vector<std::string> &indexes )
+	{
+		for (std::vector<std::string>::const_iterator index = indexes.begin();
+		index != indexes.end();
+		index++)
+		{
+			if (is_file(root + (*index)))
+				return (index);
+		}
+		return (indexes.end());
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/17 00:35:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/18 00:42:01 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,12 +197,12 @@ void	Server::service(Request & req, Response & res)
 		if (req.request_uri.host.empty())
 			throw HTTPStatus<400>();
         ServerConfig config_to_use = find_config_to_use(req);
+		if (req.request_uri.path.back() != '/') // // Not sure if quickfix
+			req.request_uri.path.push_back('/');
         Locations::const_iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
         if (req.request_uri.path.back() == '/')
             resolve_path(req.request_uri.path, config_to_use, location_to_use);
-
         std::string extension = get_extension(req.request_uri.path);
-
         if (CGIHandler::extension_is_implemented(extension))
         {
             CGIHandler handler(req.request_uri.path); // probably needs config for root path etc
@@ -251,18 +251,20 @@ ServerConfig	Server::find_config_to_use(const Request & req)
 
 Locations::const_iterator	Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
 {
+
     std::string path_directory = path;
-    Locations locations = server_block.get_locations();
+	const Locations &locations = server_block.get_locations();
     while (path_directory.empty() == false)
     {
         for (Locations::const_iterator it = locations.begin();
             it != locations.end();
             it++)
             {
-                if ("public" + (it->first) == path_directory)
+                if (("public" + it->first) == path_directory)
                     return (it);
             }
-        remove_directory(path_directory);
+        path_directory.pop_back();
+        // remove_directory(path_directory);
     }
     // return locations["/"];
     throw HTTPStatus<404>();
@@ -270,15 +272,48 @@ Locations::const_iterator	Server::find_location_to_use(const ServerConfig &serve
 
 // Create URL object
 
-void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::const_iterator location_conf)
+void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::const_iterator locations)
 {
-    (void)path;
-    std::string root = location_conf->second.get_root();
+	LocationConfig locat_conf = locations->second;
+
+    std::string root = locations->second.get_root();
     if (root.empty())
 		root = server_conf.get_root();
     if (root.empty())
 		root = "public/";
-    root = root + location_conf->first;
+	if (root.back() == '/')
+		root.pop_back();
+    std::string location_name = locations->first;
+    root = root + location_name;
+	std::string temp_path;
+    std::vector<std::string> indexes;
+	indexes = locations->second.get_indexes();
+	if (indexes.empty())
+	{
+		indexes = server_conf.get_indexes();
+		if (indexes.empty())
+		{
+			if (is_file(root + "index.html"))
+            {
+				path = root + "index.html";
+				return ;	
+			}
+			throw HTTPStatus<404>(); 
+		}
+        std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
+        if (index == indexes.end())
+        {
+            if ((locations->second).get_autoindex() == on)
+                throw HTTPStatus<501>(); // Not implemented yet
+            throw HTTPStatus<403>();
+        }
+		path = root + (*index);
+		return ;
+	}
+    std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
+    if (index == indexes.end())
+        throw HTTPStatus<404>();
+    path = root + (*index);
 }
 
 Server::~Server()

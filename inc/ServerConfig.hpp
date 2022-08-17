@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/16 23:11:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 22:29:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ class BaseConfig{
     autobool                        get_autoindex( void ) const;
     errorPage                       get_error_pages( void ) const;
     int                             get_max_body_size( void ) const;
-    std::vector<std::string>        get_indexes( void ) const;
+    const std::vector<std::string>        &get_indexes( void ) const;
 
     protected:
         std::string                 _root;
@@ -102,7 +102,7 @@ class ServerConfig : public BaseConfig
 		const std::string					&get_ip( void ) const;
 		int									get_port( void ) const;
         const std::vector<std::string>		&get_server_name( void ) const;
-		Locations							get_locations( void ) const;
+		const Locations						&get_locations( void ) const;
 
     private:
         std::string                 _ip;

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/16 23:12:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 21:37:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ std::string			remove_query_string(const std::string &uri);
 std::string			get_query_string(const std::string &uri);
 std::string			to_string(int number);
 bool				is_directory(const std::string &path);
+bool				is_file(const std::string &path);
 struct addrinfo *	get_host(const std::string &hostname );
 bool				is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host);
 void				print_address(const std::string &name, struct sockaddr *address);

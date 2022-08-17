@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/07 18:43:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/18 00:46:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,16 +52,13 @@ FileHandler &	FileHandler::operator = ( FileHandler const & rhs )
 
 void	FileHandler::do_GET( Request & req, Response & res )
 {
-	if (req._path == "public/")
-		res._uri = "public/index.html";
-	else
-		res._uri = req._path;
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
 	}
 	if (req._path.find("..") != std::string::npos) {
 		throw HTTPStatus<404>();
 	}
+	res._uri = req.request_uri.path;
 	res.set_with_file(res._uri);
 }
 
