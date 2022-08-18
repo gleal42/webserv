@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/18 00:42:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/18 21:39:12 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,14 +193,12 @@ void	Server::service(Request & req, Response & res)
     try
     {
         url::decode(req.request_uri.path); // Interpret url as extended ASCII
-
 		if (req.request_uri.host.empty())
 			throw HTTPStatus<400>();
         ServerConfig config_to_use = find_config_to_use(req);
-		if (req.request_uri.path.back() != '/') // // Not sure if quickfix
-			req.request_uri.path.push_back('/');
         Locations::const_iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
-        if (req.request_uri.path.back() == '/')
+        if (req.request_uri.path.back() == '/'
+            || ("public" + location_to_use->first).size() > req.request_uri.path.size())
             resolve_path(req.request_uri.path, config_to_use, location_to_use);
         std::string extension = get_extension(req.request_uri.path);
         if (CGIHandler::extension_is_implemented(extension))
@@ -251,8 +249,9 @@ ServerConfig	Server::find_config_to_use(const Request & req)
 
 Locations::const_iterator	Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
 {
-
     std::string path_directory = path;
+    if (path_directory.back() != '/')
+       path_directory.push_back('/');
 	const Locations &locations = server_block.get_locations();
     while (path_directory.empty() == false)
     {
