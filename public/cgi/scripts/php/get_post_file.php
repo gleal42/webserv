@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 }
 else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
    echo "<h1> List of files </h1>";
-   $path = "../../../post/uploads/";
+   $path = "../../../mid_folder/post/uploads/";
    $files = scandir($path);
    $files = array_diff(scandir($path), array('.', '..'));
    
@@ -41,7 +41,7 @@ echo "</html>";
 
 function upload_file()
 {
-   $upload_dir = "../../../post/uploads/";
+   $upload_dir = "../../../mid_folder/post/uploads/";
    $filename = trim($_FILES["cute_picture"]["name"]);
    $file_to_upload = basename($filename);
    $extension = pathinfo($file_to_upload, PATHINFO_EXTENSION);

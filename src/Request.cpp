@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/18 23:58:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 00:00:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	// request_uri.parse(_unparsed_uri);
 	// _path = request_uri.path;
 	// _path = "public" + _unparsed_request.substr(i, j);
-	_path = "public" + _unparsed_request.substr(i, j);
+	_path = _unparsed_request.substr(i, j);
 	if (request_methods.find("..") != request_methods.end())
 		throw HTTPStatus<405>();
 
@@ -106,7 +106,6 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 		request_uri.path = _path.substr(0, query_string_start);
 	if (query_string_start != std::string::npos)
 		request_uri.query = _path.substr(query_string_start);
-
 };
 
 // 1

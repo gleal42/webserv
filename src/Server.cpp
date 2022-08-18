@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:26:40 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/18 21:39:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 00:30:03 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -196,10 +196,10 @@ void	Server::service(Request & req, Response & res)
 		if (req.request_uri.host.empty())
 			throw HTTPStatus<400>();
         ServerConfig config_to_use = find_config_to_use(req);
+        
         Locations::const_iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
-        if (req.request_uri.path.back() == '/'
-            || ("public" + location_to_use->first).size() > req.request_uri.path.size())
-            resolve_path(req.request_uri.path, config_to_use, location_to_use);
+        
+        resolve_path(req.request_uri.path, config_to_use, location_to_use);
         std::string extension = get_extension(req.request_uri.path);
         if (CGIHandler::extension_is_implemented(extension))
         {
@@ -259,60 +259,72 @@ Locations::const_iterator	Server::find_location_to_use(const ServerConfig &serve
             it != locations.end();
             it++)
             {
-                if (("public" + it->first) == path_directory)
+                if ((it->first) == path_directory)
                     return (it);
             }
         path_directory.pop_back();
         // remove_directory(path_directory);
     }
+    // locations.insert("/", LocationConfig());
     // return locations["/"];
-    throw HTTPStatus<404>();
+    throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
 }
 
 // Create URL object
 
 void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::const_iterator locations)
 {
-	LocationConfig locat_conf = locations->second;
-
     std::string root = locations->second.get_root();
     if (root.empty())
+    {
 		root = server_conf.get_root();
-    if (root.empty())
-		root = "public/";
+        if (root.empty())
+            root = "public";
+    }
 	if (root.back() == '/')
 		root.pop_back();
     std::string location_name = locations->first;
-    root = root + location_name;
-	std::string temp_path;
-    std::vector<std::string> indexes;
-	indexes = locations->second.get_indexes();
-	if (indexes.empty())
-	{
-		indexes = server_conf.get_indexes();
-		if (indexes.empty())
-		{
-			if (is_file(root + "index.html"))
+	std::string temp_path = root + path;
+    if (is_file(temp_path))
+    {
+        path = temp_path;
+        return ;
+    }
+    if (is_directory(temp_path))
+    {
+        root = temp_path;
+        if (root.back() != '/')
+            root.push_back('/');
+        std::vector<std::string> indexes;
+        indexes = locations->second.get_indexes();
+        if (indexes.empty())
+        {
+            indexes = server_conf.get_indexes();
+            if (indexes.empty())
             {
-				path = root + "index.html";
-				return ;	
-			}
-			throw HTTPStatus<404>(); 
-		}
+                if (is_file(root + "index.html"))
+                {
+                    path = root + "index.html";
+                    return ;	
+                }
+                throw HTTPStatus<404>(); 
+            }
+            std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
+            if (index == indexes.end())
+            {
+                if ((locations->second).get_autoindex() == on)
+                    throw HTTPStatus<501>(); // Not implemented yet
+                throw HTTPStatus<403>();
+            }
+            path = root + (*index);
+            return ;
+        }
         std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
         if (index == indexes.end())
-        {
-            if ((locations->second).get_autoindex() == on)
-                throw HTTPStatus<501>(); // Not implemented yet
-            throw HTTPStatus<403>();
-        }
-		path = root + (*index);
-		return ;
-	}
-    std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
-    if (index == indexes.end())
-        throw HTTPStatus<404>();
-    path = root + (*index);
+            throw HTTPStatus<404>();
+        path = root + (*index);
+    }
+    throw HTTPStatus<404>(); 
 }
 
 Server::~Server()
