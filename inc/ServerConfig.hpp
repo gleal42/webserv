@@ -6,17 +6,15 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/16 00:50:16 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/18 18:26:26 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 
 #ifndef SERVERCONFIG_HPP
 # define SERVERCONFIG_HPP
 
 # include "webserver.hpp"
-# include "ConfigParser.hpp"
 
 # define PORT_MAX   65535
 # define PORT_MIN   1
@@ -123,7 +121,6 @@ class ServerConfig : public BaseConfig
         std::vector<std::string>    _server_names;
 };
 
-typedef std::vector<ServerConfig> Configs;
 std::ostream&   operator<<(std::ostream&, ServerConfig&);
 
 typedef std::vector<ServerConfig> Configs;

@@ -6,12 +6,12 @@ server {
 	location /home/user/Desktop {
 		client_max_body_size 13;
 		error_page 207 /home/user/Desktop/git/webserv;
-		cgi /home/user/Desktop/git/webserv;
+		cgi /home/user/Desktop/git/webserv/test/cgi/cgi_tester;
 	}
 	location /home/user/Desktop/playground {
 		client_max_body_size 33;
 		error_page 200 /home/user/Desktop/git/webserv;
-		cgi /home/user/Desktop/playground;
+		cgi /home/user/Desktop/playground/a.out;
 		limit_except DELETE POST;
 	}
 	autoindex on;

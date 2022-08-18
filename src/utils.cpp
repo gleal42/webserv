@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/16 00:24:26 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/18 18:27:45 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,16 +93,6 @@ HTTPStatusGroup	http_group( int code )
 	case 500 ... 599: return STATUS_SERVER_ERROR; break;
 	default: return STATUS_INVALID; break;
 	};
-}
-
-bool is_directory(std::string &path)
-{
-    struct stat s;
-
-    if (lstat(path.c_str(), &s) == 0)
-        if (S_ISDIR(s.st_mode))
-            return (true);
-    return (false);
 }
 
 std::string get_extension( const std::string &filename )

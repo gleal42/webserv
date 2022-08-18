@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ServerConfig.cpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
+/*   Updated: 2022/08/18 18:36:42 by fmeira           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "webserver.hpp"
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
 
@@ -402,9 +415,9 @@ ServerConfig& ServerConfig::operator= (const ServerConfig& param){
     this->_error_pages = param._error_pages;
     this->_client_max_body_size = param._client_max_body_size;
     this->_indexes = param._indexes;
+    this->_locations = param._locations;
     this->_listens = param._listens;
     this->_server_names = param._server_names;
-    this->_locations = param._locations;
 
     return (*this);
 }

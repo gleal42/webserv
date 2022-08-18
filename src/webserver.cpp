@@ -6,15 +6,14 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/09 21:39:39 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/18 18:43:51 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerConfig.hpp"
+#include "webserver.hpp"
 #include "ConfigParser.hpp"
-#include "Listener.hpp"
+#include "ServerConfig.hpp"
 #include "Server.hpp"
-
 
 /*
 ** Creates webserver from configuration (that can handle multiple requests)
@@ -25,8 +24,8 @@
 */
 int webserver(std::string config_file)
 {
-	ConfigParser				parser(config_file);
-	std::vector<ServerConfig>	server_vec;
+	ConfigParser	parser(config_file);
+	Configs			server_vec;
 	try {
 		server_vec = parser.call();
     }
@@ -34,11 +33,11 @@ int webserver(std::string config_file)
 		ERROR(e.what());
     }
 
-	// // Initialize all Listeners
-    // Server webserv(server_vec);
+	// Initialize all Listeners
+    Server webserv(server_vec);
 
-	// // Start waiting for events
-	// webserv.start();
+	// Start waiting for events
+	webserv.start();
 
 	// Shutdown and cleanup inside destructor
     return 0;

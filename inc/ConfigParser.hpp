@@ -6,21 +6,15 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/16 00:49:47 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/18 18:42:13 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CONFIG_PARSER_H__
 # define __CONFIG_PARSER_H__
 
-# include <iostream>
-# include <vector>
-# include <map>
-# include <algorithm>
-# include <string.h>
-# include "webserver.hpp"
-# include "ServerConfig.hpp"
-
+#include "webserver.hpp"
+#include "ServerConfig.hpp"
 
 # define SEPARATORS         " \t\v\n\r\f"
 # define CONTEXT_DIRECTIVES 7
@@ -56,7 +50,7 @@ Needs to be able to:
 struct ConfigError : virtual public std::runtime_error{
         ConfigError();
         virtual ~ConfigError (void) throw(){}
-        virtual const char*		what( void ) const throw ();
+        // virtual const char*		what( void ) const throw ();
 };
 
 struct ConfigurationFileError : public ConfigError{
@@ -96,7 +90,6 @@ struct MultipleArgumentsError : public ConfigError{
     MultipleArgumentsError(const std::string err);
 };
 
-
 class ConfigParser
 {
     public:
@@ -105,9 +98,9 @@ class ConfigParser
         ConfigParser(ConfigParser const &src);
 
         // Methods
-        ServerConfig    config(int const index) const;
+        // ServerConfig    config(int const index) const;
         int             configs_amount(void) const;
-        void            call(void);
+        Configs&   call(void);
         void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
 
         // Config vector
@@ -117,4 +110,5 @@ class ConfigParser
         ConfigParser(void);
         std::string     _config_file;
 };
+
 #endif /* __CONFIG_PARSER_H__ */

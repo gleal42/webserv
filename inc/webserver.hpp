@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/16 00:48:02 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/18 18:28:57 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,18 @@
 #include <iostream>
 #include <string>
 // #include <sys/event.h>
+#include <vector>
+#include <map>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/stat.h>
-#include <map>
 #include <cstring>
+#include <exception>
 
-# include <cstdlib> // For EXIT_FAILURE, etc, macros
-# include <sstream>
+#include <fstream>
+#include <cstdlib> // For EXIT_FAILURE, etc, macros
+#include <sstream>
 
 #include "macros.hpp"
 
