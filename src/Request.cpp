@@ -6,11 +6,26 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:35:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:38:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
+#include "Socket.hpp"
+#include "Listener.hpp"
+#include "HTTPStatus.hpp"
+#include <algorithm>
+
+std::map<enum RequestMethod, std::string>Request::_method_conv = init_map();
+
+Request::ReqMethodConversion	Request::init_map( void )
+{
+	ReqMethodConversion req_method;
+	req_method[GET]="GET";
+	req_method[POST]="POST";
+	req_method[DELETE]="DELETE";
+	return req_method;
+}
 
 /* Constructors */
 Request::Request( void ) { /* no-op */ }
@@ -80,14 +95,28 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	// Temporary, TODO: make proper URI instance:
 	// request_uri.parse(_unparsed_uri);
 	// _path = request_uri.path;
+	// _path = "public" + _unparsed_request.substr(i, j);
 	_path = _unparsed_request.substr(i, j);
+	if (request_methods.find("..") != request_methods.end())
+		throw HTTPStatus<405>();
 
 	for (it++; *it != '\n'; it++)
 		j++;
 
 	_raw_request_line = _unparsed_request.substr(0, i + j + 2);
 	std::cout << "Request line is :" << _raw_request_line << std::endl;
+	std::cout << "Path is :" << _path << std::endl;
+
 	_unparsed_request = _unparsed_request.substr(++j + ++i);
+
+	size_t path_start = _path.find('/');
+	size_t query_string_start = _path.find('?');
+	if (path_start == std::string::npos)
+		request_uri.path = _path;
+	else
+		request_uri.path = _path.substr(0, query_string_start);
+	if (query_string_start != std::string::npos)
+		request_uri.query = _path.substr(query_string_start);
 };
 
 // 1
@@ -137,6 +166,22 @@ void	Request::read_header(std::string &_unparsed_request)
 		}
 	}
 	_unparsed_request = _unparsed_request.substr(body_start + 4);
+	// Defining Host to be used in Service
+
+	std::string raw_host = _headers["Host"];
+	size_t port_start = raw_host.find(':');
+	request_uri.host = raw_host.substr(0, port_start);
+	if (port_start == std::string::npos)
+		request_uri.port = 80; // default port for HTTP
+	else
+	{
+		std::string port = raw_host.substr(port_start + 1);
+		// std::cout << "PORT SHOULD BE " << port << std::endl;
+		request_uri.port = str_to_nbr<int>(port);
+		std::cout << "PORT IS " << request_uri.port << std::endl;
+	}
+
+
 }
 
 void	Request::read_body(std::string &_unparsed_request)
@@ -212,4 +257,15 @@ std::string		Request::get_delimiter( void )
 	if (delimiter.empty())
 		throw HTTPStatus<400>();
 	return (delimiter);
+}
+
+std::string	Request::method_to_str( void )
+{
+	try {
+		std::string method(this->_method_conv.at(request_method));
+		return method;
+	} catch (std::exception &err) {
+		(void)err;
+		throw HTTPStatus<501>();
+	}
 }

@@ -6,14 +6,14 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:35:59 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:38:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Response.hpp"
 #include "Socket.hpp"
 #include "HTTPStatus.hpp"
-#include "utils_file.hpp"
+#include "file.hpp"
 
 Response::Response( void ) { /* no-op */ }
 
@@ -154,11 +154,10 @@ void	Response::save_raw_headers( std::string headers )
 
 const std::string	Response::get_header_value(const std::string &name)
 {
-	std::string str;
 	if (_headers.count(name)) {
-		str = _headers[name];
+		return(_headers[name]);
 	}
-	return (str);
+	return ("");
 }
 
 void	Response::delete_header( const std::string & name )

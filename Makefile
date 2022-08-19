@@ -29,8 +29,9 @@ SRCS := main.cpp \
 		FileHandler.cpp \
 		CGIHandler.cpp \
 		BaseStatus.cpp \
-		utils_url.cpp \
-		utils_file.cpp \
+		url.cpp \
+		file.cpp \
+		print.cpp \
 		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/

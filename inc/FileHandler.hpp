@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:23:56 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:00:46 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 # include <stdexcept>
 # include <cstdio>
 # include <algorithm>
-# include "utils_url.hpp"
-# include "utils_file.hpp"
+# include "url.hpp"
+# include "file.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
 # include "HTTPStatus.hpp"

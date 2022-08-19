@@ -1,27 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils_url.hpp                                      :+:      :+:    :+:   */
+/*   print.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/23 16:51:55 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:21:59 by gleal            ###   ########.fr       */
+/*   Created: 2022/08/19 16:18:10 by gleal             #+#    #+#             */
+/*   Updated: 2022/08/19 19:42:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __UTILS_URL_H__
-# define __UTILS_URL_H__
+#ifndef __PRINT_H__
+# define __PRINT_H__
 
-# include <string>
-# include <sstream>
-# include <iostream>
+#include <iostream>
 
-# include "webserver.hpp"
-
-namespace url
+template <typename T>
+void	print(const T &container)
 {
-    void	decode( std::string & single_form );
+	for (typename T::const_iterator it = container.begin();
+		it != container.end();
+		it++)
+	{
+		std::cout << (*it) << std::endl;
+	}
 }
 
-#endif /* __UTILS_URL_H__ */
+void	print(char *const *envs, size_t size = 0);
+
+#endif /* __PRINT_H__ */

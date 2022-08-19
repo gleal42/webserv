@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:26:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:26:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,29 +249,24 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service( Request & req, Response & res )
 {
-    url::decode(req._path); // Interpret url as extended ASCII
-    std::string path = remove_query_string(req._path); // Could be done in Request parsing
-    std::string extension = get_extension(path);
+    url::decode(req.request_uri.path); // Interpret url as extended ASCII
+    Handler *handler (choose_handler(req.request_uri));
+	try {
+		handler->service(req, res);
+		res.build_message(handler->script_status());
+	} catch (BaseStatus &error_status) {
+		file::build_error_page(error_status, res);
+	}
+	delete handler;
+}
+
+Handler *Server::choose_handler( const URI &uri )
+{
+    std::string extension = get_extension(uri.path);
     if (CGIHandler::extension_is_implemented(extension))
-    {
-        CGIHandler handler(req._path); // probably needs config for root path etc
-        try {
-            handler.service(req, res);
-            res.build_message(handler.script_status());
-        } catch (BaseStatus &error_status) {
-            file::build_error_page(error_status, res);
-        }
-    }
+        return (new CGIHandler(uri));
     else
-    {
-        FileHandler handler; // probably needs config for root path etc
-        try {
-            handler.service(req, res);
-            res.build_message(HTTPStatus<200>());	
-        } catch (BaseStatus &error_status) {
-            file::build_error_page(error_status, res);
-        }
-    }
+        return (new FileHandler());
 }
 
 Server::~Server( void )

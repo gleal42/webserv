@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 15:22:59 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 21:26:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "Event.hpp"
 #include "Connection.hpp"
 #include "ConfigParser.hpp"
-#include "FileHandler.hpp"
+#include "Handler.hpp"
 
 // ************************************************************************** //
 //                               Server Class                             	  //
@@ -61,6 +61,7 @@ public:
 	void			start( void );
 	void			service(Request & req, Response & res);
 	int				events_wait();
+	Handler *		choose_handler( const URI &path );
 
 	/* Connection */
 	void			connection_new( Listener * listener );
@@ -74,9 +75,7 @@ public:
 	void			listener_close( int listener_fd );
 	void			listener_event_read_add( int listener_fd );
 
-
    	EVENT 			events[EVENTS_SIZE];
-
 private:
 
 	Server( void );

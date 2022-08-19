@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils_file.hpp                                     :+:      :+:    :+:   */
+/*   file.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:21:06 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/05 19:32:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 15:30:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __UTILS_FILE_H__
-# define __UTILS_FILE_H__
+#ifndef __FILE_H__
+# define __FILE_H__
 
 # include <string>
 # include <map>
@@ -31,4 +31,4 @@ namespace file
 }
 
 
-#endif /* __UTILS_FILE_H__ */
+#endif /* __FILE_H__ */

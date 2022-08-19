@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:11:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 22:16:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,10 @@ bool CGIHandler::extension_is_implemented( const std::string &extension )
 
 /* Constructors */
 CGIHandler::CGIHandler( void )
-: status_code(200)
 { /* no-op */ }
 
-CGIHandler::CGIHandler( const std::string &uri )
-: path(remove_query_string(uri)), query_string(get_query_string(uri)), extension(get_extension(path)), interpreter(extension_interpreter[extension])
+CGIHandler::CGIHandler( const URI &uri )
+: path(uri.path), query_string(uri.query), extension(get_extension(uri.path)), interpreter(extension_interpreter[extension])
 {
 }
 
@@ -142,19 +141,16 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		// Environment Variables
 		std::vector<char *> env_vars;
 		std::vector<std::vector <char> > buf = environment_variables(req);
-		convert_to_charptr(buf, env_vars);
+		convert_to_charptr_vec(buf, env_vars);
 		char *const *envs = env_vars.data();
-		std::cout << "The environment variables are:" << std::endl;
-		for (size_t i = 0; i < env_vars.size() - 1; i++) {
-			std::cout << envs[i] << std::endl;
-		}
+		print(envs, (env_vars.size() - 1));
 
 		// CGI arguments (1st and 2nd execve argument)
 		std::vector<char *> cgi_args;
 		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
-		std::vector<char> fp_vec = convert_to_char_vector(path.c_str() + 1);
+		std::vector<char> script_vec = convert_to_char_vector(path.c_str() + 1);
 		cgi_args.push_back(cmd_vec.data());
-		cgi_args.push_back(fp_vec.data());
+		cgi_args.push_back(script_vec.data());
 		cgi_args.push_back(NULL);
 		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
 		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
@@ -184,7 +180,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	valid when we leave function scope.
 */
 
-void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
+void	CGIHandler::convert_to_charptr_vec(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
 {
 	for (std::vector<std::vector <char> >::iterator it = vec_of_vec.begin();
 		it != vec_of_vec.end();
@@ -206,26 +202,22 @@ void	CGIHandler::convert_to_charptr(std::vector<std::vector <char> > &vec_of_vec
 
 std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & req )
 {
-	std::vector<std::vector <char> > buf;
-	std::map<enum RequestMethod, std::string> req_method;
-	req_method[GET]="GET";
-	req_method[POST]="POST";
-	req_method[DELETE]="DELETE";
-	setenv(buf, "REQUEST_METHOD", req_method[req.request_method]);
-	setenv(buf, "SERVER_PROTOCOL", "HTTP/1.1");
-	setenv(buf, "QUERY_STRING", query_string);
-	setenv(buf, "REDIRECT_STATUS", "200");
+	std::vector< std::vector <char> > buf;
+	set_env(buf, "REQUEST_METHOD", req.method_to_str());
+	set_env(buf, "SERVER_PROTOCOL", "HTTP/1.1");
+	set_env(buf, "QUERY_STRING", query_string);
+	set_env(buf, "REDIRECT_STATUS", "200");
 	std::string full_script_path = full_path(path);
-	setenv(buf, "PATH_INFO", full_script_path);
-	setenv(buf, "SCRIPT_FILENAME", std::string(path.c_str() + 1, (path.size() - 1)));
-	setenv(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
-	setenv(buf, "GATEWAY_INTERFACE", "CGI/1.1");
+	set_env(buf, "PATH_INFO", full_script_path);
+	set_env(buf, "SCRIPT_FILENAME", std::string(path.c_str() + 1, (path.size() - 1)));
+	set_env(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
+	set_env(buf, "GATEWAY_INTERFACE", "CGI/1.1");
 	std::cout << "Content-type is " << req._headers["Content-Type"] << std::endl;
-	setenv(buf, "CONTENT_TYPE", req._headers["Content-Type"].c_str());
+	set_env(buf, "CONTENT_TYPE", req._headers["Content-Type"].c_str());
 	return (buf);
 }
 
-void	CGIHandler::setenv( std::vector<std::vector <char> > &buf, const std::string &var, const std::string & value)
+void	CGIHandler::set_env( std::vector<std::vector <char> > &buf, const std::string &var, const std::string & value)
 {
 	std::string	env_var(var);
 	env_var.push_back('=');
@@ -244,11 +236,11 @@ void	CGIHandler::setenv( std::vector<std::vector <char> > &buf, const std::strin
 	Then I set the body in the Response
 */
 
-void	CGIHandler::set_response( std::string bdy, Response &res )
+void	CGIHandler::set_response( std::string body, Response &res )
 {
 	// Headers Section
-	size_t crlf = bdy.find(D_CRLF);
-	res.save_raw_headers(bdy.substr(0, crlf));
+	size_t crlf = body.find(D_CRLF);
+	res.save_raw_headers(body.substr(0, crlf));
 	std::string status = res.get_header_value("Status");
 	if (status.empty())
 		status = "200";
@@ -263,13 +255,13 @@ void	CGIHandler::set_response( std::string bdy, Response &res )
 	status = status.substr(start_digit, last_digit);
 	if (status.find_first_not_of("0123456789") != std::string::npos)
 		throw HTTPStatus<400>();
-	this->status_code = str_to_nbr<int>(status);
+	this->set_status_code(str_to_nbr<int>(status));
 
 	// Body Section
 	crlf = crlf+4;
-	bdy = bdy.substr(crlf);
-	res.set_body(bdy);
-	res.set_header("Content-Length", to_string(bdy.size()));
+	body = body.substr(crlf);
+	res.set_body(body);
+	res.set_header("Content-Length", to_string(body.size()));
 }
 
 /*
@@ -282,114 +274,6 @@ void	CGIHandler::set_response( std::string bdy, Response &res )
 	Regarding the order I followed the one specified in the link:
 	However, most times status will be 200.
 */
-
-BaseStatus CGIHandler::script_status( void )
-{
-    if (status_code == 200)
-        return (HTTPStatus<200>());
-	if (status_code == 302)
-		return (HTTPStatus<302>());
-	if (status_code == 400)
-		return (HTTPStatus<400>());
-	if (status_code == 511)
-		return (HTTPStatus<511>());
-
-    if (status_code == 100)
-        return (HTTPStatus<100>());
-    if (status_code == 101)
-        return (HTTPStatus<101>());
-    if (status_code == 201)
-        return (HTTPStatus<201>());
-    if (status_code == 202)
-        return (HTTPStatus<202>());
-    if (status_code == 203)
-        return (HTTPStatus<203>());
-    if (status_code == 204)
-        return (HTTPStatus<204>());
-    if (status_code == 205)
-        return (HTTPStatus<205>());
-    if (status_code == 206)
-        return (HTTPStatus<206>());
-    if (status_code == 207)
-        return (HTTPStatus<207>());
-    if (status_code == 300)
-		return (HTTPStatus<300>());
-	if (status_code == 301)
-		return (HTTPStatus<301>());
-	if (status_code == 303)
-		return (HTTPStatus<303>());
-	if (status_code == 304)
-		return (HTTPStatus<304>());
-	if (status_code == 305)
-		return (HTTPStatus<305>());
-	if (status_code == 307)
-		return (HTTPStatus<307>());
-	if (status_code == 401)
-		return (HTTPStatus<401>());
-	if (status_code == 402)
-		return (HTTPStatus<402>());
-	if (status_code == 403)
-		return (HTTPStatus<403>());
-	if (status_code == 404)
-		return (HTTPStatus<404>());
-	if (status_code == 405)
-		return (HTTPStatus<405>());
-	if (status_code == 406)
-		return (HTTPStatus<406>());
-	if (status_code == 407)
-		return (HTTPStatus<407>());
-	if (status_code == 408)
-		return (HTTPStatus<408>());
-	if (status_code == 409)
-		return (HTTPStatus<409>());
-	if (status_code == 410)
-		return (HTTPStatus<410>());
-	if (status_code == 411)
-		return (HTTPStatus<411>());
-	if (status_code == 412)
-		return (HTTPStatus<412>());
-	if (status_code == 413)
-		return (HTTPStatus<413>());
-	if (status_code == 414)
-		return (HTTPStatus<414>());
-	if (status_code == 415)
-		return (HTTPStatus<415>());
-	if (status_code == 416)
-		return (HTTPStatus<416>());
-	if (status_code == 417)
-		return (HTTPStatus<417>());
-	if (status_code == 422)
-		return (HTTPStatus<422>());
-	if (status_code == 423)
-		return (HTTPStatus<423>());
-	if (status_code == 424)
-		return (HTTPStatus<424>());
-	if (status_code == 426)
-		return (HTTPStatus<426>());
-	if (status_code == 428)
-		return (HTTPStatus<428>());
-	if (status_code == 429)
-		return (HTTPStatus<429>());
-	if (status_code == 431)
-		return (HTTPStatus<431>());
-	if (status_code == 451)
-		return (HTTPStatus<451>());
-	if (status_code == 500)
-		return (HTTPStatus<500>());
-	if (status_code == 501)
-		return (HTTPStatus<501>());
-	if (status_code == 502)
-		return (HTTPStatus<502>());
-	if (status_code == 503)
-		return (HTTPStatus<503>());
-	if (status_code == 504)
-		return (HTTPStatus<504>());
-	if (status_code == 505)
-		return (HTTPStatus<505>());
-	if (status_code == 507)
-		return (HTTPStatus<507>());
-	return (HTTPStatus<500>());
-}
 
 // Example of Using Shared memory of inter process communication!
 

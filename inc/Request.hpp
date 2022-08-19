@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:35:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:10:12 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,12 +101,12 @@ class URI {
 
 public:
 	std::string		host;
-	std::string		port;
+	int				port;
 	std::string		path;
 	std::string		query; // map
 
 	std::string		to_s( void ) {
-		return std::string("http://") + host + std::string(":") + port + path + query;
+		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
 };
 
@@ -143,9 +143,11 @@ public:
 	void				clear( void );
 	std::string			get_form_type( void );
 	std::string			get_delimiter( void );
-
+	std::string			method_to_str( void );
 private:
-
+	typedef	std::map<enum RequestMethod, std::string>	ReqMethodConversion;
+	static ReqMethodConversion _method_conv;
+	static ReqMethodConversion init_map();
 };
 
 std::ostream&	operator<<(std::ostream&, const Request&);

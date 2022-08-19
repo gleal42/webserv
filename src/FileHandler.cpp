@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 16:27:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:38:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,8 @@ void	FileHandler::post_multi_type_form( Request & req )
 		std::string filename = parse_from_multipart_form("filename=", multi_form, next_delimiter);
 	
 		start_file = multi_form.find(D_CRLF) + 4;
+		if (start_file == std::string::npos)
+			throw HTTPStatus<400>();
 		section_body = multi_form.substr(start_file);
 		end_file = section_body.find(delimiter) - 4; // -4 => "--" + "\r\n"
 		section_body = section_body.substr(0, end_file);
@@ -175,9 +177,7 @@ std::string		FileHandler::parse_from_multipart_form( const std::string parameter
 	std::string filename;
 	size_t param_pos = body.find(parameter.c_str());
 
-	if (param_pos == std::string::npos)
-		return filename;
-	if (param_pos > next_delimiter)
+	if (param_pos == std::string::npos || param_pos > next_delimiter)
 		return filename;
 	size_t start_filename = body.find(parameter.c_str()) + parameter.length() + 1;
 	filename = body.substr(start_filename);
