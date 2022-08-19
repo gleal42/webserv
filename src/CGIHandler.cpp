@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 22:42:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 22:58:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,9 +148,9 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		// CGI arguments (1st and 2nd execve argument)
 		std::vector<char *> cgi_args;
 		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
-		std::vector<char> script_vec = convert_to_char_vector(path.c_str() + 1);
+		std::vector<char> filepath = convert_to_char_vector(path.c_str() + 1);
 		cgi_args.push_back(cmd_vec.data());
-		cgi_args.push_back(script_vec.data());
+		cgi_args.push_back(filepath.data());
 		cgi_args.push_back(NULL);
 		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
 		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
