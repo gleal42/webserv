@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 22:37:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 22:39:48 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,9 +180,9 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	valid when we leave function scope.
 */
 
-void	CGIHandler::convert_to_charptr_vec(std::vector<std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
+void	CGIHandler::convert_to_charptr_vec(std::vector< std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr)
 {
-	for (std::vector<std::vector <char> >::iterator it = vec_of_vec.begin();
+	for (std::vector< std::vector <char> >::iterator it = vec_of_vec.begin();
 		it != vec_of_vec.end();
 		it++)
 	{
@@ -200,7 +200,7 @@ void	CGIHandler::convert_to_charptr_vec(std::vector<std::vector <char> > &vec_of
 	so that this temporary std::map is not necessary for first setenv.
 */
 
-std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & req )
+std::vector< std::vector <char> >	CGIHandler::environment_variables( Request & req )
 {
 	std::vector< std::vector <char> > buf;
 	set_env(buf, "REQUEST_METHOD", req.method_to_str());
@@ -217,7 +217,7 @@ std::vector<std::vector <char> >	CGIHandler::environment_variables( Request & re
 	return (buf);
 }
 
-void	CGIHandler::set_env( std::vector<std::vector <char> > &buf, const std::string &var, const std::string & value)
+void	CGIHandler::set_env( std::vector< std::vector <char> > &buf, const std::string &var, const std::string & value)
 {
 	std::string	env_var(var);
 	env_var.push_back('=');
