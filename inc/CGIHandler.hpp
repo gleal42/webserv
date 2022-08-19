@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 22:39:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/19 22:42:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,9 @@ private:
 	CGIHandler( void );
 	void			set_response( std::string body, Response &res );
 	void			execute_cgi_script( Request & req, Response & res  );
-	std::vector< std::vector <char> >	environment_variables( Request & req );
-	void			set_env( std::vector< std::vector <char> > &buf, const std::string &var, const std::string & value);
-	void			convert_to_charptr_vec(std::vector< std::vector <char> > &vec_of_vec, std::vector<char *> &vec_of_charptr);
+	std::vector< std::vector<char> >	environment_variables( Request & req );
+	void			set_env( std::vector< std::vector<char> > &buf, const std::string &var, const std::string & value);
+	void			convert_to_charptr_vec(std::vector< std::vector<char> > &vec_of_vec, std::vector<char *> &vec_of_charptr);
 };
 
 #endif /* __CGI_HANDLER_H__ */
