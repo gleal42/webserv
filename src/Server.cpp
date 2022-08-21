@@ -6,24 +6,18 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 02:00:44 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 02:43:01 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "FileHandler.hpp"
+#include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
-
-/*
-    Testes a passar:
-    Display big images ()
-    Vários Servers ao mesmo tempo
-    Várias Requests ao mesmo tempo
-    EOF working
-    HTML CSS priority
-    Javascript (later)q
- */
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -45,6 +39,7 @@ Server::Server(const ConfigParser &parser)
 	Listener		*new_listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
     {
+        std::cout << "Listener Number " << i + 1 << std::endl;
 		// Initialize each new Listener with a config from the parser
         ServerConfig	config(parser.config(i));
 		new_listener = new Listener(config);
@@ -117,7 +112,10 @@ void	Server::start( void )
                 {
 					write_to_connection(connection_it->second);
                     if (connection_it->second->response.is_empty())
+                    {
                         connection_it->second->request.clear();
+                        connection_it->second->response.clear();
+                    }
                 }
             }
         }
@@ -141,35 +139,6 @@ void	Server::new_connection( Listener * listener )
 	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
 	add_event(client_fd, (EPOLLIN | EPOLLOUT | EPOLLET));
 }
-
-// Reference
-// Does necessary to service a connection
-// void	Server::run(Socket & socket) {
-// 	Request 	req(_config);
-// 	Response 	res(_config);
-// 	try {
-// 		// while timeout and Running
-// 		req.parse(socket);
-// 		res.request_method = req.request_method;
-// 		// res.request_uri = req.request_uri;
-// 		// if (request_callback) {
-// 		// 	request_callback(req, res);
-// 		// }
-// 		service(req, res);
-// 	}
-// 	catch (BaseStatus & error) {
-// 		ERROR(error.what());
-// 		// res.set_error(error);
-// 		if (error.code) {
-// 			// res.status = error.code;
-// 		}
-// 	}
-// 	// if (req.request_line != "") {
-// 	// 	res.send_response(socket);
-// 	// }
-
-// 	res.send_response(socket);
-// }
 
 /**
  * The reason why parse is done here is so that we know when we should
@@ -198,9 +167,7 @@ void	Server::read_connection( Connection *connection, struct epoll_event const &
             return ;
         }
     }
-	LOG("|--- Headers ---|");
-	LOG(connection->request._raw_headers);
-	LOG("|--- Headers ---|");
+
     if (connection->request._raw_body.size())
     {
         std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
@@ -232,16 +199,145 @@ void	Server::write_to_connection( Connection *connection )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
+// first listener should be default since fds are usually increasing in number
+
 void	Server::service(Request & req, Response & res)
 {
-    FileHandler handler; // probably needs config for root path etc
-    try {
-        handler.service(req, res);
-    } catch (BaseStatus &error_status)
+    try
     {
-        res.set_error_body(error_status.code);
-        res.build_message(error_status);
+        url::decode(req.request_uri.path); // Interpret url as extended ASCII
+		if (req.request_uri.host.empty())
+			throw HTTPStatus<400>();
+        ServerConfig config_to_use = find_config_to_use(req);
+
+        Locations::const_iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
+
+        resolve_path(req.request_uri.path, config_to_use, location_to_use);
+        std::string extension = get_extension(req.request_uri.path);
+        if (CGIHandler::extension_is_implemented(extension))
+        {
+            CGIHandler handler(req.request_uri.path); // probably needs config for root path etc
+            handler.service(req, res);
+            res.build_message(handler.script_status());
+        }
+        else
+        {
+            FileHandler handler; // probably needs config for root path etc
+            handler.service(req, res);
+            res.build_message(HTTPStatus<200>());
+        }
+    } catch (BaseStatus &error_status) {
+        file::build_error_page(error_status, res);
     }
+}
+
+ServerConfig	Server::find_config_to_use(const Request & req)
+{
+    ServerConfig to_use;
+    struct addrinfo *host = get_host(req.request_uri.host);
+
+    for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
+    {
+        if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
+            && it->second->_config.get_port() == req.request_uri.port)
+        {
+            // if (it->second.is_default())
+            if (to_use.is_empty())
+                to_use = it->second->_config;
+            std::vector<std::string> server_names = it->second->_config.get_server_name();
+            for (std::vector<std::string>::iterator it_s = server_names.begin();
+                it_s != server_names.end();
+                it_s++)
+            {
+                if (*it_s == req.request_uri.host)
+                    to_use = it->second->_config;
+            }
+        }
+    }
+    freeaddrinfo(host);
+    if (to_use.get_server_name().size())
+        std::cout << "We will use config with server_name " << to_use.get_server_name()[0] << std::endl;
+    return (to_use);
+}
+
+Locations::const_iterator	Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
+{
+    std::string path_directory = path;
+    if (path_directory.back() != '/')
+       path_directory.push_back('/');
+	const Locations &locations = server_block.get_locations();
+    while (path_directory.empty() == false)
+    {
+        for (Locations::const_iterator it = locations.begin();
+            it != locations.end();
+            it++)
+            {
+                if ((it->first) == path_directory)
+                    return (it);
+            }
+        path_directory.pop_back();
+        // remove_directory(path_directory);
+    }
+    // locations.insert("/", LocationConfig());
+    // return locations["/"];
+    throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
+}
+
+// Create URL object
+
+void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::const_iterator locations)
+{
+    std::string root = locations->second.get_root();
+    if (root.empty())
+    {
+		root = server_conf.get_root();
+        if (root.empty())
+            root = "public";
+    }
+	if (root.back() == '/')
+		root.pop_back();
+    std::string location_name = locations->first;
+	std::string temp_path = root + path;
+    if (is_file(temp_path))
+    {
+        path = temp_path;
+        return ;
+    }
+    if (is_directory(temp_path))
+    {
+        root = temp_path;
+        if (root.back() != '/')
+            root.push_back('/');
+        std::vector<std::string> indexes;
+        indexes = locations->second.get_indexes();
+        if (indexes.empty())
+        {
+            indexes = server_conf.get_indexes();
+            if (indexes.empty())
+            {
+                if (is_file(root + "index.html"))
+                {
+                    path = root + "index.html";
+                    return ;
+                }
+                throw HTTPStatus<404>();
+            }
+            std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
+            if (index == indexes.end())
+            {
+                if ((locations->second).get_autoindex() == on)
+                    throw HTTPStatus<501>(); // Not implemented yet
+                throw HTTPStatus<403>();
+            }
+            path = root + (*index);
+            return ;
+        }
+        std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
+        if (index == indexes.end())
+            throw HTTPStatus<404>();
+        path = root + (*index);
+    }
+    throw HTTPStatus<404>();
 }
 
 Server::~Server()

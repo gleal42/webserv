@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/21 01:39:32 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 02:11:54 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,5 +110,4 @@ class ConfigParser
         ConfigParser(void);
         std::string     _config_file;
 };
-
 #endif /* __CONFIG_PARSER_H__ */

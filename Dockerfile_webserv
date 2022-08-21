@@ -1,0 +1,19 @@
+# https://hub.docker.com/_/gcc
+FROM ubuntu:latest
+
+RUN apt-get update
+RUN apt install -y build-essential
+RUN apt install -y vim
+
+# Create app directory
+RUN mkdir -p /usr/src/webserv
+WORKDIR /usr/src/webserv
+
+# Copy source files
+COPY . /usr/src/webserv
+
+# Compile
+# RUN make
+
+# Run
+# CMD ["./webserv"]

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/20 22:38:22 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 02:15:59 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,11 @@ public:
 	void				read_connection( Connection *connection , struct epoll_event const & Event );
 	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
+
+	ServerConfig				find_config_to_use(const Request & req);
+	Locations::const_iterator	find_location_to_use(const ServerConfig &server_block, const std::string & path);
+	void						resolve_path(std::string & path, const ServerConfig & server_conf, const Locations::const_iterator location_conf);
+
 	void				close_connection( int connection_fd );
 	void				close_listener( int listener_fd );
 

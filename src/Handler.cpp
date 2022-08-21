@@ -6,11 +6,13 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/25 17:10:13 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:27:51 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/05 01:02:45 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Handler.hpp"
+
+
 
 Handler::Handler( void ) { /* no-op */ }
 Handler::Handler( Handler const & src ) { *this = src; }
@@ -36,7 +38,7 @@ void	Handler::service( Request & req, Response & res )
 	} else if (req.request_method == DELETE) {
 		do_DELETE(req, res);
 	}
-	res.build_message(HTTPStatus<200>());	
+
 }
 
 void  Handler::do_GET( Request & req, Response & res )

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/09 19:23:28 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 02:14:17 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 
 #include "macros.hpp"
 #include "ServerConfig.hpp"
+#include "webserver.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -101,7 +102,7 @@ Warning								A general warning about possible problems with the entity body.		
 
 typedef std::map<std::string, std::string> ResponseHeaders;
 typedef std::map<std::string, std::string> RequestHeaders;
-typedef sockaddr_in SocketAddress;
+typedef struct sockaddr_in SocketAddress;
 
 class Socket;
 
@@ -114,16 +115,16 @@ enum RequestMethod {
 typedef std::map<std::string, RequestMethod>	RequestMethods;
 
 class URI {
+public:
 	std::string		host;
-	std::string		port;
+	int				port;
 	std::string		path;
 	std::string		query; // map
 
 	std::string		to_s( void ) {
-		return std::string("http://") + host + std::string(":") + port + path + query;
+		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
 };
-
 
 class Request {
 

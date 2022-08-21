@@ -6,11 +6,16 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/15 15:59:24 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 02:45:46 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+#include <arpa/inet.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 /* Exceptions */
 Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
@@ -35,11 +40,11 @@ Socket::AcceptError::AcceptError( void )
 	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
+Socket::Socket( void ) : _port(PORT_UNSET), _host(NULL), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
 
 // Changed to config parameter so that we could copy parent request to connections socket
 // TODO: will we also pass `domain`?
-Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
+Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _host(NULL), _fd(FD_UNSET), _bytes(0)
 {
 	create();
 	setsockopt(SO_REUSEPORT);
@@ -50,7 +55,12 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void ) { this->close(); }
+Socket::~Socket( void )
+{
+	if (_host != NULL)
+		freeaddrinfo(_host);
+	this->close();
+}
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
@@ -97,12 +107,25 @@ void	Socket::setsockopt( int option )
 	}
 }
 
-// C `bind` function wrapper
-void	Socket::bind( int port )
+/**
+ * Function to bind socket to the address and ports
+ * defined in the Configuration file
+ *
+ * @param address -	Interfaces that will listen to requests
+ * 					(e.g. 172.0.0.1 converted to binary)
+ * @param port -	Port in which interfaces will listen
+ * 					(e.g. 80)
+ */
+
+void	Socket::bind( const std::string &host_id, int port )
 {
+	_host  = get_host(host_id);
+	if (_host == NULL)
+		throw Socket::BindError(port);
 	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	struct sockaddr_in *address_value = (struct sockaddr_in *)_host->ai_addr;
+	_address.sin_addr.s_addr = address_value->sin_addr.s_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);

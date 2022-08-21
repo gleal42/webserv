@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/23 16:55:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/17 19:45:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ public:
 
 	void 			create( void );
 	void 			setsockopt( int option );
-	void			bind( int port );
+	void			bind( const std::string &address, int port );
 	void			close( void );
 	void			listen( int max_connections );
 	int				send( const std::string & response ) const;
@@ -109,6 +109,7 @@ private:
 
 	// Should be private to avoid being set to a wrong value
 	int					_port;
+	struct addrinfo *	_host;
 	int					_fd;
 	SocketAddress		_address;
 	int					_bytes;
