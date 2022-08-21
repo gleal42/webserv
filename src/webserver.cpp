@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/21 02:49:46 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 03:02:34 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ int webserver(std::string config_file)
     }
 
 	// Initialize all Listeners
-    Server webserv(parser);
+    Server webserv(parser); //TODO: rethink this design
 
 	// Start waiting for events
 	webserv.start();

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/21 02:19:48 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 04:17:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,11 @@ class BaseConfig{
     void                            set_indexes(std::string &content);
 
     // Getters
-    std::string&                    get_root( void );
-    AutoBool                        get_autoindex( void );
-    ErrorPage&                      get_error_pages( void );
+    const std::string&              get_root( void ) const;
+    AutoBool                        get_autoindex( void ) const;
+    const ErrorPage&                get_error_pages( void ) const;
     int                             get_max_body_size( void ) const;
-    std::vector<std::string>&       get_indexes( void );
+    const std::vector<std::string>& get_indexes( void ) const;
 
     protected:
         std::string                 _root;
@@ -76,16 +76,16 @@ class LocationConfig : public BaseConfig
         LocationConfig(const LocationConfig&);
         LocationConfig& operator= (const LocationConfig&);
 
-        bool                        is_empty( void );
+        bool                            is_empty( void );
         // Setters
-        int                         find_directive(std::string &directive);
-        void                        set_directive(int directive, std::string &content);
-        void                        set_cgi(bool has_separators, std::string &content);
-        void                        set_limit_except(std::string &content);
+        int                             find_directive(std::string &directive);
+        void                            set_directive(int directive, std::string &content);
+        void                            set_cgi(bool has_separators, std::string &content);
+        void                            set_limit_except(std::string &content);
 
         // Getters
-        std::string&                get_cgi( void );
-        std::vector<std::string>&   get_limit_except( void );
+        const std::string&              get_cgi( void ) const;
+        const std::vector<std::string>& get_limit_except( void ) const;
 
     private:
         std::string                 _cgi;
@@ -102,18 +102,18 @@ class ServerConfig : public BaseConfig
         ServerConfig(const ServerConfig&);
         ServerConfig& operator= (const ServerConfig&);
 
-        bool                        is_empty( void );
+        bool                            is_empty( void );
 
         // Setters
-        int                         find_directive(std::string &directive);
-        void                        set_directive(int directive, std::string &content);
-        void                        set_listen(bool has_separators, std::string &content);
-        void                        set_server_name(std::string &content);
+        int                             find_directive(std::string &directive);
+        void                            set_directive(int directive, std::string &content);
+        void                            set_listen(bool has_separators, std::string &content);
+        void                            set_server_name(std::string &content);
 
         // Getters
-        std::vector<Listen>&        get_listens( void );
-        Locations&                  get_locations( void );
-        std::vector<std::string>&   get_server_names( void );
+        const std::vector<Listen>&      get_listens( void ) const;
+        Locations&                      get_locations( void );
+        const std::vector<std::string>& get_server_names( void ) const;
 
         Locations                   _locations;
     private:

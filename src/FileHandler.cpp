@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 02:26:23 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 04:30:41 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
-FileHandler::FileHandler( FileHandler const & src ) { *this = src; }
+FileHandler::FileHandler( FileHandler const & src ) : Handler() { *this = src; }
 
 /* Destructor */
 FileHandler::~FileHandler( void ) { /* no-op */ }

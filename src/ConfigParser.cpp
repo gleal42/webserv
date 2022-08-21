@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/21 02:24:59 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 03:14:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,11 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
 // OBS: So far, the new ServerConfig object is being stored inside the ConfigParser
 void ConfigParser::call()
 {
+    std::ifstream   file;
+    std::string     line;
+    std::string     directive;
+    size_t          separator;
+
     file.open(this->_config_file.c_str());
     if (!file.is_open())
         throw ConfigurationFileError();

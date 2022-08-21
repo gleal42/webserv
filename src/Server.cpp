@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 02:43:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 04:16:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -210,7 +210,7 @@ void	Server::service(Request & req, Response & res)
 			throw HTTPStatus<400>();
         ServerConfig config_to_use = find_config_to_use(req);
 
-        Locations::const_iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
+        Locations::iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
 
         resolve_path(req.request_uri.path, config_to_use, location_to_use);
         std::string extension = get_extension(req.request_uri.path);
@@ -233,49 +233,48 @@ void	Server::service(Request & req, Response & res)
 
 ServerConfig	Server::find_config_to_use(const Request & req)
 {
-    ServerConfig to_use;
+    ServerConfig config_to_use;
     struct addrinfo *host = get_host(req.request_uri.host);
 
     for (ClusterIter it = _cluster.begin(); it != _cluster.end(); it++)
     {
-        if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
-            && it->second->_config.get_port() == req.request_uri.port)
-        {
-            // if (it->second.is_default())
-            if (to_use.is_empty())
-                to_use = it->second->_config;
-            std::vector<std::string> server_names = it->second->_config.get_server_name();
-            for (std::vector<std::string>::iterator it_s = server_names.begin();
-                it_s != server_names.end();
-                it_s++)
-            {
-                if (*it_s == req.request_uri.host)
-                    to_use = it->second->_config;
+        std::vector<Listen> listens_vec = it->second->_config.get_listens();
+        for(std::vector<Listen>::iterator it_l = listens_vec.begin(); it_l != listens_vec.end(); it_l++){
+            if (is_address_being_listened(it_l->ip, (const struct sockaddr_in *)host->ai_addr)
+            && it_l->port == req.request_uri.port){
+                // if (it->second.is_default())
+                if (config_to_use.is_empty())
+                    config_to_use = it->second->_config;
+                std::vector<std::string> server_names = it->second->_config.get_server_names();
+                for (std::vector<std::string>::iterator it_s = server_names.begin(); it_s != server_names.end(); it_s++){
+                    if (*it_s == req.request_uri.host)
+                        config_to_use = it->second->_config;
+                }
             }
         }
     }
     freeaddrinfo(host);
-    if (to_use.get_server_name().size())
-        std::cout << "We will use config with server_name " << to_use.get_server_name()[0] << std::endl;
-    return (to_use);
+    if (config_to_use.get_server_names().size())
+        std::cout << "We will use config with server_name " << config_to_use.get_server_names()[0] << std::endl;
+    return (config_to_use);
 }
 
-Locations::const_iterator	Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
+Locations::iterator	Server::find_location_to_use(ServerConfig &server_block, const std::string & path)
 {
     std::string path_directory = path;
-    if (path_directory.back() != '/')
+    if (path_directory[path_directory.size() - 1] != '/')
        path_directory.push_back('/');
-	const Locations &locations = server_block.get_locations();
+	Locations &locations = server_block.get_locations();
     while (path_directory.empty() == false)
     {
-        for (Locations::const_iterator it = locations.begin();
+        for (Locations::iterator it = locations.begin();
             it != locations.end();
             it++)
             {
                 if ((it->first) == path_directory)
                     return (it);
             }
-        path_directory.pop_back();
+        path_directory.erase(path_directory.end());
         // remove_directory(path_directory);
     }
     // locations.insert("/", LocationConfig());
@@ -285,7 +284,7 @@ Locations::const_iterator	Server::find_location_to_use(const ServerConfig &serve
 
 // Create URL object
 
-void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::const_iterator locations)
+void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::iterator locations)
 {
     std::string root = locations->second.get_root();
     if (root.empty())
@@ -294,8 +293,8 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
         if (root.empty())
             root = "public";
     }
-	if (root.back() == '/')
-		root.pop_back();
+	if (root[root.size() - 1] == '/')
+		root.erase(root.end());
     std::string location_name = locations->first;
 	std::string temp_path = root + path;
     if (is_file(temp_path))
@@ -306,7 +305,7 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
     if (is_directory(temp_path))
     {
         root = temp_path;
-        if (root.back() != '/')
+        if (root[root.size() - 1] != '/')
             root.push_back('/');
         std::vector<std::string> indexes;
         indexes = locations->second.get_indexes();
@@ -325,7 +324,7 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
             std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
             if (index == indexes.end())
             {
-                if ((locations->second).get_autoindex() == on)
+                if ((locations->second).get_autoindex() == AUTOINDEX_ON)
                     throw HTTPStatus<501>(); // Not implemented yet
                 throw HTTPStatus<403>();
             }

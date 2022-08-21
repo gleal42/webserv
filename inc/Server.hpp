@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 02:15:59 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 04:16:30 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,18 +58,18 @@ public:
 	void				write_to_connection( Connection *connection );
 	void				service(Request & req, Response & res);
 
-	ServerConfig				find_config_to_use(const Request & req);
-	Locations::const_iterator	find_location_to_use(const ServerConfig &server_block, const std::string & path);
-	void						resolve_path(std::string & path, const ServerConfig & server_conf, const Locations::const_iterator location_conf);
+	ServerConfig		find_config_to_use(const Request & req);
+	Locations::iterator	find_location_to_use(ServerConfig &server_block, const std::string & path);
+	void				resolve_path(std::string & path, const ServerConfig & server_conf, Locations::iterator location_conf);
 
 	void				close_connection( int connection_fd );
 	void				close_listener( int listener_fd );
 
-
 	void				add_event(int ident, uint32_t events);
 	void				switch_event_to(int ident, uint32_t events);
 	void				delete_event(int ident);
-   	struct epoll_event 		ListQueue[10];
+
+	struct epoll_event 	ListQueue[10];
 
 private:
 

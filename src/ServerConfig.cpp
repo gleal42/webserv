@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/21 02:44:12 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 04:17:10 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,11 +186,11 @@ void    BaseConfig::set_indexes(std::string &content){
 }
 
 // BaseConfig Getters
-std::string&                BaseConfig::get_root( void ) {return (this->_root);}
-AutoBool                    BaseConfig::get_autoindex( void ) {return (this->_autoindex);}
-ErrorPage&                  BaseConfig::get_error_pages( void ) {return (this->_error_pages);}
-int                         BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
-std::vector<std::string>&   BaseConfig::get_indexes( void ) {return (this->_indexes);}
+const std::string&              BaseConfig::get_root( void ) const{return (this->_root);}
+AutoBool                        BaseConfig::get_autoindex( void ) const{return (this->_autoindex);}
+const ErrorPage&                BaseConfig::get_error_pages( void ) const{return (this->_error_pages);}
+int                             BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
+const std::vector<std::string>& BaseConfig::get_indexes( void ) const{return (this->_indexes);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~LocationConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -278,8 +278,8 @@ void    LocationConfig::set_limit_except(std::string &content){
 }
 
 // LocationConfig getters
-std::string&                LocationConfig::get_cgi( void ) {return (this->_cgi);}
-std::vector<std::string>&   LocationConfig::get_limit_except( void ) {return (this->_limit_except);}
+const std::string&                LocationConfig::get_cgi( void ) const {return (this->_cgi);}
+const std::vector<std::string>&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~ServerConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -400,9 +400,9 @@ void    ServerConfig::set_server_name(std::string &content){
 
 // ServerConfig Getters
 
-std::vector<Listen>&        ServerConfig::get_listens( void ) {return (this->_listens);}
-Locations&                  ServerConfig::get_locations( void ) {return (this->_locations);}
-std::vector<std::string>&   ServerConfig::get_server_names( void ) {return (this->_server_names);}
+const std::vector<Listen>&      ServerConfig::get_listens( void ) const {return (this->_listens);}
+Locations&                      ServerConfig::get_locations( void ) {return (this->_locations);}
+const std::vector<std::string>& ServerConfig::get_server_names( void ) const {return (this->_server_names);}
 
 
 // Operators
@@ -473,7 +473,7 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
     if (server.get_autoindex() != AUTOINDEX_UNSET) s << "| - autoindex " << (server.get_autoindex() == AUTOINDEX_ON ? "on" : "off") << std::endl;
     if(!(server.get_indexes().empty())){
                 s << "|      Index [";
-                std::vector<std::string>::iterator i_it(server.get_indexes().begin());
+                std::vector<std::string>::const_iterator i_it(server.get_indexes().begin());
                 for (; i_it != server.get_indexes().end() ; ++i_it)
                     s << *i_it;
                 s << "]" << std::endl;
@@ -502,14 +502,14 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
             if (it->second.get_max_body_size() != -1) s << "|      max_body_size " << it->second.get_max_body_size() << std::endl;
             if(!(it->second.get_indexes().empty())){
                 s << "|      Index [";
-                std::vector<std::string>::iterator i_it(it->second.get_indexes().begin());
+                std::vector<std::string>::const_iterator i_it(it->second.get_indexes().begin());
                 for (; i_it != it->second.get_indexes().end() ; ++i_it)
                     s << *i_it;
                 s << "]" << std::endl;
             }
             if(!(it->second.get_limit_except().empty())){
                 s << "|      Accepted methods [";
-                std::vector<std::string>::iterator m_it(it->second.get_limit_except().begin());
+                std::vector<std::string>::const_iterator m_it(it->second.get_limit_except().begin());
                 for (; m_it != it->second.get_limit_except().end() ; ++m_it)
                     s << " " << *m_it << " ";
                 s << "]" << std::endl;

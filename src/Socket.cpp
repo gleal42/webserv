@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 02:45:46 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 04:17:55 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _host(NULL), _fd(FD_U
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
-	bind(config.get_listens()[0].port); //TODO: Implement several ports solution
+	bind(config.get_listens()[0].ip, config.get_listens()[0].port); //TODO: Implement several ports solution
 }
 
 Socket::Socket( Socket const & src ) { *this = src; }
