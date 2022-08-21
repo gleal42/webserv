@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/18 18:38:31 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/20 23:07:31 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ namespace {
 
 /*~~~~~~~~~~~~~~~~~~~~~~~ConfigParser member functions~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-// const ServerConfig   ConfigParser::config( int const index ) const { return (server_configs[index]); }
+const ServerConfig   ConfigParser::config( int const index ) const { return (server_configs[index]); }
 
 int    ConfigParser::configs_amount( void ) const { return (server_configs.size()); }
 
@@ -156,7 +156,7 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
 // This function opens the _config_file, and then parses the file while looking for an opening server block (aka "server {")
 // Then, calls context_parser() to parse the server block
 // OBS: So far, the new ServerConfig object is being stored inside the ConfigParser
-Configs& ConfigParser::call()
+void ConfigParser::call()
 {
     std::ifstream   file;
     std::string     line;
@@ -183,8 +183,7 @@ Configs& ConfigParser::call()
             throw DirectiveOutOfScopeError(directive);
     }
     file.close();
-    // std::vector<ServerConfig>::iterator it = server_configs.begin();
-    // for(; it != server_configs.end(); it++)
-    //     std::cout << *it;
-    return (this->server_configs);
+    std::vector<ServerConfig>::iterator it = server_configs.begin();
+    for(; it != server_configs.end(); it++)
+        std::cout << *it;
 };

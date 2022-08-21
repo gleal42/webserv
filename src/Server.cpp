@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/09 20:51:55 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 02:00:44 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,17 +36,18 @@ Server::Server() // private
     //     throw CreateError();
 }
 
-Server::Server(const Configs &server_vecs)
+Server::Server(const ConfigParser &parser)
 {
     _fd = epoll_create(1);
     if (_fd < 0){
         throw CreateError();}
-	_listeners_amount = server_vecs.size();
+	_listeners_amount = parser.server_configs.size();
 	Listener		*new_listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
     {
 		// Initialize each new Listener with a config from the parser
-		new_listener = new Listener(server_vecs[i]);
+        ServerConfig	config(parser.config(i));
+		new_listener = new Listener(config);
 		add_event(new_listener->fd(), (EPOLLIN | EPOLLET));
 		_cluster[new_listener->fd()] = new_listener;
 	}
@@ -128,7 +129,7 @@ int	Server::wait_for_events()
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
     struct timespec kqTimeout = {2, 0};
     (void)kqTimeout;
-    return (epoll_wait(this->fd(), ListQueue, 10, -1));
+    return (epoll_wait(this->fd(), this->ListQueue, 10, -1));
 }
 
 void	Server::new_connection( Listener * listener )

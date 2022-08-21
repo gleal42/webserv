@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:14:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/09 23:58:06 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 01:44:04 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@ int	main(int argc, char **argv)
 	std::cout << argc;
 	if (argc != 2)
 	{
-	std::cout << "\naaaaaaaaaaaaaaaaaaa\n";
 		ERROR("Wrong number of arguments.");
 		return (EXIT_FAILURE);
 	}

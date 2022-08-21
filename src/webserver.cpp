@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/18 18:43:51 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/20 22:35:57 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,15 @@
 int webserver(std::string config_file)
 {
 	ConfigParser	parser(config_file);
-	Configs			server_vec;
 	try {
-		server_vec = parser.call();
+		parser.call();
     }
     catch (std::exception &e) { // Use specific errors
 		ERROR(e.what());
     }
 
 	// Initialize all Listeners
-    Server webserv(server_vec);
+    Server webserv(parser);
 
 	// Start waiting for events
 	webserv.start();

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/09 20:49:27 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/20 22:38:22 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ public:
 	struct CreateError : public std::runtime_error {
 						CreateError( void );
 	};
-	Server(const Configs &parser);
+	Server(const ConfigParser &parser);
 	~Server();
 	// Getters
 	int					fd() const;

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/18 18:42:13 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 01:39:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,10 +98,10 @@ class ConfigParser
         ConfigParser(ConfigParser const &src);
 
         // Methods
-        // ServerConfig    config(int const index) const;
-        int             configs_amount(void) const;
-        Configs&   call(void);
-        void            context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
+        const ServerConfig  config(int const index) const;
+        int                 configs_amount(void) const;
+        void                call(void);
+        void                context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
 
         // Config vector
         Configs         server_configs;
