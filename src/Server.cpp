@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 04:16:32 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/22 03:29:39 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <dirent.h>
+
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -39,7 +41,7 @@ Server::Server(const ConfigParser &parser)
 	Listener		*new_listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
     {
-        std::cout << "Listener Number " << i + 1 << std::endl;
+        // std::cout << "Listener Number " << i + 1 << std::endl;
 		// Initialize each new Listener with a config from the parser
         ServerConfig	config(parser.config(i));
 		new_listener = new Listener(config);
@@ -54,6 +56,7 @@ void Server::add_event(int ident, uint32_t events)
 {
     struct epoll_event ev;
    	ev.events = events;
+    ev.data.fd = this->_fd;
 	epoll_ctl(this->_fd, EPOLL_CTL_ADD, ident, &ev);
 }
 
@@ -203,18 +206,22 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
+    bool    autoindex_confirmed = false;
     try
     {
         url::decode(req.request_uri.path); // Interpret url as extended ASCII
 		if (req.request_uri.host.empty())
 			throw HTTPStatus<400>();
         ServerConfig config_to_use = find_config_to_use(req);
-
         Locations::iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
 
-        resolve_path(req.request_uri.path, config_to_use, location_to_use);
-        std::string extension = get_extension(req.request_uri.path);
-        if (CGIHandler::extension_is_implemented(extension))
+        resolve_path(req.request_uri.path, config_to_use, location_to_use, autoindex_confirmed);
+        if (autoindex_confirmed)
+        {
+            do_autoindex(req.request_uri.path, res);
+            res.build_message(HTTPStatus<200>());
+        }
+        else if (CGIHandler::extension_is_implemented(get_extension(req.request_uri.path)))
         {
             CGIHandler handler(req.request_uri.path); // probably needs config for root path etc
             handler.service(req, res);
@@ -284,7 +291,7 @@ Locations::iterator	Server::find_location_to_use(ServerConfig &server_block, con
 
 // Create URL object
 
-void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::iterator locations)
+void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Locations::iterator locations, bool & autoindex_confirmed)
 {
     std::string root = locations->second.get_root();
     if (root.empty())
@@ -324,9 +331,10 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
             std::vector<std::string>::const_iterator index = file::find_valid_index(root, indexes);
             if (index == indexes.end())
             {
-                if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+                if ((locations->second).get_autoindex() == AUTOINDEX_OFF)
                     throw HTTPStatus<501>(); // Not implemented yet
-                throw HTTPStatus<403>();
+                autoindex_confirmed = true;
+                // throw HTTPStatus<403>();
             }
             path = root + (*index);
             return ;
@@ -338,6 +346,49 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
     }
     throw HTTPStatus<404>();
 }
+
+void				do_autoindex(std::string & path, Response & res){
+	std::ifstream	icon;
+	DIR	*			dir;
+	struct dirent *	de;
+    struct stat		st;
+    struct tm		tm_time;
+    std::string     html_content = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h3>Index of " + path + "</h3><br>";
+
+    dir = opendir(path.c_str());
+    if (dir == NULL)
+        throw HTTPStatus<404>();
+    while ((de = readdir(dir)) != NULL)
+    {
+        if (*de->d_name == 0 || (*de->d_name == '.' && *(de->d_name + 1) == 0))
+            continue ;
+        std::string file_path = path + de->d_name;
+        std::string file_name(de->d_name);
+
+        gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
+        std::string tmp_time(asctime(&tm_time));
+        std::string time(tmp_time.substr(0, tmp_time.length() - 1));
+
+        if (lstat(file_path.c_str(), &st) == 0)
+        {
+            if (S_ISDIR(st.st_mode))
+                    html_content += "<div><a href=\"" + file_name + "/\">" + de->d_name + time + "</div><br>";
+            else
+            {
+                size_t file_size(st.st_size);
+                std::stringstream ss;
+                ss << file_size;
+                html_content += "<div><a href=\"" + file_name + "\">" + de->d_name + time + ss.str() + "</div><br>";
+            }
+        }
+	    html_content += "\n</body>\n</html>\n";
+        closedir(dir);
+    }
+	res.set_header("Content-Type", "text/html");
+	res.set_header("Content-Length", to_string(html_content.length()));
+    res.set_body(html_content);
+}
+
 
 Server::~Server()
 {

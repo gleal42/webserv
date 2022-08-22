@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 04:16:30 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/22 01:49:19 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ public:
 
 	ServerConfig		find_config_to_use(const Request & req);
 	Locations::iterator	find_location_to_use(ServerConfig &server_block, const std::string & path);
-	void				resolve_path(std::string & path, const ServerConfig & server_conf, Locations::iterator location_conf);
-
+	void				resolve_path(std::string & path, const ServerConfig & server_conf, Locations::iterator location_conf, bool &autoindex_confirmed);
+	void				do_autoindex(std::string & path,Response & res);
 	void				close_connection( int connection_fd );
 	void				close_listener( int listener_fd );
 

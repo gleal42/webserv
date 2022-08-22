@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 02:46:16 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/21 14:45:57 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,14 +202,14 @@ struct addrinfo *get_host(const std::string &hostname )
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	int resolve_req_host = getaddrinfo(hostname.c_str(), NULL, &hints, &host);
-	if (resolve_req_host != 0)
-    {
+	if (resolve_req_host != 0){
         if (resolve_req_host == EAI_NONAME)
             return NULL;
         throw HTTPStatus<500>();
     }
-    if (host->ai_next != NULL)
+    if (host->ai_next != NULL){
         throw HTTPStatus<500>();
+    }
 	return host;
 }
 

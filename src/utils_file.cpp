@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_file.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/17 23:31:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/21 14:49:55 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ namespace file
 	std::streampos	size( std::string &full_path )
 	{
 		std::streampos	fsize = 0;
-		std::ifstream	file( full_path, std::ios::binary );
+		std::ifstream	file( full_path.c_str(), std::ios::binary );
 
 		fsize = file.tellg();
 		file.seekg( 0, std::ios::end );
@@ -75,15 +75,15 @@ namespace file
 		return (end_file - ftell(open_file));
 	}
 
-	void	save( const std::string &file_body, const std::string & filename )
+	void	save( const std::string &file_body, std::string & filename )
 	{
 		std::ofstream outfile;
-		outfile.open("post/uploads/" + filename, std::ios::binary);
+		outfile.open(("post/uploads/" + filename).c_str(), std::ios::binary);
 		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 			throw std::runtime_error("Couldn't open new file");
 		}
 		outfile.write(file_body.data(), file_body.size());
-		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0 
+		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0
 			|| (outfile.rdstate() & std::ifstream::badbit ) != 0) {
 			throw std::runtime_error("Couldn't write to file");
 		}
@@ -91,7 +91,7 @@ namespace file
 	}
 
 	// Added a protection to prevent us from deleting a repository code or other testing data
-	
+
 	void	remove( const std::string & filename )
 	{
 		static char const * temp_ext[8] = {
@@ -123,9 +123,8 @@ namespace file
 		long sz = file::size(file_ptr);
 		std::cout << "file has size " << sz << std::endl;
 		char *file_contents = (char *) mmap(0, sz, PROT_READ, MAP_PRIVATE, file_fd, 0);
-		if (file_contents == (void *)-1) {
+		if (file_contents == (void *)-1)
 			throw HTTPStatus<500>();
-		}
 		std::string str(file_contents, sz);
 		str.push_back('\0');
 		munmap(file_contents, sz);
