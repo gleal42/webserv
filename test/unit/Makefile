@@ -5,7 +5,7 @@ CPPFLAGS := $(INC)
 COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket parser status file_handler
+all:	socket parser status file_handler server
 
 
 ##---  Socket  ---##
@@ -68,4 +68,18 @@ FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
 	$(COMPILE) $(FILE_HANDLER) -o $@
 
 
-.PHONY: all socket parser status file_handler
+##---  Server  ---##
+SERVER := Server.test.cpp ../../src/Server.cpp \
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
+	../../src/Handler.cpp ../../src/Request.cpp ../../src/Socket.cpp \
+	../../src/Response.cpp
+
+server: Server # run Server class tests
+	./Server
+
+# compile Server class tests
+Server:	$(SERVER) ../../inc/Server.hpp
+	$(COMPILE) $(SERVER) -o $@
+
+
+.PHONY: all socket parser status file_handler server
