@@ -6,6 +6,10 @@
 
 #include "FileHandler.hpp"
 
+/* Helpers */
+void	file_create(std::string filename);
+void	file_delete(std::string filename);
+
 TEST_CASE("FileHandler constructors") {
 
 	SUBCASE("default") {
@@ -35,49 +39,6 @@ TEST_CASE("FileHandler `service` method") {
     }
 }
 
-// void	FileHandler::do_GET( Request & req, Response & res )
-// {
-// 	if (req._path == "/")
-// 		res._uri = "index.html";
-// 	else
-// 		res._uri = req._path.c_str() + 1;
-
-// 	if (req._path.size() > 100) {
-// 		throw HTTPStatus<400>(); // Example
-// 	}
-
-// 	if (req._path.find("..") != std::string::npos) {
-// 		throw HTTPStatus<404>();
-// 	}
-
-// 	std::ifstream file(res._uri.c_str());
-// 	if ( (file.rdstate() & std::ifstream::failbit ) != 0
-// 		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
-// 	{
-// 		ERROR("error opening " << res._uri.c_str());
-// 		throw HTTPStatus<404>();
-// 	}
-
-// 	res.set_headers("Content-Type", get_content_type(res._uri.c_str()));
-// 	std::stringstream body;
-// 	body << file.rdbuf();
-// 	res.set_body(body.str());
-// 	std::stringstream len;
-// 	len << body.str().size();
-// 	res.set_headers("Content-Length", len.str());
-
-// 	file.close();
-// }
-
-void	file_create(std::string filename) {
-	std::ofstream	outfile(filename);
-	outfile << "my text here!";
-	outfile.close();
-}
-
-void	file_delete(std::string filename) {
-	remove(filename.c_str());
-}
 
 TEST_CASE("FileHandler `do_GET` method") {
 	FileHandler handler;
@@ -96,7 +57,7 @@ TEST_CASE("FileHandler `do_GET` method") {
 		}
     }
 
-	SUBCASE("when path ends with / searches for index.html") {
+	SUBCASE("when path ends with '/' searches for index.html") {
 		req._path = "/";
 		file_create("index.html");
 		std::string	result("HTTP/1.1 200 OK" +
@@ -131,6 +92,46 @@ TEST_CASE("FileHandler `do_GET` method") {
 
 		file_delete("random.html");
     }
+
+	SUBCASE("when path is longer then 100 raises 400") {
+		req._path = "ahjkdflasdlsdjldksjaflsdlashdglasjdfalsdjasldhajksdhajskdasjdlasjkdaskjdasjdkfhaskjdgfalshdgkajsdhfds";
+
+		CHECK_THROWS(handler.service(req, res));
+
+		try {
+			handler.service(req, res);
+		}
+		catch(std::exception & e) {
+			CHECK(std::string(e.what()) == "Bad Request");
+		}
+    }
+
+	SUBCASE("when path includes `..` raises 404") {
+		req._path = "../random.html";
+
+		CHECK_THROWS(handler.service(req, res));
+
+		try {
+			handler.service(req, res);
+		}
+		catch(std::exception & e) {
+			LOG(e.what());
+			CHECK(std::string(e.what()) == "Not Found");
+		}
+    }
+
+	SUBCASE("when path is to an invalid file raises 404") {
+		req._path = "invalid.html";
+
+		CHECK_THROWS(handler.service(req, res));
+
+		try {
+			handler.service(req, res);
+		}
+		catch(std::exception & e) {
+			CHECK(std::string(e.what()) == "Not Found");
+		}
+    }
 }
 
 // TEST_CASE("FileHandler `do_POST` method") {
@@ -156,3 +157,15 @@ TEST_CASE("FileHandler `do_GET` method") {
 
 //     }
 // }
+
+/* Helpers */
+
+void	file_create(std::string filename) {
+	std::ofstream	outfile(filename);
+	outfile << "my text here!";
+	outfile.close();
+}
+
+void	file_delete(std::string filename) {
+	remove(filename.c_str());
+}
