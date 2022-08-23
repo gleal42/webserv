@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/23 17:20:25 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/23 20:06:53 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,6 +252,9 @@ void	Server::close_listener( int listener_fd )
     std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
     this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
     delete _cluster[listener_fd];
+	// Weird! When I change this to _cluster.erase(listener_fd),
+	// which should be the correct one afaik
+	// I get a segfault
     _connections.erase(listener_fd);
 }
 
