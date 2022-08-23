@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/15 00:28:01 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/23 17:18:53 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,13 +42,18 @@ class Server {
 public:
 
 	struct CreateError : public std::runtime_error {
-						CreateError( void );
+		CreateError( void );
 	};
+
 	Server(const ConfigParser &parser);
 	~Server();
+
 	// Getters
 	int					fd() const;
-	// Member Functions
+	Cluster				cluster( void ) const;
+	Connections			connections( void ) const;
+	size_t				listeners_amount( void ) const;
+
 	// TODO: check if can be private
 	void				start( void );
 	int					wait_for_events();

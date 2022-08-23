@@ -70,9 +70,10 @@ FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
 
 ##---  Server  ---##
 SERVER := Server.test.cpp ../../src/Server.cpp \
-	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
-	../../src/Handler.cpp ../../src/Request.cpp ../../src/Socket.cpp \
-	../../src/Response.cpp
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/Connection.cpp \
+	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/ConfigParser.cpp \
+	../../src/Request.cpp ../../src/Listener.cpp ../../src/Response.cpp \
+	../../src/url_utils.cpp ../../src/Socket.cpp
 
 server: Server # run Server class tests
 	./Server

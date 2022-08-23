@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/06 19:25:18 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/23 17:20:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,11 @@ Server::Server(const ConfigParser &parser)
 	}
 }
 
-int	Server::fd() const { return(_fd); }
+// Getters
+int	Server::fd( void ) const { return _fd; }
+Cluster	Server::cluster( void ) const { return _cluster; }
+Connections	Server::connections( void ) const { return _connections; }
+size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
 void Server::update_event(int ident, short filter, u_short flags)
 {
