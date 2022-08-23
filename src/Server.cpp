@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/22 03:29:39 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/23 03:38:24 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,10 @@ Server::Server() // private
 
 Server::Server(const ConfigParser &parser)
 {
-    _fd = epoll_create(1);
+    this->_fd = epoll_create(1);
     if (_fd < 0){
         throw CreateError();}
-	_listeners_amount = parser.server_configs.size();
+	this->_listeners_amount = parser.server_configs.size(); //TODO: should be nbr of listens in config
 	Listener		*new_listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
     {
@@ -56,8 +56,9 @@ void Server::add_event(int ident, uint32_t events)
 {
     struct epoll_event ev;
    	ev.events = events;
-    ev.data.fd = this->_fd;
-	epoll_ctl(this->_fd, EPOLL_CTL_ADD, ident, &ev);
+    ev.data.fd = ident; //this was this->_fd
+	if (epoll_ctl(this->_fd, EPOLL_CTL_ADD, ident, &ev) == -1){
+        throw CreateError();}
 }
 
 void Server::switch_event_to(int ident, uint32_t events)
@@ -98,8 +99,8 @@ void	Server::start( void )
         for (int i = 0; i < nbr_events; i++)
         {
             ClusterIter event_fd = _cluster.find(ListQueue[i].data.fd);
-            if (event_fd != _cluster.end()) // New event for non-existent file descriptor
-                new_connection(event_fd->second);
+            if (event_fd != _cluster.end())
+                new_connection(event_fd->second); // New event for non-existent file descriptor
             else
             {
 				ConnectionsIter connection_it = _connections.find(ListQueue[i].data.fd);
@@ -153,6 +154,7 @@ void	Server::new_connection( Listener * listener )
  **/
 void	Server::read_connection( Connection *connection, struct epoll_event const & Event )
 {
+    std::cout << "\t\t\t\t000000000000000000000\n";
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
     std::cout << "Incoming data has size of: " << Event.data.fd << std::endl;
     connection->request.parse(*connection->socket(), Event);
@@ -210,8 +212,12 @@ void	Server::service(Request & req, Response & res)
     try
     {
         url::decode(req.request_uri.path); // Interpret url as extended ASCII
+		std::cout << "\n\tHOST CENAS: " << req.request_uri.host << "\n";
 		if (req.request_uri.host.empty())
-			throw HTTPStatus<400>();
+        {
+			std::cout << "EMPTY HOST\n";
+            throw HTTPStatus<400>();
+        }
         ServerConfig config_to_use = find_config_to_use(req);
         Locations::iterator location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
 
@@ -334,6 +340,7 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
                 if ((locations->second).get_autoindex() == AUTOINDEX_OFF)
                     throw HTTPStatus<501>(); // Not implemented yet
                 autoindex_confirmed = true;
+                return ;
                 // throw HTTPStatus<403>();
             }
             path = root + (*index);
@@ -347,7 +354,7 @@ void    Server::resolve_path(std::string & path, const ServerConfig & server_con
     throw HTTPStatus<404>();
 }
 
-void				do_autoindex(std::string & path, Response & res){
+void				Server::do_autoindex(std::string & path, Response & res){
 	std::ifstream	icon;
 	DIR	*			dir;
 	struct dirent *	de;
@@ -356,6 +363,7 @@ void				do_autoindex(std::string & path, Response & res){
     std::string     html_content = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h3>Index of " + path + "</h3><br>";
 
     dir = opendir(path.c_str());
+    if (path != "")
     if (dir == NULL)
         throw HTTPStatus<404>();
     while ((de = readdir(dir)) != NULL)
@@ -372,13 +380,13 @@ void				do_autoindex(std::string & path, Response & res){
         if (lstat(file_path.c_str(), &st) == 0)
         {
             if (S_ISDIR(st.st_mode))
-                    html_content += "<div><a href=\"" + file_name + "/\">" + de->d_name + time + "</div><br>";
+                    html_content += "<div><a href=\"" + file_name + "/\">" + "&emsp;&emsp;&emsp;" + de->d_name + time + "&emsp;-" + "</div><br>";
             else
             {
                 size_t file_size(st.st_size);
                 std::stringstream ss;
                 ss << file_size;
-                html_content += "<div><a href=\"" + file_name + "\">" + de->d_name + time + ss.str() + "</div><br>";
+                html_content += "<div><a href=\"" + file_name + "\">" + "&emsp;&emsp;&emsp;" + de->d_name + time + "&emsp;" + ss.str() + "</div><br>";
             }
         }
 	    html_content += "\n</body>\n</html>\n";

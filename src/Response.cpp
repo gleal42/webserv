@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 18:10:36 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/23 01:44:23 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,7 @@ void    Response::set_with_file( const std::string &filename )
 	len << body.str().size();
 	set_header("Content-Length", len.str());
 
-	file.close();	
+	file.close();
 }
 
 void	Response::clear( void )
@@ -141,8 +141,10 @@ void	Response::save_raw_headers( std::string headers )
 		std::string single_header = headers.substr(0, next_header);
 		size_t separator = single_header.find(":");
 		if (single_header.empty() == false
-			&& separator == std::string::npos)
-			throw HTTPStatus<400>();
+			&& separator == std::string::npos){
+				std::cout << "OLA\n";
+				throw HTTPStatus<400>();
+			}
 		this->set_header(single_header.substr(0, separator), single_header.substr(separator+1));
 		if (next_header == std::string::npos)
 			break ;

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/21 04:17:55 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/23 01:59:21 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,8 @@ void	Socket::setsockopt( int option )
 
 void	Socket::bind( const std::string &host_id, int port )
 {
+	// std::cout << "HOST ID: " << host_id << "\n";
+	// std::cout << "PORT: " << port << "\n";
 	_host  = get_host(host_id);
 	if (_host == NULL)
 		throw Socket::BindError(port);
@@ -128,6 +130,7 @@ void	Socket::bind( const std::string &host_id, int port )
 	_address.sin_addr.s_addr = address_value->sin_addr.s_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
+		std::cout << "fd: " << _fd << "\n";
 		throw Socket::BindError(port);
 	}
 	_port = port;	// only set port if did't fail `bind` call

@@ -1,11 +1,12 @@
 server {
+	#listen localhost:80;
 	index public/index.html;
 	server_name example.com;
-	error_page 404 502 203 /home/user/Desktop/git/pipex;
+	error_page 404 502 203 /home/user/Desktop/git/webserv/www;
 	root	/home/user/Desktop/git/webserv;
 	location /home/user/Desktop {
 		client_max_body_size 13;
-		error_page 207 /home/user/Desktop/git/webserv;
+		error_page 207 /home/user/Desktop/git/webserv/www;
 	}
 	location /home/user/Desktop/playground {
 		client_max_body_size 33;
@@ -17,7 +18,7 @@ server {
 
 server {
 	server_name www.example.com www.google.com;
-	listen localhost:7777;
+	#listen localhost:80;
 	error_page 405 /home/user/Desktop/git/webserv/src;
 	index /home/user/Desktop/git/webserv/src/ServerConfig.cpp;
 }
