@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/23 03:38:24 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/24 02:05:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -215,7 +215,7 @@ void	Server::service(Request & req, Response & res)
 		std::cout << "\n\tHOST CENAS: " << req.request_uri.host << "\n";
 		if (req.request_uri.host.empty())
         {
-			std::cout << "EMPTY HOST\n";
+			std::cout << "\tEMPTY HOST\n";
             throw HTTPStatus<400>();
         }
         ServerConfig config_to_use = find_config_to_use(req);
