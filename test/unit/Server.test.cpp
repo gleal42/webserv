@@ -63,7 +63,7 @@ TEST_CASE("Server destructor") {
 		Cluster			listeners(server->listeners());
 		Connections		connections(server->connections());
 
-		for (Cluster_it it = listeners.begin(); it != listeners.end(); ++it) {
+		for (Listener_it it = listeners.begin(); it != listeners.end(); ++it) {
 			listener_fds.push_back(it->first);
 		}
 		for (Connections_it it = connections.begin(); it != connections.end(); it++) {
@@ -124,7 +124,7 @@ TEST_CASE("Server `new_connection` method") {
 		REQUIRE(server.listeners().begin()->first != FD_UNSET);
 
 		// Cluster		cluster = server.listeners();
-		// Cluster_it	it = cluster.begin();
+		// Listener_it	it = cluster.begin();
 		// // Listener	listener(*it->second);
 		// int			listener_fd = it->first;
 

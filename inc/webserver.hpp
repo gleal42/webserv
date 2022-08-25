@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 16:20:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:17:02 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,16 @@
 # include <map>
 # include <cstdlib> // For EXIT_FAILURE, etc, macros
 # include <sstream>
+
 # ifdef DARWIN
 #  include <sys/event.h>
+#  define QUEUE() kqueue()
+#  define EVENT struct kevent
 # endif
 # ifdef LINUX
 #  include <sys/epoll.h>
+#  define QUEUE() epoll_create(1)
+#  define EVENT struct epoll_event
 # endif
 
 # include "macros.hpp"

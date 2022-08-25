@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:04:38 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:26:00 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ Server::Server() // private
 
 Server::Server(const ConfigParser &parser)
 {
-    _queue_fd = kqueue();
-    // _queue_fd = epoll_create(size);
-    if (_queue_fd < 0)
+    _queue_fd = QUEUE();
+    if (_queue_fd < 0) {
         throw CreateError();
+	}
 
 	_listeners_amount = parser.configs_amount();
 
@@ -68,7 +68,7 @@ size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 // EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
 void Server::update_event(int fd, short filter, u_short flags)
 {
-    struct kevent event;
+    EVENT event;
 	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
 	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
 }
@@ -77,7 +77,7 @@ void Server::update_event(int fd, short filter, u_short flags)
  * File descriptors open are:
  * 3 - Server fd
  * 4 - Server
- * 5 - Accept client request
+ * 5 - Accept connection request
  * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
  *
  * Lines:
@@ -96,27 +96,33 @@ void	Server::start( void )
             continue;
 		}
 
-        for (int i = 0; i < n; i++)
-        {
-            Cluster_it event_fd = _listeners.find(ListQueue[i].ident);
-            if (event_fd != _listeners.end()) // New event for non-existent file descriptor
+        for (int i = 0; i < n; i++) {
+            Listener_it		event_fd = _listeners.find(ListQueue[i].ident);
+
+            if (event_fd != _listeners.end()) {
+				// New event for non-existent file descriptor
                 new_connection(event_fd->second);
-            else
-            {
-				Connections_it connection_it = _connections.find(ListQueue[i].ident);
-                if (ListQueue[i].flags & EV_EOF)
-                {
-                    close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
-                    if (_connections.size() == 0)
+			}
+			else {
+				Connections_it	connection_it = _connections.find(ListQueue[i].ident);
+
+				if (ListQueue[i].flags & EV_EOF) {
+					// If there are no more connections open in any server do cleanup(return)
+                    close_connection(ListQueue[i].ident);
+
+                    if (_connections.size() == 0) {
                         return ;
+					}
                 }
-                else if (ListQueue[i].filter == EVFILT_READ)
+				else if (ListQueue[i].filter == EVFILT_READ) {
                     read_connection(connection_it->second, ListQueue[i]);
-                else if (ListQueue[i].filter == EVFILT_WRITE)
-                {
+				}
+				else if (ListQueue[i].filter == EVFILT_WRITE) {
 					write_to_connection(connection_it->second);
-                    if (connection_it->second->response.is_empty())
+
+                    if (connection_it->second->response.is_empty()) {
                         connection_it->second->request.clear();
+					}
                 }
             }
         }
@@ -127,21 +133,27 @@ void	Server::start( void )
 int	Server::wait_for_events( void )
 {
 	LOG("\n+++++++ Waiting for new connection ++++++++\n");
-    struct timespec kqTimeout = {2, 0};
+
+    struct timespec	kqTimeout = {2, 0};
+
     (void)kqTimeout;
+
     return (kevent(_queue_fd, NULL, 0, ListQueue, 10, NULL));
 }
 
 void	Server::new_connection( Listener * listener )
 {
-	// check if can still add
-	Connection * connection  = new Connection(listener->socket());
-	int client_fd = connection->fd();
-	_connections[client_fd] = connection;
-	LOG("CLIENT NEW: (" << client_fd << ")");
-	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+	// TODO: check if can still add
+	Connection *	connection = new Connection(listener->socket());
+	int 			connection_fd = connection->fd();
+
+	_connections[connection_fd] = connection;
+
+	LOG("connection NEW: (" << connection_fd << ")");
+
+	update_event(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
 	// Will be used later in case we can't send the whole message
-	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
+	update_event(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
 }
 
 // Reference
@@ -181,7 +193,7 @@ void	Server::new_connection( Listener * listener )
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-void	Server::read_connection( Connection *connection, struct kevent const & Event )
+void	Server::read_connection( Connection *connection, EVENT const & Event )
 {
     LOG("About to read the file descriptor: " << connection->fd());
     LOG("Incoming data has size of: " << Event.data);
@@ -258,7 +270,7 @@ void	Server::service(Request & req, Response & res)
 
 Server::~Server()
 {
-	for (Cluster_it it = _listeners.begin(); it != _listeners.end(); ++it) {
+	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
         close_listener(it->first);
 	}
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
@@ -281,7 +293,7 @@ void	Server::close_listener( int listener_fd )
 
 void	Server::close_connection( int connection_fd )
 {
-    LOG("Closing Connection for client: " << connection_fd);
+    LOG("Closing Connection: " << connection_fd);
 
     update_event(connection_fd, EVFILT_READ, EV_DELETE);
     update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
