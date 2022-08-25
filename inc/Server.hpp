@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:39:36 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:41:21 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,11 +59,11 @@ public:
 	void			start( void );
 	int				events_wait();
 	void			event_update(int ident, short filter, u_short flags);
-	void			new_connection( Listener * listener );
+	void			connection_new( Listener * listener );
 	void			read_connection( Connection *connection , EVENT const & event );
 	void			write_to_connection( Connection *connection );
 	void			service(Request & req, Response & res);
-	void			close_connection( int connection_fd );
+	void			connection_close( int connection_fd );
 	void			close_listener( int listener_fd );
    	EVENT 			events[EVENTS_SIZE];
 

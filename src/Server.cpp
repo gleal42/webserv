@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:39:36 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:41:21 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,14 +101,14 @@ void	Server::start( void )
 
             if (event_fd != _listeners.end()) {
 				// New event for non-existent file descriptor
-                new_connection(event_fd->second);
+                connection_new(event_fd->second);
 			}
 			else {
 				Connections_it	connection_it = _connections.find(events[i].ident);
 
 				if (events[i].flags & EV_EOF) {
 					// If there are no more connections open in any server do cleanup(return)
-                    close_connection(events[i].ident);
+                    connection_close(events[i].ident);
 
                     if (_connections.size() == 0) {
                         return ;
@@ -141,7 +141,7 @@ int	Server::events_wait( void )
     return (kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, NULL));
 }
 
-void	Server::new_connection( Listener * listener )
+void	Server::connection_new( Listener * listener )
 {
 	// TODO: check if can still add
 	Connection *	connection = new Connection(listener->socket());
@@ -274,7 +274,7 @@ Server::~Server()
         close_listener(it->first);
 	}
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
-        close_connection(it->first);
+        connection_close(it->first);
 	}
     close(_queue_fd);
 }
@@ -291,7 +291,7 @@ void	Server::close_listener( int listener_fd )
     _connections.erase(listener_fd);
 }
 
-void	Server::close_connection( int connection_fd )
+void	Server::connection_close( int connection_fd )
 {
     LOG("Closing Connection: " << connection_fd);
 

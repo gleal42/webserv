@@ -114,7 +114,7 @@ TEST_CASE("Server `event_update` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 
-TEST_CASE("Server `new_connection` method") {
+TEST_CASE("Server `connection_new` method") {
 	ConfigParser parser(CONFIG_FILE);
 	parser.call();
 
@@ -130,7 +130,7 @@ TEST_CASE("Server `new_connection` method") {
 
 		// listener->listen();
 
-		// CHECK_NOTHROW(server.new_connection(server.listeners().begin()->second));
+		// CHECK_NOTHROW(server.connection_new(server.listeners().begin()->second));
     }
 }
 
