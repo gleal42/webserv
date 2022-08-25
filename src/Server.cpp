@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/23 20:06:53 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/24 16:03:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "FileHandler.hpp"
 #include <iostream>
 #include <stdexcept>
+
+// #include <sys/epoll.h>
 
 /*
     Testes a passar:
@@ -36,9 +38,17 @@ Server::Server() // private
     //     throw CreateError();
 }
 
+// int epoll_create(int size);
+//
+// The size argument is an indication to the kernel about the number of file descriptors
+// a process wants to monitor, which helps the kernel to decide the size of the epoll
+// instance. Since Linux 2.6.8, this argument is ignored because the epoll data structure
+// dynamically resizes as file descriptors are added or removed from it.
+
 Server::Server(const ConfigParser &parser)
 {
     _fd = kqueue();
+    // _fd = epoll_create(size);
     if (_fd < 0)
         throw CreateError();
 	_listeners_amount = parser.configs_amount();
@@ -48,6 +58,7 @@ Server::Server(const ConfigParser &parser)
 		// Initialize each new Listener with a config from the parser
 		ServerConfig	config(parser.config(i));
 		new_listener = new Listener(config);
+		// EPOLLIN, EPOLLOUT, EPOLLET ?
 		update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
 		_cluster[new_listener->fd()] = new_listener;
 	}
@@ -59,6 +70,8 @@ Cluster	Server::cluster( void ) const { return _cluster; }
 Connections	Server::connections( void ) const { return _connections; }
 size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
+// int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+// EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
 void Server::update_event(int ident, short filter, u_short flags)
 {
     struct kevent kev;
@@ -113,6 +126,7 @@ void	Server::start( void )
     }
 }
 
+// int epoll_wait(int epfd, struct epoll_event *evlist, int maxevents, int timeout);
 int	Server::wait_for_events()
 {
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;

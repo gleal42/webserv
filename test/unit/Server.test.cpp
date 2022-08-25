@@ -40,26 +40,6 @@ TEST_CASE("Server constructors") {
     }
 }
 
-// Server::~Server()
-// {
-// 	for (Cluster_it it = _cluster.begin(); it != _cluster.end(); ++it) {
-//         close_listener(it->first);
-// 	}
-// 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
-//         close_connection(it->first);
-// 	}
-//     close(this->_fd);
-// }
-
-// std::map<int, int> m;
-// std::vector<int> key, value;
-// for(std::map<int,int>::iterator it = m.begin(); it != m.end(); ++it) {
-//   key.push_back(it->first);
-//   value.push_back(it->second);
-//   std::cout << "Key: " << it->first << std::endl();
-//   std::cout << "Value: " << it->second << std::endl();
-// }
-
 TEST_CASE("Server destructor") {
 	ConfigParser parser(CONFIG_FILE);
 	parser.call();
@@ -104,10 +84,38 @@ TEST_CASE("Server destructor") {
 
 TEST_CASE("Server `start` method") {
 	ConfigParser parser(CONFIG_FILE);
+	parser.call();
+
+	SUBCASE("starts the server") {
+		Server	server(parser);
+
+		/*
+			Find way to test a running process
+		*/
+		// CHECK_NOTHROW(server.start());
+    }
 }
+
+// int	Server::wait_for_events()
+// {
+// 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
+//     struct timespec kqTimeout = {2, 0};
+//     (void)kqTimeout;
+//     return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
+// }
 
 TEST_CASE("Server `wait_for_events` method") {
 	ConfigParser parser(CONFIG_FILE);
+	parser.call();
+
+	SUBCASE("waits for events") {
+		Server	server(parser);
+
+		/*
+			Find way to test a running process
+		*/
+		// CHECK_NOTHROW(server.wait_for_events());
+    }
 }
 
 // void Server::update_event(int ident, short filter, u_short flags)
@@ -121,23 +129,63 @@ TEST_CASE("Server `update_event` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 
+// void	Server::new_connection( Listener * listener )
+// {
+// 	// check if can still add
+// 	Connection * connection  = new Connection(listener->socket());
+// 	int client_fd = connection->fd();
+// 	_connections[client_fd] = connection;
+// 	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
+// 	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+// 	// Will be used later in case we can't send the whole message
+// 	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
+// }
+
 TEST_CASE("Server `new_connection` method") {
 	ConfigParser parser(CONFIG_FILE);
+	parser.call();
+
+	SUBCASE("add new connection to connections") {
+		Server	server(parser);
+
+		REQUIRE(server.cluster().begin()->first != FD_UNSET);
+
+		// Cluster		cluster = server.cluster();
+		// Cluster_it	it = cluster.begin();
+		// // Listener	listener(*it->second);
+		// int			listener_fd = it->first;
+
+		// listener->listen();
+
+		// CHECK_NOTHROW(server.new_connection(server.cluster().begin()->second));
+    }
 }
 
+/*
+	emulate parseable request to do this
+*/
 TEST_CASE("Server `read_connection` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 
+
+
+// void	Server::write_to_connection( Connection *connection )
+// {
+// 	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
+// 	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
+//     if (connection->response.is_empty())
+//         service(connection->request, connection->response);
+//     connection->response.send_response(*connection->socket());
+//     if (connection->response.is_empty())
+//     {
+//         std::cout << "Connection was empty after sending" << std::endl;
+//         this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
+//         this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+//     }
+// }
+
 TEST_CASE("Server `write_to_connection` method") {
-	ConfigParser parser(CONFIG_FILE);
-}
-
-TEST_CASE("Server `close_connection` method") {
-	ConfigParser parser(CONFIG_FILE);
-}
-
-TEST_CASE("Server `close_listener` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 
