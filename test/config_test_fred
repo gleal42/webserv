@@ -15,10 +15,3 @@ server {
 	}
 	autoindex on;
 }
-
-server {
-	server_name www.example.com www.google.com;
-	#listen localhost:80;
-	error_page 405 /home/user/Desktop/git/webserv/src;
-	index /home/user/Desktop/git/webserv/src/ServerConfig.cpp;
-}

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/24 02:05:32 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/25 02:55:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <dirent.h>
-
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -157,6 +156,7 @@ void	Server::read_connection( Connection *connection, struct epoll_event const &
     std::cout << "\t\t\t\t000000000000000000000\n";
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
     std::cout << "Incoming data has size of: " << Event.data.fd << std::endl;
+    std::cout << "\t\t\t\t111111111111111111111\n";
     connection->request.parse(*connection->socket(), Event);
     if (connection->request._headers.count("Content-Length"))
     {
