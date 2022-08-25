@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/22 18:57:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 16:28:32 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void	Socket::bind( int port )
 }
 
 // C `close` function wrapper
-void	Socket::close( void ) { if(_fd != FD_UNSET ) ::close(_fd); }
+void	Socket::close( void ) { if (_fd != FD_UNSET) ::close(_fd); }
 
 // C `listen` function wrapper
 void	Socket::listen( int max_connections ) { // Coming from server config or should be const?
@@ -132,6 +132,7 @@ void	Socket::receive( int buffer_size ) {
 
 	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
 	std::cout << "We just received " << _bytes << " bytes." << std::endl;
+	// What is this comparison for and what does it mean?
 	if (buffer_size != _bytes)
 		throw std::runtime_error("UH OHHHHHHHHHHHH");
 	// std::cout << "The data received was :" << std::endl;

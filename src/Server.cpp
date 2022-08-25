@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/05 09:47:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/24 16:03:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "FileHandler.hpp"
 #include <iostream>
 #include <stdexcept>
+
+// #include <sys/epoll.h>
 
 /*
     Testes a passar:
@@ -36,9 +38,17 @@ Server::Server() // private
     //     throw CreateError();
 }
 
+// int epoll_create(int size);
+//
+// The size argument is an indication to the kernel about the number of file descriptors
+// a process wants to monitor, which helps the kernel to decide the size of the epoll
+// instance. Since Linux 2.6.8, this argument is ignored because the epoll data structure
+// dynamically resizes as file descriptors are added or removed from it.
+
 Server::Server(const ConfigParser &parser)
 {
     _fd = kqueue();
+    // _fd = epoll_create(size);
     if (_fd < 0)
         throw CreateError();
 	_listeners_amount = parser.configs_amount();
@@ -48,13 +58,20 @@ Server::Server(const ConfigParser &parser)
 		// Initialize each new Listener with a config from the parser
 		ServerConfig	config(parser.config(i));
 		new_listener = new Listener(config);
+		// EPOLLIN, EPOLLOUT, EPOLLET ?
 		update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
 		_cluster[new_listener->fd()] = new_listener;
 	}
 }
 
-int	Server::fd() const { return(_fd); }
+// Getters
+int	Server::fd( void ) const { return _fd; }
+Cluster	Server::cluster( void ) const { return _cluster; }
+Connections	Server::connections( void ) const { return _connections; }
+size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
+// int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+// EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
 void Server::update_event(int ident, short filter, u_short flags)
 {
     struct kevent kev;
@@ -84,12 +101,12 @@ void	Server::start( void )
             continue;
         for (int i = 0; i < nbr_events; i++)
         {
-            ClusterIter event_fd = _cluster.find(ListQueue[i].ident);
+            Cluster_it event_fd = _cluster.find(ListQueue[i].ident);
             if (event_fd != _cluster.end()) // New event for non-existent file descriptor
                 new_connection(event_fd->second);
             else
             {
-				ConnectionsIter connection_it = _connections.find(ListQueue[i].ident);
+				Connections_it connection_it = _connections.find(ListQueue[i].ident);
                 if (ListQueue[i].flags & EV_EOF)
                 {
                     close_connection(ListQueue[i].ident); // If there are no more connections open in any server do cleanup(return)
@@ -109,6 +126,7 @@ void	Server::start( void )
     }
 }
 
+// int epoll_wait(int epfd, struct epoll_event *evlist, int maxevents, int timeout);
 int	Server::wait_for_events()
 {
 	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
@@ -125,7 +143,8 @@ void	Server::new_connection( Listener * listener )
 	_connections[client_fd] = connection;
 	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
 	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
-	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // Will be used later in case we can't send the whole message
+	// Will be used later in case we can't send the whole message
+	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
 }
 
 // Reference
@@ -233,10 +252,10 @@ void	Server::service(Request & req, Response & res)
 
 Server::~Server()
 {
-	for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it) {
+	for (Cluster_it it = _cluster.begin(); it != _cluster.end(); ++it) {
         close_listener(it->first);
 	}
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++) {
+	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
         close_connection(it->first);
 	}
     close(this->_fd);
@@ -247,6 +266,9 @@ void	Server::close_listener( int listener_fd )
     std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
     this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
     delete _cluster[listener_fd];
+	// Weird! When I change this to _cluster.erase(listener_fd),
+	// which should be the correct one afaik
+	// I get a segfault
     _connections.erase(listener_fd);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 23:39:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 19:24:50 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,6 @@ private:
 };
 
 typedef std::map<int, Listener * > Cluster;
-typedef Cluster::iterator ClusterIter;
+typedef Cluster::iterator Cluster_it;
 
 #endif /* __LISTENER_H__ */

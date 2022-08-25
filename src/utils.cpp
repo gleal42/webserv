@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:46:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/06 16:40:42 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ HTTPStatusGroup	http_group( int code )
 	};
 }
 
-std::string get_extension( const std::string &filename )
+std::string	get_extension( const std::string &filename )
 {
     std::string extension;
     size_t ext_position = filename.find_last_of('.');
