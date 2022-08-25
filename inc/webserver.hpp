@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 18:07:17 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 23:12:27 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 #  include <sys/event.h>
 #  define QUEUE() kqueue()
 #  define EVENT struct kevent
+#  define TIMEOUT NULL
 # endif
 # if defined(LINUX)
 #  include <sys/epoll.h>
@@ -35,6 +36,7 @@
 //	dynamically resizes as file descriptors are added or removed from it.
 #  define QUEUE() epoll_create(1)
 #  define EVENT struct epoll_event
+#  define TIMEOUT -1
 # endif
 
 # include "macros.hpp"
