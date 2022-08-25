@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 16:07:35 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 16:33:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 /*
     Testes a passar:
     Display big images ()
-    Vários Servers ao mesmo tempo
     Várias Requests ao mesmo tempo
     EOF working
     HTML CSS priority
@@ -46,16 +45,16 @@ Server::Server(const ConfigParser &parser)
     // _fd = epoll_create(size);
     if (_fd < 0)
         throw CreateError();
+
 	_listeners_amount = parser.configs_amount();
-	Listener		*new_listener;
+
+	Listener	*listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
-    {
-		// Initialize each new Listener with a config from the parser
-		ServerConfig	config(parser.config(i));
-		new_listener = new Listener(config);
+	{
+		listener = new Listener(parser.config(i));
 		// EPOLLIN, EPOLLOUT, EPOLLET ?
-		update_event(new_listener->fd(), EVFILT_READ, EV_ADD);
-		_cluster[new_listener->fd()] = new_listener;
+		update_event(listener->fd(), EVFILT_READ, EV_ADD);
+		_cluster[listener->fd()] = listener;
 	}
 }
 
@@ -67,11 +66,11 @@ size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
 // int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 // EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
-void Server::update_event(int ident, short filter, u_short flags)
+void Server::update_event(int fd, short filter, u_short flags)
 {
-    struct kevent kev;
-	EV_SET(&kev, ident, filter, flags, 0, 0, NULL);
-	kevent(this->_fd, &kev, 1, NULL, 0, NULL);
+    struct kevent event;
+	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
+	kevent(this->_fd, &event, 1, NULL, 0, NULL);
 }
 
 /*
