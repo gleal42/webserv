@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 17:38:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:39:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,14 @@ void	Response::set_default_page( void )
 	std::stringstream len;
 	len << body.size();
 	this->set_header("Content-Length", len.str());
+}
+
+void	Response::set_error_page( const BaseStatus &error_status )
+{
+	std::string error_str = to_string(error_status.code);
+	error_str = "www/error_pages/" + error_str + ".html";
+	set_with_file(error_str);
+	build_message(error_status);
 }
 
 void    Response::set_with_file( const std::string &filename )

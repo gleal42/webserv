@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:26:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:26:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -255,7 +255,7 @@ void	Server::service( Request & req, Response & res )
 		handler->service(req, res);
 		res.build_message(handler->script_status());
 	} catch (BaseStatus &error_status) {
-		file::build_error_page(error_status, res);
+		res.set_error_page(error_status);
 	}
 	delete handler;
 }

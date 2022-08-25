@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:21:06 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 15:30:00 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/25 23:53:41 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@
 namespace file
 {
 	std::string const	content_type( const std::string & path );
-	void				build_error_page( const BaseStatus &error_status, Response &res );
 	std::streampos		size( const std::string &full_path );
 	long				size( FILE *open_file );
 	void				save( const std::string &file_body, const std::string & filename );

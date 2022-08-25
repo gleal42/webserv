@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 16:35:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:39:26 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -168,6 +168,7 @@ public:
 	void			set_content_type( std::string const & type );
 	void			set_body( std::string const &type );
 	void			set_default_page( void );
+	void			set_error_page( const BaseStatus &error_status );
 	void			save_raw_headers( std::string headers );
 	void    		set_with_file( const std::string &filename );
 

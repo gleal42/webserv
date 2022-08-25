@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 17:37:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:39:31 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,13 +46,7 @@ namespace file
 		return "application/octet-stream";
 	}
 
-	void	build_error_page( const BaseStatus &error_status, Response &res )
-	{
-		std::string error_str = to_string(error_status.code);
-    	error_str = "www/error_pages/" + error_str + ".html";
-        res.set_with_file(error_str);
-        res.build_message(error_status);
-	}
+
 
 	std::streampos	size( std::string &full_path )
 	{
