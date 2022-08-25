@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 20:27:23 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 21:46:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ void	Response::set_default_body( void )
 void	Response::set_error_body( int error_code )
 {
 	std::string error_str = to_string(error_code);
-	error_str = "www/error_pages/" + error_str + ".html";
+	error_str = "public/www/error_pages/" + error_str + ".html";
 
 	std::ifstream file;
 	file.open(error_str.c_str(), std::ios::binary);
