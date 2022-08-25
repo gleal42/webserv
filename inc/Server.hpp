@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:45:04 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:57:00 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,8 @@ public:
 
 	// Getters
 	int				queue_fd() const;
-	Listeners		listeners( void ) const;
 	Connections		connections( void ) const;
+	Listeners		listeners( void ) const;
 	size_t			listeners_amount( void ) const;
 
 	// TODO: check if can be private
@@ -62,19 +62,20 @@ public:
 	void			connection_new( Listener * listener );
 	void			connection_read( Connection *connection , EVENT const & event );
 	void			connection_write( Connection *connection );
-	void			service(Request & req, Response & res);
 	void			connection_close( int connection_fd );
 	void			listener_close( int listener_fd );
+	void			service(Request & req, Response & res);
+
    	EVENT 			events[EVENTS_SIZE];
 
 private:
 
 	Server( void );
 	Server( Server const & src );
-	Server &	operator=( Server const & src );
+	Server &		operator=( Server const & src );
 	int				_queue_fd;
-	Listeners		_listeners;
 	Connections		_connections;
+	Listeners		_listeners;
 	size_t			_listeners_amount;
 
 };

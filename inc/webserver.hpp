@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:48:04 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 18:07:17 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,12 @@
 # include <cstdlib> // For EXIT_FAILURE, etc, macros
 # include <sstream>
 
-# ifdef DARWIN
+# if defined(DARWIN)
 #  include <sys/event.h>
 #  define QUEUE() kqueue()
 #  define EVENT struct kevent
 # endif
-# ifdef LINUX
+# if defined(LINUX)
 #  include <sys/epoll.h>
 // -->	int epoll_create(int size);
 //	The size argument is an indication to the kernel about the number of file descriptors

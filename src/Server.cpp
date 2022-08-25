@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:48:56 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 18:08:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,16 +120,24 @@ void	Server::start( void )
     }
 }
 
-// int epoll_wait(int epfd, struct epoll_event *evlist, int maxevents, int timeout);
 int	Server::events_wait( void )
 {
 	LOG("\n+++++++ Waiting for new connection ++++++++\n");
 
-    struct timespec	timeout = {2, 0};
+    // struct timespec	timeout = {2, 0};
+	struct timespec		*timeout;
+	int					events_ready;
 
-    (void)timeout;
+#if defined(DARWIN)
+	timeout = NULL;
+	events_ready = kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, timeout);
+#endif
 
-    return (kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, NULL));
+#if defined(LINUX)
+	events_ready = epoll_wait(_queue_fd, events, EVENTS_SIZE, timeout->tv_sec * 1000);
+#endif
+
+    return events_ready;
 }
 
 void	Server::connection_new( Listener * listener )
