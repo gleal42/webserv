@@ -96,7 +96,7 @@ TEST_CASE("Server `start` method") {
     }
 }
 
-TEST_CASE("Server `wait_for_events` method") {
+TEST_CASE("Server `events_wait` method") {
 	ConfigParser parser(CONFIG_FILE);
 	parser.call();
 
@@ -106,7 +106,7 @@ TEST_CASE("Server `wait_for_events` method") {
 		/*
 			Find way to test a running process
 		*/
-		// CHECK_NOTHROW(server.wait_for_events());
+		// CHECK_NOTHROW(server.events_wait());
     }
 }
 

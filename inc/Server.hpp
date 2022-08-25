@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:35:30 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:39:36 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ public:
 
 	// TODO: check if can be private
 	void			start( void );
-	int				wait_for_events();
+	int				events_wait();
 	void			event_update(int ident, short filter, u_short flags);
 	void			new_connection( Listener * listener );
 	void			read_connection( Connection *connection , EVENT const & event );

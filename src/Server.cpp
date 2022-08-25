@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:35:36 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:39:36 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ void	Server::start( void )
 	int n = 0;
 
     while (1) {
-		n = wait_for_events();
+		n = events_wait();
 		LOG("Number of events recorded: " << n);
 
         if (n <= 0) {
@@ -130,13 +130,13 @@ void	Server::start( void )
 }
 
 // int epoll_wait(int epfd, struct epoll_event *evlist, int maxevents, int timeout);
-int	Server::wait_for_events( void )
+int	Server::events_wait( void )
 {
 	LOG("\n+++++++ Waiting for new connection ++++++++\n");
 
-    struct timespec	kqTimeout = {2, 0};
+    struct timespec	timeout = {2, 0};
 
-    (void)kqTimeout;
+    (void)timeout;
 
     return (kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, NULL));
 }
@@ -193,12 +193,12 @@ void	Server::new_connection( Listener * listener )
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-void	Server::read_connection( Connection *connection, EVENT const & Event )
+void	Server::read_connection( Connection *connection, EVENT const & event )
 {
     LOG("About to read the file descriptor: " << connection->fd());
-    LOG("Incoming data has size of: " << Event.data);
+    LOG("Incoming data has size of: " << event.data);
 
-    connection->request.parse(*connection->socket(), Event);
+    connection->request.parse(*connection->socket(), event);
 
     if (connection->request._headers.count("Content-Length")) {
         LOG("Analyzing if whole body was transferred: ");
