@@ -137,11 +137,11 @@ TEST_CASE("Server `connection_new` method") {
 /*
 	emulate parseable request to do this
 */
-TEST_CASE("Server `read_connection` method") {
+TEST_CASE("Server `connection_read` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 
-TEST_CASE("Server `write_to_connection` method") {
+TEST_CASE("Server `connection_write` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:41:21 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:45:04 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,10 +115,10 @@ void	Server::start( void )
 					}
                 }
 				else if (events[i].filter == EVFILT_READ) {
-                    read_connection(connection_it->second, events[i]);
+                    connection_read(connection_it->second, events[i]);
 				}
 				else if (events[i].filter == EVFILT_WRITE) {
-					write_to_connection(connection_it->second);
+					connection_write(connection_it->second);
 
                     if (connection_it->second->response.is_empty()) {
                         connection_it->second->request.clear();
@@ -193,7 +193,7 @@ void	Server::connection_new( Listener * listener )
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-void	Server::read_connection( Connection *connection, EVENT const & event )
+void	Server::connection_read( Connection *connection, EVENT const & event )
 {
     LOG("About to read the file descriptor: " << connection->fd());
     LOG("Incoming data has size of: " << event.data);
@@ -229,7 +229,7 @@ void	Server::read_connection( Connection *connection, EVENT const & event )
     event_update(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
 
-void	Server::write_to_connection( Connection *connection )
+void	Server::connection_write( Connection *connection )
 {
 	LOG("About to write to file descriptor: " << connection->fd());
 	LOG("The socket has the following size to write " << events[0].data);
@@ -271,7 +271,7 @@ void	Server::service(Request & req, Response & res)
 Server::~Server()
 {
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
-        close_listener(it->first);
+        listener_close(it->first);
 	}
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
         connection_close(it->first);
@@ -279,7 +279,7 @@ Server::~Server()
     close(_queue_fd);
 }
 
-void	Server::close_listener( int listener_fd )
+void	Server::listener_close( int listener_fd )
 {
     LOG("Closing Listener with fd: " << listener_fd);
 

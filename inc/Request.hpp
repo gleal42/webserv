@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/25 17:32:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:43:39 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 #include <map>
 
 #include "macros.hpp"
+#include "webserver.hpp"
 #include "ServerConfig.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
