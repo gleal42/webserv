@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 19:24:50 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 16:27:39 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,6 @@
 # include <netinet/in.h>
 # include <sys/socket.h>
 # include <fcntl.h>
-# include <sys/event.h>
 # include <map>
 
 # include "ServerConfig.hpp"

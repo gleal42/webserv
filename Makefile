@@ -1,10 +1,18 @@
 UNAME  :=      $(shell uname)
 ifeq ($(UNAME), Darwin)
-       CXX := c++
+		CXX := c++
 else
-       CXX := g++
+		CXX := g++
 endif
+
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
+ifeq ($(UNAME), Linux)
+		CXXFLAGS 	+= -DLINUX
+endif
+ifeq ($(UNAME), Darwin)
+		CXXFLAGS 	+= -DDARWIN
+endif
+
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \

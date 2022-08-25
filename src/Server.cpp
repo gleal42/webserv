@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/24 16:03:25 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 16:07:35 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 #include "FileHandler.hpp"
 #include <iostream>
 #include <stdexcept>
-
-// #include <sys/epoll.h>
 
 /*
     Testes a passar:
@@ -33,9 +31,6 @@ Server::CreateError::CreateError( void )
 Server::Server() // private
 {
     throw std::runtime_error("Please use non-default constructor");
-    // _fd = kqueue();
-    // if (_fd < 0)
-    //     throw CreateError();
 }
 
 // int epoll_create(int size);

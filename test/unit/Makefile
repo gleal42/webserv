@@ -1,8 +1,15 @@
-CXX := c++
-CXXFLAGS := -std=c++98
-INC := -I../../inc
-CPPFLAGS := $(INC)
-COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
+UNAME			:= $(shell uname)
+CXX 			:= c++
+CXXFLAGS 	:= -std=c++98
+ifeq ($(UNAME), Linux)
+		CXXFLAGS 	+= -DLINUX
+endif
+ifeq ($(UNAME), Darwin)
+		CXXFLAGS 	+= -DDARWIN
+endif
+INC				:= -I../../inc
+CPPFLAGS	:= $(INC)
+COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
 all:	socket parser status handler file_handler server

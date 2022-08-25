@@ -3,27 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/25 18:47:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/25 16:20:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef WEBSERVER_HPP
 # define WEBSERVER_HPP
 
-#include <iostream>
-#include <string>
-#include <sys/event.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <map>
-
+# include <iostream>
+# include <string>
+# include <sys/socket.h>
+# include <sys/time.h>
+# include <map>
 # include <cstdlib> // For EXIT_FAILURE, etc, macros
 # include <sstream>
+# ifdef DARWIN
+#  include <sys/event.h>
+# endif
+# ifdef LINUX
+#  include <sys/epoll.h>
+# endif
 
-#include "macros.hpp"
+# include "macros.hpp"
 
 typedef std::map<int, std::string> HTTPStatuses;
 
