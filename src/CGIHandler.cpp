@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 22:58:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/25 23:34:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		std::vector< std::vector<char> > buf = environment_variables(req);
 		convert_to_charptr_vec(buf, env_vars);
 		char *const *envs = env_vars.data();
-		print(envs, (env_vars.size() - 1));
+		print_env_variables(envs, (env_vars.size() - 1));
 
 		// CGI arguments (1st and 2nd execve argument)
 		std::vector<char *> cgi_args;

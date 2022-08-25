@@ -6,16 +6,16 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 01:37:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 01:38:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
 # include <unistd.h>
 # include "HTTPStatus.hpp"
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netdb.h>
 
 std::string	to_string(int number)
 {
@@ -203,11 +203,11 @@ struct addrinfo *get_host(const std::string &hostname )
 	hints.ai_protocol = IPPROTO_TCP;
 	int resolve_req_host = getaddrinfo(hostname.c_str(), NULL, &hints, &host);
 	if (resolve_req_host != 0)
-    {
+	{
         if (resolve_req_host == EAI_NONAME)
             return NULL;
         throw HTTPStatus<500>();
-    }
+	}
     if (host->ai_next != NULL)
         throw HTTPStatus<500>();
 	return host;
@@ -238,13 +238,6 @@ bool is_address_being_listened(const std::string & listener_address, const struc
 	}
 	freeaddrinfo(listener_host);
 	return false;
-}
-
-void	print_address(const std::string &name, struct sockaddr *address)
-{
-	std::vector<char> address_str(30);
-	getnameinfo((struct sockaddr *)address, sizeof(struct sockaddr), address_str.data(), 30, NULL, 0, NI_NUMERICHOST);
-	std::cout << name << " address is :" << address_str.data() << std::endl;
 }
 
 void	remove_directory(std::string &path)

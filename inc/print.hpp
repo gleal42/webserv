@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/19 16:18:10 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 19:42:56 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/25 23:33:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,10 @@
 # define __PRINT_H__
 
 #include <iostream>
+#include <vector>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 template <typename T>
 void	print(const T &container)
@@ -26,6 +30,6 @@ void	print(const T &container)
 	}
 }
 
-void	print(char *const *envs, size_t size = 0);
+void	print_env_variables(char *const *envs, size_t size = 0);
 
 #endif /* __PRINT_H__ */
