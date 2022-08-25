@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:12:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/25 17:32:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ public:
 	RequestHeaders	_headers;			// Map of request headers
 
 	// Parses a request from +socket+.  This is called internally by Server
-	void				parse(Socket & socket, struct kevent const & Event );
+	void				parse(Socket & socket, EVENT const & Event );
 	void				read_header( std::string &strptr );
 	void				read_request_line( std::string &strptr );
 	void				read_body( std::string &strptr );

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/25 17:07:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:34:00 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ private:
 
 };
 
-typedef std::map<int, Listener * > Cluster;
-typedef Cluster::iterator Listener_it;
+typedef std::map<int, Listener * > Listeners;
+typedef Listeners::iterator Listener_it;
 
 #endif /* __LISTENER_H__ */

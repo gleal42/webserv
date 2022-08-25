@@ -60,7 +60,7 @@ TEST_CASE("Server destructor") {
 		VectorInt		connection_fds;
 		VectorInt		listener_fds;
 
-		Cluster			listeners(server->listeners());
+		Listeners			listeners(server->listeners());
 		Connections		connections(server->connections());
 
 		for (Listener_it it = listeners.begin(); it != listeners.end(); ++it) {
@@ -110,7 +110,7 @@ TEST_CASE("Server `wait_for_events` method") {
     }
 }
 
-TEST_CASE("Server `update_event` method") {
+TEST_CASE("Server `event_update` method") {
 	ConfigParser parser(CONFIG_FILE);
 }
 
@@ -123,7 +123,7 @@ TEST_CASE("Server `new_connection` method") {
 
 		REQUIRE(server.listeners().begin()->first != FD_UNSET);
 
-		// Cluster		cluster = server.listeners();
+		// Listeners		cluster = server.listeners();
 		// Listener_it	it = cluster.begin();
 		// // Listener	listener(*it->second);
 		// int			listener_fd = it->first;

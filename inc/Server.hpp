@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 16:58:52 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:35:30 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ Needs to be able to:
 
 */
 
+# define EVENTS_SIZE 10
+
 class Server {
 
 public:
@@ -45,35 +47,35 @@ public:
 	};
 
 	Server(const ConfigParser &parser);
-	~Server();
+	~Server( void );
 
 	// Getters
-	int					queue_fd() const;
-	Cluster				listeners( void ) const;
-	Connections			connections( void ) const;
-	size_t				listeners_amount( void ) const;
+	int				queue_fd() const;
+	Listeners		listeners( void ) const;
+	Connections		connections( void ) const;
+	size_t			listeners_amount( void ) const;
 
 	// TODO: check if can be private
-	void				start( void );
-	int					wait_for_events();
-	void				update_event(int ident, short filter, u_short flags);
-	void				new_connection( Listener * listener );
-	void				read_connection( Connection *connection , struct kevent const & Event );
-	void				write_to_connection( Connection *connection );
-	void				service(Request & req, Response & res);
-	void				close_connection( int connection_fd );
-	void				close_listener( int listener_fd );
-   	struct kevent 		ListQueue[10];
+	void			start( void );
+	int				wait_for_events();
+	void			event_update(int ident, short filter, u_short flags);
+	void			new_connection( Listener * listener );
+	void			read_connection( Connection *connection , EVENT const & event );
+	void			write_to_connection( Connection *connection );
+	void			service(Request & req, Response & res);
+	void			close_connection( int connection_fd );
+	void			close_listener( int listener_fd );
+   	EVENT 			events[EVENTS_SIZE];
 
 private:
 
 	Server( void );
 	Server( Server const & src );
-	Server &operator=( Server const & src );
-	int					_queue_fd;
-	Cluster				_listeners;
-	Connections			_connections;
-	size_t				_listeners_amount;
+	Server &	operator=( Server const & src );
+	int				_queue_fd;
+	Listeners		_listeners;
+	Connections		_connections;
+	size_t			_listeners_amount;
 
 };
 

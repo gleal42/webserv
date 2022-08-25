@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:26:00 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:35:36 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,20 +53,20 @@ Server::Server(const ConfigParser &parser)
 	{
 		listener = new Listener(parser.config(i));
 		// EPOLLIN, EPOLLOUT, EPOLLET ?
-		update_event(listener->fd(), EVFILT_READ, EV_ADD);
+		event_update(listener->fd(), EVFILT_READ, EV_ADD);
 		_listeners[listener->fd()] = listener;
 	}
 }
 
 // Getters
 int	Server::queue_fd( void ) const { return _queue_fd; }
-Cluster	Server::listeners( void ) const { return _listeners; }
+Listeners	Server::listeners( void ) const { return _listeners; }
 Connections	Server::connections( void ) const { return _connections; }
 size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
 // int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 // EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
-void Server::update_event(int fd, short filter, u_short flags)
+void Server::event_update(int fd, short filter, u_short flags)
 {
     EVENT event;
 	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
@@ -87,8 +87,8 @@ void Server::update_event(int fd, short filter, u_short flags)
 void	Server::start( void )
 {
 	int n = 0;
-    while (1)
-    {
+
+    while (1) {
 		n = wait_for_events();
 		LOG("Number of events recorded: " << n);
 
@@ -97,27 +97,27 @@ void	Server::start( void )
 		}
 
         for (int i = 0; i < n; i++) {
-            Listener_it		event_fd = _listeners.find(ListQueue[i].ident);
+            Listener_it		event_fd = _listeners.find(events[i].ident);
 
             if (event_fd != _listeners.end()) {
 				// New event for non-existent file descriptor
                 new_connection(event_fd->second);
 			}
 			else {
-				Connections_it	connection_it = _connections.find(ListQueue[i].ident);
+				Connections_it	connection_it = _connections.find(events[i].ident);
 
-				if (ListQueue[i].flags & EV_EOF) {
+				if (events[i].flags & EV_EOF) {
 					// If there are no more connections open in any server do cleanup(return)
-                    close_connection(ListQueue[i].ident);
+                    close_connection(events[i].ident);
 
                     if (_connections.size() == 0) {
                         return ;
 					}
                 }
-				else if (ListQueue[i].filter == EVFILT_READ) {
-                    read_connection(connection_it->second, ListQueue[i]);
+				else if (events[i].filter == EVFILT_READ) {
+                    read_connection(connection_it->second, events[i]);
 				}
-				else if (ListQueue[i].filter == EVFILT_WRITE) {
+				else if (events[i].filter == EVFILT_WRITE) {
 					write_to_connection(connection_it->second);
 
                     if (connection_it->second->response.is_empty()) {
@@ -138,7 +138,7 @@ int	Server::wait_for_events( void )
 
     (void)kqTimeout;
 
-    return (kevent(_queue_fd, NULL, 0, ListQueue, 10, NULL));
+    return (kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, NULL));
 }
 
 void	Server::new_connection( Listener * listener )
@@ -151,9 +151,9 @@ void	Server::new_connection( Listener * listener )
 
 	LOG("connection NEW: (" << connection_fd << ")");
 
-	update_event(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+	event_update(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
 	// Will be used later in case we can't send the whole message
-	update_event(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
+	event_update(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
 }
 
 // Reference
@@ -225,14 +225,14 @@ void	Server::read_connection( Connection *connection, EVENT const & Event )
         LOG("Body :" << connection->request._raw_body.data());
     }
 
-    update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
-    update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
+    event_update(connection->fd(), EVFILT_READ, EV_DISABLE);
+    event_update(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
 
 void	Server::write_to_connection( Connection *connection )
 {
 	LOG("About to write to file descriptor: " << connection->fd());
-	LOG("The socket has the following size to write " << ListQueue[0].data);
+	LOG("The socket has the following size to write " << events[0].data);
 
     if (connection->response.is_empty()) {
         service(connection->request, connection->response);
@@ -243,8 +243,8 @@ void	Server::write_to_connection( Connection *connection )
     if (connection->response.is_empty()) {
         LOG("Connection was empty after sending");
 
-        update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
-        update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+        event_update(connection->fd(), EVFILT_READ, EV_ENABLE);
+        event_update(connection->fd(), EVFILT_WRITE, EV_DISABLE);
     }
 }
 
@@ -283,7 +283,7 @@ void	Server::close_listener( int listener_fd )
 {
     LOG("Closing Listener with fd: " << listener_fd);
 
-    update_event(listener_fd, EVFILT_READ, EV_DELETE);
+    event_update(listener_fd, EVFILT_READ, EV_DELETE);
     delete _listeners[listener_fd];
 	// Weird! When I change this to _listeners.erase(listener_fd),
 	// which should be the correct one afaik
@@ -295,8 +295,8 @@ void	Server::close_connection( int connection_fd )
 {
     LOG("Closing Connection: " << connection_fd);
 
-    update_event(connection_fd, EVFILT_READ, EV_DELETE);
-    update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
+    event_update(connection_fd, EVFILT_READ, EV_DELETE);
+    event_update(connection_fd, EVFILT_WRITE, EV_DELETE);
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
 }

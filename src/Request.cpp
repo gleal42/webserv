@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/22 17:51:09 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:32:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ void	Request::read_body(std::string &_unparsed_request)
 	_unparsed_request.clear();
 }
 
-void	Request::parse(Socket & socket, struct kevent const & Event )
+void	Request::parse(Socket & socket, EVENT const & Event )
 {
 	socket.receive(Event.data);
 	if (socket._buffer.empty() || socket.bytes() < 0)
