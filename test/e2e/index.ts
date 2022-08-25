@@ -7,21 +7,16 @@ chai.use(chaiHttp);
 
 /*
 
-Currently not working due to:
+For this to work:
 
-  1) General
-       GET /
-         should return index:
-     Error: Parse Error: Invalid response status
-      at Socket.socketOnData (_http_client.js:509:22)
-      at addChunk (internal/streams/readable.js:309:12)
-      at readableAddChunk (internal/streams/readable.js:284:9)
-      at Socket.Readable.push (internal/streams/readable.js:223:10)
-      at TCP.onStreamRead (internal/stream_base_commons.js:188:23)
+  -   have webserv running locally
+  -   go to browser and navigate to localhost:8080
+      if you skip this step server will shut down when running test suite
+  -   run `make test_e2e` from root, always keep checking if local running server shutdown
 
 */
 
-describe.skip("General", () => {
+describe("General", () => {
 
   describe("GET /", () => {
     it("should return index", done => {
@@ -33,9 +28,6 @@ describe.skip("General", () => {
         .end((err, res) => {
           if (err) done(err)
 
-          // Check the response created by the server on the console
-          console.log({res});
-
           res.should.have.status(200);
           res.should.be.html;
           res.text.should.include('Welcome to our server');
@@ -45,7 +37,7 @@ describe.skip("General", () => {
 
   });
 
-  describe.skip("GET /test/forest.jpeg", () => {
+  describe("GET /test/forest.jpeg", () => {
     it("should return requested image", done => {
       chai
         .request(SERVER_URL)
@@ -54,9 +46,12 @@ describe.skip("General", () => {
           if (err) done(err)
 
           // Check the response created by the server on the console
-          console.log({res});
+          // console.log({res});
 
           res.should.have.status(200);
+          res.body.should.exist;
+          res.should.have.header('content-type', 'image/jpeg');
+          res.should.have.header('content-length', '5739587');
           done();
         });
     });
