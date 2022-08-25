@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 16:50:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:04:38 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,9 @@ Server::Server() // private
 
 Server::Server(const ConfigParser &parser)
 {
-    _fd = kqueue();
-    // _fd = epoll_create(size);
-    if (_fd < 0)
+    _queue_fd = kqueue();
+    // _queue_fd = epoll_create(size);
+    if (_queue_fd < 0)
         throw CreateError();
 
 	_listeners_amount = parser.configs_amount();
@@ -54,13 +54,13 @@ Server::Server(const ConfigParser &parser)
 		listener = new Listener(parser.config(i));
 		// EPOLLIN, EPOLLOUT, EPOLLET ?
 		update_event(listener->fd(), EVFILT_READ, EV_ADD);
-		_cluster[listener->fd()] = listener;
+		_listeners[listener->fd()] = listener;
 	}
 }
 
 // Getters
-int	Server::fd( void ) const { return _fd; }
-Cluster	Server::cluster( void ) const { return _cluster; }
+int	Server::queue_fd( void ) const { return _queue_fd; }
+Cluster	Server::listeners( void ) const { return _listeners; }
 Connections	Server::connections( void ) const { return _connections; }
 size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
@@ -70,7 +70,7 @@ void Server::update_event(int fd, short filter, u_short flags)
 {
     struct kevent event;
 	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
-	kevent(_fd, &event, 1, NULL, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
 }
 
 /*
@@ -91,12 +91,15 @@ void	Server::start( void )
     {
 		n = wait_for_events();
 		LOG("Number of events recorded: " << n);
-        if (n <= 0)
+
+        if (n <= 0) {
             continue;
+		}
+
         for (int i = 0; i < n; i++)
         {
-            Cluster_it event_fd = _cluster.find(ListQueue[i].ident);
-            if (event_fd != _cluster.end()) // New event for non-existent file descriptor
+            Cluster_it event_fd = _listeners.find(ListQueue[i].ident);
+            if (event_fd != _listeners.end()) // New event for non-existent file descriptor
                 new_connection(event_fd->second);
             else
             {
@@ -126,7 +129,7 @@ int	Server::wait_for_events( void )
 	LOG("\n+++++++ Waiting for new connection ++++++++\n");
     struct timespec kqTimeout = {2, 0};
     (void)kqTimeout;
-    return (kevent(_fd, NULL, 0, ListQueue, 10, NULL));
+    return (kevent(_queue_fd, NULL, 0, ListQueue, 10, NULL));
 }
 
 void	Server::new_connection( Listener * listener )
@@ -182,29 +185,34 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
 {
     LOG("About to read the file descriptor: " << connection->fd());
     LOG("Incoming data has size of: " << Event.data);
+
     connection->request.parse(*connection->socket(), Event);
-    if (connection->request._headers.count("Content-Length"))
-    {
+
+    if (connection->request._headers.count("Content-Length")) {
         LOG("Analyzing if whole body was transferred: ");
-        std::stringstream content_length(connection->request._headers["Content-Length"]);
-        size_t value = 0;
+
+        std::stringstream	content_length(connection->request._headers["Content-Length"]);
+        size_t				value = 0;
+
         content_length >> value;
-        if (connection->request._raw_body.size() < value + 1)
-        {
+
+        if (connection->request._raw_body.size() < value + 1) {
             LOG("Body total received :" << connection->request._raw_body.size());
             LOG("Content Length :" << value);
             LOG("Remaining :" << value - connection->request._raw_body.size());
-            return ;
+
+			return ;
         }
     }
+
 	LOG("|--- Headers ---|");
 	LOG(connection->request._raw_headers);
 	LOG("|--- Headers ---|");
-    if (connection->request._raw_body.size())
-    {
+    if (connection->request._raw_body.size()) {
         LOG("Final Body size :" << connection->request._raw_body.size());
         LOG("Body :" << connection->request._raw_body.data());
     }
+
     update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
     update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
@@ -213,12 +221,16 @@ void	Server::write_to_connection( Connection *connection )
 {
 	LOG("About to write to file descriptor: " << connection->fd());
 	LOG("The socket has the following size to write " << ListQueue[0].data);
-    if (connection->response.is_empty())
+
+    if (connection->response.is_empty()) {
         service(connection->request, connection->response);
+	}
+
     connection->response.send_response(*connection->socket());
-    if (connection->response.is_empty())
-    {
+
+    if (connection->response.is_empty()) {
         LOG("Connection was empty after sending");
+
         update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
         update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
     }
@@ -234,11 +246,11 @@ void	Server::write_to_connection( Connection *connection )
 
 void	Server::service(Request & req, Response & res)
 {
-    FileHandler handler; // probably needs config for root path etc
+    FileHandler	handler;
     try {
         handler.service(req, res);
-    } catch (BaseStatus &error_status)
-    {
+    }
+	catch (BaseStatus &error_status) {
         res.set_error_body(error_status.code);
         res.build_message(error_status);
     }
@@ -246,21 +258,22 @@ void	Server::service(Request & req, Response & res)
 
 Server::~Server()
 {
-	for (Cluster_it it = _cluster.begin(); it != _cluster.end(); ++it) {
+	for (Cluster_it it = _listeners.begin(); it != _listeners.end(); ++it) {
         close_listener(it->first);
 	}
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
         close_connection(it->first);
 	}
-    close(_fd);
+    close(_queue_fd);
 }
 
 void	Server::close_listener( int listener_fd )
 {
     LOG("Closing Listener with fd: " << listener_fd);
+
     update_event(listener_fd, EVFILT_READ, EV_DELETE);
-    delete _cluster[listener_fd];
-	// Weird! When I change this to _cluster.erase(listener_fd),
+    delete _listeners[listener_fd];
+	// Weird! When I change this to _listeners.erase(listener_fd),
 	// which should be the correct one afaik
 	// I get a segfault
     _connections.erase(listener_fd);
@@ -269,6 +282,7 @@ void	Server::close_listener( int listener_fd )
 void	Server::close_connection( int connection_fd )
 {
     LOG("Closing Connection for client: " << connection_fd);
+
     update_event(connection_fd, EVFILT_READ, EV_DELETE);
     update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
     delete _connections[connection_fd];

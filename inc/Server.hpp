@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 16:27:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 16:58:52 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ public:
 	~Server();
 
 	// Getters
-	int					fd() const;
-	Cluster				cluster( void ) const;
+	int					queue_fd() const;
+	Cluster				listeners( void ) const;
 	Connections			connections( void ) const;
 	size_t				listeners_amount( void ) const;
 
@@ -70,8 +70,8 @@ private:
 	Server( void );
 	Server( Server const & src );
 	Server &operator=( Server const & src );
-	int					_fd;
-	Cluster				_cluster;
+	int					_queue_fd;
+	Cluster				_listeners;
 	Connections			_connections;
 	size_t				_listeners_amount;
 
