@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 16:33:41 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 16:50:03 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void Server::update_event(int fd, short filter, u_short flags)
 {
     struct kevent event;
 	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
-	kevent(this->_fd, &event, 1, NULL, 0, NULL);
+	kevent(_fd, &event, 1, NULL, 0, NULL);
 }
 
 /*
@@ -86,14 +86,14 @@ void Server::update_event(int fd, short filter, u_short flags)
 
 void	Server::start( void )
 {
-	int nbr_events = 0;
+	int n = 0;
     while (1)
     {
-		nbr_events = wait_for_events();
-		std::cout << "Number of events recorded: " << nbr_events << std::endl;
-        if (nbr_events <= 0)
+		n = wait_for_events();
+		LOG("Number of events recorded: " << n);
+        if (n <= 0)
             continue;
-        for (int i = 0; i < nbr_events; i++)
+        for (int i = 0; i < n; i++)
         {
             Cluster_it event_fd = _cluster.find(ListQueue[i].ident);
             if (event_fd != _cluster.end()) // New event for non-existent file descriptor
@@ -121,12 +121,12 @@ void	Server::start( void )
 }
 
 // int epoll_wait(int epfd, struct epoll_event *evlist, int maxevents, int timeout);
-int	Server::wait_for_events()
+int	Server::wait_for_events( void )
 {
-	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
+	LOG("\n+++++++ Waiting for new connection ++++++++\n");
     struct timespec kqTimeout = {2, 0};
     (void)kqTimeout;
-    return (kevent(this->fd(), NULL, 0, ListQueue, 10, NULL));
+    return (kevent(_fd, NULL, 0, ListQueue, 10, NULL));
 }
 
 void	Server::new_connection( Listener * listener )
@@ -135,7 +135,7 @@ void	Server::new_connection( Listener * listener )
 	Connection * connection  = new Connection(listener->socket());
 	int client_fd = connection->fd();
 	_connections[client_fd] = connection;
-	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
+	LOG("CLIENT NEW: (" << client_fd << ")");
 	update_event(client_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
 	// Will be used later in case we can't send the whole message
 	update_event(client_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
@@ -180,20 +180,20 @@ void	Server::new_connection( Listener * listener )
  **/
 void	Server::read_connection( Connection *connection, struct kevent const & Event )
 {
-    std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
-    std::cout << "Incoming data has size of: " << Event.data << std::endl;
+    LOG("About to read the file descriptor: " << connection->fd());
+    LOG("Incoming data has size of: " << Event.data);
     connection->request.parse(*connection->socket(), Event);
     if (connection->request._headers.count("Content-Length"))
     {
-        std::cout << "Analyzing if whole body was transferred: " << std::endl;
+        LOG("Analyzing if whole body was transferred: ");
         std::stringstream content_length(connection->request._headers["Content-Length"]);
         size_t value = 0;
         content_length >> value;
         if (connection->request._raw_body.size() < value + 1)
         {
-            std::cout << "Body total received :" << connection->request._raw_body.size() << std::endl;
-            std::cout << "Content Length :" << value << std::endl;
-            std::cout << "Remaining :" << value - connection->request._raw_body.size() << std::endl;
+            LOG("Body total received :" << connection->request._raw_body.size());
+            LOG("Content Length :" << value);
+            LOG("Remaining :" << value - connection->request._raw_body.size());
             return ;
         }
     }
@@ -202,25 +202,25 @@ void	Server::read_connection( Connection *connection, struct kevent const & Even
 	LOG("|--- Headers ---|");
     if (connection->request._raw_body.size())
     {
-        std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
-        std::cout << "Body :" << connection->request._raw_body.data() << std::endl;
+        LOG("Final Body size :" << connection->request._raw_body.size());
+        LOG("Body :" << connection->request._raw_body.data());
     }
-    this->update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
-    this->update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
+    update_event(connection->fd(), EVFILT_READ, EV_DISABLE);
+    update_event(connection->fd(), EVFILT_WRITE, EV_ENABLE);
 }
 
 void	Server::write_to_connection( Connection *connection )
 {
-	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
-	std::cout << "The socket has the following size to write " << ListQueue[0].data << std::endl; // Could use for better size efficiency
+	LOG("About to write to file descriptor: " << connection->fd());
+	LOG("The socket has the following size to write " << ListQueue[0].data);
     if (connection->response.is_empty())
         service(connection->request, connection->response);
     connection->response.send_response(*connection->socket());
     if (connection->response.is_empty())
     {
-        std::cout << "Connection was empty after sending" << std::endl;
-        this->update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
-        this->update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+        LOG("Connection was empty after sending");
+        update_event(connection->fd(), EVFILT_READ, EV_ENABLE);
+        update_event(connection->fd(), EVFILT_WRITE, EV_DISABLE);
     }
 }
 
@@ -252,13 +252,13 @@ Server::~Server()
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
         close_connection(it->first);
 	}
-    close(this->_fd);
+    close(_fd);
 }
 
 void	Server::close_listener( int listener_fd )
 {
-    std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
-    this->update_event(listener_fd, EVFILT_READ, EV_DELETE);
+    LOG("Closing Listener with fd: " << listener_fd);
+    update_event(listener_fd, EVFILT_READ, EV_DELETE);
     delete _cluster[listener_fd];
 	// Weird! When I change this to _cluster.erase(listener_fd),
 	// which should be the correct one afaik
@@ -268,9 +268,9 @@ void	Server::close_listener( int listener_fd )
 
 void	Server::close_connection( int connection_fd )
 {
-    std::cout << "Closing Connection for client: " << connection_fd << std::endl;
-    this->update_event(connection_fd, EVFILT_READ, EV_DELETE);
-    this->update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
+    LOG("Closing Connection for client: " << connection_fd);
+    update_event(connection_fd, EVFILT_READ, EV_DELETE);
+    update_event(connection_fd, EVFILT_WRITE, EV_DELETE);
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
 }
