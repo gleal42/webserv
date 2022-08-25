@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:45:04 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:48:56 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,17 +27,8 @@
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
-Server::Server() // private
-{
-    throw std::runtime_error("Please use non-default constructor");
-}
-
-// int epoll_create(int size);
-//
-// The size argument is an indication to the kernel about the number of file descriptors
-// a process wants to monitor, which helps the kernel to decide the size of the epoll
-// instance. Since Linux 2.6.8, this argument is ignored because the epoll data structure
-// dynamically resizes as file descriptors are added or removed from it.
+// private
+Server::Server() { throw std::runtime_error("Please use non-default constructor"); }
 
 Server::Server(const ConfigParser &parser)
 {
@@ -97,11 +88,11 @@ void	Server::start( void )
 		}
 
         for (int i = 0; i < n; i++) {
-            Listener_it		event_fd = _listeners.find(events[i].ident);
+            Listener_it		it = _listeners.find(events[i].ident);
 
-            if (event_fd != _listeners.end()) {
+            if (it != _listeners.end()) {
 				// New event for non-existent file descriptor
-                connection_new(event_fd->second);
+                connection_new(it->second);
 			}
 			else {
 				Connections_it	connection_it = _connections.find(events[i].ident);
@@ -284,6 +275,7 @@ void	Server::listener_close( int listener_fd )
     LOG("Closing Listener with fd: " << listener_fd);
 
     event_update(listener_fd, EVFILT_READ, EV_DELETE);
+
     delete _listeners[listener_fd];
 	// Weird! When I change this to _listeners.erase(listener_fd),
 	// which should be the correct one afaik
@@ -297,6 +289,7 @@ void	Server::connection_close( int connection_fd )
 
     event_update(connection_fd, EVFILT_READ, EV_DELETE);
     event_update(connection_fd, EVFILT_WRITE, EV_DELETE);
+
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
 }

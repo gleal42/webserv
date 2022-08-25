@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:17:02 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/25 17:48:04 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,11 @@
 # endif
 # ifdef LINUX
 #  include <sys/epoll.h>
+// -->	int epoll_create(int size);
+//	The size argument is an indication to the kernel about the number of file descriptors
+//	a process wants to monitor, which helps the kernel to decide the size of the epoll
+//	instance. Since Linux 2.6.8, this argument is ignored because the epoll data structure
+//	dynamically resizes as file descriptors are added or removed from it.
 #  define QUEUE() epoll_create(1)
 #  define EVENT struct epoll_event
 # endif
