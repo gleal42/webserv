@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 17:41:42 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:56:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	if (req._path == "/")
 		res._uri = "public/index.html";
 	else
-		res._uri = std::string("public/") + (req.request_uri.path.c_str() + 1);
+		res._uri = std::string("public/") + (req._path.c_str() + 1);
 
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
@@ -102,7 +102,8 @@ void	FileHandler::do_POST( Request & req, Response & res )
 	else if (req.get_form_type() == "application/x-www-form-urlencoded")
 		post_form_urlencoded(req);
 	else
-		throw HTTPStatus<415>();
+		throw HTTPStatus<500>();
+	// throw HTTPStatus<415>();
 	res.set_default_page(); // temporary
 }
 
@@ -224,37 +225,6 @@ void	FileHandler::post_form_urlencoded( Request & req )
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
 	std::string str(req._path.c_str() + 1);
-	file::remove(std::string(req._path.c_str() + 1));
+	file::remove("public/" + str);
 	res.set_default_page(); // temporary
 }
-
-// Added a protection to prevent us from deleting a repository code or other testing data
-
-void	FileHandler::delete_file( std::string filename )
-{
-	static char const * temp_ext[8] = {
-    [0] = ".cpp",
-    [1] = ".hpp",
-    [2] = ".html",
-    [3] = ".ico",
-    [4] = ".ts",
-    [5] = ".rb",
-    [6] = ".sh",
-    [7] = ".h",
-	};
-	const Extensions	forbidden_extensions(temp_ext, temp_ext + sizeof(temp_ext) / sizeof(char const *));
-
-	std::string file_extension = get_extension(filename);
-	if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
-		throw HTTPStatus<405>();
-	}
-	if (filename.substr(0, 13) != "post/uploads/") {// Temporary
-		throw HTTPStatus<405>();
-	}
-	std::cout << "Extension is [" << file_extension << "]" << std::endl;
-	filename = "public/" + filename;
-	std::cout << "Filename is [" << filename << "]" << std::endl;
-	if (std::remove (filename.c_str()) != 0)
-		throw HTTPStatus<404>();
-}
-

@@ -88,9 +88,9 @@ Handler:	$(HANDLER) ../../inc/Handler.hpp
 
 ##---  FileHandler  ---##
 FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
-	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
-	../../src/Handler.cpp ../../src/Request.cpp ../../src/Socket.cpp \
-	../../src/Response.cpp
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
+	../../src/print.cpp ../../src/file.cpp ../../src/Handler.cpp ../../src/Request.cpp \
+	../../src/Socket.cpp ../../src/Response.cpp
 
 file_handler: FileHandler # run FileHandler class tests
 	./FileHandler

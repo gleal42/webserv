@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 17:39:31 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:56:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,7 +104,7 @@ namespace file
 		if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
 			throw HTTPStatus<405>();
 		}
-		if (filename.substr(0, 13) != "post/uploads/") // Temporary
+		if (filename.substr(0, 20) != "public/post/uploads/") // Temporary
 			throw HTTPStatus<405>();
 		std::cout << "Extension is [" << file_extension << "]" << std::endl;
 		std::cout << "Filename is [" << filename << "]" << std::endl;
