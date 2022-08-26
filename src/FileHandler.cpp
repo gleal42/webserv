@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 17:56:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:56:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ FileHandler &	FileHandler::operator = ( FileHandler const & rhs )
 
 void	FileHandler::do_GET( Request & req, Response & res )
 {
+	url::decode(req._path);
 	if (req._path == "/")
 		res._uri = "public/index.html";
 	else

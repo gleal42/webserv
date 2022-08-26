@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:26:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:27:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -249,7 +249,6 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service( Request & req, Response & res )
 {
-    url::decode(req.request_uri.path); // Interpret url as extended ASCII
     Handler *handler (choose_handler(req.request_uri));
 	try {
 		handler->service(req, res);

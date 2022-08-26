@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 22:42:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 18:05:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include "webserver.hpp"
 # include "file.hpp"
 # include "print.hpp"
+# include "url.hpp"
 
 typedef std::map<std::string, std::string> CGIExtInterpreter;
 

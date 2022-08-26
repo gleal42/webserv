@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 13:09:05 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 18:27:01 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	if (pid == 0)
 	{
 		// Environment Variables
+		url::decode(path); // Interpret url as extended ASCII
 		std::vector<char *> env_vars;
 		std::vector< std::vector<char> > buf = environment_variables(req);
 		convert_to_charptr_vec(buf, env_vars);
@@ -209,6 +210,8 @@ std::vector< std::vector<char> >	CGIHandler::environment_variables( Request & re
 	set_env(buf, "REDIRECT_STATUS", "200");
 	std::string full_script_path = full_path(path);
 	set_env(buf, "PATH_INFO", full_script_path);
+	url::decode(full_script_path);
+	set_env(buf, "PATH_TRANSLATED", full_script_path);
 	set_env(buf, "SCRIPT_FILENAME", full_script_path);
 	set_env(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
 	set_env(buf, "GATEWAY_INTERFACE", "CGI/1.1");
