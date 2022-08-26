@@ -21,8 +21,17 @@ else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
    $path = "../../../public/post/uploads/";
    $files = scandir($path);
    $files = array_diff(scandir($path), array('.', '..'));
-   
+   $pos_public = strpos($path, "public/");  // temporary so that public logic is implemented logic
+   if ($pos_public != false)
+   {
+      $start_path = substr($path, 0, $pos_public);
+      $pos_public = $pos_public + strlen("public/");
+      $path = substr($path, $pos_public);
+      $path = $start_path . $path;
+   }
    foreach ($files as $value) {
+      echo "Path is $path\n";
+      echo "Value is $value\n";
       echo "<p><a href=\"" . $path.$value . "\">" . $value . "</a><p>";
    }
 }

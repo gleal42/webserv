@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/25 23:34:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 13:09:05 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ CGIExtInterpreter CGIHandler::extension_interpreter = create_extension_pairs();
 CGIExtInterpreter CGIHandler::create_extension_pairs( void )
 {
 	CGIExtInterpreter	temp;
-	temp[".cgi"] = full_path("/test/cgi/cpp/cgi_tester");
+	temp[".cgi"] = full_path("test/cgi/cpp/cgi_tester");
 	temp[".php"] = "/usr/local/bin/php-cgi";
 	return (temp);
 }
@@ -44,7 +44,7 @@ CGIHandler::CGIHandler( void )
 { /* no-op */ }
 
 CGIHandler::CGIHandler( const URI &uri )
-: path(uri.path), query_string(uri.query), extension(get_extension(uri.path)), interpreter(extension_interpreter[extension])
+: path(std::string("public") + uri.path), query_string(uri.query), extension(get_extension(uri.path)), interpreter(extension_interpreter[extension])
 {
 }
 
@@ -148,7 +148,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		// CGI arguments (1st and 2nd execve argument)
 		std::vector<char *> cgi_args;
 		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
-		std::vector<char> filepath = convert_to_char_vector(path.c_str() + 1);
+		std::vector<char> filepath = convert_to_char_vector(std::string("public/") + (path.c_str() + 1));
 		cgi_args.push_back(cmd_vec.data());
 		cgi_args.push_back(filepath.data());
 		cgi_args.push_back(NULL);
@@ -209,7 +209,7 @@ std::vector< std::vector<char> >	CGIHandler::environment_variables( Request & re
 	set_env(buf, "REDIRECT_STATUS", "200");
 	std::string full_script_path = full_path(path);
 	set_env(buf, "PATH_INFO", full_script_path);
-	set_env(buf, "SCRIPT_FILENAME", std::string(path.c_str() + 1, (path.size() - 1)));
+	set_env(buf, "SCRIPT_FILENAME", full_script_path);
 	set_env(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
 	set_env(buf, "GATEWAY_INTERFACE", "CGI/1.1");
 	std::cout << "Content-type is " << req._headers["Content-Type"] << std::endl;

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 17:38:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:41:42 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	if (req._path == "/")
 		res._uri = "public/index.html";
 	else
-		res._uri = std::string("public/") + (req._path.c_str() + 1);
+		res._uri = std::string("public/") + (req.request_uri.path.c_str() + 1);
 
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
