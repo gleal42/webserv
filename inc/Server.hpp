@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 15:08:07 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 17:37:30 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 # define __SERVER_H__
 
 #include <stdexcept>
+
+#include "Event.hpp"
 #include "Listener.hpp"
 #include "Connection.hpp"
 #include "ConfigParser.hpp"
+#include "FileHandler.hpp"
 
 // ************************************************************************** //
 //                               Server Class                             	  //

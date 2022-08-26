@@ -27,6 +27,7 @@ SRCS := main.cpp \
 		Handler.cpp \
 		FileHandler.cpp \
 		BaseStatus.cpp \
+		Event.cpp \
 		url_utils.cpp \
 		utils.cpp
 VPATH = src/

@@ -14,9 +14,9 @@
 # define __CONFIG_PARSER_H__
 
 # include <iostream>
-# include <vector>
 
 # include "ServerConfig.hpp"
+# include "types.hpp"
 
 // ************************************************************************** //
 //                               ConfigParser Class                             	  //
@@ -31,8 +31,6 @@ Needs to be able to:
 	- Create as many ServerConfigs as `server` blocks in the config_file
 
 */
-
-typedef std::vector<ServerConfig> Configs;
 
 class ConfigParser {
 

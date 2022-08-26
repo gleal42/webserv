@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/06 20:26:25 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 18:08:40 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,26 +132,20 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 # define __RESPONSE_H__
 
 # include <fstream>
-# include <iostream>
 # include <sstream>
 
-# include "ServerConfig.hpp"
-# include "Request.hpp"
+# include "Socket.hpp"
 # include "HTTPStatus.hpp"
+# include "types.hpp"
 
 // ************************************************************************** //
 //                               Response Class                               //
 // ************************************************************************** //
 
-// Response message generated while processing client request
-
-typedef std::map<std::string, std::string> ResponseHeaders;
-
 class Response {
 
 public:
 
-	typedef	ResponseHeaders::iterator ResponseHeaders_it;
 	Response( void ); // put bck private after making pointer in connection
 	~Response( void );
 	Response &	operator = ( Response const & rhs );

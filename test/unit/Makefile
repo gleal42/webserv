@@ -12,7 +12,7 @@ CPPFLAGS	:= $(INC)
 COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket parser status handler file_handler server
+all:	socket parser status handler file_handler server event
 
 
 ##---  Socket  ---##
@@ -90,4 +90,15 @@ Server:	$(SERVER) ../../inc/Server.hpp
 	$(COMPILE) $(SERVER) -o $@
 
 
-.PHONY: all socket parser status handler file_handler server
+##---  Event  ---##
+EVENT := Event.test.cpp ../../src/Event.cpp
+
+event: Event # run Event class tests
+	./Event
+
+# compile Event class tests
+Event:	$(EVENT) ../../inc/Event.hpp
+	$(COMPILE) $(EVENT) -o $@
+
+
+.PHONY: all socket parser status handler file_handler server event

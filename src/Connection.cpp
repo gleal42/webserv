@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 19:09:38 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 21:09:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 17:21:51 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Connection.hpp"
-# include <stdexcept>
 
 Connection::Connection( Socket * listener_socket )
 {

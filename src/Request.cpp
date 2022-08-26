@@ -6,14 +6,11 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 18:32:58 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 16:39:34 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include "Socket.hpp"
-#include "Listener.hpp"
-#include "HTTPStatus.hpp"
 
 /* Constructors */
 Request::Request( void ) { /* no-op */ }

@@ -6,14 +6,11 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 15:28:51 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 16:38:28 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include "FileHandler.hpp"
-#include <iostream>
-#include <stdexcept>
 
 /*
     Testes a passar:
@@ -64,18 +61,9 @@ void Server::listener_event_read_add(int listener_fd)
 #endif
 
 #if defined(LINUX)
-	event.events = EPOLLIN | EPOLLOUT;
+	event.events = EPOLLIN;
 	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, listener_fd, &event);
 #endif
-}
-
-// int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
-// EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
-void Server::event_update(int fd, short filter, u_short flags)
-{
-    EVENT event;
-	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
-	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
 }
 
 /*
@@ -164,6 +152,16 @@ void	Server::connection_new( Listener * listener )
 	event_update(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE); // <--------
 	// Will be used later in case we can't send the whole message
 	event_update(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // <--------
+}
+
+
+// int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+// EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
+void Server::event_update(int fd, short filter, u_short flags)
+{
+    EVENT event;
+	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
 }
 
 // Reference

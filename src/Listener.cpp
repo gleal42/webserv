@@ -3,22 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/12 22:20:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 16:41:45 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Listener.hpp"
-#include "Socket.hpp"
-#include "Server.hpp"
 
 /* Constructors */
 
 Listener::Listener( void ) : _socket(NULL) { /* no-op */ }
 Listener::Listener( Listener const & src ) : _socket(NULL) { *this = src; }
-
 
 Listener::Listener( ServerConfig const & config ) : _config(config), _socket(NULL)
 {

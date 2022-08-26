@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/06 18:22:45 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 17:45:07 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,18 +14,13 @@
 # define __FILE_HANDLER_H__
 
 # include <stdexcept>
-# include <set>
-# include <map>
 # include <cstdio>
 # include <algorithm>
-# include "url_utils.hpp"
-# include "Request.hpp"
-# include "Response.hpp"
-# include "HTTPStatus.hpp"
-# include "Handler.hpp"
 
-typedef std::set<std::string>	Extensions;
-typedef std::map<std::string, std::string>	Parameters;
+# include "url_utils.hpp"
+# include "Handler.hpp"
+# include "HTTPStatus.hpp"
+# include "types.hpp"
 
 // ************************************************************************** //
 //                               FileHandler Class                            //

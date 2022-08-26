@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 21:52:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 17:19:54 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,8 +83,6 @@ void	FileHandler::do_GET( Request & req, Response & res )
 
 	file.close();
 }
-
-typedef std::map<std::string, std::string> MimeTypes;
 
 std::string const FileHandler::get_content_type(std::string const path)
 {
