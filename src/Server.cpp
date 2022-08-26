@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 15:08:39 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 15:28:51 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,27 +102,27 @@ void	Server::start( void )
 		}
 
         for (int i = 0; i < n; i++) {
-            Listener_it		it = _listeners.find(events[i].ident);
+            Listener_it		it = _listeners.find(events[i].ident); // <--------
 
             if (it != _listeners.end()) {
 				// New event for non-existent file descriptor
-                connection_new(it->second);
+                connection_new(it->second); // <--------
 			}
 			else {
-				Connections_it	connection_it = _connections.find(events[i].ident);
+				Connections_it	connection_it = _connections.find(events[i].ident); // <--------
 
-				if (events[i].flags & EV_EOF) {
+				if (events[i].flags & EV_EOF) { // <--------
 					// If there are no more connections open in any server do cleanup(return)
-                    connection_close(events[i].ident);
+                    connection_close(events[i].ident); // <--------
 
                     if (_connections.size() == 0) {
                         return ;
 					}
                 }
-				else if (events[i].filter == EVFILT_READ) {
-                    connection_read(connection_it->second, events[i]);
+				else if (events[i].filter == EVFILT_READ) { // <--------
+                    connection_read(connection_it->second, events[i]); // <--------
 				}
-				else if (events[i].filter == EVFILT_WRITE) {
+				else if (events[i].filter == EVFILT_WRITE) { // <--------
 					connection_write(connection_it->second);
 
                     if (connection_it->second->response.is_empty()) {
@@ -161,9 +161,9 @@ void	Server::connection_new( Listener * listener )
 
 	LOG("connection NEW: (" << connection_fd << ")");
 
-	event_update(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE);
+	event_update(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE); // <--------
 	// Will be used later in case we can't send the whole message
-	event_update(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE);
+	event_update(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // <--------
 }
 
 // Reference
@@ -208,7 +208,7 @@ void	Server::connection_read( Connection *connection, EVENT const & event )
     LOG("About to read the file descriptor: " << connection->fd());
     LOG("Incoming data has size of: " << event.data);
 
-    connection->request.parse(*connection->socket(), event);
+    connection->request.parse(*connection->socket(), event); // <--------
 
     if (connection->request._headers.count("Content-Length")) {
         LOG("Analyzing if whole body was transferred: ");
@@ -235,14 +235,14 @@ void	Server::connection_read( Connection *connection, EVENT const & event )
         LOG("Body :" << connection->request._raw_body.data());
     }
 
-    event_update(connection->fd(), EVFILT_READ, EV_DISABLE);
-    event_update(connection->fd(), EVFILT_WRITE, EV_ENABLE);
+    event_update(connection->fd(), EVFILT_READ, EV_DISABLE); // <--------
+    event_update(connection->fd(), EVFILT_WRITE, EV_ENABLE); // <--------
 }
 
 void	Server::connection_write( Connection *connection )
 {
 	LOG("About to write to file descriptor: " << connection->fd());
-	LOG("The socket has the following size to write " << events[0].data);
+	LOG("The socket has the following size to write " << events[0].data); // <--------
 
     if (connection->response.is_empty()) {
         service(connection->request, connection->response);
@@ -253,8 +253,8 @@ void	Server::connection_write( Connection *connection )
     if (connection->response.is_empty()) {
         LOG("Connection was empty after sending");
 
-        event_update(connection->fd(), EVFILT_READ, EV_ENABLE);
-        event_update(connection->fd(), EVFILT_WRITE, EV_DISABLE);
+        event_update(connection->fd(), EVFILT_READ, EV_ENABLE); // <--------
+        event_update(connection->fd(), EVFILT_WRITE, EV_DISABLE); // <--------
     }
 }
 
@@ -293,7 +293,7 @@ void	Server::listener_close( int listener_fd )
 {
     LOG("Closing Listener with fd: " << listener_fd);
 
-    event_update(listener_fd, EVFILT_READ, EV_DELETE);
+    event_update(listener_fd, EVFILT_READ, EV_DELETE); // <--------
 
     delete _listeners[listener_fd];
 	// Weird! When I change this to _listeners.erase(listener_fd),
@@ -306,8 +306,8 @@ void	Server::connection_close( int connection_fd )
 {
     LOG("Closing Connection: " << connection_fd);
 
-    event_update(connection_fd, EVFILT_READ, EV_DELETE);
-    event_update(connection_fd, EVFILT_WRITE, EV_DELETE);
+    event_update(connection_fd, EVFILT_READ, EV_DELETE); // <--------
+    event_update(connection_fd, EVFILT_WRITE, EV_DELETE); // <--------
 
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
