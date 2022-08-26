@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 18:58:36 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 15:08:39 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,12 @@ Server::CreateError::CreateError( void )
 // private
 Server::Server() { throw std::runtime_error("Please use non-default constructor"); }
 
+// Getters
+int	Server::queue_fd( void ) const { return _queue_fd; }
+Listeners	Server::listeners( void ) const { return _listeners; }
+Connections	Server::connections( void ) const { return _connections; }
+size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
+
 Server::Server(const ConfigParser &parser)
 {
     _queue_fd = QUEUE();
@@ -43,17 +49,25 @@ Server::Server(const ConfigParser &parser)
 	for (size_t i = 0; i < _listeners_amount; ++i)
 	{
 		listener = new Listener(parser.config(i));
-		// EPOLLIN, EPOLLOUT, EPOLLET ?
-		event_update(listener->fd(), EVFILT_READ, EV_ADD);
+		listener_event_read_add(listener->fd()); // TODO: method in listener class
 		_listeners[listener->fd()] = listener;
 	}
 }
 
-// Getters
-int	Server::queue_fd( void ) const { return _queue_fd; }
-Listeners	Server::listeners( void ) const { return _listeners; }
-Connections	Server::connections( void ) const { return _connections; }
-size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
+void Server::listener_event_read_add(int listener_fd)
+{
+    EVENT event;
+
+#if defined(DARWIN)
+	EV_SET(&event, listener_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+
+#if defined(LINUX)
+	event.events = EPOLLIN | EPOLLOUT;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, listener_fd, &event);
+#endif
+}
 
 // int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
 // EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD

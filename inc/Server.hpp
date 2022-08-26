@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 17:57:00 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 15:08:07 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,7 @@ public:
 	void			connection_write( Connection *connection );
 	void			connection_close( int connection_fd );
 	void			listener_close( int listener_fd );
+	void			listener_event_read_add( int listener_fd );
 	void			service(Request & req, Response & res);
 
    	EVENT 			events[EVENTS_SIZE];
