@@ -41,7 +41,7 @@ describe("General", () => {
     it("should return requested image", done => {
       chai
         .request(SERVER_URL)
-        .get("/test/forest.jpeg")
+        .get("/forest.jpeg")
         .end((err, res) => {
           if (err) done(err)
 

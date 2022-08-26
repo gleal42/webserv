@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:12:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 14:25:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,8 @@ enum RequestMethod {
 typedef std::map<std::string, RequestMethod>	RequestMethods;
 
 class URI {
+
+public:
 	std::string		host;
 	std::string		port;
 	std::string		path;

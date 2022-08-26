@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 21:52:07 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 14:54:45 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,7 @@ void	FileHandler::post_multi_type_form( Request & req )
 void	FileHandler::save_file( std::string &file_body, std::string filename  )
 {
 	std::ofstream outfile;
-	outfile.open("post/uploads/" + filename, std::ios::binary);
+	outfile.open("public/post/uploads/" + filename, std::ios::binary);
 	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 		throw std::runtime_error("Couldn't open new file");
 	}
@@ -269,7 +269,7 @@ void	FileHandler::post_form_urlencoded( Request & req )
 
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
-	delete_file(req._path);
+	delete_file(req._path.c_str() + 1);
 	res.set_default_body(); // temporary
 }
 
@@ -297,6 +297,7 @@ void	FileHandler::delete_file( std::string filename )
 		throw HTTPStatus<405>();
 	}
 	std::cout << "Extension is [" << file_extension << "]" << std::endl;
+	filename = "public/" + filename;
 	std::cout << "Filename is [" << filename << "]" << std::endl;
 	if (remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();

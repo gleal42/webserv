@@ -72,7 +72,7 @@ TEST_CASE("FileHandler `do_GET` method") {
 							"my text here!");
 
 		CHECK_NOTHROW(handler.service(req, res));
-		CHECK(res._uri == "index.html");
+		CHECK(res._uri == "public/index.html");
 		CHECK(res.message() == result);
 
 		file_delete("index.html");
@@ -90,7 +90,7 @@ TEST_CASE("FileHandler `do_GET` method") {
 							"my text here!");
 
 		CHECK_NOTHROW(handler.service(req, res));
-		CHECK(res._uri == "random.html");
+		CHECK(res._uri == "public/random.html");
 		CHECK(res.message() == result);
 
 		file_delete("random.html");
@@ -124,7 +124,7 @@ TEST_CASE("FileHandler `do_GET` method") {
     }
 
 	SUBCASE("when path is to an invalid file raises 404") {
-		req._path = "invalid.html";
+		req._path = "/invalid.html";
 
 		CHECK_THROWS(handler.service(req, res));
 
@@ -196,7 +196,7 @@ TEST_CASE("FileHandler `do_DELETE` method") {
     }
 
 	SUBCASE("when path is to an invalid file raises 404") {
-		req._path = "post/uploads/invalid.can";
+		req._path = "/post/uploads/invalid.can";
 
 		CHECK_THROWS(handler.service(req, res));
 
@@ -225,17 +225,19 @@ TEST_CASE("FileHandler `do_DELETE` method") {
 							"</body>\n" +
 							"</html>");
 
-		req._path = "post/uploads/valid.can";
-		mkdir("post", 0777);
-		mkdir("post/uploads", 0777);
+		req._path = "/post/uploads/valid.can";
+		mkdir("public", 0777);
+		mkdir("public/post", 0777);
+		mkdir("public/post/uploads", 0777);
 		file_create("post/uploads/valid.can");
-
 
 		CHECK_NOTHROW(handler.service(req, res));
 		CHECK(res.message() == result);
 
-		file_delete("post/uploads");
-		file_delete("post");
+		file_delete("post/uploads/valid.can");
+		remove("public/post/uploads");
+		remove("public/post");
+		remove("public");
     }
 
 	std::string	result("HTTP/1.1 200 OK" +
@@ -250,11 +252,13 @@ TEST_CASE("FileHandler `do_DELETE` method") {
 /* Helpers */
 
 void	file_create(std::string filename) {
-	std::ofstream	outfile(filename);
+	mkdir("public", 0777);
+	std::ofstream	outfile("public/" + filename);
 	outfile << "my text here!";
 	outfile.close();
 }
 
 void	file_delete(std::string filename) {
-	remove(filename.c_str());
+	remove(("public/" + filename).c_str());
+	remove("public");
 }
