@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/21 02:11:54 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/27 20:39:19 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ enum directives{
     DIRECTIVE_ERRORPAGE,
     DIRECTIVE_MAXBODYSIZE,
     DIRECTIVE_INDEX,
+    DIRECTIVE_REDIRECT,
     DIRECTIVE_CGI = 5,
     DIRECTIVE_LIMITEXCEPT = 6,
     DIRECTIVE_LISTEN = 5,

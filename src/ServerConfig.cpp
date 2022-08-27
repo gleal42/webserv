@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 18:07:52 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/27 21:24:50 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,7 +253,7 @@ AutoBool                        BaseConfig::get_autoindex( void ) const{return (
 const ErrorPage&                BaseConfig::get_error_pages( void ) const{return (this->_error_pages);}
 int                             BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
 const std::vector<std::string>& BaseConfig::get_indexes( void ) const{return (this->_indexes);}
-Redirect&                       BaseConfig::get_redirect( void ){return (*this->_redirect.begin());}
+const std::vector<Redirect>&    BaseConfig::get_redirect( void ){return (this->_redirect);}
 
 
 
@@ -263,15 +263,15 @@ bool    LocationConfig::is_empty( void )
 {
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
-        && this->_indexes.empty() && this->_limit_except.empty()
-        && this->_cgi.empty());
+        && this->_indexes.empty() && this->_redirect.empty()
+        && this->_limit_except.empty() && this->_cgi.empty());
 }
 
 int     LocationConfig::find_directive(std::string &directive)
 {
     const std::string   valid_location_directives[CONTEXT_DIRECTIVES] =
     {"root", "autoindex", "error_page", "client_max_body_size", "index",
-    "cgi", "limit_except"};
+    "redirect", "cgi", "limit_except"};
 
     int                 i = -1;
 
@@ -307,6 +307,9 @@ void LocationConfig::set_directive(int directive, std::string& content)
             break;
         case DIRECTIVE_INDEX:
             this->set_indexes(content);
+            break;
+        case DIRECTIVE_REDIRECT:
+            this->set_redirect(has_separators, content);
             break;
         case DIRECTIVE_CGI:
          this->set_cgi(has_separators, content);
@@ -358,16 +361,16 @@ bool    ServerConfig::is_empty( void )
 {
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
-        && this->_indexes.empty() && this->_listens[0].ip == "127.0.0.1"
-        && this->_listens[0].port == 8080 && this->_server_names.empty()
-        && this->_locations.empty());
+        && this->_indexes.empty() && this->_redirect.empty()
+        && this->_listens[0].ip == "127.0.0.1" && this->_listens[0].port == 8080
+        && this->_server_names.empty() && this->_locations.empty());
 }
 
 int     ServerConfig::find_directive(std::string &directive)
 {
     const std::string   valid_server_directives[CONTEXT_DIRECTIVES] =
     {"root","autoindex", "error_page", "client_max_body_size", "index",
-    "listen","server_name"};
+    "redirect", "listen","server_name"};
 
     int                 i = -1;
 
@@ -402,6 +405,8 @@ void ServerConfig::set_directive(int directive, std::string& content)
         case DIRECTIVE_INDEX:
             this->set_indexes(content);
             break;
+        case DIRECTIVE_REDIRECT:
+            this->set_redirect(has_separators, content);
         case DIRECTIVE_LISTEN:
             this->set_listen(has_separators, content);
             break;
@@ -534,8 +539,8 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
     if (!(server.get_error_pages().empty()))
     {
         s << "| - errors map [" << std::endl;
-        std::map<std::string, std::vector<int> >::const_iterator it_m = server.get_error_pages().begin();
-        std::vector<int>::const_iterator it_v;
+        std::map<std::string, std::vector<unsigned short> >::const_iterator it_m = server.get_error_pages().begin();
+        std::vector<unsigned short>::const_iterator it_v;
         for (; it_m != server.get_error_pages().end() ; it_m++) {
             s << "|     " << it_m->first << ": [";
             for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
@@ -574,8 +579,8 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
             if (!(server.get_error_pages().empty()))
             {
                 s << "|      errors map [" << std::endl;
-                std::map<std::string, std::vector<int> >::const_iterator it_m = it->second.get_error_pages().begin();
-                std::vector<int>::const_iterator it_v;
+                std::map<std::string, std::vector<unsigned short> >::const_iterator it_m = it->second.get_error_pages().begin();
+                std::vector<unsigned short>::const_iterator it_v;
                 for (; it_m !=  it->second.get_error_pages().end() ; it_m++) {
                     s << "|        " << it_m->first << ": [";
                     for (it_v = (it_m->second).begin() ; it_v != it_m->second.end() ; it_v++)
@@ -592,6 +597,14 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
                 std::vector<std::string>::const_iterator i_it(it->second.get_indexes().begin());
                 for (; i_it != it->second.get_indexes().end() ; ++i_it)
                     s << *i_it;
+                s << "]" << std::endl;
+            }
+            if(!(it->second.get_redirect().empty()))
+            {
+                s << "|      Redirect [";
+                std::vector<Redirect>::const_iterator r_it(it->second.get_redirect().begin());
+                for (; r_it != it->second.get_redirect().end() ; ++r_it)
+                    s << " " << "Path = " << r_it->new_path << ", Code = " << r_it->code << " ";
                 s << "]" << std::endl;
             }
             if(!(it->second.get_limit_except().empty()))

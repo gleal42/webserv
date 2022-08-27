@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 18:07:25 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/27 21:14:55 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,24 @@
 
 # define PORT_MAX   65535
 # define PORT_MIN   1
+# define CONTEXT_DIRECTIVES 8
 
 // Taken from Server Config Parsing.
 // Each server will have these things
+
+enum directives{
+    DIRECTIVE_ROOT,
+    DIRECTIVE_AUTOINDEX,
+    DIRECTIVE_ERRORPAGE,
+    DIRECTIVE_MAXBODYSIZE,
+    DIRECTIVE_INDEX,
+    DIRECTIVE_REDIRECT,
+    DIRECTIVE_CGI = 6,
+    DIRECTIVE_LIMITEXCEPT = 7,
+    DIRECTIVE_LISTEN = 6,
+    DIRECTIVE_SERVERNAME = 7,
+};
+
 
 enum AutoBool{
     AUTOINDEX_OFF,
@@ -64,7 +79,7 @@ class BaseConfig{
     const ErrorPage&                get_error_pages( void ) const;
     int                             get_max_body_size( void ) const;
     const std::vector<std::string>& get_indexes( void ) const;
-    Redirect&                       get_redirect( void );
+    const std::vector<Redirect>&    get_redirect( void );
 
     protected:
         std::string                 _root;
@@ -110,7 +125,6 @@ class ServerConfig : public BaseConfig
         ServerConfig& operator= (const ServerConfig&);
 
         bool                            is_empty( void );
-
         // Setters
         int                             find_directive(std::string &directive);
         void                            set_directive(int directive, std::string &content);
