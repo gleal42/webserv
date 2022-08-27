@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 21:24:50 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/27 23:51:45 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,13 +127,6 @@ namespace {
                 return (false);
         }
         return (true);
-    }
-
-    bool is_number(const std::string& s)
-    {
-        std::string::const_iterator it = s.begin();
-        while (it != s.end() && std::isdigit(*it)) ++it;
-        return !s.empty() && it == s.end();
     }
 }
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~BaseConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -407,6 +400,7 @@ void ServerConfig::set_directive(int directive, std::string& content)
             break;
         case DIRECTIVE_REDIRECT:
             this->set_redirect(has_separators, content);
+            break;
         case DIRECTIVE_LISTEN:
             this->set_listen(has_separators, content);
             break;

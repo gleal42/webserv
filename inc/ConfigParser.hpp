@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 20:39:19 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/27 23:50:04 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,22 +17,9 @@
 #include "ServerConfig.hpp"
 
 # define SEPARATORS         " \t\v\n\r\f"
-# define CONTEXT_DIRECTIVES 7
 # define SERVER_CONTEXT     1
 # define LOCATION_CONTEXT   2
 
-enum directives{
-    DIRECTIVE_ROOT,
-    DIRECTIVE_AUTOINDEX,
-    DIRECTIVE_ERRORPAGE,
-    DIRECTIVE_MAXBODYSIZE,
-    DIRECTIVE_INDEX,
-    DIRECTIVE_REDIRECT,
-    DIRECTIVE_CGI = 5,
-    DIRECTIVE_LIMITEXCEPT = 6,
-    DIRECTIVE_LISTEN = 5,
-    DIRECTIVE_SERVERNAME = 6,
-};
 
 // ************************************************************************** //
 //                               ConfigParser Class                             	  //
