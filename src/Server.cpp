@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 12:16:45 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:36:45 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,27 +91,27 @@ void	Server::start( void )
 
         for (int i = 0; i < n; i++) {
 			Event		event(events[i]);
-            Listener_it	it = _listeners.find(events[i].ident); // <--------
+            Listener_it	it = _listeners.find(event.fd());
 
             if (it != _listeners.end()) {
 				// New event for non-existent file descriptor
-                connection_new(it->second); // <--------
+                connection_new(it->second);
 			}
 			else {
-				Connections_it	connection_it = _connections.find(events[i].ident); // <--------
+				Connections_it	connection_it = _connections.find(event.fd());
 
 				if (events[i].flags & EV_EOF) { // <--------
 					// If there are no more connections open in any server do cleanup(return)
-                    connection_close(events[i].ident); // <--------
+                    connection_close(event.fd()); // <--------
 
                     if (_connections.size() == 0) {
                         return ;
 					}
                 }
-				else if (events[i].filter == EVFILT_READ) { // <--------
+				else if (event.is_read()) {
                     connection_read(connection_it->second, events[i].data); // <--------
 				}
-				else if (events[i].filter == EVFILT_WRITE) { // <--------
+				else if (event.is_write()) {
 					connection_write(connection_it->second);
 
                     if (connection_it->second->response.is_empty()) {

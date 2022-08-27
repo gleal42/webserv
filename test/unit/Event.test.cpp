@@ -11,10 +11,6 @@ TEST_CASE("Event constructor") {
 	SUBCASE("accepts OS specific event") {
 		CHECK_NOTHROW(Event event(EVENT event_os));
     }
-
-	SUBCASE("default initiates empty OS specific event") {
-		CHECK_NOTHROW(Event event);
-    }
 }
 
 TEST_CASE("Event `fd` method") {
@@ -27,17 +23,37 @@ TEST_CASE("Event `fd` method") {
     }
 }
 
-// TEST_CASE("Event `flags` method") {
+TEST_CASE("Event `is_read` method") {
+	EVENT event_os;
+	Event event(event_os);
 
-// 	SUBCASE("gets specific event flags") {
+	SUBCASE("returns true if event is Read") {
+		event_os.filter = EVFILT_READ;
 
-//     }
-// }
+		CHECK(event.is_read() == true);
+    }
 
-// TEST_CASE("Event `filter` method") {
+	SUBCASE("returns false if event is not Read") {
+		event_os.filter = EVFILT_WRITE;
 
-// 	SUBCASE("gets specific event filter") {
+		CHECK(event.is_read() == false);
+    }
+}
 
-//     }
-// }
+TEST_CASE("Event `is_write` method") {
+	EVENT event_os;
+	Event event(event_os);
+
+	SUBCASE("returns true if event is Write") {
+		event_os.filter = EVFILT_WRITE;
+
+		CHECK(event.is_write() == true);
+    }
+
+	SUBCASE("returns false if event is not Write") {
+		event_os.filter = EVFILT_READ;
+
+		CHECK(event.is_write() == false);
+    }
+}
 

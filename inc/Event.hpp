@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:44 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 17:01:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:50:37 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,20 +41,22 @@ class Event {
 
 public:
 
-	Event( void );
-	Event( Event const & src );
 	Event( EVENT const & src );
 	~Event( void );
-	Event &	operator = ( Event const & rhs );
 
 	/* Getters */
 	int		fd( void ) const;
-	// int		filter( void ) const;
-	// int		flags( void ) const;
+
+	bool	is_read( void );
+	bool	is_write( void );
 
 private:
 
-	EVENT	_event_os;
+	Event( void );
+	Event( Event const & src );
+	Event &	operator = ( Event const & rhs );
+
+	EVENT const &	_event_os;
 
 };
 
