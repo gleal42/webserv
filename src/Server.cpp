@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 12:36:45 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 13:51:57 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,6 @@
 
 /*
     Testes a passar:
-    Display big images ()
-    Várias Requests ao mesmo tempo
     EOF working
     HTML CSS priority
     Javascript (later)
@@ -51,20 +49,6 @@ Server::Server(const ConfigParser &parser)
 	}
 }
 
-void Server::listener_event_read_add(int listener_fd)
-{
-    EVENT event;
-
-#if defined(DARWIN)
-	EV_SET(&event, listener_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
-	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
-#endif
-
-#if defined(LINUX)
-	event.events = EPOLLIN;
-	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, listener_fd, &event);
-#endif
-}
 
 /*
  * File descriptors open are:
@@ -102,7 +86,7 @@ void	Server::start( void )
 
 				if (events[i].flags & EV_EOF) { // <--------
 					// If there are no more connections open in any server do cleanup(return)
-                    connection_close(event.fd()); // <--------
+                    connection_close(event.fd());
 
                     if (_connections.size() == 0) {
                         return ;
@@ -128,15 +112,12 @@ int	Server::events_wait( void )
 	LOG("\n+++++++ Waiting for new connection ++++++++\n");
 
 	int					events_ready;
-
 #if defined(DARWIN)
 	events_ready = kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, TIMEOUT);
 #endif
-
 #if defined(LINUX)
 	events_ready = epoll_wait(_queue_fd, events, EVENTS_SIZE, TIMEOUT);
 #endif
-
     return events_ready;
 }
 
@@ -292,7 +273,15 @@ void	Server::listener_close( int listener_fd )
 {
     LOG("Closing Listener with fd: " << listener_fd);
 
-    event_update(listener_fd, EVFILT_READ, EV_DELETE); // <--------
+#if defined(DARWIN)
+	EVENT event;
+
+	EV_SET(&event, listener_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	epoll_ctl(_queue_fd, EPOLL_CTL_DEL, listener_fd, NULL);
+#endif
 
     delete _listeners[listener_fd];
 	// Weird! When I change this to _listeners.erase(listener_fd),
@@ -305,9 +294,32 @@ void	Server::connection_close( int connection_fd )
 {
     LOG("Closing Connection: " << connection_fd);
 
-    event_update(connection_fd, EVFILT_READ, EV_DELETE); // <--------
-    event_update(connection_fd, EVFILT_WRITE, EV_DELETE); // <--------
+#if defined(DARWIN)
+	EVENT event;
+
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	epoll_ctl(_queue_fd, EPOLL_CTL_DEL, connection_fd, NULL);
+#endif
 
     delete _connections[connection_fd];
     _connections.erase(connection_fd);
+}
+
+void Server::listener_event_read_add(int listener_fd)
+{
+    EVENT event;
+
+#if defined(DARWIN)
+	EV_SET(&event, listener_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.events = EPOLLIN;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, listener_fd, &event);
+#endif
 }
