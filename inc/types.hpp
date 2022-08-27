@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 17:21:18 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 00:27:43 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,5 @@ typedef std::map<String, RequestMethod>	RequestMethods;
 typedef	ResponseHeaders::iterator		ResponseHeaders_it;
 typedef std::map<int, String>			HTTPStatuses;
 typedef StringMap						MimeTypes;
-
-
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 17:37:30 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:16:16 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ public:
 	int				events_wait();
 	void			event_update(int ident, short filter, u_short flags);
 	void			connection_new( Listener * listener );
-	void			connection_read( Connection *connection , EVENT const & event );
+	void			connection_read( Connection *connection , int read_size );
 	void			connection_write( Connection *connection );
 	void			connection_close( int connection_fd );
 	void			listener_close( int listener_fd );

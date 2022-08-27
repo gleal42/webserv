@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 16:39:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:14:54 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,9 +145,9 @@ void	Request::read_body(std::string &_unparsed_request)
 	_unparsed_request.clear();
 }
 
-void	Request::parse(Socket & socket, EVENT const & event )
+void	Request::parse(Socket & socket, int read_size )
 {
-	socket.receive(event.data);
+	socket.receive(read_size);
 	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
 

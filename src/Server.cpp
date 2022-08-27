@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 16:38:28 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:16:45 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,8 @@ void	Server::start( void )
 		}
 
         for (int i = 0; i < n; i++) {
-            Listener_it		it = _listeners.find(events[i].ident); // <--------
+			Event		event(events[i]);
+            Listener_it	it = _listeners.find(events[i].ident); // <--------
 
             if (it != _listeners.end()) {
 				// New event for non-existent file descriptor
@@ -108,7 +109,7 @@ void	Server::start( void )
 					}
                 }
 				else if (events[i].filter == EVFILT_READ) { // <--------
-                    connection_read(connection_it->second, events[i]); // <--------
+                    connection_read(connection_it->second, events[i].data); // <--------
 				}
 				else if (events[i].filter == EVFILT_WRITE) { // <--------
 					connection_write(connection_it->second);
@@ -201,12 +202,12 @@ void Server::event_update(int fd, short filter, u_short flags)
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-void	Server::connection_read( Connection *connection, EVENT const & event )
+void	Server::connection_read( Connection *connection, int read_size )
 {
     LOG("About to read the file descriptor: " << connection->fd());
-    LOG("Incoming data has size of: " << event.data);
+    LOG("Incoming data has size of: " << read_size);
 
-    connection->request.parse(*connection->socket(), event); // <--------
+    connection->request.parse(*connection->socket(), read_size); // <--------
 
     if (connection->request._headers.count("Content-Length")) {
         LOG("Analyzing if whole body was transferred: ");

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 18:00:05 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 12:14:43 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ public:
 	RequestHeaders	_headers;			// Map of request headers
 
 	// Parses a request from +socket+.  This is called internally by Server
-	void				parse(Socket & socket, EVENT const & event );
+	void				parse(Socket & socket, int read_size );
 	void				read_header( std::string &strptr );
 	void				read_request_line( std::string &strptr );
 	void				read_body( std::string &strptr );
