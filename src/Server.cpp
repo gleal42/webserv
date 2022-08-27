@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 13:51:57 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 14:43:21 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	Server::start( void )
 				Connections_it	connection_it = _connections.find(event.fd());
 
 				if (events[i].flags & EV_EOF) { // <--------
-					// If there are no more connections open in any server do cleanup(return)
+					// If there are no more connections open in server do cleanup(return)
                     connection_close(event.fd());
 
                     if (_connections.size() == 0) {
@@ -126,14 +126,26 @@ void	Server::connection_new( Listener * listener )
 	// TODO: check if can still add
 	Connection *	connection = new Connection(listener->socket());
 	int 			connection_fd = connection->fd();
+	EVENT 			event;
 
 	_connections[connection_fd] = connection;
 
-	LOG("connection NEW: (" << connection_fd << ")");
+#if defined(DARWIN)
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
 
-	event_update(connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE); // <--------
 	// Will be used later in case we can't send the whole message
-	event_update(connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE); // <--------
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.data.fd = connection_fd;
+
+	event.events = EPOLLIN;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, connection_fd, &event);
+	event.events = EPOLLOUT;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, connection_fd, &event);
+#endif
 }
 
 
@@ -187,6 +199,19 @@ void	Server::connection_read( Connection *connection, int read_size )
 {
     LOG("About to read the file descriptor: " << connection->fd());
     LOG("Incoming data has size of: " << read_size);
+
+	// For stream-oriented files (e.g., pipe, FIFO, stream socket),
+	// the condition that the read/write I/O space is exhausted can
+	// also be detected by checking the amount of data read from /
+	// written to the target file descriptor.  For example, if you
+	// call read(2) by asking to read a certain amount of data and
+	// read(2) returns a lower number of bytes, you can be sure of
+	// having exhausted the read I/O space for the file descriptor.
+	// The same is true when writing using write(2).  (Avoid this
+	// latter technique if you cannot guarantee that the monitored
+	// file descriptor always refers to a stream-oriented file.)
+	//
+	// TODO: how to get the `read_size` when using epoll?
 
     connection->request.parse(*connection->socket(), read_size); // <--------
 
@@ -320,6 +345,7 @@ void Server::listener_event_read_add(int listener_fd)
 #endif
 #if defined(LINUX)
 	event.events = EPOLLIN;
+	event.data.fd = listener_fd;
 	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, listener_fd, &event);
 #endif
 }
