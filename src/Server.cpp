@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 14:43:21 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 14:59:38 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ int	Server::events_wait( void )
 {
 	LOG("\n+++++++ Waiting for new connection ++++++++\n");
 
-	int					events_ready;
+	int		events_ready;
 #if defined(DARWIN)
 	events_ready = kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, TIMEOUT);
 #endif
@@ -146,16 +146,6 @@ void	Server::connection_new( Listener * listener )
 	event.events = EPOLLOUT;
 	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, connection_fd, &event);
 #endif
-}
-
-
-// int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
-// EPOLL_CTL_ADD, EPOLL_CTL_DEL, EPOLL_CTL_MOD
-void Server::event_update(int fd, short filter, u_short flags)
-{
-    EVENT event;
-	EV_SET(&event, fd, filter, flags, 0, 0, NULL);
-	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
 }
 
 // Reference
@@ -240,8 +230,7 @@ void	Server::connection_read( Connection *connection, int read_size )
         LOG("Body :" << connection->request._raw_body.data());
     }
 
-    event_update(connection->fd(), EVFILT_READ, EV_DISABLE); // <--------
-    event_update(connection->fd(), EVFILT_WRITE, EV_ENABLE); // <--------
+	connection_event_toggle_write(connection->fd());
 }
 
 void	Server::connection_write( Connection *connection )
@@ -258,9 +247,40 @@ void	Server::connection_write( Connection *connection )
     if (connection->response.is_empty()) {
         LOG("Connection was empty after sending");
 
-        event_update(connection->fd(), EVFILT_READ, EV_ENABLE); // <--------
-        event_update(connection->fd(), EVFILT_WRITE, EV_DISABLE); // <--------
+		connection_event_toggle_read(connection->fd());
     }
+}
+
+void	Server::connection_event_toggle_write( int connection_fd )
+{
+	EVENT 			event;
+
+#if defined(DARWIN)
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.events = EPOLLOUT;
+	epoll_ctl(_queue_fd, EPOLL_CTL_MOD, connection_fd, &event);
+#endif
+}
+
+void	Server::connection_event_toggle_read( int connection_fd )
+{
+	EVENT 			event;
+
+#if defined(DARWIN)
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.events = EPOLLIN;
+	epoll_ctl(_queue_fd, EPOLL_CTL_MOD, connection_fd, &event);
+#endif
 }
 
 /*

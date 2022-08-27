@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 12:16:16 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/27 14:59:10 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,21 @@ public:
 
 	// TODO: check if can be private
 	void			start( void );
+	void			service(Request & req, Response & res);
 	int				events_wait();
-	void			event_update(int ident, short filter, u_short flags);
+
+	/* Connection */
 	void			connection_new( Listener * listener );
 	void			connection_read( Connection *connection , int read_size );
 	void			connection_write( Connection *connection );
 	void			connection_close( int connection_fd );
+	void			connection_event_toggle_write( int connection_fd );
+	void			connection_event_toggle_read( int connection_fd );
+
+	/* Listener */
 	void			listener_close( int listener_fd );
 	void			listener_event_read_add( int listener_fd );
-	void			service(Request & req, Response & res);
+
 
    	EVENT 			events[EVENTS_SIZE];
 

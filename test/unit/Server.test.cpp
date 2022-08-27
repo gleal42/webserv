@@ -110,10 +110,6 @@ TEST_CASE("Server `events_wait` method") {
     }
 }
 
-TEST_CASE("Server `event_update` method") {
-	ConfigParser parser(CONFIG_FILE);
-}
-
 TEST_CASE("Server `connection_new` method") {
 	ConfigParser parser(CONFIG_FILE);
 	parser.call();
