@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/22 01:07:33 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/27 18:07:25 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,12 @@ struct Listen{
     bool                        is_set;
 };
 
-typedef std::map<std::string, std::vector<int> > ErrorPage;
+typedef std::map<std::string, std::vector<unsigned short> > ErrorPage;
+
+struct Redirect{
+    unsigned short              code;
+    std::string                 new_path;
+};
 
 class BaseConfig{
     public:
@@ -51,6 +56,7 @@ class BaseConfig{
     void                            set_error_pages(std::string &content);
     void                            set_max_body_size(bool has_separators,std::string &content);
     void                            set_indexes(std::string &content);
+    void                            set_redirect(bool has_separators, std::string &content);
 
     // Getters
     const std::string&              get_root( void ) const;
@@ -58,6 +64,7 @@ class BaseConfig{
     const ErrorPage&                get_error_pages( void ) const;
     int                             get_max_body_size( void ) const;
     const std::vector<std::string>& get_indexes( void ) const;
+    Redirect&                       get_redirect( void );
 
     protected:
         std::string                 _root;
@@ -65,7 +72,7 @@ class BaseConfig{
         ErrorPage                   _error_pages;
         int                         _client_max_body_size;
         std::vector<std::string>    _indexes;
-
+        std::vector<Redirect>       _redirect;
 };
 
 class LocationConfig : public BaseConfig

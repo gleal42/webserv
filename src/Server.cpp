@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 02:55:16 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/26 20:51:19 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,10 +153,8 @@ void	Server::new_connection( Listener * listener )
  **/
 void	Server::read_connection( Connection *connection, struct epoll_event const & Event )
 {
-    std::cout << "\t\t\t\t000000000000000000000\n";
     std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
     std::cout << "Incoming data has size of: " << Event.data.fd << std::endl;
-    std::cout << "\t\t\t\t111111111111111111111\n";
     connection->request.parse(*connection->socket(), Event);
     if (connection->request._headers.count("Content-Length"))
     {
@@ -212,10 +210,8 @@ void	Server::service(Request & req, Response & res)
     try
     {
         url::decode(req.request_uri.path); // Interpret url as extended ASCII
-		std::cout << "\n\tHOST CENAS: " << req.request_uri.host << "\n";
 		if (req.request_uri.host.empty())
         {
-			std::cout << "\tEMPTY HOST\n";
             throw HTTPStatus<400>();
         }
         ServerConfig config_to_use = find_config_to_use(req);
