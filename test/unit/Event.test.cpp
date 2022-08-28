@@ -74,3 +74,13 @@ TEST_CASE("Event `is_close` method") {
     }
 }
 
+TEST_CASE("Event `read_size` method") {
+	EVENT event_os;
+	Event event(event_os);
+
+	SUBCASE("returns number of bytes readable") {
+
+		CHECK(event.read_size() == 0);
+    }
+}
+

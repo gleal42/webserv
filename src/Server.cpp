@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:43:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:53:02 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,20 +190,7 @@ void	Server::connection_read( Connection *connection, int read_size )
 	LOG("About to read the file descriptor: " << connection->fd());
 	LOG("Incoming data has size of: " << read_size);
 
-	// For stream-oriented files (e.g., pipe, FIFO, stream socket),
-	// the condition that the read/write I/O space is exhausted can
-	// also be detected by checking the amount of data read from /
-	// written to the target file descriptor.  For example, if you
-	// call read(2) by asking to read a certain amount of data and
-	// read(2) returns a lower number of bytes, you can be sure of
-	// having exhausted the read I/O space for the file descriptor.
-	// The same is true when writing using write(2).  (Avoid this
-	// latter technique if you cannot guarantee that the monitored
-	// file descriptor always refers to a stream-oriented file.)
-	//
-	// TODO: how to get the `read_size` when using epoll?
-
-	connection->request.parse(*connection->socket(), read_size); // <--------
+	connection->request.parse(*connection->socket(), read_size);
 
 	if (connection->request._headers.count("Content-Length")) {
 		LOG("Analyzing if whole body was transferred: ");
