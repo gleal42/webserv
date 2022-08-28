@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 17:19:54 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 18:58:27 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
-FileHandler::FileHandler( FileHandler const & src ) { *this = src; }
+FileHandler::FileHandler( FileHandler const & src ): Handler() { *this = src; }
 
 /* Destructor */
 FileHandler::~FileHandler( void ) { /* no-op */ }
