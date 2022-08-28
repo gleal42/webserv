@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:44 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:37:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:56:59 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,10 @@
 # include <sys/ioctl.h>
 # include "types.hpp"
 
-// # if defined(DARWIN)
+# if defined(DARWIN)
 #  define QUEUE() kqueue()
 #  define TIMEOUT NULL
-// # endif
+# endif
 # if defined(LINUX)
 // -->	int epoll_create(int size);
 //	The size argument is an indication to the kernel about the number of file descriptors

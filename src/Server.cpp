@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:53:02 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:56:51 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
 // private
-Server::Server() { throw std::runtime_error("Please use non-default constructor"); }
+Server::Server( void ) { throw std::runtime_error("Please use non-default constructor"); }
 
 // Getters
 int	Server::queue_fd( void ) const { return _queue_fd; }
@@ -109,9 +109,8 @@ void	Server::start( void )
 
 int	Server::events_wait( void )
 {
-	LOG("\n+++++++ Waiting for new connection ++++++++\n");
-
 	int		events_ready;
+
 #if defined(DARWIN)
 	events_ready = kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, TIMEOUT);
 #endif

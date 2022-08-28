@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 00:27:43 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:57:14 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@
 # include <set>
 # include <netinet/in.h>
 
-// # if defined(DARWIN)
+# if defined(DARWIN)
 #  include <sys/event.h>
 #  define EVENT struct kevent
-// # endif
+# endif
 # if defined(LINUX)
 #  include <sys/epoll.h>
 #  define EVENT struct epoll_event
