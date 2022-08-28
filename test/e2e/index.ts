@@ -37,7 +37,7 @@ describe("General", () => {
 
   });
 
-  describe("GET /test/forest.jpeg", () => {
+  describe("GET /forest.jpeg", () => {
     it("should return requested image", done => {
       chai
         .request(SERVER_URL)

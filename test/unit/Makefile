@@ -1,11 +1,18 @@
-CXX := c++
-CXXFLAGS := -std=c++98
-INC := -I../../inc
-CPPFLAGS := $(INC)
-COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
+UNAME			:= $(shell uname)
+CXX 			:= c++
+CXXFLAGS 	:= -std=c++98
+ifeq ($(UNAME), Linux)
+		CXXFLAGS 	+= -DLINUX
+endif
+ifeq ($(UNAME), Darwin)
+		CXXFLAGS 	+= -DDARWIN
+endif
+INC				:= -I../../inc
+CPPFLAGS	:= $(INC)
+COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket parser status handler file_handler server
+all:	socket parser status handler file_handler server event
 
 
 ##---  Socket  ---##
@@ -73,7 +80,7 @@ SERVER := Server.test.cpp ../../src/Server.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/Connection.cpp \
 	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/ConfigParser.cpp \
 	../../src/Request.cpp ../../src/Listener.cpp ../../src/Response.cpp \
-	../../src/url_utils.cpp ../../src/Socket.cpp
+	../../src/url_utils.cpp ../../src/Socket.cpp ../../src/Event.cpp
 
 server: Server # run Server class tests
 	./Server
@@ -83,4 +90,15 @@ Server:	$(SERVER) ../../inc/Server.hpp
 	$(COMPILE) $(SERVER) -o $@
 
 
-.PHONY: all socket parser status handler file_handler server
+##---  Event  ---##
+EVENT := Event.test.cpp ../../src/Event.cpp
+
+event: Event # run Event class tests
+	./Event
+
+# compile Event class tests
+Event:	$(EVENT) ../../inc/Event.hpp
+	$(COMPILE) $(EVENT) -o $@
+
+
+.PHONY: all socket parser status handler file_handler server event

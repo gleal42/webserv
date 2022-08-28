@@ -3,15 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   HTTPStatus.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/30 22:26:01 by msousa            #+#    #+#             */
-/*   Updated: 2022/07/09 18:28:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/26 18:11:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __HTTP_STATUS_H__
 # define __HTTP_STATUS_H__
+
+# include <iostream>
 
 # include "BaseStatus.hpp"
 

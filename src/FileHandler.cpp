@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 14:54:45 by gleal            ###   ########.fr       */
+/*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
+/*   Updated: 2022/08/28 19:18:08 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
-FileHandler::FileHandler( FileHandler const & src ) { *this = src; }
+FileHandler::FileHandler( FileHandler const & src ): Handler() { *this = src; }
 
 /* Destructor */
 FileHandler::~FileHandler( void ) { /* no-op */ }
@@ -84,8 +84,6 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	file.close();
 }
 
-typedef std::map<std::string, std::string> MimeTypes;
-
 std::string const FileHandler::get_content_type(std::string const path)
 {
 	std::string::size_type position = path.rfind('.');
@@ -127,20 +125,6 @@ void	FileHandler::do_POST( Request & req, Response & res )
 	else
 		throw HTTPStatus<500>();
 	res.set_default_body(); // temporary
-}
-
-// Perhaps it is better to just count body size?
-std::streampos	FileHandler::file_size( std::string	full_path )
-{
-	std::streampos	fsize = 0;
-	std::ifstream	file( full_path, std::ios::binary );
-
-	fsize = file.tellg();
-	file.seekg( 0, std::ios::end );
-	fsize = file.tellg() - fsize;
-	file.close();
-
-	return fsize;
 }
 
 std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
@@ -213,8 +197,9 @@ void	FileHandler::post_multi_type_form( Request & req )
 
 void	FileHandler::save_file( std::string &file_body, std::string filename  )
 {
-	std::ofstream outfile;
-	outfile.open("public/post/uploads/" + filename, std::ios::binary);
+	std::ofstream	outfile;
+
+	outfile.open(("public/post/uploads/" + filename).c_str(), std::ios::binary);
 	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 		throw std::runtime_error("Couldn't open new file");
 	}

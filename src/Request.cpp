@@ -6,14 +6,11 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/22 17:51:09 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 18:33:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Request.hpp"
-#include "Socket.hpp"
-#include "Listener.hpp"
-#include "HTTPStatus.hpp"
 
 /* Constructors */
 Request::Request( void ) { /* no-op */ }
@@ -65,19 +62,19 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	int								i = 0;
 	int								j = 0;
 	std::string						parsed_req_method;
-	std::string::iterator			iter = _unparsed_request.begin();
+	std::string::iterator			it = _unparsed_request.begin();
 	RequestMethods	request_methods;
 
 	request_methods["GET"] = GET;
 	request_methods["POST"] = POST;
 	request_methods["DELETE"] = DELETE;
-	for (; *iter != ' '; iter++)
+	for (; *it != ' '; it++)
 		i++;
 	parsed_req_method = _unparsed_request.substr(0, i++);
 	if (request_methods.find(parsed_req_method) == request_methods.end())
 		throw HTTPStatus<405>();
 	request_method = request_methods[parsed_req_method];
-	for (*(iter)++; *iter != ' '; iter++)
+	for (*(it)++; *it != ' '; it++)
 		j++;
 
 	// Temporary, TODO: make proper URI instance:
@@ -85,7 +82,7 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	// _path = request_uri.path;
 	_path = _unparsed_request.substr(i, j);
 
-	for (iter++; *iter != '\n'; iter++)
+	for (it++; *it != '\n'; it++)
 		j++;
 
 	_raw_request_line = _unparsed_request.substr(0, i + j + 2);
@@ -148,9 +145,9 @@ void	Request::read_body(std::string &_unparsed_request)
 	_unparsed_request.clear();
 }
 
-void	Request::parse(Socket & socket, struct kevent const & Event )
+void	Request::parse(Socket & socket, int read_size )
 {
-	socket.receive(Event.data);
+	socket.receive(read_size);
 	if (socket._buffer.empty() || socket.bytes() < 0)
 		throw std::exception(); // TODO: decide what error this is
 
@@ -175,14 +172,14 @@ void	Request::parse(Socket & socket, struct kevent const & Event )
 void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 {
 	if (!str.empty())
-		str.pop_back();
+		str.erase(--str.end());
 	str.append(to_add.data(), to_add.size());
 }
 
 void	Request::join_strings(std::string &str, std::string &to_add)
 {
 	if (!str.empty())
-		str.pop_back();
+		str.erase(--str.end());
 	str.append(to_add.data(), to_add.size());
 }
 

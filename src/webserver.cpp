@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/03 21:29:20 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/26 17:28:26 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 #include "ConfigParser.hpp"
 #include "Listener.hpp"
 #include "Server.hpp"
-
 
 /*
 ** Creates webserver from configuration (that can handle multiple requests)
