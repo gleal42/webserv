@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:44 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 12:50:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:20:48 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ public:
 
 	bool	is_read( void );
 	bool	is_write( void );
+	bool	is_close( void );
 
 private:
 

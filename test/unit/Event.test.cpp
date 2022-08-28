@@ -57,3 +57,20 @@ TEST_CASE("Event `is_write` method") {
     }
 }
 
+TEST_CASE("Event `is_close` method") {
+	EVENT event_os;
+	Event event(event_os);
+
+	SUBCASE("returns true if event is Close") {
+		event_os.flags = EV_EOF;
+
+		CHECK(event.is_close() == true);
+    }
+
+	SUBCASE("returns false if event is not Close") {
+		event_os.filter = EVFILT_READ;
+
+		CHECK(event.is_close() == false);
+    }
+}
+

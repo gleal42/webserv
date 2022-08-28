@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 15:16:45 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:27:39 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,10 +84,10 @@ void	Server::start( void )
 			else {
 				Connections_it	connection_it = _connections.find(event.fd());
 
-				if (events[i].flags & EV_EOF) { // <--------
-					// If there are no more connections open in server do cleanup(return)
+				if (event.is_close()) {
 					connection_close(event.fd());
 
+					// If there are no more connections open in server do cleanup(return)
 					if (_connections.size() == 0) {
 						return ;
 					}
@@ -236,7 +236,6 @@ void	Server::connection_read( Connection *connection, int read_size )
 void	Server::connection_write( Connection *connection )
 {
 	LOG("About to write to file descriptor: " << connection->fd());
-	LOG("The socket has the following size to write " << events[0].data); // <--------
 
 	if (connection->response.is_empty()) {
 		service(connection->request, connection->response);

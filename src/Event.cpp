@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:30 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 13:48:12 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:24:24 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,16 @@ bool	Event::is_write( void )
 #endif
 #if defined(LINUX)
 	return _event_os.events & (EPOLLOUT | EPOLLERR);
+#endif
+}
+
+bool	Event::is_close( void )
+{
+#if defined(DARWIN)
+	return _event_os.flags & EV_EOF;
+#endif
+#if defined(LINUX)
+	return _event_os.events & EPOLLHUP;
 #endif
 }
 
