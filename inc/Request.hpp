@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/28 18:15:17 by msousa           ###   ########.fr       */
+/*   Created: 2022/08/28 19:16:50 by msousa            #+#    #+#             */
+/*   Updated: 2022/08/28 19:16:53 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,8 @@ Warning								A general warning about possible problems with the entity body.		
 */
 
 class URI {
+
+public:
 	std::string		host;
 	std::string		port;
 	std::string		path;

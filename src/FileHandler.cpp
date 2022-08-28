@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:06:44 by msousa           ###   ########.fr       */
+/*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
+/*   Updated: 2022/08/28 19:18:08 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,7 +199,7 @@ void	FileHandler::save_file( std::string &file_body, std::string filename  )
 {
 	std::ofstream	outfile;
 
-	outfile.open(("post/uploads/" + filename).c_str(), std::ios::binary);
+	outfile.open(("public/post/uploads/" + filename).c_str(), std::ios::binary);
 	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 		throw std::runtime_error("Couldn't open new file");
 	}
@@ -254,7 +254,7 @@ void	FileHandler::post_form_urlencoded( Request & req )
 
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
-	delete_file(req._path);
+	delete_file(req._path.c_str() + 1);
 	res.set_default_body(); // temporary
 }
 
@@ -282,6 +282,7 @@ void	FileHandler::delete_file( std::string filename )
 		throw HTTPStatus<405>();
 	}
 	std::cout << "Extension is [" << file_extension << "]" << std::endl;
+	filename = "public/" + filename;
 	std::cout << "Filename is [" << filename << "]" << std::endl;
 	if (remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
