@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:27:39 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:43:34 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void	Server::start( void )
 					}
 				}
 				else if (event.is_read()) {
-					connection_read(connection_it->second, events[i].data); // <--------
+					connection_read(connection_it->second, event.read_size());
 				}
 				else if (event.is_write()) {
 					connection_write(connection_it->second);

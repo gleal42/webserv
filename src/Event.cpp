@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:30 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:24:24 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:39:20 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,20 @@ bool	Event::is_close( void )
 #if defined(LINUX)
 	return _event_os.events & EPOLLHUP;
 #endif
+}
+
+int	Event::read_size( void )
+{
+	int	count;
+
+#if defined(DARWIN)
+	count = _event_os.data;
+#endif
+#if defined(LINUX)
+	ioctl(fd(), FIONREAD, &count);
+#endif
+
+	return count;
 }
 
 

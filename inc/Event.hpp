@@ -6,13 +6,14 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:44 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:20:48 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 17:37:19 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __EVENT_H__
 # define __EVENT_H__
 
+# include <sys/ioctl.h>
 # include "types.hpp"
 
 // # if defined(DARWIN)
@@ -47,9 +48,12 @@ public:
 	/* Getters */
 	int		fd( void ) const;
 
+	/* Checkers */
 	bool	is_read( void );
 	bool	is_write( void );
 	bool	is_close( void );
+
+	int		read_size( void );
 
 private:
 
