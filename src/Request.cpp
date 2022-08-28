@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 12:14:54 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 18:33:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,14 +172,14 @@ void	Request::parse(Socket & socket, int read_size )
 void	Request::append_buffer(std::string &str, std::vector<char> &to_add)
 {
 	if (!str.empty())
-		str.pop_back();
+		str.erase(--str.end());
 	str.append(to_add.data(), to_add.size());
 }
 
 void	Request::join_strings(std::string &str, std::string &to_add)
 {
 	if (!str.empty())
-		str.pop_back();
+		str.erase(--str.end());
 	str.append(to_add.data(), to_add.size());
 }
 

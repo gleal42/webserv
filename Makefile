@@ -87,10 +87,11 @@ test_unit: # compiles and runs unit tests
 #			`make parser -C test/unit`
 # 		etc..
 
-# Temporary while no linux version of code
 # NOTE: Have ./webserv running in separate terminal
-test_e2e: # compiles and runs end-to-end tests
+test_e2e: # runs end-to-end tests
 	cd test/e2e && npm test
-#	cd test/e2e && docker-compose up --build --abort-on-container-exit
+
+test_e2e_vm: # compiles in docker vm and runs end-to-end tests
+	cd test/e2e && docker-compose up --build --abort-on-container-exit
 
 .PHONY: all clean fclean resetclean re test vm_build vm fd_script
