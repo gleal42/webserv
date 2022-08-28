@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:04:32 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 19:06:44 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,8 +197,9 @@ void	FileHandler::post_multi_type_form( Request & req )
 
 void	FileHandler::save_file( std::string &file_body, std::string filename  )
 {
-	std::ofstream outfile;
-	outfile.open("post/uploads/" + filename, std::ios::binary);
+	std::ofstream	outfile;
+
+	outfile.open(("post/uploads/" + filename).c_str(), std::ios::binary);
 	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 		throw std::runtime_error("Couldn't open new file");
 	}
