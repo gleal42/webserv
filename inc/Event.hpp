@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:44 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:56:59 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 19:11:06 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define __EVENT_H__
 
 # include <sys/ioctl.h>
+# include <stdexcept>
 # include "types.hpp"
 
 # if defined(DARWIN)

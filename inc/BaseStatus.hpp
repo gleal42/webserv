@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 23:48:22 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 18:11:29 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 19:09:58 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define __BASE_STATUS_H__
 
 # include <string>
-# include <exception>
+# include <stdexcept>
 
 enum HTTPStatusGroup {
 	STATUS_INVALID,

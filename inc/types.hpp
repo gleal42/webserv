@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:57:14 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 19:10:59 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 # include <string>
 # include <map>
 # include <set>
+# include <netinet/in.h>
 # include <netinet/in.h>
 
 # if defined(DARWIN)
