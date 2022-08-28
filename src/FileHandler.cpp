@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 18:58:27 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/28 19:04:32 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,20 +125,6 @@ void	FileHandler::do_POST( Request & req, Response & res )
 	else
 		throw HTTPStatus<500>();
 	res.set_default_body(); // temporary
-}
-
-// Perhaps it is better to just count body size?
-std::streampos	FileHandler::file_size( std::string	full_path )
-{
-	std::streampos	fsize = 0;
-	std::ifstream	file( full_path, std::ios::binary );
-
-	fsize = file.tellg();
-	file.seekg( 0, std::ios::end );
-	fsize = file.tellg() - fsize;
-	file.close();
-
-	return fsize;
 }
 
 std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
