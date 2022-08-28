@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:27:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:27:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -193,7 +193,7 @@ void	Server::connection_write( Connection *connection )
 	LOG("About to write to file descriptor: " << connection->fd());
 
 	if (connection->response.is_empty()) {
-		service(connection->request, connection->response);
+		service(connection->request, connection->response, connection->address());
 	}
 
 	connection->response.send_response(*connection);
@@ -247,9 +247,9 @@ void	Server::connection_event_toggle_read( int connection_fd )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
-void	Server::service( Request & req, Response & res )
+void	Server::service(Request & req, Response & res, const std::string &connection_addr)
 {
-    Handler *handler (choose_handler(req.request_uri));
+    Handler *handler (choose_handler(req.request_uri, connection_addr));
 	try {
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -259,11 +259,11 @@ void	Server::service( Request & req, Response & res )
 	delete handler;
 }
 
-Handler *Server::choose_handler( const URI &uri )
+Handler *Server::choose_handler( const URI &uri, const std::string &connection_addr )
 {
     std::string extension = get_extension(uri.path);
     if (CGIHandler::extension_is_implemented(extension))
-        return (new CGIHandler(uri));
+        return (new CGIHandler(uri, connection_addr));
     else
         return (new FileHandler());
 }

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 18:05:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/28 22:34:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <unistd.h>
 # include <algorithm>
+# include <ctype.h> // std::isspace
 
 # include "Request.hpp"
 # include "Response.hpp"
@@ -31,7 +32,7 @@ class CGIHandler : public Handler {
 
 public:
 
-	CGIHandler( const URI &uri );
+	CGIHandler( const URI &uri, const std::string &connection_addr );
 	CGIHandler( CGIHandler const & src );
 	~CGIHandler( void );
 	CGIHandler &	operator = ( CGIHandler const & rhs );
@@ -46,10 +47,12 @@ private:
 	static CGIExtInterpreter create_extension_pairs( void );
 	static CGIExtInterpreter extension_interpreter;
 
-	std::string path;
-	std::string query_string;
+	std::string script_path;
 	std::string extension;
+	std::string extra_path;
+	std::string query_string;
 	std::string interpreter;
+	std::string connection_address;
 
 
 	CGIHandler( void );

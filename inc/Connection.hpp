@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:59:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 22:29:30 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 21:42:03 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ public:
 	Connection( Listener * listener );
 	~Connection( void );
 
-	Request 	request;
+	Request		request;
 	Response	response;
 
 private:

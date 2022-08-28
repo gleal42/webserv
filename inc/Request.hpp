@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 17:10:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 17:59:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ public:
 	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private
-	RequestHeaders	_headers;			// Map of request headers
+	RequestHeaders		_headers;			// Map of request headers
 
 	// Parses a request from +socket+.  This is called internally by Server
 	void				parse(Socket & socket, int read_size );
@@ -142,6 +142,7 @@ public:
 	void				join_strings( std::string &str, std::string	&to_add );
 	void				clear( void );
 	std::string			get_form_type( void );
+	std::string			get_auth_type( void ) const;
 	std::string			get_delimiter( void );
 	std::string			method_to_str( void );
 private:

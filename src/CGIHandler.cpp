@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 18:27:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/29 00:07:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,22 @@ bool CGIHandler::extension_is_implemented( const std::string &extension )
 CGIHandler::CGIHandler( void )
 { /* no-op */ }
 
-CGIHandler::CGIHandler( const URI &uri )
-: path(std::string("public") + uri.path), query_string(uri.query), extension(get_extension(uri.path)), interpreter(extension_interpreter[extension])
+CGIHandler::CGIHandler( const URI &uri, const std::string &connection_addr )
+: query_string(uri.query), connection_address(connection_addr)
 {
+	// script_path = script_path_parse(uri.path);
+	// extra_path = extra_path_parse(uri.path);
+
+	script_path = std::string("public") + uri.path;
+	extension = get_extension(script_path);
+	interpreter = extension_interpreter[extension];
+	std::cout << 
+	"Script Path is " << script_path << std::endl <<
+	"Extension is " << extension << std::endl << 
+	"Extra_path is " << extra_path << std::endl << 
+	"Query_string is " << query_string << std::endl << 
+	"Interpreter is " << interpreter << std::endl << 
+	"Connection_address is " << connection_address;
 }
 
 CGIHandler::CGIHandler( CGIHandler const & src ) { *this = src; }
@@ -121,6 +134,7 @@ void	CGIHandler::do_DELETE( Request & req, Response & res )
 
 void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 {
+	url::decode(script_path);
 	FILE *input_file = tmpfile();
 	FILE *output_file = tmpfile();
 	if (input_file == NULL || output_file == NULL) {
@@ -139,7 +153,6 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	if (pid == 0)
 	{
 		// Environment Variables
-		url::decode(path); // Interpret url as extended ASCII
 		std::vector<char *> env_vars;
 		std::vector< std::vector<char> > buf = environment_variables(req);
 		convert_to_charptr_vec(buf, env_vars);
@@ -147,9 +160,10 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		print_env_variables(envs, (env_vars.size() - 1));
 
 		// CGI arguments (1st and 2nd execve argument)
+		url::decode(script_path);
 		std::vector<char *> cgi_args;
 		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
-		std::vector<char> filepath = convert_to_char_vector(std::string("public/") + (path.c_str() + 1));
+		std::vector<char> filepath = convert_to_char_vector(script_path);
 		cgi_args.push_back(cmd_vec.data());
 		cgi_args.push_back(filepath.data());
 		cgi_args.push_back(NULL);
@@ -204,19 +218,30 @@ void	CGIHandler::convert_to_charptr_vec(std::vector< std::vector<char> > &vec_of
 std::vector< std::vector<char> >	CGIHandler::environment_variables( Request & req )
 {
 	std::vector< std::vector<char> > buf;
-	set_env(buf, "REQUEST_METHOD", req.method_to_str());
-	set_env(buf, "SERVER_PROTOCOL", "HTTP/1.1");
-	set_env(buf, "QUERY_STRING", query_string);
-	set_env(buf, "REDIRECT_STATUS", "200");
-	std::string full_script_path = full_path(path);
-	set_env(buf, "PATH_INFO", full_script_path);
+
+	set_env(buf, "AUTH_TYPE", req.get_auth_type());
+	set_env(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
+	set_env(buf, "CONTENT_TYPE", req._headers["Content-Type"].c_str());
+	set_env(buf, "GATEWAY_INTERFACE", "CGI/1.1");
+	set_env(buf, "PATH_INFO", ("/" + extra_path));
+	std::string full_script_path = full_path(extra_path);
 	url::decode(full_script_path);
 	set_env(buf, "PATH_TRANSLATED", full_script_path);
-	set_env(buf, "SCRIPT_FILENAME", full_script_path);
-	set_env(buf, "CONTENT_LENGTH", to_string(req._raw_body.size()).c_str());
-	set_env(buf, "GATEWAY_INTERFACE", "CGI/1.1");
-	std::cout << "Content-type is " << req._headers["Content-Type"] << std::endl;
-	set_env(buf, "CONTENT_TYPE", req._headers["Content-Type"].c_str());
+	set_env(buf, "QUERY_STRING", query_string);
+
+	// REMOTE_ADDR
+	// REMOTE_HOST
+	// REMOTE_IDENT
+	// REMOTE_USER
+
+	set_env(buf, "REQUEST_METHOD", req.method_to_str());
+	set_env(buf, "SCRIPT_NAME", script_path);
+	set_env(buf, "SCRIPT_FILENAME", script_path);
+	// SERVER_NAME	
+	// SERVER_PORT	
+	set_env(buf, "SERVER_PROTOCOL", "HTTP/1.1");
+	// SERVER_SOFTWARE	
+	set_env(buf, "REDIRECT_STATUS", "200");
 	return (buf);
 }
 
