@@ -30,9 +30,7 @@ TEST_CASE("Server constructors") {
 		CHECK(server.listeners_amount() == 1);
     }
 
-	// cluster seems to be the wrong word for it
-	// https://www.scalecomputing.com/blog/best-practice-always-3-nodes-minimum-in-a-cluster
-	SUBCASE("sets `cluster` of configs amount of listeners") {
+	SUBCASE("sets `listeners` of configs amount of listeners") {
 		CHECK(server.listeners().size() == 1);
     }
 
@@ -119,8 +117,8 @@ TEST_CASE("Server `connection_new` method") {
 
 		REQUIRE(server.listeners().begin()->first != FD_UNSET);
 
-		// Listeners		cluster = server.listeners();
-		// Listener_it	it = cluster.begin();
+		// Listeners		listeners = server.listeners();
+		// Listener_it	it = listeners.begin();
 		// // Listener	listener(*it->second);
 		// int			listener_fd = it->first;
 
