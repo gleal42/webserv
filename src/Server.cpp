@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:56:51 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/30 20:07:34 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,6 +248,7 @@ void	Server::connection_event_toggle_write( int connection_fd )
 #endif
 #if defined(LINUX)
 	event.events = EPOLLOUT;
+	event.data.fd = connection_fd;
 	epoll_ctl(_queue_fd, EPOLL_CTL_MOD, connection_fd, &event);
 #endif
 }
@@ -264,6 +265,7 @@ void	Server::connection_event_toggle_read( int connection_fd )
 #endif
 #if defined(LINUX)
 	event.events = EPOLLIN;
+	event.data.fd = connection_fd;
 	epoll_ctl(_queue_fd, EPOLL_CTL_MOD, connection_fd, &event);
 #endif
 }
