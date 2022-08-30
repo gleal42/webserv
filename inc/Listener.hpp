@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 17:56:22 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/30 22:25:12 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,25 +23,18 @@
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
-class Listener {
+class Listener: public Socket {
 
 public:
 
-	Listener( Listener const & src );
 	Listener( ServerConfig const & config );
+	Listener( Listener const & src );
 	~Listener( void );
 	Listener &		operator = ( Listener const & rhs );
-
-	void			stop( void );
-	int				fd( void );
-	Socket *		socket( void );
-
-	ServerConfig	_config;
 
 private:
 
 	Listener( void );
-	Socket *		_socket;
 
 };
 

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/30 20:07:34 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/30 22:44:09 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ int	Server::events_wait( void )
 void	Server::connection_new( Listener * listener )
 {
 	// TODO: check if can still add
-	Connection *	connection = new Connection(listener->socket());
+	Connection *	connection = new Connection(listener);
 	int 			connection_fd = connection->fd();
 	EVENT 			event;
 
@@ -238,7 +238,7 @@ void	Server::connection_write( Connection *connection )
 
 void	Server::connection_event_toggle_write( int connection_fd )
 {
-	EVENT 			event;
+	EVENT	event;
 
 #if defined(DARWIN)
 	EV_SET(&event, connection_fd, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
@@ -255,7 +255,7 @@ void	Server::connection_event_toggle_write( int connection_fd )
 
 void	Server::connection_event_toggle_read( int connection_fd )
 {
-	EVENT 			event;
+	EVENT	event;
 
 #if defined(DARWIN)
 	EV_SET(&event, connection_fd, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
@@ -278,7 +278,7 @@ void	Server::connection_event_toggle_read( int connection_fd )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
-void	Server::service(Request & req, Response & res)
+void	Server::service( Request & req, Response & res )
 {
 	FileHandler	handler;
 	try {
@@ -290,7 +290,7 @@ void	Server::service(Request & req, Response & res)
 	}
 }
 
-Server::~Server()
+Server::~Server( void )
 {
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
 		listener_close(it->first);
