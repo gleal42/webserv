@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/27 14:59:10 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 15:22:59 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@
 #include <stdexcept>
 
 #include "Event.hpp"
-#include "Listener.hpp"
 #include "Connection.hpp"
 #include "ConfigParser.hpp"
 #include "FileHandler.hpp"

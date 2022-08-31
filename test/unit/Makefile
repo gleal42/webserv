@@ -12,7 +12,7 @@ CPPFLAGS	:= $(INC)
 COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket listener parser status handler file_handler server event
+all:	socket listener connection parser status handler file_handler server event
 
 
 ##---  Socket  ---##
@@ -36,6 +36,19 @@ listener: Listener # run Listener class tests
 # compile Listener class tests
 Listener:	$(LISTENER) ../../inc/Listener.hpp
 	$(COMPILE) $(LISTENER) -o $@
+
+
+##---  Connection  ---##
+CONNECTION := Connection.test.cpp ../../src/utils.cpp ../../src/Connection.cpp \
+	../../src/Socket.cpp ../../src/Listener.cpp ../../src/Request.cpp \
+	../../src/Response.cpp ../../src/BaseStatus.cpp
+
+connection: Connection # run Connection class tests
+	./Connection
+
+# compile Connection class tests
+Connection:	$(CONNECTION) ../../inc/Connection.hpp
+	$(COMPILE) $(CONNECTION) -o $@
 
 
 ##---  ConfigParser  ---##
@@ -113,4 +126,5 @@ Event:	$(EVENT) ../../inc/Event.hpp
 	$(COMPILE) $(EVENT) -o $@
 
 
-.PHONY: all socket listener parser status handler file_handler server event
+.PHONY: all socket listener connection parser status handler file_handler \
+	server event

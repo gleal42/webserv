@@ -50,7 +50,7 @@ TEST_CASE("Listener `close` method") {
 		b.close();
     }
 
-	SUBCASE("is called on destructor") {
+	SUBCASE("is called on Socket destructor") {
 		Listener	*b = new Listener(config);
 
 		CHECK(b->fd() == FD);
