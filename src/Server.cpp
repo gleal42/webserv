@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:35:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:37:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,11 @@ Server::CreateError::CreateError( void )
 
 // private
 Server::Server( void ) { throw std::runtime_error("Please use non-default constructor"); }
+
+// The size argument is an indication to the kernel about the number of file descriptors
+// a process wants to monitor, which helps the kernel to decide the size of the epoll
+// instance. Since Linux 2.6.8, this argument is ignored because the epoll data structure
+// dynamically resizes as file descriptors are added or removed from it.
 
 // Getters
 int	Server::queue_fd( void ) const { return _queue_fd; }

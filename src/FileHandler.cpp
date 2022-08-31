@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:26:21 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 17:56:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 20:17:31 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,33 +67,22 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	res.set_with_file(res._uri);
 }
 
-std::string const FileHandler::get_content_type(std::string const path)
-{
-	std::string extension = get_extension(path);
+/*
+       -------- Default action for POST requests when no CGI is involved. -------
+       Usually this is not part of the Server function but backend
+       web frameworks that run on top.
+       
+       Only multipart/form-data seems to support file uploads
+       application/x-www-form-urlencoded file data is not sent
+       only name (check single_form)
 
-	// Turn this into a separate mime_type function with access to static map
-	MimeTypes mime_types;
-
-	mime_types[".css"] = "text/css";
-	mime_types[".csv"] = "text/csv";
-	mime_types[".gif"] = "image/gif";
-	mime_types[".htm"] = "text/html";
-	mime_types[".html"] = "text/html";
-	mime_types[".ico"] = "image/x-icon";
-	mime_types[".jpeg"] = "image/jpeg";
-	mime_types[".jpg"] = "image/jpeg";
-	mime_types[".js"] = "application/javascript";
-	mime_types[".json"] = "application/json";
-	mime_types[".png"] = "image/png";
-	mime_types[".pdf"] = "application/pdf";
-	mime_types[".svg"] = "image/svg+xml";
-	mime_types[".txt"] = "text/plain";
-
-	if (extension.size() && mime_types.find(extension) != mime_types.end()) {
-		return mime_types[extension];
-	}
-	return "application/octet-stream";
-}
+       So these functions basically parse these 2 encoding types
+       to extract information:
+       - post_multi_type_form for every part it checks if
+       it's file and uploads in case it is.
+       - post_form_urlencoded only decodes and parses variables
+       into a set (container) but doesn't use them (we can define behaviour for this if you want)
+*/
 
 void	FileHandler::do_POST( Request & req, Response & res )
 {

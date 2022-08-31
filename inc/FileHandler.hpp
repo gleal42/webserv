@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/04 22:25:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 17:00:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 20:10:33 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,17 +44,11 @@ private:
 	void				do_POST( Request & req, Response & res );
 	void				do_DELETE( Request & req, Response & res );
 
-	// GET
-	std::string const	get_content_type( std::string const path );
-
-	// POST
 	void				post_multi_type_form( Request & req );
 	void				post_form_urlencoded( Request & req );
 	std::string			parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter );
 	std::string			multipart_form_body( const std::string &multi_form );
 
-	// DELETE
-	void				delete_file( std::string filename );
 	Parameters			params;
 };
 
