@@ -50,7 +50,7 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void ) { this->close(); }
+Socket::~Socket( void ) { close(); }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
@@ -111,7 +111,7 @@ void	Socket::bind( int port )
 }
 
 // C `close` function wrapper
-void	Socket::close( void ) { if(_fd != FD_UNSET ) ::close(_fd); }
+void	Socket::close( void ) { if (_fd != FD_UNSET) ::close(_fd); }
 
 // C `listen` function wrapper
 void	Socket::listen( int max_connections ) { // Coming from server config or should be const?
@@ -132,6 +132,7 @@ void	Socket::receive( int buffer_size ) {
 
 	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
 	std::cout << "We just received " << _bytes << " bytes." << std::endl;
+	// What is this comparison for and what does it mean?
 	if (buffer_size != _bytes)
 		throw std::runtime_error("UH OHHHHHHHHHHHH");
 	// std::cout << "The data received was :" << std::endl;

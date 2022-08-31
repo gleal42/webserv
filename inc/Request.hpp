@@ -13,17 +13,15 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-#include <string>
-#include <vector>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <iostream>
 #include <fcntl.h>
 #include <unistd.h>
-#include <map>
 
 #include "macros.hpp"
 #include "ServerConfig.hpp"
+#include "Socket.hpp"
+#include "HTTPStatus.hpp"
+#include "types.hpp"
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -99,21 +97,9 @@ Warning								A general warning about possible problems with the entity body.		
 
 */
 
-typedef std::map<std::string, std::string> ResponseHeaders;
-typedef std::map<std::string, std::string> RequestHeaders;
-typedef sockaddr_in SocketAddress;
-
-class Socket;
-
-enum RequestMethod {
-	GET,
-	POST,
-	DELETE,
-};
-
-typedef std::map<std::string, RequestMethod>	RequestMethods;
-
 class URI {
+
+public:
 	std::string		host;
 	std::string		port;
 	std::string		path;
@@ -123,7 +109,6 @@ class URI {
 		return std::string("http://") + host + std::string(":") + port + path + query;
 	}
 };
-
 
 class Request {
 
@@ -149,7 +134,7 @@ public:
 	RequestHeaders	_headers;			// Map of request headers
 
 	// Parses a request from +socket+.  This is called internally by Server
-	void				parse(Socket & socket, struct epoll_event const & Event );
+	void				parse(Socket & socket, int read_size );
 	void				read_header( std::string &strptr );
 	void				read_request_line( std::string &strptr );
 	void				read_body( std::string &strptr );

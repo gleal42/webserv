@@ -95,7 +95,7 @@ HTTPStatusGroup	http_group( int code )
 	};
 }
 
-std::string get_extension( const std::string &filename )
+std::string	get_extension( const std::string &filename )
 {
     std::string extension;
     size_t ext_position = filename.find_last_of('.');

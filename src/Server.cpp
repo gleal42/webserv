@@ -11,15 +11,9 @@
 /* ************************************************************************** */
 
 #include "Server.hpp"
-#include "FileHandler.hpp"
-#include <iostream>
-#include <stdexcept>
 
 /*
     Testes a passar:
-    Display big images ()
-    Vários Servers ao mesmo tempo
-    Várias Requests ao mesmo tempo
     EOF working
     HTML CSS priority
     Javascript (later)q
@@ -28,59 +22,38 @@
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
-Server::Server() // private
-{
-    throw std::runtime_error("Please use non-default constructor");
-    // _fd = kqueue();
-    // if (_fd < 0)
-    //     throw CreateError();
-}
+// private
+Server::Server( void ) { throw std::runtime_error("Please use non-default constructor"); }
+
+// Getters
+int	Server::queue_fd( void ) const { return _queue_fd; }
+Listeners	Server::listeners( void ) const { return _listeners; }
+Connections	Server::connections( void ) const { return _connections; }
+size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
 Server::Server(const Configs &server_vecs)
 {
-    _fd = epoll_create(1);
-    if (_fd < 0){
-        throw CreateError();}
-	_listeners_amount = server_vecs.size();
-	Listener		*new_listener;
-	for (size_t i = 0; i < _listeners_amount; ++i)
-    {
-		// Initialize each new Listener with a config from the parser
-		new_listener = new Listener(server_vecs[i]);
-		add_event(new_listener->fd(), (EPOLLIN | EPOLLET));
-		_cluster[new_listener->fd()] = new_listener;
+	_queue_fd = QUEUE();
+	if (_queue_fd < 0) {
+		throw CreateError();
 	}
-}
 
-int	Server::fd() const { return(_fd); }
+	_listeners_amount = parser.configs_amount();
 
-void Server::add_event(int ident, uint32_t events)
-{
-    struct epoll_event ev;
-   	ev.events = events;
-	epoll_ctl(this->_fd, EPOLL_CTL_ADD, ident, &ev);
-}
-
-void Server::switch_event_to(int ident, uint32_t events)
-{
-    struct epoll_event ev;
-   	ev.events = events;
-	epoll_ctl(this->_fd, EPOLL_CTL_MOD, ident, &ev);
-}
-
-
-void Server::delete_event(int ident)
-{
-    struct epoll_event ev;
-   	ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
-	epoll_ctl(this->_fd, EPOLL_CTL_DEL, ident, &ev);
+	Listener	*listener;
+	for (size_t i = 0; i < _listeners_amount; ++i)
+	{
+		listener = new Listener(parser.config(i));
+		listener_event_read_add(listener->fd()); // TODO: method in listener class
+		_listeners[listener->fd()] = listener;
+	}
 }
 
 /*
  * File descriptors open are:
  * 3 - Server fd
  * 4 - Server
- * 5 - Accept client request
+ * 5 - Accept connection request
  * 6 - favicon.ico https://stackoverflow.com/questions/41686296/why-does-node-hear-two-requests-favicon
  *
  * Lines:
@@ -89,56 +62,88 @@ void Server::delete_event(int ident)
 
 void	Server::start( void )
 {
-	int nbr_events = 0;
-    while (1)
-    {
-		nbr_events = wait_for_events();
-		std::cout << "Number of events recorded: " << nbr_events << std::endl;
-        if (nbr_events <= 0)
-            continue;
-        for (int i = 0; i < nbr_events; i++)
-        {
-            ClusterIter event_fd = _cluster.find(ListQueue[i].data.fd);
-            if (event_fd != _cluster.end()) // New event for non-existent file descriptor
-                new_connection(event_fd->second);
-            else
-            {
-				ConnectionsIter connection_it = _connections.find(ListQueue[i].data.fd);
-                if (ListQueue[i].events & EPOLLRDHUP)
-                {
-                    close_connection(ListQueue[i].data.fd); // If there are no more connections open in any server do cleanup(return)
-                    if (_connections.size() == 0)
-                        return ;
-                }
-                else if (ListQueue[i].events == EPOLLIN)
-                    read_connection(connection_it->second, ListQueue[i]);
-                else if (ListQueue[i].events == EPOLLOUT)
-                {
-					write_to_connection(connection_it->second);
-                    if (connection_it->second->response.is_empty())
-                        connection_it->second->request.clear();
-                }
-            }
-        }
-    }
+	int n = 0;
+
+	while (1) {
+		n = events_wait();
+		LOG("Number of events recorded: " << n);
+
+		if (n <= 0) {
+			continue;
+		}
+
+		for (int i = 0; i < n; i++) {
+			Event		event(events[i]);
+			Listener_it	it = _listeners.find(event.fd());
+
+			if (it != _listeners.end()) {
+				// New event for non-existent file descriptor
+				connection_new(it->second);
+			}
+			else {
+				Connections_it	connection_it = _connections.find(event.fd());
+
+				if (event.is_close()) {
+					connection_close(event.fd());
+
+					// If there are no more connections open in server do cleanup(return)
+					if (_connections.size() == 0) {
+						return ;
+					}
+				}
+				else if (event.is_read()) {
+					connection_read(connection_it->second, event.read_size());
+				}
+				else if (event.is_write()) {
+					connection_write(connection_it->second);
+
+					if (connection_it->second->response.is_empty()) {
+						connection_it->second->request.clear();
+					}
+				}
+			}
+		}
+	}
 }
 
-int	Server::wait_for_events()
+int	Server::events_wait( void )
 {
-	std::cout << "\n+++++++ Waiting for new connection ++++++++\n" << std::endl;
-    struct timespec kqTimeout = {2, 0};
-    (void)kqTimeout;
-    return (epoll_wait(this->fd(), ListQueue, 10, -1));
+	int		events_ready;
+
+#if defined(DARWIN)
+	events_ready = kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, TIMEOUT);
+#endif
+#if defined(LINUX)
+	events_ready = epoll_wait(_queue_fd, events, EVENTS_SIZE, TIMEOUT);
+#endif
+	return events_ready;
 }
 
-void	Server::new_connection( Listener * listener )
+void	Server::connection_new( Listener * listener )
 {
-	// check if can still add
-	Connection * connection  = new Connection(listener->socket());
-	int client_fd = connection->fd();
-	_connections[client_fd] = connection;
-	std::cout << "CLIENT NEW: (" << client_fd << ")" << std::endl;
-	add_event(client_fd, (EPOLLIN | EPOLLOUT | EPOLLET));
+	// TODO: check if can still add
+	Connection *	connection = new Connection(listener);
+	int 			connection_fd = connection->fd();
+	EVENT 			event;
+
+	_connections[connection_fd] = connection;
+
+#if defined(DARWIN)
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+
+	// Will be used later in case we can't send the whole message
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_ADD | EV_DISABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.data.fd = connection_fd;
+
+	event.events = EPOLLIN;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, connection_fd, &event);
+	event.events = EPOLLOUT;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, connection_fd, &event);
+#endif
 }
 
 // Reference
@@ -178,49 +183,90 @@ void	Server::new_connection( Listener * listener )
  * This causes the HTTPStatus try catch process duplicated but this analysis
  * needs to be done. Otherwise we might risk stopping a request mid sending.
  **/
-void	Server::read_connection( Connection *connection, struct epoll_event const & Event )
+void	Server::connection_read( Connection *connection, int read_size )
 {
-    std::cout << "About to read the file descriptor: " << connection->fd() << std::endl;
-    std::cout << "Incoming data has size of: " << Event.data.fd << std::endl;
-    connection->request.parse(*connection->socket(), Event);
-    if (connection->request._headers.count("Content-Length"))
-    {
-        std::cout << "Analyzing if whole body was transferred: " << std::endl;
-        std::stringstream content_length(connection->request._headers["Content-Length"]);
-        size_t value = 0;
-        content_length >> value;
-        if (connection->request._raw_body.size() < value + 1)
-        {
-            std::cout << "Body total received :" << connection->request._raw_body.size() << std::endl;
-            std::cout << "Content Length :" << value << std::endl;
-            std::cout << "Remaining :" << value - connection->request._raw_body.size() << std::endl;
-            return ;
-        }
-    }
+	LOG("About to read the file descriptor: " << connection->fd());
+	LOG("Incoming data has size of: " << read_size);
+
+	connection->request.parse(*connection, read_size);
+
+	if (connection->request._headers.count("Content-Length")) {
+		LOG("Analyzing if whole body was transferred: ");
+
+		std::stringstream	content_length(connection->request._headers["Content-Length"]);
+		size_t				value = 0;
+
+		content_length >> value;
+
+		if (connection->request._raw_body.size() < value + 1) {
+			LOG("Body total received :" << connection->request._raw_body.size());
+			LOG("Content Length :" << value);
+			LOG("Remaining :" << value - connection->request._raw_body.size());
+
+			return ;
+		}
+	}
+
 	LOG("|--- Headers ---|");
 	LOG(connection->request._raw_headers);
 	LOG("|--- Headers ---|");
-    if (connection->request._raw_body.size())
-    {
-        std::cout << "Final Body size :" << connection->request._raw_body.size() << std::endl;
-        std::cout << "Body :" << connection->request._raw_body.data() << std::endl;
-    }
-    this->switch_event_to(connection->fd(), EPOLLOUT | EPOLLET);
+	if (connection->request._raw_body.size()) {
+		LOG("Final Body size :" << connection->request._raw_body.size());
+		LOG("Body :" << connection->request._raw_body.data());
+	}
+
+	connection_event_toggle_write(connection->fd());
 }
 
-void	Server::write_to_connection( Connection *connection )
+void	Server::connection_write( Connection *connection )
 {
-	std::cout << "About to write to file descriptor: " << connection->fd() << std::endl;
-	std::cout << "The socket has the following size to write " << ListQueue[0].data.fd << std::endl;
-    // Could use for better size efficiency
-    if (connection->response.is_empty())
-        service(connection->request, connection->response);
-    connection->response.send_response(*connection->socket());
-    if (connection->response.is_empty())
-    {
-        std::cout << "Connection was empty after sending" << std::endl;
-        this->switch_event_to(connection->fd(), EPOLLIN | EPOLLET);
-    }
+	LOG("About to write to file descriptor: " << connection->fd());
+
+	if (connection->response.is_empty()) {
+		service(connection->request, connection->response);
+	}
+
+	connection->response.send_response(*connection);
+
+	if (connection->response.is_empty()) {
+		LOG("Connection was empty after sending");
+
+		connection_event_toggle_read(connection->fd());
+	}
+}
+
+void	Server::connection_event_toggle_write( int connection_fd )
+{
+	EVENT	event;
+
+#if defined(DARWIN)
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_DISABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_ENABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.events = EPOLLOUT;
+	event.data.fd = connection_fd;
+	epoll_ctl(_queue_fd, EPOLL_CTL_MOD, connection_fd, &event);
+#endif
+}
+
+void	Server::connection_event_toggle_read( int connection_fd )
+{
+	EVENT	event;
+
+#if defined(DARWIN)
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_ENABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_DISABLE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.events = EPOLLIN;
+	event.data.fd = connection_fd;
+	epoll_ctl(_queue_fd, EPOLL_CTL_MOD, connection_fd, &event);
+#endif
 }
 
 /*
@@ -231,41 +277,81 @@ void	Server::write_to_connection( Connection *connection )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
-void	Server::service(Request & req, Response & res)
+void	Server::service( Request & req, Response & res )
 {
-    FileHandler handler; // probably needs config for root path etc
-    try {
-        handler.service(req, res);
-    } catch (BaseStatus &error_status)
-    {
-        res.set_error_body(error_status.code);
-        res.build_message(error_status);
-    }
-}
-
-Server::~Server()
-{
-	for (ClusterIter it = _cluster.begin(); it != _cluster.end(); ++it) {
-        close_listener(it->first);
+	FileHandler	handler;
+	try {
+		handler.service(req, res);
 	}
-	for (ConnectionsIter it = _connections.begin(); it != _connections.end(); it++) {
-        close_connection(it->first);
+	catch (BaseStatus &error_status) {
+		res.set_error_body(error_status.code);
+		res.build_message(error_status);
 	}
-    close(this->_fd);
 }
 
-void	Server::close_listener( int listener_fd )
+Server::~Server( void )
 {
-    std::cout << "Closing Listener with fd: " << listener_fd << std::endl;
-    this->delete_event(listener_fd);
-    delete _cluster[listener_fd];
-    _connections.erase(listener_fd);
+	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
+		listener_close(it->first);
+	}
+	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
+		connection_close(it->first);
+	}
+	close(_queue_fd);
 }
 
-void	Server::close_connection( int connection_fd )
+void	Server::listener_close( int listener_fd )
 {
-    std::cout << "Closing Connection for client: " << connection_fd << std::endl;
-    this->delete_event(connection_fd);
-    delete _connections[connection_fd];
-    _connections.erase(connection_fd);
+	LOG("Closing Listener with fd: " << listener_fd);
+
+#if defined(DARWIN)
+	EVENT event;
+
+	EV_SET(&event, listener_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	epoll_ctl(_queue_fd, EPOLL_CTL_DEL, listener_fd, NULL);
+#endif
+
+	delete _listeners[listener_fd];
+	// Weird! When I change this to _listeners.erase(listener_fd),
+	// which should be the correct one afaik
+	// I get a segfault
+	_connections.erase(listener_fd);
+}
+
+void	Server::connection_close( int connection_fd )
+{
+	LOG("Closing Connection: " << connection_fd);
+
+#if defined(DARWIN)
+	EVENT event;
+
+	EV_SET(&event, connection_fd, EVFILT_READ, EV_DELETE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+	EV_SET(&event, connection_fd, EVFILT_WRITE, EV_DELETE, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	epoll_ctl(_queue_fd, EPOLL_CTL_DEL, connection_fd, NULL);
+#endif
+
+	delete _connections[connection_fd];
+	_connections.erase(connection_fd);
+}
+
+void Server::listener_event_read_add(int listener_fd)
+{
+	EVENT event;
+
+#if defined(DARWIN)
+	EV_SET(&event, listener_fd, EVFILT_READ, EV_ADD, 0, 0, NULL);
+	kevent(_queue_fd, &event, 1, NULL, 0, NULL);
+#endif
+#if defined(LINUX)
+	event.events = EPOLLIN;
+	event.data.fd = listener_fd;
+	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, listener_fd, &event);
+#endif
 }

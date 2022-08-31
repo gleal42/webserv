@@ -13,8 +13,10 @@
 #ifndef __CONFIG_PARSER_H__
 # define __CONFIG_PARSER_H__
 
-#include "webserver.hpp"
-#include "ServerConfig.hpp"
+# include <iostream>
+
+# include "ServerConfig.hpp"
+# include "types.hpp"
 
 # define SEPARATORS         " \t\v\n\r\f"
 # define CONTEXT_DIRECTIVES 7
@@ -52,7 +54,6 @@ struct ConfigError : virtual public std::runtime_error{
         virtual ~ConfigError (void) throw(){}
         // virtual const char*		what( void ) const throw ();
 };
-
 struct ConfigurationFileError : public ConfigError{
     ConfigurationFileError(void);
 };

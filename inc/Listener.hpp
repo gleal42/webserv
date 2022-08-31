@@ -13,45 +13,25 @@
 #ifndef __LISTENER_H__
 # define __LISTENER_H__
 
-# include <iostream>
-# include <netinet/in.h>
-# include <sys/socket.h>
-# include <fcntl.h>
-# include <map>
-
-# include "ServerConfig.hpp"
-# include "Response.hpp"
-# include "Connection.hpp"
 # include "Socket.hpp"
-
-typedef sockaddr_in SocketAddress;
-
+# include "ServerConfig.hpp"
+# include "types.hpp"
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 
-struct 	ServerConfig;
-
-class	Server;
-
-class Listener {
+class Listener : public Socket {
 
 public:
-	Listener( Listener const & src );
-	Listener( ServerConfig const & config );
-	~Listener( void );
-	Listener &	operator = ( Listener const & rhs );
-	void		stop( void );
-	int			fd( void );
-	Socket *	socket( void );
-	ServerConfig	_config;
-private:
-	Listener( void );
-	Socket *		_socket;
 
+	Listener( ServerConfig const & config );
+	Listener( Listener const & src );
+	~Listener( void );
+	Listener &		operator = ( Listener const & rhs );
+
+private:
+
+	Listener( void );
 
 };
-
-typedef std::map<int, Listener * > Cluster;
-typedef Cluster::iterator ClusterIter;
 
 #endif /* __LISTENER_H__ */

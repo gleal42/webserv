@@ -15,9 +15,7 @@
 
 /* Constructors */
 FileHandler::FileHandler( void ) { /* no-op */ }
-FileHandler::FileHandler( FileHandler const & src )
-: Handler(src)
-{ *this = src; }
+FileHandler::FileHandler( FileHandler const & src ): Handler() { *this = src; }
 
 /* Destructor */
 FileHandler::~FileHandler( void ) { /* no-op */ }
@@ -56,9 +54,9 @@ FileHandler &	FileHandler::operator = ( FileHandler const & rhs )
 void	FileHandler::do_GET( Request & req, Response & res )
 {
 	if (req._path == "/")
-		res._uri = "index.html";
+		res._uri = "public/index.html";
 	else
-		res._uri = req._path.c_str() + 1;
+		res._uri = std::string("public/") + (req._path.c_str() + 1);
 
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
@@ -86,8 +84,6 @@ void	FileHandler::do_GET( Request & req, Response & res )
 
 	file.close();
 }
-
-typedef std::map<std::string, std::string> MimeTypes;
 
 std::string const FileHandler::get_content_type(std::string const path)
 {
@@ -122,28 +118,14 @@ std::string const FileHandler::get_content_type(std::string const path)
 
 void	FileHandler::do_POST( Request & req, Response & res )
 {
-	if (req.get_form_type() == "multipart/form-data")
+	if (req.get_form_type() == "multipart/form-data") {
 		post_multi_type_form(req);
+	}
 	else if (req.get_form_type() == "application/x-www-form-urlencoded")
 		post_form_urlencoded(req);
 	else
 		throw HTTPStatus<500>();
 	res.set_default_body(); // temporary
-}
-
-// Perhaps it is better to just count body size?
-std::streampos	FileHandler::file_size( std::string	full_path )
-{
-	std::streampos	fsize = 0;
-	std::ifstream	file;
-	file.open(full_path.c_str(), std::ios::binary);
-
-	fsize = file.tellg();
-	file.seekg( 0, std::ios::end );
-	fsize = file.tellg() - fsize;
-	file.close();
-
-	return fsize;
 }
 
 std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
@@ -216,8 +198,9 @@ void	FileHandler::post_multi_type_form( Request & req )
 
 void	FileHandler::save_file( std::string &file_body, std::string filename  )
 {
-	std::ofstream outfile;
-	outfile.open(("post/uploads/" + filename).c_str(), std::ios::binary);
+	std::ofstream	outfile;
+
+	outfile.open(("public/post/uploads/" + filename).c_str(), std::ios::binary);
 	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 		throw std::runtime_error("Couldn't open new file");
 	}
@@ -272,7 +255,7 @@ void	FileHandler::post_form_urlencoded( Request & req )
 
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
-	delete_file(req._path);
+	delete_file(req._path.c_str() + 1);
 	res.set_default_body(); // temporary
 }
 
@@ -296,10 +279,11 @@ void	FileHandler::delete_file( std::string filename )
 	if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
 		throw HTTPStatus<405>();
 	}
-	if (filename.substr(0, 14) != "post/uploads/") // Temporary
+	if (filename.substr(0, 13) != "post/uploads/") {// Temporary
 		throw HTTPStatus<405>();
+	}
 	std::cout << "Extension is [" << file_extension << "]" << std::endl;
-	filename = filename.c_str() + 1;
+	filename = "public/" + filename;
 	std::cout << "Filename is [" << filename << "]" << std::endl;
 	if (remove (filename.c_str()) != 0)
 		throw HTTPStatus<404>();
