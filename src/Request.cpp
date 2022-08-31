@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 20:01:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:59:08 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,30 +259,32 @@ std::string			Request::get_auth_type( void ) const
 
 std::string			Request::get_remote_user( void ) const
 {
-	std::string authorization = _headers.at("Authorization");
-	std::string auth_type = get_auth_type();
-	std::string user_password;
-	if (auth_type.empty())
-		return std::string();
-	else if (auth_type == "Basic")
+	if (_headers.count("Authorization"))
 	{
-		std::string::iterator it(std::find_if(authorization.begin(), authorization.end(), ::isspace));
-		while (::isspace(*it)) ++it;
-		if (it == authorization.end())
-			return std::string();
-		user_password = std::string(it, authorization.end());
-		user_password = b64decode(user_password);
-		return (user_password.substr(0, user_password.find(':')));
+		std::string authorization = _headers.at("Authorization");
+		std::string auth_type = get_auth_type();
+		std::string user_password;
+		if (auth_type == "Basic")
+		{
+			std::string::iterator it(std::find_if(authorization.begin(), authorization.end(), ::isspace));
+			while (::isspace(*it)) ++it;
+			if (it == authorization.end())
+				return std::string();
+			user_password = std::string(it, authorization.end());
+			user_password = b64decode(user_password);
+			return (user_password.substr(0, user_password.find(':')));
+		}
+		else if (auth_type == "Digest")
+		{
+			size_t username = authorization.find("username=\"");
+			if (username == std::string::npos)
+				return std::string();
+			user_password = std::string(authorization.substr(username + strlen("username=\"")));
+			return (user_password.substr(0, user_password.find('"')));
+		}
+		throw HTTPStatus<501>();
 	}
-	else if (auth_type == "Digest")
-	{
-		size_t username = authorization.find("username=\"");
-		if (username == std::string::npos)
-			return std::string();
-		user_password = std::string(authorization.substr(username + strlen("username=\"")));
-		return (user_password.substr(0, user_password.find('"')));
-	}
-	throw HTTPStatus<501>();
+	return std::string();
 }
 
 std::string		Request::get_delimiter( void )
