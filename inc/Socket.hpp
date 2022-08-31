@@ -6,15 +6,15 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/26 18:08:46 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 22:11:58 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SOCKET_H__
 # define __SOCKET_H__
 
-# include <sys/socket.h> // For socket functions
-# include <unistd.h> // For close()
+# include <sys/socket.h>
+# include <unistd.h>
 # include <fcntl.h>
 # include <cstring>
 # include <cerrno>
