@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/06 16:28:32 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 15:09:27 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void ) { this->close(); }
+Socket::~Socket( void ) { close(); }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
