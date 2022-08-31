@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/18 18:38:31 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/31 23:14:08 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,8 +102,9 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
     ServerConfig    new_server;
     LocationConfig  new_location;
     size_t          separator;
+    std::istream&    f	= (*file);
 
-    while (std::getline(*file, line))
+    while (std::getline((std::istream)(*file), line))
     {
         line = strtrim(line);
         if (!line.length() || line[0] == '#')

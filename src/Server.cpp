@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/09 20:51:55 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/08/31 22:58:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,19 @@ Listeners	Server::listeners( void ) const { return _listeners; }
 Connections	Server::connections( void ) const { return _connections; }
 size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
-Server::Server(const Configs &server_vecs)
+Server::Server(const Configs &configs)
 {
 	_queue_fd = QUEUE();
 	if (_queue_fd < 0) {
 		throw CreateError();
 	}
 
-	_listeners_amount = parser.configs_amount();
+	_listeners_amount = configs.size();
 
 	Listener	*listener;
 	for (size_t i = 0; i < _listeners_amount; ++i)
 	{
-		listener = new Listener(parser.config(i));
+		listener = new Listener(configs[i]);
 		listener_event_read_add(listener->fd()); // TODO: method in listener class
 		_listeners[listener->fd()] = listener;
 	}
