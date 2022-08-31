@@ -6,14 +6,12 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 15:59:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 15:44:26 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 22:29:30 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CONNECTION_H__
 # define __CONNECTION_H__
-
-# include <stdexcept>
 
 # include "Listener.hpp"
 # include "Request.hpp"
