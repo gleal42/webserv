@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 16:41:45 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/30 22:25:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,57 +14,30 @@
 
 /* Constructors */
 
-Listener::Listener( void ) : _socket(NULL) { /* no-op */ }
-Listener::Listener( Listener const & src ) : _socket(NULL) { *this = src; }
+Listener::Listener( void ) : Socket() { /* no-op */ }
+Listener::Listener( Listener const & src ) : Socket() { *this = src; }
 
-Listener::Listener( ServerConfig const & config ) : _config(config), _socket(NULL)
+Listener::Listener( ServerConfig const & config ) : Socket(config)
 {
-	// set some variables from the config in initialization list aswell
-	// or here if they need treating first
-	try {
-		_socket = new Socket(config);
-	}
-	// TODO: do specific things
-	catch(Socket::CreateError& e) { // or std::runtime_error
-		// stop(); // shutdown();
-		LOG(e.what());
-	}
-	catch(Socket::BindError& e) {
-		// stop(); // shutdown();
-		LOG(e.what());
-	}
-
 	// there should always be a socket at this point,
 	// the catches above should stop flow
 	// maybe move them to main Listener initialization in `webserver()`
 	try {
-		_socket->listen(config.max_clients);
+		listen(config.max_clients);
 	}
 	catch(Socket::ListenError& e) {
-		// stop(); // shutdown();
 		LOG(e.what());
 	}
 }
 
 /* Destructor */
-Listener::~Listener( void ) { if (_socket) delete _socket; }
+Listener::~Listener( void ) { /* no-op */ }
 
 /* Assignment operator */
 Listener &	Listener::operator = ( Listener const & rhs )
 {
 	if (this != &rhs) {
-		_config = rhs._config;
-		_socket = new Socket(*rhs._socket);
+		Socket::operator = (rhs);
 	}
 	return *this;
-}
-
-int Listener::fd()
-{
-    return (_socket->fd());
-}
-
-Socket *	Listener::socket()
-{
-    return (_socket);
 }
