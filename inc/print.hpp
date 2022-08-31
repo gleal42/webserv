@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/19 16:18:10 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/25 23:33:56 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/30 13:47:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,5 +31,6 @@ void	print(const T &container)
 }
 
 void	print_env_variables(char *const *envs, size_t size = 0);
+void	print_address(const std::string &name, struct sockaddr *address);
 
 #endif /* __PRINT_H__ */

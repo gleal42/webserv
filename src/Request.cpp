@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 18:01:43 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 20:01:12 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,8 +180,6 @@ void	Request::read_header(std::string &_unparsed_request)
 		request_uri.port = str_to_nbr<int>(port);
 		std::cout << "PORT IS " << request_uri.port << std::endl;
 	}
-
-
 }
 
 void	Request::read_body(std::string &_unparsed_request)
@@ -259,6 +257,34 @@ std::string			Request::get_auth_type( void ) const
 	return auth_type;
 }
 
+std::string			Request::get_remote_user( void ) const
+{
+	std::string authorization = _headers.at("Authorization");
+	std::string auth_type = get_auth_type();
+	std::string user_password;
+	if (auth_type.empty())
+		return std::string();
+	else if (auth_type == "Basic")
+	{
+		std::string::iterator it(std::find_if(authorization.begin(), authorization.end(), ::isspace));
+		while (::isspace(*it)) ++it;
+		if (it == authorization.end())
+			return std::string();
+		user_password = std::string(it, authorization.end());
+		user_password = b64decode(user_password);
+		return (user_password.substr(0, user_password.find(':')));
+	}
+	else if (auth_type == "Digest")
+	{
+		size_t username = authorization.find("username=\"");
+		if (username == std::string::npos)
+			return std::string();
+		user_password = std::string(authorization.substr(username + strlen("username=\"")));
+		return (user_password.substr(0, user_password.find('"')));
+	}
+	throw HTTPStatus<501>();
+}
+
 std::string		Request::get_delimiter( void )
 {
 	std::string content_type = _headers["Content-Type"];
@@ -279,5 +305,18 @@ std::string	Request::method_to_str( void )
 	} catch (std::exception &err) {
 		(void)err;
 		throw HTTPStatus<501>();
+	}
+}
+
+std::string		Request::get_hostname( void )
+{
+	try
+	{
+		std::string hostname(this->_headers.at("Host"));
+		return hostname.substr(0, hostname.find(':'));
+	} catch (std::exception &err)
+	{
+		(void)err;
+		throw HTTPStatus<400>();
 	}
 }

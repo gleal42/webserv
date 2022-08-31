@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:42:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:43:41 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ public:
 	int				fd( void ) const;
 	int				port( void ) const;
 	int				bytes( void ) const;
-	std::string		address( void ) const;
+	const in_addr &	address( void ) const;
 	// Setters
 	void			set_fd( int fd );
 

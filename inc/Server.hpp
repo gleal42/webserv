@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:28:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:35:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,9 +59,9 @@ public:
 
 	// TODO: check if can be private
 	void			start( void );
-	void			service(Request & req, Response & res, const std::string &connection_addr);
+	void			service(Request & req, Response & res, const in_addr &connection_addr);
 	int				events_wait();
-	Handler *		choose_handler( const URI &uri, const std::string &connection_addr );
+	Handler *		choose_handler( const URI &uri, const in_addr &connection_addr);
 
 	/* Connection */
 	void			connection_new( Listener * listener );

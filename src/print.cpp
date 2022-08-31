@@ -11,7 +11,7 @@ void	print_env_variables(char *const *envs, size_t size)
 
 void	print_address(const std::string &name, struct sockaddr *address)
 {
-	std::vector<char> address_str(30);
-	getnameinfo((struct sockaddr *)address, sizeof(struct sockaddr), address_str.data(), 30, NULL, 0, NI_NUMERICHOST);
+	std::vector<char> address_str(100);
+	getnameinfo((struct sockaddr *)address, sizeof(struct sockaddr), address_str.data(), 100, NULL, 0, NI_NUMERICHOST);
 	std::cout << name << " address is :" << address_str.data() << std::endl;
 }

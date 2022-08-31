@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:27:22 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:35:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,7 +247,7 @@ void	Server::connection_event_toggle_read( int connection_fd )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
-void	Server::service(Request & req, Response & res, const std::string &connection_addr)
+void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
     Handler *handler (choose_handler(req.request_uri, connection_addr));
 	try {
@@ -259,7 +259,7 @@ void	Server::service(Request & req, Response & res, const std::string &connectio
 	delete handler;
 }
 
-Handler *Server::choose_handler( const URI &uri, const std::string &connection_addr )
+Handler *Server::choose_handler( const URI &uri, const in_addr &connection_addr )
 {
     std::string extension = get_extension(uri.path);
     if (CGIHandler::extension_is_implemented(extension))

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/29 00:07:47 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 01:05:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,10 @@ bool CGIHandler::extension_is_implemented( const std::string &extension )
 }
 
 /* Constructors */
-CGIHandler::CGIHandler( void )
-{ /* no-op */ }
+CGIHandler::CGIHandler( void ) { /* no-op */ }
 
-CGIHandler::CGIHandler( const URI &uri, const std::string &connection_addr )
-: query_string(uri.query), connection_address(connection_addr)
+CGIHandler::CGIHandler( const URI &uri, const in_addr &connection_addr )
+: query_string(uri.query), connection_address(&connection_addr), uri(&uri)
 {
 	// script_path = script_path_parse(uri.path);
 	// extra_path = extra_path_parse(uri.path);
@@ -58,7 +57,7 @@ CGIHandler::CGIHandler( const URI &uri, const std::string &connection_addr )
 	"Extra_path is " << extra_path << std::endl << 
 	"Query_string is " << query_string << std::endl << 
 	"Interpreter is " << interpreter << std::endl << 
-	"Connection_address is " << connection_address;
+	"Connection_address is " << inet_ntoa(*connection_address);
 }
 
 CGIHandler::CGIHandler( CGIHandler const & src ) { *this = src; }
@@ -177,9 +176,9 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	}
 	w_pid = waitpid(pid, &status, 0);
 	(void)w_pid;
-	// if (w_pid == -1) // LLDB sends EINTR signal{
-	// 	throw HTTPStatus<500>();
-	// }
+	// // if (w_pid == -1) // LLDB sends EINTR signal{
+	// // 	throw HTTPStatus<500>();
+	// // }
 	if (status == EXIT_FAILURE) {
 		// std::cerr << "Child ERROR" << std::endl;
 		throw HTTPStatus<500>();
@@ -228,19 +227,17 @@ std::vector< std::vector<char> >	CGIHandler::environment_variables( Request & re
 	url::decode(full_script_path);
 	set_env(buf, "PATH_TRANSLATED", full_script_path);
 	set_env(buf, "QUERY_STRING", query_string);
-
-	// REMOTE_ADDR
-	// REMOTE_HOST
-	// REMOTE_IDENT
-	// REMOTE_USER
-
+	set_env(buf, "REMOTE_ADDR", inet_ntoa(*connection_address));
+	set_env(buf, "REMOTE_HOST", address_to_hostname((sockaddr *)connection_address));
+	set_env(buf, "REMOTE_IDENT", ""); // The server may choose not to support this feature, or not to request the data for efficiency reasons, or not to return available identity data.
+	set_env(buf, "REMOTE_USER", req.get_remote_user()); // The server may choose not to support this feature, or not to request the data for efficiency reasons, or not to return available identity data.
 	set_env(buf, "REQUEST_METHOD", req.method_to_str());
 	set_env(buf, "SCRIPT_NAME", script_path);
 	set_env(buf, "SCRIPT_FILENAME", script_path);
-	// SERVER_NAME	
-	// SERVER_PORT	
+	set_env(buf, "SERVER_NAME", req.get_hostname());
+	set_env(buf, "SERVER_PORT", to_string(uri->port));
 	set_env(buf, "SERVER_PROTOCOL", "HTTP/1.1");
-	// SERVER_SOFTWARE	
+	set_env(buf, "SERVER_SOFTWARE", "Bosses/V1");
 	set_env(buf, "REDIRECT_STATUS", "200");
 	return (buf);
 }
@@ -291,49 +288,3 @@ void	CGIHandler::set_response( std::string body, Response &res )
 	res.set_body(body);
 	res.set_header("Content-Length", to_string(body.size()));
 }
-
-/*
-	https://www.rfc-editor.org/rfc/rfc3875.html#section-6.3.3
-
-	Hammertime because HTTPS only takes const values as template parameters
-	Default is 500 because Server is expecting to receive an HTTP compliant
-	code. If it doesn't then Internal Server Error (500).
-
-	Regarding the order I followed the one specified in the link:
-	However, most times status will be 200.
-*/
-
-// Example of Using Shared memory of inter process communication!
-
-// shm_unlink("shared_mem");
-// int shm_fd = shm_open("shared_mem", O_CREAT | O_RDWR, 0666);
-// if (shm_fd == -1) {
-// 	perror("OPEN SUCKS BECAUSE");
-// 	throw HTTPStatus<500>();
-// }
-
-// if (ftruncate(shm_fd, req._raw_body.size()) == -1) {
-// 	shm_unlink("shared_mem");
-// 	close(shm_fd);
-// 	perror("TRUNCATE BECAUSE");
-// 	throw HTTPStatus<500>();
-// }
-
-// char *shared_mem = (char *)mmap(0, req._raw_body.size() + 1, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-// if (shared_mem == (void *)-1) {
-// 	shm_unlink("shared_mem");
-// 	close(shm_fd);
-// 	perror("MMAP BECAUSE");
-// 	throw HTTPStatus<500>();
-// }
-
-// shared_mem[0] = 'O';
-// shared_mem[1] = 'L';
-// shared_mem[2] = 'A';
-// shared_mem[3] = '\n';
-// shared_mem[4] = '\0';
-
-// int fd[2];
-// int p = pipe(fd);
-// if (p == -1)
-// 	throw HTTPStatus<500>();

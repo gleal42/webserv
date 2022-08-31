@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 21:30:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 21:35:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,9 @@ int				Socket::fd( void ) const { return _fd; }
 int				Socket::port( void ) const { return _port; }
 int				Socket::bytes( void ) const { return _bytes; }
 
-std::string		Socket::address( void ) const
+const in_addr &Socket::address( void ) const
 {
-	return(inet_ntoa(_address.sin_addr));
+	return(_address.sin_addr);
 }
 
 // Setters

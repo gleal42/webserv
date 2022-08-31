@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 17:59:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 19:56:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,9 @@ public:
 	void				clear( void );
 	std::string			get_form_type( void );
 	std::string			get_auth_type( void ) const;
+	std::string			get_remote_user( void ) const;
 	std::string			get_delimiter( void );
+	std::string			get_hostname( void );
 	std::string			method_to_str( void );
 private:
 	typedef	std::map<enum RequestMethod, std::string>	ReqMethodConversion;

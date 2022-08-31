@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 14:45:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/28 22:34:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/08/31 00:51:43 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <unistd.h>
 # include <algorithm>
 # include <ctype.h> // std::isspace
+# include <cstring> // memset
 
 # include "Request.hpp"
 # include "Response.hpp"
@@ -32,7 +33,7 @@ class CGIHandler : public Handler {
 
 public:
 
-	CGIHandler( const URI &uri, const std::string &connection_addr );
+	CGIHandler( const URI &uri, const in_addr &connection_addr );
 	CGIHandler( CGIHandler const & src );
 	~CGIHandler( void );
 	CGIHandler &	operator = ( CGIHandler const & rhs );
@@ -52,8 +53,8 @@ private:
 	std::string extra_path;
 	std::string query_string;
 	std::string interpreter;
-	std::string connection_address;
-
+	const in_addr *connection_address;
+	const URI * uri;
 
 	CGIHandler( void );
 	void			set_response( std::string body, Response &res );
