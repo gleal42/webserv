@@ -6,13 +6,13 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/21 03:02:34 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 01:16:52 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "webserver.hpp"
-#include "ConfigParser.hpp"
 #include "ServerConfig.hpp"
+#include "ConfigParser.hpp"
+#include "Listener.hpp"
 #include "Server.hpp"
 
 /*
@@ -22,11 +22,13 @@
 ** Line-by-line comments:
 ** @1	Create Server - Will allow us to identify events and handle
 */
+
 int webserver(std::string config_file)
 {
 	ConfigParser	parser(config_file);
+
 	try {
-		parser.call();
+        parser.call();
     }
     catch (std::exception &e) { // Use specific errors
 		ERROR(e.what());

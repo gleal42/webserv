@@ -3,28 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/17 19:45:17 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/01 00:50:46 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SOCKET_H__
 # define __SOCKET_H__
 
-# include <vector>
-# include <sys/socket.h> // For socket functions
-# include <netinet/in.h> // For sockaddr_in
-# include <unistd.h> // For close()
+# include <sys/socket.h>
+# include <unistd.h>
 # include <fcntl.h>
 # include <cstring>
 # include <cerrno>
-# include <string>
 
-#include "webserver.hpp"
-# include "Request.hpp"
-# include "Listener.hpp"
+# include "macros.hpp"
+# include "ServerConfig.hpp"
+# include "webserver.hpp"
+# include "types.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1
@@ -54,8 +52,6 @@ Implements wrappers for the following C functions
 - read / write should be send / recv (C++)
 
 */
-
-typedef struct sockaddr_in 	SocketAddress;
 
 class Socket {
 
@@ -91,12 +87,13 @@ public:
 	int				fd( void ) const;
 	int				port( void ) const;
 	int				bytes( void ) const;
+
 	// Setters
 	void			set_fd( int fd );
 
 	void 			create( void );
 	void 			setsockopt( int option );
-	void			bind( const std::string &address, int port );
+	void			bind( int port );
 	void			close( void );
 	void			listen( int max_connections );
 	int				send( const std::string & response ) const;
@@ -109,7 +106,6 @@ private:
 
 	// Should be private to avoid being set to a wrong value
 	int					_port;
-	struct addrinfo *	_host;
 	int					_fd;
 	SocketAddress		_address;
 	int					_bytes;

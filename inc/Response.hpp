@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/22 00:58:58 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 00:48:23 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,26 +132,20 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 # define __RESPONSE_H__
 
 # include <fstream>
-# include <iostream>
 # include <sstream>
 
-# include "ServerConfig.hpp"
-# include "Request.hpp"
+# include "Socket.hpp"
 # include "HTTPStatus.hpp"
+# include "types.hpp"
 
 // ************************************************************************** //
 //                               Response Class                               //
 // ************************************************************************** //
 
-// Response message generated while processing client request
-
-typedef std::map<std::string, std::string> ResponseHeaders;
-
 class Response {
 
 public:
 
-	typedef	ResponseHeaders::iterator headers_iterator;
 	Response( void ); // put bck private after making pointer in connection
 	~Response( void );
 	Response &	operator = ( Response const & rhs );
@@ -160,30 +154,26 @@ public:
 
 	RequestMethod	request_method;
 
-	std::string 		start_line( const BaseStatus &status );
-	void				build_message( const BaseStatus &status );
-	void				send_response(Socket const & socket);
-	void 				send_error(int socketfd);
-	bool				is_empty( void );
+	std::string 	start_line( BaseStatus &status );
+	void			build_message( BaseStatus status );
+
+	void			send_response(Socket const & socket);
+	void 			send_error(int socketfd);
+	bool			is_empty( void );
 
 	std::string		_uri;
 
 	// Setters
 
-	void				set_header(const std::string &name, const std::string &value);
-	void				set_content_type( std::string const & type );
-	void				set_body( std::string const &type );
-	void				set_default_page( void );
-	void				save_raw_headers( std::string headers );
-	void    			set_with_file( const std::string &filename );
+	void			set_headers(std::string name, std::string value);
+	void			set_content_type( std::string const & type );
+	void			set_body( std::string const &type );
+	void			set_default_body( void );
+	void			set_error_body( int error_code );
 
 	// Getters
-	const std::string	get_header_value( const std::string &name );
 
-	// Unsetters
-
-	void				delete_header( const std::string & name );
-	void				clear( void );
+	std::string		message( void );
 
 private:
 	std::string		_body;

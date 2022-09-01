@@ -5,17 +5,18 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/01 18:20:46 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/21 02:20:04 by fmeira           ###   ########.fr       */
+/*   Created: 2022/07/23 16:51:55 by gleal             #+#    #+#             */
+/*   Updated: 2022/09/01 00:53:31 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef __UTILS_URL_H__
-# define __UTILS_URL_H__
+#ifndef __URL_UTILS_H__
+# define __URL_UTILS_H__
 
 # include <string>
 # include <sstream>
 # include <iostream>
+
 # include "webserver.hpp"
 
 namespace url
@@ -23,4 +24,4 @@ namespace url
     void	decode( std::string & single_form );
 }
 
-#endif /* __UTILS_URL_H__ */
+#endif /* __URL_UTILS_H__ */

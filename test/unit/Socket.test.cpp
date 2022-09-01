@@ -5,6 +5,7 @@
 #include "doctest.h"
 
 #include "Socket.hpp"
+#include "ServerConfig.hpp"
 
 // Constants
 #define PORT 8080
@@ -22,9 +23,11 @@ TEST_CASE("Socket constructors") {
 		a.close();
     }
 
+	ServerConfig	config;
+
 	SUBCASE("copy and assignment set the same `fd`") {
-		Socket a(PORT);
-		Socket b(a);
+		Socket 			a(config);
+		Socket 			b(a);
 
 		CHECK(a.fd() == b.fd());
 
@@ -33,7 +36,7 @@ TEST_CASE("Socket constructors") {
     }
 
 	SUBCASE("with `int port` argument, sets `fd` and `port`") {
-		Socket c(PORT);
+		Socket c(config);
 
 		CHECK(c.fd() != FD_UNSET);
 		CHECK(c.port() != PORT_UNSET);
@@ -62,19 +65,14 @@ TEST_CASE("Socket `bind` method") {
 		a.close();
     }
 
-	SUBCASE("doesnt allow setting the same `port` twice") {
-		Socket	a;
-		Socket	b(PORT);
+	SUBCASE("allow setting the same `port` twice") {
+		ServerConfig	config;
+		Socket			a;
+		Socket			b(config);
+
 		a.create();
 
-		CHECK_THROWS(a.bind(PORT));
-
-		try {
-			a.bind(PORT);
-		}
-		catch(Socket::BindError& e) {
-			CHECK(std::string(e.what()) == "Failed to bind to port 8080.");
-		}
+		CHECK_NOTHROW(a.bind(PORT));
 
 		a.close();
 		b.close();
@@ -83,13 +81,15 @@ TEST_CASE("Socket `bind` method") {
 
 TEST_CASE("Socket `close` method") {
 
-	SUBCASE("closes file descriptor and frees port") {
-		Socket	a(PORT);
+	SUBCASE("closes file descriptor and frees fd") {
+		ServerConfig	config;
+		Socket			a(config);
 		a.close();
-		Socket	b;
+		Socket			b;
 		b.create();
 
 		CHECK_NOTHROW(b.bind(PORT));
+
 		CHECK(b.fd() == FD);
 		CHECK(b.port() == PORT);
 
@@ -97,7 +97,7 @@ TEST_CASE("Socket `close` method") {
 		b.close();
     }
 
-	SUBCASE("is not called on destructor") {
+	SUBCASE("is called on destructor") {
 		Socket	*b = new Socket();
 		b->create();
 
@@ -107,7 +107,7 @@ TEST_CASE("Socket `close` method") {
 		Socket c;
 		c.create();
 
-		CHECK(c.fd() == FD + 1);
+		CHECK(c.fd() == FD);
 
 		close(FD);
 		c.close();
@@ -117,7 +117,8 @@ TEST_CASE("Socket `close` method") {
 TEST_CASE("Socket `listen` method") {
 
 	SUBCASE("accepts max connections argument") {
-		Socket a(PORT);
+		ServerConfig	config;
+		Socket 			a(config);
 
 		CHECK_NOTHROW(a.listen(MAX_CONNECTIONS));
 
@@ -144,7 +145,8 @@ TEST_CASE("Socket `send` method") {
   	std::string response = "Good talking to you\n";
 
 	SUBCASE("accepts response argument") {
-		Socket a(PORT);
+		ServerConfig	config;
+		Socket 			a(config);
 
 		CHECK_NOTHROW(a.send(response));
 		// TODO: more tests
@@ -154,20 +156,19 @@ TEST_CASE("Socket `send` method") {
 }
 
 TEST_CASE("Socket `receive` method") {
-	Socket a(PORT);
+	ServerConfig	config;
+	Socket 			a(config);
 
-	SUBCASE("sets read bytes") {
-		a.receive(BUFFER_SIZE);
-
-		CHECK_NOTHROW(a.bytes());
-		// LOG(a.bytes()); // currently outputting -1 which is the error
+	SUBCASE("throws error when buffer size doesnt match read bytes") {
+		CHECK_THROWS(a.receive(BUFFER_SIZE));
 
 		a.close();
     }
 }
 
 TEST_CASE("Socket `accept` method") {
-	Socket server(PORT);
+	ServerConfig	config;
+	Socket 			server(config);
 	server.listen(MAX_CONNECTIONS);
 
 	// TODO: when non-blocking

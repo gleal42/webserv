@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 23:50:04 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 00:42:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # define SERVER_CONTEXT     1
 # define LOCATION_CONTEXT   2
 
+# include "types.hpp"
 
 // ************************************************************************** //
 //                               ConfigParser Class                             	  //

@@ -1,10 +1,18 @@
 UNAME  :=      $(shell uname)
 ifeq ($(UNAME), Darwin)
-       CXX := c++
+		CXX := c++
 else
-       CXX := g++
+		CXX := g++
 endif
+
 CXXFLAGS := -Wall -Wextra -Werror -std=c++98 -fsanitize=address -g
+ifeq ($(UNAME), Linux)
+		CXXFLAGS 	+= -DLINUX
+endif
+ifeq ($(UNAME), Darwin)
+		CXXFLAGS 	+= -DDARWIN
+endif
+
 CPPFLAGS := -Iinc
 NAME := webserv
 SRCS := main.cpp \
@@ -19,10 +27,9 @@ SRCS := main.cpp \
 		Socket.cpp \
 		Handler.cpp \
 		FileHandler.cpp \
-		CGIHandler.cpp \
 		BaseStatus.cpp \
-		utils_url.cpp \
-		utils_file.cpp \
+		Event.cpp \
+		url_utils.cpp \
 		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/
@@ -81,10 +88,11 @@ test_unit: # compiles and runs unit tests
 #			`make parser -C test/unit`
 # 		etc..
 
-# Temporary while no linux version of code
 # NOTE: Have ./webserv running in separate terminal
-test_e2e: # compiles and runs end-to-end tests
+test_e2e: # runs end-to-end tests
 	cd test/e2e && npm test
-#	cd test/e2e && docker-compose up --build --abort-on-container-exit
+
+test_e2e_vm: # compiles in docker vm and runs end-to-end tests
+	cd test/e2e && docker-compose up --build --abort-on-container-exit
 
 .PHONY: all clean fclean resetclean re test vm_build vm fd_script

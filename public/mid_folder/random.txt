@@ -1,2 +1,0 @@
-THIS IS NOT SUPPOSED TO BE MAPPED.
-I just want to have a separate location for the config file

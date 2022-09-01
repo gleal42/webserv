@@ -1,11 +1,18 @@
-CXX := c++
-CXXFLAGS := -std=c++98
-INC := -I../../inc
-CPPFLAGS := $(INC)
-COMPILE  := $(CXX) $(CXXFLAGS) $(CPPFLAGS)
+UNAME			:= $(shell uname)
+CXX 			:= c++
+CXXFLAGS 	:= -std=c++98
+ifeq ($(UNAME), Linux)
+		CXXFLAGS 	+= -DLINUX
+endif
+ifeq ($(UNAME), Darwin)
+		CXXFLAGS 	+= -DDARWIN
+endif
+INC				:= -I../../inc
+CPPFLAGS	:= $(INC)
+COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket parser
+all:	socket listener connection parser status handler file_handler server event
 
 
 ##---  Socket  ---##
@@ -17,6 +24,31 @@ socket: Socket # run Socket class tests
 # compile Socket class tests
 Socket:	$(SOCKET) ../../inc/Socket.hpp
 	$(COMPILE) $(SOCKET) -o $@
+
+
+##---  Listener  ---##
+LISTENER := Listener.test.cpp ../../src/utils.cpp ../../src/Listener.cpp \
+	../../src/Socket.cpp
+
+listener: Listener # run Listener class tests
+	./Listener
+
+# compile Listener class tests
+Listener:	$(LISTENER) ../../inc/Listener.hpp
+	$(COMPILE) $(LISTENER) -o $@
+
+
+##---  Connection  ---##
+CONNECTION := Connection.test.cpp ../../src/utils.cpp ../../src/Connection.cpp \
+	../../src/Socket.cpp ../../src/Listener.cpp ../../src/Request.cpp \
+	../../src/Response.cpp ../../src/BaseStatus.cpp
+
+connection: Connection # run Connection class tests
+	./Connection
+
+# compile Connection class tests
+Connection:	$(CONNECTION) ../../inc/Connection.hpp
+	$(COMPILE) $(CONNECTION) -o $@
 
 
 ##---  ConfigParser  ---##
@@ -31,7 +63,7 @@ ConfigParser:	$(PARSER) ../../inc/ConfigParser.hpp
 
 
 ##---  HTTPStatus  ---##
-STATUS := HTTPStatus.test.cpp
+STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp ../../src/utils.cpp
 
 status: HTTPStatus # run HTTPStatus class tests
 	./HTTPStatus
@@ -41,8 +73,24 @@ HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 	$(COMPILE) $(STATUS) -o $@
 
 
+##---  Handler  ---##
+HANDLER := Handler.test.cpp ../../src/Handler.cpp \
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
+	../../src/Request.cpp ../../src/Socket.cpp ../../src/Response.cpp
+
+handler: Handler # run Handler class tests
+	./Handler
+
+# compile Handler class tests
+Handler:	$(HANDLER) ../../inc/Handler.hpp
+	$(COMPILE) $(HANDLER) -o $@
+
+
 ##---  FileHandler  ---##
-FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp
+FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
+	../../src/Handler.cpp ../../src/Request.cpp ../../src/Socket.cpp \
+	../../src/Response.cpp
 
 file_handler: FileHandler # run FileHandler class tests
 	./FileHandler
@@ -52,4 +100,31 @@ FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
 	$(COMPILE) $(FILE_HANDLER) -o $@
 
 
-.PHONY: all socket parser status file_handler
+##---  Server  ---##
+SERVER := Server.test.cpp ../../src/Server.cpp \
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/Connection.cpp \
+	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/ConfigParser.cpp \
+	../../src/Request.cpp ../../src/Listener.cpp ../../src/Response.cpp \
+	../../src/url_utils.cpp ../../src/Socket.cpp ../../src/Event.cpp
+
+server: Server # run Server class tests
+	./Server
+
+# compile Server class tests
+Server:	$(SERVER) ../../inc/Server.hpp
+	$(COMPILE) $(SERVER) -o $@
+
+
+##---  Event  ---##
+EVENT := Event.test.cpp ../../src/Event.cpp
+
+event: Event # run Event class tests
+	./Event
+
+# compile Event class tests
+Event:	$(EVENT) ../../inc/Event.hpp
+	$(COMPILE) $(EVENT) -o $@
+
+
+.PHONY: all socket listener connection parser status handler file_handler \
+	server event

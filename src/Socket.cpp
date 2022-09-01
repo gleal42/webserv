@@ -6,16 +6,11 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/25 01:44:04 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 01:15:11 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
-#include <arpa/inet.h>
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
 
 /* Exceptions */
 Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
@@ -40,27 +35,22 @@ Socket::AcceptError::AcceptError( void )
 	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
 
 /* Constructors */
-Socket::Socket( void ) : _port(PORT_UNSET), _host(NULL), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
+Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
 
 // Changed to config parameter so that we could copy parent request to connections socket
 // TODO: will we also pass `domain`?
-Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _host(NULL), _fd(FD_UNSET), _bytes(0)
+Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
-	bind(config.get_listens()[0].ip, config.get_listens()[0].port); //TODO: Implement several ports solution
+	bind(config.port);
 }
 
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void )
-{
-	if (_host != NULL)
-		freeaddrinfo(_host);
-	this->close();
-}
+Socket::~Socket( void ) { close(); }
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
@@ -107,37 +97,21 @@ void	Socket::setsockopt( int option )
 	}
 }
 
-/**
- * Function to bind socket to the address and ports
- * defined in the Configuration file
- *
- * @param address -	Interfaces that will listen to requests
- * 					(e.g. 172.0.0.1 converted to binary)
- * @param port -	Port in which interfaces will listen
- * 					(e.g. 80)
- */
-
-void	Socket::bind( const std::string &host_id, int port )
+// C `bind` function wrapper
+void	Socket::bind( int port )
 {
-	// std::cout << "HOST ID: " << host_id << "\n";
-	// std::cout << "PORT: " << port << "\n";
-	_host  = get_host(host_id);
-	if (_host == NULL)
-		throw Socket::BindError(port);
 	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
-	struct sockaddr_in *address_value = (struct sockaddr_in *)_host->ai_addr;
-	_address.sin_addr.s_addr = address_value->sin_addr.s_addr;
+	_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
-		std::cout << "fd: " << _fd << "\n";
 		throw Socket::BindError(port);
 	}
 	_port = port;	// only set port if did't fail `bind` call
 }
 
 // C `close` function wrapper
-void	Socket::close( void ) { if(_fd != FD_UNSET ) ::close(_fd); }
+void	Socket::close( void ) { if (_fd != FD_UNSET) ::close(_fd); }
 
 // C `listen` function wrapper
 void	Socket::listen( int max_connections ) { // Coming from server config or should be const?
@@ -158,6 +132,7 @@ void	Socket::receive( int buffer_size ) {
 
 	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
 	std::cout << "We just received " << _bytes << " bytes." << std::endl;
+	// What is this comparison for and what does it mean?
 	if (buffer_size != _bytes)
 		throw std::runtime_error("UH OHHHHHHHHHHHH");
 	// std::cout << "The data received was :" << std::endl;
