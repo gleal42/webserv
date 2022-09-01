@@ -1,16 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   url_utils.cpp                                      :+:      :+:    :+:   */
+/*   url.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 16:55:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/01 02:42:58 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 15:00:26 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "url_utils.hpp"
+# include "url.hpp"
+
+// unsigned char a = 195;
+// unsigned char b = 167;
+// char a[] = "\xC3";
+// char b[] = "\xA7";
 
 // unsigned char a = 195;
 // unsigned char b = 167;

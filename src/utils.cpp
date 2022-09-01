@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 02:28:09 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 15:09:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -240,13 +240,6 @@ bool is_address_being_listened(const std::string & listener_address, const struc
 	return false;
 }
 
-void	print_address(const std::string &name, struct sockaddr *address)
-{
-	std::vector<char> address_str(30);
-	getnameinfo((struct sockaddr *)address, sizeof(struct sockaddr), address_str.data(), 30, NULL, 0, NI_NUMERICHOST);
-	std::cout << name << " address is :" << address_str.data() << std::endl;
-}
-
 void	remove_directory(std::string &path)
 {
 	size_t backslash_pos = path.find_last_of('/');
@@ -254,4 +247,60 @@ void	remove_directory(std::string &path)
 		path.clear();
 	else
 		path = path.substr(0, (backslash_pos+1));
+}
+std::string address_to_hostname(struct sockaddr *address)
+{
+    static char buf[NI_MAXHOST];
+    std::memset(buf, '\0', NI_MAXHOST);
+    
+    getnameinfo(address, sizeof(*address), buf, sizeof(buf), NULL, 0, NI_NUMERICHOST);
+    return(buf);
+}
+
+static unsigned int b64_decode_table(const unsigned char chr) {
+    if		(chr >= 'A' && chr <= 'Z') return chr - 'A';
+    else if (chr >= 'a' && chr <= 'z') return chr - 'a' + ('Z' - 'A')               + 1;
+    else if (chr >= '0' && chr <= '9') return chr - '0' + ('Z' - 'A') + ('z' - 'a') + 2;
+    else if (chr == '+' || chr == '-') return 62;
+    else if (chr == '/' || chr == '_') return 63;
+    else if (chr == '=' || chr == '.') return 0;
+    throw HTTPStatus<500>();
+}
+
+// Encoding and Decoding keeping the same binary representation while:
+// Encoding -> Turning 3 chars into 4 chars
+// Decoding -> Turning 4 chars into 3 chars
+// three ASCII numbers 155, 162, and 233
+// 10011011 10100010 11101001
+// Encoding them would mean to do this:
+// 100110 111010 001011 101001 (38 58 11 41)
+// Which we can then translate to m6Lp if we use the Base64 Encoding Table
+// https://www.lifewire.com/base64-encoding-overview-1166412
+// In base64 chars have at most 6 bits so they have to be converted to 8 bits
+
+std::string b64decode(const std::string& encoded_string)
+{
+    size_t length_of_string = encoded_string.length();
+    size_t pos = 0;
+    std::string ret;
+    while (pos < length_of_string)
+	{
+		ret.push_back(
+			((b64_decode_table(encoded_string[pos+0])) << 2) // Starting 6 bits taken from 1st char
+		+	((b64_decode_table(encoded_string[pos+1]) & 0x30 ) >> 4)); // Last 2 bits taken from 2st char (110000)
+       if (pos + 2 < length_of_string)
+       {
+			ret.push_back(
+			((b64_decode_table(encoded_string[pos+1]) & 0x0f) << 4)	// Starting 4 bits taken from 2nd char (001111)
+		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100) 
+       }
+	   if (pos + 3 < length_of_string)
+	   {
+			ret.push_back(
+			((b64_decode_table(encoded_string[pos+2]) & 0x03 ) << 6 ) // Starting 2 bits taken from 3rd char (000011)
+			+ b64_decode_table(encoded_string[pos+3])); // Last 6 bits taken from 4th char
+	   }
+       pos += 4;
+    }
+    return ret;
 }

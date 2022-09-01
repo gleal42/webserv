@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 00:56:49 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 14:59:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ FileHandler &	FileHandler::operator = ( FileHandler const & rhs )
 
 void	FileHandler::do_GET( Request & req, Response & res )
 {
+	url::decode(req._path);
 	if (req._path == "/")
 		res._uri = "public/index.html";
 	else
@@ -60,60 +61,28 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	if (req._path.size() > 100) {
 		throw HTTPStatus<400>(); // Example
 	}
-
 	if (req._path.find("..") != std::string::npos) {
 		throw HTTPStatus<404>();
 	}
-
-	std::ifstream file(res._uri.c_str());
-	if ( (file.rdstate() & std::ifstream::failbit ) != 0
-		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
-	{
-		ERROR("error opening " << res._uri.c_str());
-		throw HTTPStatus<404>();
-	}
-
-	res.set_headers("Content-Type", get_content_type(res._uri.c_str()));
-	std::stringstream body;
-	body << file.rdbuf();
-	res.set_body(body.str());
-	std::stringstream len;
-	len << body.str().size();
-	res.set_headers("Content-Length", len.str());
-
-	file.close();
+	res.set_with_file(res._uri);
 }
 
-std::string const FileHandler::get_content_type(std::string const path)
-{
-	std::string::size_type position = path.rfind('.');
-	if (position == std::string::npos)
-		position = 0;
-	std::string extension = path.substr(position);
+/*
+       -------- Default action for POST requests when no CGI is involved. -------
+       Usually this is not part of the Server function but backend
+       web frameworks that run on top.
+       
+       Only multipart/form-data seems to support file uploads
+       application/x-www-form-urlencoded file data is not sent
+       only name (check single_form)
 
-	// Turn this into a separate mime_type function with access to static map
-	MimeTypes mime_types;
-
-	mime_types[".css"] = "text/css";
-	mime_types[".csv"] = "text/csv";
-	mime_types[".gif"] = "image/gif";
-	mime_types[".htm"] = "text/html";
-	mime_types[".html"] = "text/html";
-	mime_types[".ico"] = "image/x-icon";
-	mime_types[".jpeg"] = "image/jpeg";
-	mime_types[".jpg"] = "image/jpeg";
-	mime_types[".js"] = "application/javascript";
-	mime_types[".json"] = "application/json";
-	mime_types[".png"] = "image/png";
-	mime_types[".pdf"] = "application/pdf";
-	mime_types[".svg"] = "image/svg+xml";
-	mime_types[".txt"] = "text/plain";
-
-	if (extension.size() && mime_types.find(extension) != mime_types.end()) {
-		return mime_types[extension];
-	}
-	return "application/octet-stream";
-}
+       So these functions basically parse these 2 encoding types
+       to extract information:
+       - post_multi_type_form for every part it checks if
+       it's file and uploads in case it is.
+       - post_form_urlencoded only decodes and parses variables
+       into a set (container) but doesn't use them (we can define behaviour for this if you want)
+*/
 
 void	FileHandler::do_POST( Request & req, Response & res )
 {
@@ -124,25 +93,20 @@ void	FileHandler::do_POST( Request & req, Response & res )
 		post_form_urlencoded(req);
 	else
 		throw HTTPStatus<500>();
-	res.set_default_body(); // temporary
+	// throw HTTPStatus<415>();
+	res.set_default_page(); // temporary
 }
 
-std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
-{
-	std::string filename;
-	size_t param_pos = body.find(parameter.c_str());
+/*
+	Multi part forms separate each part using a delimiter (sent in Request)
+	Last delimiter is followed by "--" so I use this information in the parsing.
 
-	if (param_pos == std::string::npos)
-		return filename;
-	if (param_pos > next_delimiter)
-		return filename;
-	size_t start_filename = body.find(parameter.c_str()) + parameter.length() + 1;
-	filename = body.substr(start_filename);
-	size_t end_filename = filename.find("\"");
-	filename = filename.substr(0, end_filename);
-	std::cout << parameter << " is: [" << filename << "]" << std::endl;
-	return (filename);
-}
+	To check if it is file, we can see that after the delimiter there is
+	a field called "filename", which non-file inputs don't have.
+
+	Each delimiter has an extra "--" before the delimiter itself
+	After delimiter, the extra form headers end when double CRLF is found
+*/
 
 void	FileHandler::post_multi_type_form( Request & req )
 {
@@ -172,8 +136,10 @@ void	FileHandler::post_multi_type_form( Request & req )
 		if (last_delimiter == std::string::npos)
 			throw HTTPStatus<400>();
 		std::string filename = parse_from_multipart_form("filename=", multi_form, next_delimiter);
-
-		start_file = multi_form.find("\r\n\r\n") + 4;
+	
+		start_file = multi_form.find(D_CRLF) + 4;
+		if (start_file == std::string::npos)
+			throw HTTPStatus<400>();
 		section_body = multi_form.substr(start_file);
 		end_file = section_body.find(delimiter) - 4; // -4 => "--" + "\r\n"
 		section_body = section_body.substr(0, end_file);
@@ -186,7 +152,7 @@ void	FileHandler::post_multi_type_form( Request & req )
 		}
 		else
 		{
-			save_file(section_body, filename);
+			file::save(section_body, filename);
 			filename.clear();
 		}
 		if (next_delimiter == last_delimiter)
@@ -195,40 +161,33 @@ void	FileHandler::post_multi_type_form( Request & req )
 	// OPTIONAL: Default Servicing for params.
 }
 
-void	FileHandler::save_file( std::string &file_body, std::string filename  )
-{
-	std::ofstream	outfile;
+// Used to parse data like "name" and "filename" from form part headers.
 
-	outfile.open(("public/post/uploads/" + filename).c_str(), std::ios::binary);
-	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
-		throw std::runtime_error("Couldn't open new file");
-	}
-	outfile.write(file_body.data(), file_body.size());
-	if ( (outfile.rdstate() & std::ifstream::failbit ) != 0
-		|| (outfile.rdstate() & std::ifstream::badbit ) != 0) {
-		throw std::runtime_error("Couldn't write to file");
-	}
-	outfile.close();
+std::string		FileHandler::parse_from_multipart_form( const std::string parameter, const std::string &body, size_t next_delimiter )
+{
+	std::string filename;
+	size_t param_pos = body.find(parameter.c_str());
+
+	if (param_pos == std::string::npos || param_pos > next_delimiter)
+		return filename;
+	size_t start_filename = body.find(parameter.c_str()) + parameter.length() + 1;
+	filename = body.substr(start_filename);
+	size_t end_filename = filename.find("\"");
+	filename = filename.substr(0, end_filename);
+	std::cout << parameter << " is: [" << filename << "]" << std::endl;
+	return (filename);
 }
 
-// For comparing with original files
+/*
+	Simply parses data from "application/x-www-form-urlencoded" form
 
-// std::ifstream infile;
-// infile.open("cute.jpeg", std::ios::binary);
-// if ( (infile.rdstate() & std::ifstream::failbit ) != 0
-// 	|| (infile.rdstate() & std::ifstream::badbit ) != 0 )
-// {
-// 	ERROR("error opening " << res._uri.c_str());
-// 	throw HTTPStatus<404>();
-// }
-// std::stringstream temp;
-// temp << infile.rdbuf();
-// std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
-// infile.close();
+	Saves variables and values.
+	However no action is defined yet for these parsed values
+*/
 
 void	FileHandler::post_form_urlencoded( Request & req )
 {
-	size_t ending_char = req._raw_body.find('\0');
+	size_t ending_char = req._raw_body.rfind('\0');
 	if (ending_char == std::string::npos)
 		throw HTTPStatus<400>();
 	std::string single_form = req._raw_body.substr(0, ending_char);
@@ -247,44 +206,15 @@ void	FileHandler::post_form_urlencoded( Request & req )
 	}
 }
 
-// unsigned char a = 195;
-// unsigned char b = 167;
-// char a[] = "\xC3";
-// char b[] = "\xA7";
+/*
+	removes file (also does some extensions validations)
+	In future PR validations will be simply if there is .. because
+	root will start in public folder
+*/
 
 void	FileHandler::do_DELETE( Request & req , Response & res )
 {
-	delete_file(req._path.c_str() + 1);
-	res.set_default_body(); // temporary
+	std::string str(req._path.c_str() + 1);
+	file::remove("public/" + str);
+	res.set_default_page(); // temporary
 }
-
-// Added a protection to prevent us from deleting a repository code or other testing data
-
-void	FileHandler::delete_file( std::string filename )
-{
-	static char const * temp_ext[8] = {
-    [0] = ".cpp",
-    [1] = ".hpp",
-    [2] = ".html",
-    [3] = ".ico",
-    [4] = ".ts",
-    [5] = ".rb",
-    [6] = ".sh",
-    [7] = ".h",
-	};
-	const Extensions	forbidden_extensions(temp_ext, temp_ext + sizeof(temp_ext) / sizeof(char const *));
-
-	std::string file_extension = get_extension(filename);
-	if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
-		throw HTTPStatus<405>();
-	}
-	if (filename.substr(0, 13) != "post/uploads/") {// Temporary
-		throw HTTPStatus<405>();
-	}
-	std::cout << "Extension is [" << file_extension << "]" << std::endl;
-	filename = "public/" + filename;
-	std::cout << "Filename is [" << filename << "]" << std::endl;
-	if (remove (filename.c_str()) != 0)
-		throw HTTPStatus<404>();
-}
-

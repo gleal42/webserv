@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 03:21:03 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 15:00:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,9 +66,14 @@ Socket &	Socket::operator = ( Socket const & rhs )
 }
 
 // Getters
-int	Socket::fd( void ) const { return _fd; }
-int	Socket::port( void ) const { return _port; }
-int	Socket::bytes( void ) const { return _bytes; }
+int				Socket::fd( void ) const { return _fd; }
+int				Socket::port( void ) const { return _port; }
+int				Socket::bytes( void ) const { return _bytes; }
+
+const in_addr &Socket::address( void ) const
+{
+	return(_address.sin_addr);
+}
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 00:49:43 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 14:57:26 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "Event.hpp"
 #include "Connection.hpp"
 #include "ConfigParser.hpp"
-#include "FileHandler.hpp"
+#include "Handler.hpp"
 
 // ************************************************************************** //
 //                               Server Class                             	  //
@@ -59,8 +59,9 @@ public:
 
 	// TODO: check if can be private
 	void			start( void );
-	void			service(Request & req, Response & res);
+	void			service(Request & req, Response & res, const in_addr &connection_addr);
 	int				events_wait();
+	Handler *		choose_handler( const URI &uri, const in_addr &connection_addr);
 
 	/* Connection */
 	void			connection_new( Listener * listener );
@@ -73,7 +74,6 @@ public:
 	/* Listener */
 	void			listener_close( int listener_fd );
 	void			listener_event_read_add( int listener_fd );
-
 
    	EVENT 			events[EVENTS_SIZE];
 

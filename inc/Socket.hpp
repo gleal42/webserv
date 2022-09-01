@@ -3,26 +3,28 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 00:50:46 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 14:57:30 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __SOCKET_H__
 # define __SOCKET_H__
 
-# include <sys/socket.h>
-# include <unistd.h>
+# include <sys/socket.h> // For socket functions
+# include <netinet/in.h> // For sockaddr_in
+# include <arpa/inet.h> // inet_ntoa
+# include <unistd.h> // For close()
 # include <fcntl.h>
 # include <cstring>
 # include <cerrno>
 
 # include "macros.hpp"
-# include "ServerConfig.hpp"
 # include "webserver.hpp"
 # include "types.hpp"
+# include "ServerConfig.hpp"
 
 # define PORT_UNSET -1
 # define FD_UNSET -1
@@ -87,7 +89,7 @@ public:
 	int				fd( void ) const;
 	int				port( void ) const;
 	int				bytes( void ) const;
-
+	const in_addr &	address( void ) const;
 	// Setters
 	void			set_fd( int fd );
 
