@@ -1,6 +1,6 @@
 server {
-	listen localhost:8080;
-	index public/index.html;
+	listen localhost:8889;
+	index public/page2.html;
 	server_name Hello;
 	error_page 404 502 203 /home/user/Desktop/git/webserv/public/www;
 	root	/home/user/Desktop/git/webserv/public;
