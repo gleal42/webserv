@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 20:00:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/01 15:07:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,14 @@
 # include <netdb.h>
 # include <sys/time.h>
 # include <sys/stat.h>
+# include <cstdlib> // For EXIT_FAILURE, etc, macros
+# include <sstream>
+# include <cstring>
+# include <fstream>
+# include <exception>
 # include <map>
 # include <vector>
 # include <unistd.h>
-# include <cstdlib> // For EXIT_FAILURE, etc, macros
-# include <sstream>
 # include <arpa/inet.h> // inet_ntop()
 # include "macros.hpp"
 # include "BaseStatus.hpp"
@@ -47,7 +50,6 @@ bool				is_directory(const std::string &path);
 bool				is_file(const std::string &path);
 struct addrinfo *	get_host(const std::string &hostname );
 bool				is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host);
-
 void				remove_directory(std::string &path);
 std::string			address_to_hostname(struct sockaddr *address);
 std::string			b64decode(const std::string & encoded_string);

@@ -6,11 +6,16 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/23 16:55:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/19 15:31:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/01 15:00:26 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "url.hpp"
+
+// unsigned char a = 195;
+// unsigned char b = 167;
+// char a[] = "\xC3";
+// char b[] = "\xA7";
 
 // unsigned char a = 195;
 // unsigned char b = 167;

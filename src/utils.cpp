@@ -6,12 +6,16 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 00:17:42 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/01 15:09:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
+# include <unistd.h>
 # include "HTTPStatus.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 std::string	to_string(int number)
 {
@@ -96,7 +100,7 @@ HTTPStatusGroup	http_group( int code )
 	};
 }
 
-std::string	get_extension( const std::string &filename )
+std::string get_extension( const std::string &filename )
 {
     std::string extension;
     size_t ext_position = filename.find_last_of('.');
@@ -179,15 +183,6 @@ bool is_directory(const std::string &path)
     return (false);
 }
 
-void	remove_directory(std::string &path)
-{
-	size_t backslash_pos = path.find_last_of('/');
-	if (backslash_pos == std::string::npos)
-		path.clear();
-	else
-		path = path.substr(0, (backslash_pos+1));
-}
-
 bool is_file(const std::string &path)
 {
     struct stat s;
@@ -207,14 +202,14 @@ struct addrinfo *get_host(const std::string &hostname )
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_protocol = IPPROTO_TCP;
 	int resolve_req_host = getaddrinfo(hostname.c_str(), NULL, &hints, &host);
-	if (resolve_req_host != 0)
-	{
+	if (resolve_req_host != 0){
         if (resolve_req_host == EAI_NONAME)
             return NULL;
         throw HTTPStatus<500>();
-	}
-    if (host->ai_next != NULL)
+    }
+    if (host->ai_next != NULL){
         throw HTTPStatus<500>();
+    }
 	return host;
 }
 
@@ -223,7 +218,7 @@ struct addrinfo *get_host(const std::string &hostname )
  * (addresses being listened) include that of the request.
  * This is done by resolving the request hostname and checking
  * the address
- * 
+ *
  * @param listener_address listen 'address':port (address part)
  * @param req_host Host: 'hostname':80 (hostname part)
  * @return Request was sent to an interface which this listener is bound to
@@ -245,6 +240,14 @@ bool is_address_being_listened(const std::string & listener_address, const struc
 	return false;
 }
 
+void	remove_directory(std::string &path)
+{
+	size_t backslash_pos = path.find_last_of('/');
+	if (backslash_pos == std::string::npos)
+		path.clear();
+	else
+		path = path.substr(0, (backslash_pos+1));
+}
 std::string address_to_hostname(struct sockaddr *address)
 {
     static char buf[NI_MAXHOST];

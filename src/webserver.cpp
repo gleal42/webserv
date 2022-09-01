@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/26 17:28:26 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/01 01:16:52 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int webserver(std::string config_file)
     }
 
 	// Initialize all Listeners
-    Server webserv(parser);
+    Server webserv(parser); //TODO: rethink this design
 
 	// Start waiting for events
 	webserv.start();

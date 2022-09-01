@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:10:59 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/01 15:00:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,10 @@ class	Listener;
 class	Request;
 class	Response;
 class	Server;
+class 	ServerConfig;
 class	Socket;
 class	URI;
 
-struct	ServerConfig;
 // TODO: add error structs?
 
 enum RequestMethod {

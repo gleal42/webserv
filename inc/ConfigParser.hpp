@@ -1,21 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConfigParser.hpp                                         :+:      :+:    :+:   */
+/*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/06/22 08:37:35 by msousa            #+#    #+#             */
-/*   Updated: 2022/06/23 09:55:15 by msousa           ###   ########.fr       */
+/*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
+/*   Updated: 2022/09/01 00:42:16 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef __CONFIG_PARSER_H__
 # define __CONFIG_PARSER_H__
 
-# include <iostream>
+#include "webserver.hpp"
+#include "ServerConfig.hpp"
 
-# include "ServerConfig.hpp"
+# define SEPARATORS         " \t\v\n\r\f"
+# define SERVER_CONTEXT     1
+# define LOCATION_CONTEXT   2
+
 # include "types.hpp"
 
 // ************************************************************************** //
@@ -32,28 +36,67 @@ Needs to be able to:
 
 */
 
-class ConfigParser {
-
-public:
-
-	ConfigParser(std::string config_file);
-	~ConfigParser( void );
-	ConfigParser &	operator = ( ConfigParser const & rhs );
-
-	// Getters
-	ServerConfig	config( int const index ) const;
-	int				configs_amount( void ) const;
-
-	void			call( void );
-
-private:
-
-	ConfigParser( void );
-	ConfigParser( ConfigParser const & src );
-	std::string		_config_file;
-	int				_configs_amount;
-	Configs			_configs;
-
+struct ConfigError : virtual public std::runtime_error{
+        ConfigError();
+        virtual ~ConfigError (void) throw(){}
+        // virtual const char*		what( void ) const throw ();
 };
 
+struct ConfigurationFileError : public ConfigError{
+    ConfigurationFileError(void);
+};
+struct ConfigurationDirectiveError : public ConfigError{
+    ConfigurationDirectiveError(const std::string err);
+};
+struct ConfigurationSyntaxError : public ConfigError{
+    ConfigurationSyntaxError(void);
+};
+struct LocationPathError : public ConfigError{
+    LocationPathError(const std::string err);
+};
+struct NestedContextError : public ConfigError{
+    NestedContextError(void);
+};
+struct EmptyContextBlockError : public ConfigError{
+    EmptyContextBlockError(void);
+};
+struct DirectiveOutOfScopeError : public ConfigError{
+    DirectiveOutOfScopeError(const std::string err);
+};
+struct OpenContextBlockError : public ConfigError{
+    OpenContextBlockError(void);
+};
+struct LocationURIError : public ConfigError{
+    LocationURIError(void);
+};
+struct BadDirectoryError : public ConfigError{
+    BadDirectoryError(const std::string err);
+};
+struct BadFileError : public ConfigError{
+    BadFileError(const std::string err);
+};
+struct MultipleArgumentsError : public ConfigError{
+    MultipleArgumentsError(const std::string err);
+};
+
+class ConfigParser
+{
+    public:
+        ConfigParser(std::string);
+        ~ConfigParser(void);
+        ConfigParser(ConfigParser const &src);
+
+        // Methods
+        const ServerConfig  config(int const index) const;
+        int                 configs_amount(void) const;
+        void                call(void);
+        void                context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
+
+        // Config vector
+        Configs         server_configs;
+
+    private:
+        ConfigParser(void);
+        std::string     _config_file;
+};
 #endif /* __CONFIG_PARSER_H__ */

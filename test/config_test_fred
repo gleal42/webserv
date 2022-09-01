@@ -1,0 +1,18 @@
+server {
+	listen localhost:8889;
+	index public/page2.html;
+	server_name Hello;
+	error_page 404 502 203 /home/user/Desktop/git/webserv/public/www;
+	root	/home/user/Desktop/git/webserv/public;
+	client_max_body_size 10000;
+	location /home/user/Desktop {
+		client_max_body_size 13;
+		error_page 207 /home/user/Desktop/git/webserv/public/www;
+	}
+	location /home/user/Desktop/playground {
+		client_max_body_size 33;
+		error_page 200 /home/user/Desktop/git/webserv/public/www;
+		limit_except DELETE POST;
+	}
+	autoindex on;
+}
