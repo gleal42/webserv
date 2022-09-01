@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 10:29:44 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 13:03:36 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ class	Listener;
 class	Request;
 class	Response;
 class	Server;
-class	ServerConfig;
+class 	ServerConfig;
 class	Socket;
 class	URI;
 
