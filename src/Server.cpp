@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 01:13:38 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 02:00:41 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,39 +49,6 @@ Server::Server(const ConfigParser &parser)
 	}
 }
 
-
-void Server::switch_event_to(int ident, uint32_t events)
-{
-    struct epoll_event ev;
-   	ev.events = events;
-	epoll_ctl(this->_fd, EPOLL_CTL_MOD, ident, &ev);
-}
-
-
-void Server::delete_event(int ident)
-{
-    struct epoll_event ev;
-   	ev.events = EPOLLIN | EPOLLOUT | EPOLLET;
-	epoll_ctl(this->_fd, EPOLL_CTL_DEL, ident, &ev);
-}
-=======
-	_queue_fd = QUEUE();
-	if (_queue_fd < 0) {
-		throw CreateError();
-	}
-
-	_listeners_amount = parser.configs_amount();
-
-	Listener	*listener;
-	for (size_t i = 0; i < _listeners_amount; ++i)
-	{
-		listener = new Listener(parser.config(i));
-		listener_event_read_add(listener->fd()); // TODO: method in listener class
-		_listeners[listener->fd()] = listener;
-	}
-}
-
->>>>>>> master
 
 /*
  * File descriptors open are:
