@@ -1,34 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   url_utils.cpp                                      :+:      :+:    :+:   */
+/*   hello_html.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/07/23 16:55:52 by gleal             #+#    #+#             */
-/*   Updated: 2022/07/25 18:46:20 by gleal            ###   ########.fr       */
+/*   Created: 2022/07/31 15:25:18 by gleal             #+#    #+#             */
+/*   Updated: 2022/07/31 15:31:44 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "url_utils.hpp"
+# include <iostream>
 
-namespace url
+int main( void )
 {
-    void	decode( std::string & single_form )
-    {
-        for (std::string::iterator it = single_form.begin();
-            it != single_form.end();)
-		{
-			if (*it == '%')
-			{
-				single_form.erase(it);
-				*it = str_to_hexa(std::string(it, it + 2));
-				single_form.erase(++it);
-			}
-			else if (*it == '+')
-				*it++ = ' ';
-			else
-				it++;
-		}
-	}
+	std::cout << "<!DOCTYPE html>" << std::endl
+	<< "<html>" << std::endl
+	<< "<body>" << std::endl
+	<< "<h1>Basic CGI Script</h1>" << std::endl
+	<< "<p>My first paragraph.</p>" << std::endl
+	<< "</body>" << std::endl
+	<< "</html>";
 }

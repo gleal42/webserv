@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 22:28:53 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 21:42:07 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define __LISTENER_H__
 
 # include "Socket.hpp"
-# include "ServerConfig.hpp"
 # include "types.hpp"
 
 // https://en.wikipedia.org/wiki/List_of_HTTP_header_fields

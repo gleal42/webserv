@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/28 19:16:50 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:16:53 by msousa           ###   ########.fr       */
+/*   Created: 2022/06/13 23:01:05 by gleal             #+#    #+#             */
+/*   Updated: 2022/08/31 19:56:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,12 +101,12 @@ class URI {
 
 public:
 	std::string		host;
-	std::string		port;
+	int				port;
 	std::string		path;
 	std::string		query; // map
 
 	std::string		to_s( void ) {
-		return std::string("http://") + host + std::string(":") + port + path + query;
+		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
 };
 
@@ -131,7 +131,7 @@ public:
 	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private
-	RequestHeaders	_headers;			// Map of request headers
+	RequestHeaders		_headers;			// Map of request headers
 
 	// Parses a request from +socket+.  This is called internally by Server
 	void				parse(Socket & socket, int read_size );
@@ -142,10 +142,15 @@ public:
 	void				join_strings( std::string &str, std::string	&to_add );
 	void				clear( void );
 	std::string			get_form_type( void );
+	std::string			get_auth_type( void ) const;
+	std::string			get_remote_user( void ) const;
 	std::string			get_delimiter( void );
-
+	std::string			get_hostname( void );
+	std::string			method_to_str( void );
 private:
-
+	typedef	std::map<enum RequestMethod, std::string>	ReqMethodConversion;
+	static ReqMethodConversion _method_conv;
+	static ReqMethodConversion init_map();
 };
 
 std::ostream&	operator<<(std::ostream&, const Request&);

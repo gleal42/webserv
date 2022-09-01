@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/06 16:40:42 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 00:17:42 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "webserver.hpp"
+# include "HTTPStatus.hpp"
 
 std::string	to_string(int number)
 {
@@ -111,4 +112,192 @@ int	str_to_hexa(std::string hexa_nbr)
 	ss << std::hex << hexa_nbr.c_str();
 	ss >> x;
 	return (x);
+}
+
+std::string full_path(const std::string &relative_path)
+{
+	char read_buf[200];
+	memset(read_buf, '\0', sizeof(read_buf));
+	std::string abs_path(getcwd(read_buf, 200));
+
+    return (abs_path + '/' + relative_path);
+}
+
+std::vector<char>	convert_to_char_vector(const std::string &string)
+{
+	std::vector<char> char_vector(string.begin(), string.end());
+	char_vector.push_back('\0');
+	return (char_vector);
+}
+
+std::string	filename(const std::string &path)
+{
+	std::string script_filename (path.substr(path.find_last_of('/')));
+	if (script_filename.empty())
+		return (path);
+	return (script_filename.c_str() + 1);
+}
+
+std::string remove_query_string(const std::string &uri)
+{
+    size_t query_string_start = uri.find('?');
+    return (uri.substr(0, query_string_start));
+}
+
+std::string get_query_string(const std::string &uri)
+{
+    std::string query_string;
+
+    size_t query_string_start = uri.find('?');
+    if (query_string_start == std::string::npos)
+        return std::string();
+    return (uri.substr(query_string_start));
+}
+
+// For comparing with original files
+
+// std::ifstream infile;
+// infile.open("cute.jpeg", std::ios::binary);
+// if ( (infile.rdstate() & std::ifstream::failbit ) != 0
+// 	|| (infile.rdstate() & std::ifstream::badbit ) != 0 )
+// {
+// 	ERROR("error opening " << res._uri.c_str());
+// 	throw HTTPStatus<404>();
+// }
+// std::stringstream temp;
+// temp << infile.rdbuf();
+// std::cout << "It should have size: [" << temp.str().size() << "]" << std::endl;
+// infile.close();
+
+bool is_directory(const std::string &path)
+{
+    struct stat s;
+
+    if (lstat(path.c_str(), &s) == 0)
+        if (S_ISDIR(s.st_mode))
+            return (true);
+    return (false);
+}
+
+void	remove_directory(std::string &path)
+{
+	size_t backslash_pos = path.find_last_of('/');
+	if (backslash_pos == std::string::npos)
+		path.clear();
+	else
+		path = path.substr(0, (backslash_pos+1));
+}
+
+bool is_file(const std::string &path)
+{
+    struct stat s;
+
+    if (lstat(path.c_str(), &s) == 0)
+        if (S_ISREG(s.st_mode))
+            return (true);
+    return (false);
+}
+
+struct addrinfo *get_host(const std::string &hostname )
+{
+	struct addrinfo *host;
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	int resolve_req_host = getaddrinfo(hostname.c_str(), NULL, &hints, &host);
+	if (resolve_req_host != 0)
+	{
+        if (resolve_req_host == EAI_NONAME)
+            return NULL;
+        throw HTTPStatus<500>();
+	}
+    if (host->ai_next != NULL)
+        throw HTTPStatus<500>();
+	return host;
+}
+
+/**
+ * Checks if interface to which Listeners is bound
+ * (addresses being listened) include that of the request.
+ * This is done by resolving the request hostname and checking
+ * the address
+ * 
+ * @param listener_address listen 'address':port (address part)
+ * @param req_host Host: 'hostname':80 (hostname part)
+ * @return Request was sent to an interface which this listener is bound to
+ */
+
+bool is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host)
+{
+	print_address("Req", (struct sockaddr *)req_host);
+    struct addrinfo *listener_host = get_host(listener_address.c_str());
+	print_address("Listener", listener_host->ai_addr);
+	const struct sockaddr_in *listener_addr = (const struct sockaddr_in *)listener_host->ai_addr;
+	if (listener_addr->sin_addr.s_addr == 0
+		|| listener_addr->sin_addr.s_addr == req_host->sin_addr.s_addr)
+	{
+		freeaddrinfo(listener_host);
+		return true;
+	}
+	freeaddrinfo(listener_host);
+	return false;
+}
+
+std::string address_to_hostname(struct sockaddr *address)
+{
+    static char buf[NI_MAXHOST];
+    std::memset(buf, '\0', NI_MAXHOST);
+    
+    getnameinfo(address, sizeof(*address), buf, sizeof(buf), NULL, 0, NI_NUMERICHOST);
+    return(buf);
+}
+
+static unsigned int b64_decode_table(const unsigned char chr) {
+    if		(chr >= 'A' && chr <= 'Z') return chr - 'A';
+    else if (chr >= 'a' && chr <= 'z') return chr - 'a' + ('Z' - 'A')               + 1;
+    else if (chr >= '0' && chr <= '9') return chr - '0' + ('Z' - 'A') + ('z' - 'a') + 2;
+    else if (chr == '+' || chr == '-') return 62;
+    else if (chr == '/' || chr == '_') return 63;
+    else if (chr == '=' || chr == '.') return 0;
+    throw HTTPStatus<500>();
+}
+
+// Encoding and Decoding keeping the same binary representation while:
+// Encoding -> Turning 3 chars into 4 chars
+// Decoding -> Turning 4 chars into 3 chars
+// three ASCII numbers 155, 162, and 233
+// 10011011 10100010 11101001
+// Encoding them would mean to do this:
+// 100110 111010 001011 101001 (38 58 11 41)
+// Which we can then translate to m6Lp if we use the Base64 Encoding Table
+// https://www.lifewire.com/base64-encoding-overview-1166412
+// In base64 chars have at most 6 bits so they have to be converted to 8 bits
+
+std::string b64decode(const std::string& encoded_string)
+{
+    size_t length_of_string = encoded_string.length();
+    size_t pos = 0;
+    std::string ret;
+    while (pos < length_of_string)
+	{
+		ret.push_back(
+			((b64_decode_table(encoded_string[pos+0])) << 2) // Starting 6 bits taken from 1st char
+		+	((b64_decode_table(encoded_string[pos+1]) & 0x30 ) >> 4)); // Last 2 bits taken from 2st char (110000)
+       if (pos + 2 < length_of_string)
+       {
+			ret.push_back(
+			((b64_decode_table(encoded_string[pos+1]) & 0x0f) << 4)	// Starting 4 bits taken from 2nd char (001111)
+		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100) 
+       }
+	   if (pos + 3 < length_of_string)
+	   {
+			ret.push_back(
+			((b64_decode_table(encoded_string[pos+2]) & 0x03 ) << 6 ) // Starting 2 bits taken from 3rd char (000011)
+			+ b64_decode_table(encoded_string[pos+3])); // Last 6 bits taken from 4th char
+	   }
+       pos += 4;
+    }
+    return ret;
 }

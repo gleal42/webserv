@@ -3,27 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/31 15:17:38 by msousa           ###   ########.fr       */
+/*   Updated: 2022/08/31 21:37:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-
-/*
-    Testes a passar:
-    EOF working
-    HTML CSS priority
-    Javascript (later)
- */
+#include "FileHandler.hpp"
+#include "CGIHandler.hpp"
+#include <iostream>
+#include <stdexcept>
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
 // private
 Server::Server( void ) { throw std::runtime_error("Please use non-default constructor"); }
+
+// The size argument is an indication to the kernel about the number of file descriptors
+// a process wants to monitor, which helps the kernel to decide the size of the epoll
+// instance. Since Linux 2.6.8, this argument is ignored because the epoll data structure
+// dynamically resizes as file descriptors are added or removed from it.
 
 // Getters
 int	Server::queue_fd( void ) const { return _queue_fd; }
@@ -100,6 +102,7 @@ void	Server::start( void )
 
 					if (connection_it->second->response.is_empty()) {
 						connection_it->second->request.clear();
+						connection_it->second->response.clear();
 					}
 				}
 			}
@@ -146,35 +149,6 @@ void	Server::connection_new( Listener * listener )
 	epoll_ctl(_queue_fd, EPOLL_CTL_ADD, connection_fd, &event);
 #endif
 }
-
-// Reference
-// Does necessary to service a connection
-// void	Server::run(Socket & socket) {
-// 	Request 	req(_config);
-// 	Response 	res(_config);
-// 	try {
-// 		// while timeout and Running
-// 		req.parse(socket);
-// 		res.request_method = req.request_method;
-// 		// res.request_uri = req.request_uri;
-// 		// if (request_callback) {
-// 		// 	request_callback(req, res);
-// 		// }
-// 		service(req, res);
-// 	}
-// 	catch (BaseStatus & error) {
-// 		ERROR(error.what());
-// 		// res.set_error(error);
-// 		if (error.code) {
-// 			// res.status = error.code;
-// 		}
-// 	}
-// 	// if (req.request_line != "") {
-// 	// 	res.send_response(socket);
-// 	// }
-
-// 	res.send_response(socket);
-// }
 
 /**
  * The reason why parse is done here is so that we know when we should
@@ -224,7 +198,7 @@ void	Server::connection_write( Connection *connection )
 	LOG("About to write to file descriptor: " << connection->fd());
 
 	if (connection->response.is_empty()) {
-		service(connection->request, connection->response);
+		service(connection->request, connection->response, connection->address());
 	}
 
 	connection->response.send_response(*connection);
@@ -278,16 +252,25 @@ void	Server::connection_event_toggle_read( int connection_fd )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
-void	Server::service( Request & req, Response & res )
+void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
-	FileHandler	handler;
+    Handler *handler (choose_handler(req.request_uri, connection_addr));
 	try {
-		handler.service(req, res);
+		handler->service(req, res);
+		res.build_message(handler->script_status());
+	} catch (BaseStatus &error_status) {
+		res.set_error_page(error_status);
 	}
-	catch (BaseStatus &error_status) {
-		res.set_error_body(error_status.code);
-		res.build_message(error_status);
-	}
+	delete handler;
+}
+
+Handler *Server::choose_handler( const URI &uri, const in_addr &connection_addr )
+{
+    std::string extension = get_extension(uri.path);
+    if (CGIHandler::extension_is_implemented(extension))
+        return (new CGIHandler(uri, connection_addr));
+    else
+        return (new FileHandler());
 }
 
 Server::~Server( void )

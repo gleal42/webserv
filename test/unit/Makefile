@@ -16,7 +16,7 @@ all:	socket listener connection parser status handler file_handler server event
 
 
 ##---  Socket  ---##
-SOCKET := Socket.test.cpp ../../src/utils.cpp ../../src/Socket.cpp
+SOCKET := Socket.test.cpp ../../src/utils.cpp ../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp
 
 socket: Socket # run Socket class tests
 	./Socket
@@ -28,7 +28,7 @@ Socket:	$(SOCKET) ../../inc/Socket.hpp
 
 ##---  Listener  ---##
 LISTENER := Listener.test.cpp ../../src/utils.cpp ../../src/Listener.cpp \
-	../../src/Socket.cpp
+	../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp
 
 listener: Listener # run Listener class tests
 	./Listener
@@ -41,7 +41,8 @@ Listener:	$(LISTENER) ../../inc/Listener.hpp
 ##---  Connection  ---##
 CONNECTION := Connection.test.cpp ../../src/utils.cpp ../../src/Connection.cpp \
 	../../src/Socket.cpp ../../src/Listener.cpp ../../src/Request.cpp \
-	../../src/Response.cpp ../../src/BaseStatus.cpp
+	../../src/Response.cpp ../../src/BaseStatus.cpp ../../src/print.cpp \
+	../../src/file.cpp
 
 connection: Connection # run Connection class tests
 	./Connection
@@ -63,7 +64,8 @@ ConfigParser:	$(PARSER) ../../inc/ConfigParser.hpp
 
 
 ##---  HTTPStatus  ---##
-STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp ../../src/utils.cpp
+STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp \
+../../src/utils.cpp ../../src/print.cpp
 
 status: HTTPStatus # run HTTPStatus class tests
 	./HTTPStatus
@@ -75,8 +77,9 @@ HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 
 ##---  Handler  ---##
 HANDLER := Handler.test.cpp ../../src/Handler.cpp \
-	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
-	../../src/Request.cpp ../../src/Socket.cpp ../../src/Response.cpp
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
+	../../src/Request.cpp ../../src/Socket.cpp ../../src/Response.cpp \
+	../../src/print.cpp ../../src/file.cpp
 
 handler: Handler # run Handler class tests
 	./Handler
@@ -88,9 +91,9 @@ Handler:	$(HANDLER) ../../inc/Handler.hpp
 
 ##---  FileHandler  ---##
 FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
-	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url_utils.cpp \
-	../../src/Handler.cpp ../../src/Request.cpp ../../src/Socket.cpp \
-	../../src/Response.cpp
+	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
+	../../src/print.cpp ../../src/file.cpp ../../src/Handler.cpp ../../src/Request.cpp \
+	../../src/Socket.cpp ../../src/Response.cpp
 
 file_handler: FileHandler # run FileHandler class tests
 	./FileHandler
@@ -103,9 +106,10 @@ FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
 ##---  Server  ---##
 SERVER := Server.test.cpp ../../src/Server.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/Connection.cpp \
-	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/ConfigParser.cpp \
-	../../src/Request.cpp ../../src/Listener.cpp ../../src/Response.cpp \
-	../../src/url_utils.cpp ../../src/Socket.cpp ../../src/Event.cpp
+	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/CGIHandler.cpp\
+	../../src/ConfigParser.cpp ../../src/Request.cpp ../../src/Listener.cpp \
+	../../src/Response.cpp ../../src/url.cpp ../../src/Socket.cpp \
+	../../src/Event.cpp ../../src/print.cpp ../../src/file.cpp
 
 server: Server # run Server class tests
 	./Server

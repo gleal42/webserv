@@ -18,6 +18,7 @@ NAME := webserv
 SRCS := main.cpp \
 		webserver.cpp \
 		Server.cpp \
+		Event.cpp \
 		ConfigParser.cpp \
 		Listener.cpp \
 		Connection.cpp \
@@ -26,9 +27,11 @@ SRCS := main.cpp \
 		Socket.cpp \
 		Handler.cpp \
 		FileHandler.cpp \
+		CGIHandler.cpp \
 		BaseStatus.cpp \
-		Event.cpp \
-		url_utils.cpp \
+		url.cpp \
+		file.cpp \
+		print.cpp \
 		utils.cpp
 VPATH = src/
 OBJ_DIR := obj/
