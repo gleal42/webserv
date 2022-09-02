@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/01 00:42:16 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/01 16:51:05 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,8 @@ class ConfigParser
         int                 configs_amount(void) const;
         void                call(void);
         void                context_parser(std::ifstream *file, int context, std::string location_path = "", ServerConfig* server_ptr = 0);
+        void				set_tester_conf(void);
+        void            	set_general_conf(void);
 
         // Config vector
         Configs         server_configs;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 23:51:45 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/02 01:01:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,8 @@ ServerConfig::ServerConfig()
 {
     Listen  init_listen;
 
-    init_listen.ip = "127.0.0.1";
-    init_listen.port = 8080;
+    init_listen.ip = "0.0.0.0";
+    init_listen.port = 80;
     init_listen.is_set = false;
     this->_listens.push_back(init_listen);
 };
@@ -134,7 +134,7 @@ namespace {
 // BaseConfig Setters
 // void BaseConfig::set_directive(int directive, std::string& content)
 
-void    BaseConfig::set_root(bool has_separators, std::string &content)
+void    BaseConfig::set_root(bool has_separators, const std::string &content)
 {
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
@@ -143,7 +143,7 @@ void    BaseConfig::set_root(bool has_separators, std::string &content)
     this->_root = content;
 }
 
-void    BaseConfig::set_autoindex(std::string &content)
+void    BaseConfig::set_autoindex(const std::string &content)
 {
     if (content == "on")
         this->_autoindex = AUTOINDEX_ON;
@@ -153,7 +153,7 @@ void    BaseConfig::set_autoindex(std::string &content)
 	    throw (ConfigurationDirectiveError(content));
 }
 
-void    BaseConfig::set_error_pages(std::string &content)
+void    BaseConfig::set_error_pages(const std::string &content)
 {
     size_t              found = content.find_last_of(SEPARATORS);
 
@@ -181,7 +181,7 @@ void    BaseConfig::set_error_pages(std::string &content)
     }
 }
 
-void    BaseConfig::set_max_body_size(bool has_separators,std::string &content)
+void    BaseConfig::set_max_body_size(bool has_separators, const std::string &content)
 {
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
@@ -193,7 +193,7 @@ void    BaseConfig::set_max_body_size(bool has_separators,std::string &content)
     this->_client_max_body_size = max_size;
 }
 
-void    BaseConfig::set_indexes(std::string &content)
+void    BaseConfig::set_indexes(const std::string &content)
 {
     std::string tmp(content);
     char*       token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
@@ -208,7 +208,7 @@ void    BaseConfig::set_indexes(std::string &content)
     }
 }
 
-void    BaseConfig::set_redirect(bool has_separators, std::string &content)
+void    BaseConfig::set_redirect(bool has_separators, const std::string &content)
 {
     Redirect    new_redir;
     std::string str;
@@ -260,7 +260,7 @@ bool    LocationConfig::is_empty( void )
         && this->_limit_except.empty() && this->_cgi.empty());
 }
 
-int     LocationConfig::find_directive(std::string &directive)
+int     LocationConfig::find_directive(const std::string &directive)
 {
     const std::string   valid_location_directives[CONTEXT_DIRECTIVES] =
     {"root", "autoindex", "error_page", "client_max_body_size", "index",
@@ -278,7 +278,7 @@ int     LocationConfig::find_directive(std::string &directive)
 
 // LocationConfig setters
 
-void LocationConfig::set_directive(int directive, std::string& content)
+void LocationConfig::set_directive(int directive, const std::string& content)
 {
     bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
     if (content.empty())
@@ -315,7 +315,7 @@ void LocationConfig::set_directive(int directive, std::string& content)
     }
 }
 
-void    LocationConfig::set_cgi(bool has_separators, std::string &content)
+void    LocationConfig::set_cgi(bool has_separators, const std::string &content)
 {
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
@@ -324,7 +324,7 @@ void    LocationConfig::set_cgi(bool has_separators, std::string &content)
     this->_cgi = content;
 }
 
-void    LocationConfig::set_limit_except(std::string &content)
+void    LocationConfig::set_limit_except(const std::string &content)
 {
     char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
 
@@ -355,11 +355,11 @@ bool    ServerConfig::is_empty( void )
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
         && this->_indexes.empty() && this->_redirect.empty()
-        && this->_listens[0].ip == "127.0.0.1" && this->_listens[0].port == 8080
+        && this->_listens[0].ip == "0.0.0.0" && this->_listens[0].port == 80
         && this->_server_names.empty() && this->_locations.empty());
 }
 
-int     ServerConfig::find_directive(std::string &directive)
+int     ServerConfig::find_directive(const std::string &directive)
 {
     const std::string   valid_server_directives[CONTEXT_DIRECTIVES] =
     {"root","autoindex", "error_page", "client_max_body_size", "index",
@@ -375,7 +375,7 @@ int     ServerConfig::find_directive(std::string &directive)
 }
 
 // ServerConfig setters
-void ServerConfig::set_directive(int directive, std::string& content)
+void ServerConfig::set_directive(int directive, const std::string& content)
 {
     bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
     if (content.empty())
@@ -412,7 +412,7 @@ void ServerConfig::set_directive(int directive, std::string& content)
     }
 };
 
-void    ServerConfig::set_listen(bool has_separators, std::string &content)
+void    ServerConfig::set_listen(bool has_separators, const std::string &content)
 {
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
@@ -463,7 +463,7 @@ void    ServerConfig::set_listen(bool has_separators, std::string &content)
         this->_listens.push_back(new_listen);
 }
 
-void    ServerConfig::set_server_name(std::string &content)
+void    ServerConfig::set_server_name( const std::string &content )
 {
     std::string tmp(content);
     char *token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
@@ -475,10 +475,15 @@ void    ServerConfig::set_server_name(std::string &content)
     }
 }
 
+void    ServerConfig::set_location(const std::string &name, const LocationConfig& location)
+{
+    _locations[name] = location;
+}
+
 // ServerConfig Getters
 
 const std::vector<Listen>&      ServerConfig::get_listens( void ) const {return (this->_listens);}
-Locations&                      ServerConfig::get_locations( void ) {return (this->_locations);}
+const Locations&                      ServerConfig::get_locations( void ) const {return (this->_locations);}
 const std::vector<std::string>& ServerConfig::get_server_names( void ) const {return (this->_server_names);}
 
 
@@ -617,4 +622,14 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
     s << "| }\n";
     s << "|**********************************************|"<< std::endl;
     return (s);
+}
+
+const std::string &     ServerConfig::get_ip( void ) const
+{
+    return _listens[0].ip;
+}
+
+int                     ServerConfig::get_port( void ) const
+{
+    return _listens[0].port;
 }

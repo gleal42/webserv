@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/04 19:51:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/05 22:12:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ public:
 
 	void 			create( void );
 	void 			setsockopt( int option );
-	void			bind( int port );
+	void			bind( const std::string &host_id, int port );
 	void			close( void );
 	void			listen( int max_connections );
 	int				send( const std::string & response ) const;
@@ -107,6 +107,7 @@ public:
 private:
 
 	// Should be private to avoid being set to a wrong value
+	struct addrinfo *	_host;
 	int					_port;
 	int					_fd;
 	SocketAddress		_address;

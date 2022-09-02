@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   file.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 01:33:04 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 22:12:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,6 @@ namespace file
 		}
 		return "application/octet-stream";
 	}
-
-
 
 	std::streampos	size( std::string &full_path )
 	{
@@ -105,7 +103,7 @@ namespace file
 		if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
 			throw HTTPStatus<405>();
 		}
-		if (filename.substr(0, 20) != "public/post/uploads/") // Temporary
+		if (filename.substr(0, 20) != "public/uploads/") // Temporary
 			throw HTTPStatus<405>();
 		std::cout << "Extension is [" << file_extension << "]" << std::endl;
 		std::cout << "Filename is [" << filename << "]" << std::endl;
@@ -125,5 +123,16 @@ namespace file
 		str.push_back('\0');
 		munmap(file_contents, sz);
 		return (str);
+	}
+	Index_const_it find_valid_index(const std::string &root, const std::vector<std::string> &indexes )
+	{
+		for (Index_const_it index = indexes.begin();
+		index != indexes.end();
+		index++)
+		{
+			if (is_file(root + (*index)))
+				return (index);
+		}
+		return (indexes.end());
 	}
 }

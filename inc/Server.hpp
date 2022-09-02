@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 14:57:26 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/02 00:47:37 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include "Connection.hpp"
 #include "ConfigParser.hpp"
 #include "Handler.hpp"
+#include "types.hpp"
 
 // ************************************************************************** //
 //                               Server Class                             	  //
@@ -61,7 +62,10 @@ public:
 	void			start( void );
 	void			service(Request & req, Response & res, const in_addr &connection_addr);
 	int				events_wait();
-	Handler *		choose_handler( const URI &uri, const in_addr &connection_addr);
+	ServerConfig	config_choose(const Request & req);
+	Handler *		handler_choose( Request & req, const in_addr &connection_addr);
+	Location_const_it	find_location_to_use(const ServerConfig &server_block, const std::string & path);
+	void    		resolve_path(std::string & path, const ServerConfig & server_conf, Location_const_it locations);
 
 	/* Connection */
 	void			connection_new( Listener * listener );

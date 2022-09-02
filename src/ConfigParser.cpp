@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/04 18:36:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 22:13:09 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,7 +119,7 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
                     throw (EmptyContextBlockError());
                 if (!(is_directory(location_path)))
 	                throw (BadDirectoryError(content));
-                server_ptr->get_locations()[location_path] = new_location;
+                server_ptr->set_location(location_path, new_location);
             }
             return;
         }
@@ -156,33 +156,91 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
 // This function opens the _config_file, and then parses the file while looking for an opening server block (aka "server {")
 // Then, calls context_parser() to parse the server block
 // OBS: So far, the new ServerConfig object is being stored inside the ConfigParser
-void ConfigParser::call()
+void    ConfigParser::call()
 {
     std::ifstream   file;
     std::string     line;
     std::string     directive;
     size_t          separator;
 
-    file.open(this->_config_file.c_str());
-    if (!file.is_open())
-        throw ConfigurationFileError();
-    while (std::getline(file, line))
-    {
-        line = strtrim(line);
-        if (!line.length() || line[0] == '#')
-            continue;
-        separator = line.find_first_of(SEPARATORS);
-        directive = line.substr(0, separator);
-        if (directive == "server"){
-            if (line[separator + 1] != '{')
-                throw ConfigurationSyntaxError();
-            context_parser(&file, SERVER_CONTEXT);
+    try{
+        file.open(this->_config_file.c_str());
+        if (!file.is_open())
+            throw ConfigurationFileError();
+        while (std::getline(file, line))
+        {
+            line = strtrim(line);
+            if (!line.length() || line[0] == '#')
+                continue;
+            separator = line.find_first_of(SEPARATORS);
+            directive = line.substr(0, separator);
+            if (directive == "server"){
+                if (line[separator + 1] != '{')
+                    throw ConfigurationSyntaxError();
+                context_parser(&file, SERVER_CONTEXT);
+            }
+            else
+                throw DirectiveOutOfScopeError(directive);
         }
-        else
-            throw DirectiveOutOfScopeError(directive);
+    }
+    catch (ConfigError &e) {
+		    ERROR(e.what());
     }
     file.close();
     std::vector<ServerConfig>::iterator it = server_configs.begin();
     for(; it != server_configs.end(); it++)
         std::cout << *it;
 };
+
+// int main(int ac, char **av)
+// {
+//     std::string file(av[1]);
+//     if (ac == 2)
+//     {
+//         ConfigParser config_parser(file);
+//         std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
+//         std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
+//     }
+
+//     return (0);
+// };
+
+
+void	ConfigParser::set_general_conf(void)
+{
+    ServerConfig server_block_1;
+    server_block_1.set_root(0, "public/");
+    server_block_1.set_listen(0, "8080");
+    server_block_1.set_server_name("first");
+    server_block_1.set_indexes("index.html");
+
+    LocationConfig location_1a;
+    location_1a.set_limit_except("GET POST PUT DELETE");
+    server_block_1.set_location("/", location_1a);
+
+    LocationConfig location_1b;
+    location_1b.set_limit_except("GET POST PUT DELETE");
+    location_1b.set_root(false, "public/mid_folder/");
+    server_block_1.set_location("/post/", location_1b);
+
+    server_configs.push_back(server_block_1);
+
+    ServerConfig server_block_2;
+    server_block_2.set_listen(0, "8080");
+    server_block_2.set_server_name("second");
+    server_block_2.set_indexes("ms_index.html");
+    LocationConfig location_2;
+    location_2.set_limit_except("GET POST PUT DELETE");
+    server_block_2.set_location("/", location_2);
+    server_configs.push_back(server_block_2);
+}
+
+void	ConfigParser::set_tester_conf(void)
+{
+    ServerConfig general_server;
+    general_server.set_listen(0, "8080");
+    general_server.set_server_name("boss_group");
+    general_server.set_indexes("index.html");
+
+    server_configs.push_back(general_server);
+}

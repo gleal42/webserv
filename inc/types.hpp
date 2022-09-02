@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:00:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/02 00:45:52 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ class	Listener;
 class	Request;
 class	Response;
 class	Server;
+class 	LocationConfig;
 class 	ServerConfig;
 class	Socket;
 class	URI;
@@ -57,19 +58,23 @@ enum RequestMethod {
 typedef std::string					String;
 typedef std::map<String, String>	StringMap;
 
-typedef std::vector<ServerConfig> 		Configs;
-typedef std::map<int, Connection *>		Connections;
-typedef Connections::iterator			Connections_it;
-typedef std::set<String>				Extensions;
-typedef StringMap						Parameters;
-typedef sockaddr_in						SocketAddress;
-typedef std::map<int, Listener *>		Listeners;
-typedef Listeners::iterator				Listener_it;
-typedef StringMap						ResponseHeaders;
-typedef StringMap						RequestHeaders;
-typedef std::map<String, RequestMethod>	RequestMethods;
-typedef	ResponseHeaders::iterator		ResponseHeaders_it;
-typedef std::map<int, String>			HTTPStatuses;
-typedef StringMap						MimeTypes;
+typedef std::vector<ServerConfig> 				Configs;
+typedef std::map<int, Connection *>				Connections;
+typedef Connections::iterator					Connections_it;
+typedef std::set<String>						Extensions;
+typedef StringMap								Parameters;
+typedef sockaddr_in								SocketAddress;
+typedef std::map<int, Listener *>				Listeners;
+typedef Listeners::iterator						Listener_it;
+typedef StringMap								ResponseHeaders;
+typedef StringMap								RequestHeaders;
+typedef std::map<String, RequestMethod>			RequestMethods;
+typedef	ResponseHeaders::iterator				ResponseHeaders_it;
+typedef std::map<int, String>					HTTPStatuses;
+typedef StringMap								MimeTypes;
+typedef std::map<std::string, LocationConfig>	Locations;
+typedef Locations::const_iterator				Location_const_it;
+typedef std::vector<std::string>				Indexes;
+typedef Indexes::const_iterator					Index_const_it;
 
 #endif

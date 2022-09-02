@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:00:14 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/02 00:50:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,7 +254,12 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
-    Handler *handler (choose_handler(req.request_uri, connection_addr));
+	if (req.request_uri.host.empty())
+		throw HTTPStatus<400>();
+	ServerConfig config_to_use = config_choose(req);
+	Location_const_it location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
+	resolve_path(req.request_uri.path, config_to_use, location_to_use);
+    Handler *handler (handler_choose(req, connection_addr));
 	try {
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -264,13 +269,122 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 	delete handler;
 }
 
-Handler *Server::choose_handler( const URI &uri, const in_addr &connection_addr )
+Handler *Server::handler_choose( Request & req, const in_addr &connection_addr )
 {
-    std::string extension = get_extension(uri.path);
-    if (CGIHandler::extension_is_implemented(extension))
-        return (new CGIHandler(uri, connection_addr));
+	std::string extension = get_extension(req.request_uri.path);
+	if (CGIHandler::extension_is_implemented(extension))
+        return (new CGIHandler(req.request_uri, connection_addr));
     else
         return (new FileHandler());
+}
+
+ServerConfig   Server::config_choose(const Request & req)
+{
+	ServerConfig to_use;
+	struct addrinfo *host = get_host(req.request_uri.host);
+	
+	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
+	{
+		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
+			&& it->second->_config.get_port() == req.request_uri.port)
+		{
+			// if (it->second.is_default())
+			if (to_use.is_empty())
+				to_use = it->second->_config;
+			std::vector<std::string> server_names = it->second->_config.get_server_names();
+			for (std::vector<std::string>::iterator it_s = server_names.begin();
+				it_s != server_names.end();
+				it_s++)
+			{
+				if (*it_s == req.request_uri.host)
+				    to_use = it->second->_config;
+			}
+		}
+	}
+	freeaddrinfo(host);
+	if (to_use.get_server_names().size())
+		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
+	return (to_use);
+}
+
+Location_const_it      Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
+{
+	std::string path_directory = path;
+	if (path_directory.back() != '/')
+		path_directory.push_back('/');
+	const Locations &locations = server_block.get_locations();
+	while (path_directory.empty() == false)
+	{
+		for (Location_const_it it = locations.begin();
+			it != locations.end();
+			it++)
+			{
+				if ((it->first) == path_directory)
+					return (it);
+			}
+		path_directory.pop_back();
+		// remove_directory(path_directory);
+	}
+	// locations.insert("/", LocationConfig());
+	// return locations["/"];
+	throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
+}
+
+// Create URL object
+
+void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Location_const_it locations)
+{
+	std::string root = locations->second.get_root();
+	if (root.empty())
+	{
+		root = server_conf.get_root();
+		if (root.empty())
+			root = "public";
+	}
+	if (root.back() == '/')
+		root.pop_back();
+	std::string location_name = locations->first;
+	std::string temp_path = root + path;
+	if (is_file(temp_path))
+	{
+		path = temp_path;
+		return ;
+	}
+	if (is_directory(temp_path))
+	{
+		root = temp_path;
+		if (root.back() != '/')
+			root.push_back('/');
+		Indexes indexes;
+		indexes = locations->second.get_indexes();
+		if (indexes.empty())
+		{
+			indexes = server_conf.get_indexes();
+			if (indexes.empty())
+			{
+				if (is_file(root + "index.html"))
+				{
+				    path = root + "index.html";
+				    return ;   
+				}
+				throw HTTPStatus<404>(); 
+			}
+			Index_const_it index = file::find_valid_index(root, indexes);
+			if (index == indexes.end())
+			{
+				if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+					throw HTTPStatus<501>(); // Not implemented yet
+				throw HTTPStatus<403>();
+			}
+			path = root + (*index);
+			return ;
+		}
+		Index_const_it index = file::find_valid_index(root, indexes);
+		if (index == indexes.end())
+			throw HTTPStatus<404>();
+		path = root + (*index);
+	}
+	throw HTTPStatus<404>(); 
 }
 
 Server::~Server( void )
