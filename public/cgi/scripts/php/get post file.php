@@ -50,7 +50,11 @@ echo "</html>";
 
 function upload_file()
 {
+<<<<<<< HEAD:public/cgi/scripts/php/get post file.php
    $upload_dir = "../../../uploads/";
+=======
+   $upload_dir = "../../../mid_folder/post/uploads/";
+>>>>>>> ad9d26c (Added resolved path logic from gl/tests/42_tester):public/cgi/php/get post file.php
    $filename = trim($_FILES["cute_picture"]["name"]);
    $file_to_upload = basename($filename);
    $extension = pathinfo($file_to_upload, PATHINFO_EXTENSION);

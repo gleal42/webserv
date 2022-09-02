@@ -6,7 +6,11 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2022/09/02 13:43:46 by gleal            ###   ########.fr       */
+=======
+/*   Updated: 2022/09/02 00:47:37 by gleal            ###   ########.fr       */
+>>>>>>> ad9d26c (Added resolved path logic from gl/tests/42_tester)
 /*                                                                            */
 /* ************************************************************************** */
 

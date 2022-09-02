@@ -6,7 +6,11 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2022/09/05 22:14:15 by gleal            ###   ########.fr       */
+=======
+/*   Updated: 2022/09/02 00:57:10 by gleal            ###   ########.fr       */
+>>>>>>> ad9d26c (Added resolved path logic from gl/tests/42_tester)
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +188,63 @@ void    ConfigParser::call()
 		    ERROR(e.what());
     }
     file.close();
+<<<<<<< HEAD
     std::vector<ServerConfig>::iterator it = server_configs.begin();
     for(; it != server_configs.end(); it++)
         std::cout << *it;
+=======
+>>>>>>> ad9d26c (Added resolved path logic from gl/tests/42_tester)
 };
+
+// int main(int ac, char **av)
+// {
+//     std::string file(av[1]);
+//     if (ac == 2)
+//     {
+//         ConfigParser config_parser(file);
+//         std::cout << "error page inside config is " << config_parser.server_configs[0].get_error_pages().begin()->first;
+//         std::cout << "\nerror page inside location config is " << config_parser.server_configs[0].get_locations()["/home/user/Desktop/git/webserv/test"].get_error_pages().begin()->first;
+//     }
+
+//     return (0);
+// };
+
+
+void	ConfigParser::set_general_conf(void)
+{
+    ServerConfig server_block_1;
+    server_block_1.set_root(0, "public/");
+    server_block_1.set_listen(0, "8080");
+    server_block_1.set_server_name("first");
+    server_block_1.set_indexes("index.html");
+
+    LocationConfig location_1a;
+    location_1a.set_limit_except("GET POST PUT DELETE");
+    server_block_1.set_location("/", location_1a);
+
+    LocationConfig location_1b;
+    location_1b.set_limit_except("GET POST PUT DELETE");
+    location_1b.set_root(false, "public/mid_folder/");
+    server_block_1.set_location("/post/", location_1b);
+
+    server_configs.push_back(server_block_1);
+
+    ServerConfig server_block_2;
+    server_block_2.set_listen(0, "8080");
+    server_block_2.set_server_name("second");
+    server_block_2.set_indexes("ms_index.html");
+    LocationConfig location_2;
+    location_2.set_limit_except("GET POST PUT DELETE");
+    server_block_2.set_location("/", location_2);
+    server_configs.push_back(server_block_2);
+}
+
+void	ConfigParser::set_tester_conf(void)
+{
+    ServerConfig general_server;
+    general_server.set_listen(0, "8080");
+    general_server.set_server_name("boss_group");
+    general_server.set_indexes("index.html");
+
+    server_configs.push_back(general_server);
+}

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 20:47:58 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:00:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ int webserver(const std::string &config_file)
 	ConfigParser	parser(config_file);
 
 	try {
-        parser.call();
+        // parser.call();
+		parser.set_general_conf();
     }
     catch (std::exception &e) { // Use specific errors
 		ERROR(e.what());
