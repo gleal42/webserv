@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/02 00:47:37 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/02 13:43:46 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,31 +53,31 @@ public:
 	~Server( void );
 
 	// Getters
-	int				queue_fd() const;
-	Connections		connections( void ) const;
-	Listeners		listeners( void ) const;
-	size_t			listeners_amount( void ) const;
+	int					queue_fd() const;
+	Connections			connections( void ) const;
+	Listeners			listeners( void ) const;
+	size_t				listeners_amount( void ) const;
 
 	// TODO: check if can be private
-	void			start( void );
-	void			service(Request & req, Response & res, const in_addr &connection_addr);
-	int				events_wait();
-	ServerConfig	config_choose(const Request & req);
-	Handler *		handler_choose( Request & req, const in_addr &connection_addr);
-	Location_const_it	find_location_to_use(const ServerConfig &server_block, const std::string & path);
-	void    		resolve_path(std::string & path, const ServerConfig & server_conf, Location_const_it locations);
+	void				start( void );
+	void				service(Request & req, Response & res, const in_addr &connection_addr);
+	int					events_wait();
+	ServerConfig		config_resolve(const Request & req);
+	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
+	Location_const_it	location_resolve(const ServerConfig &server_block, const std::string & path);
+	void    			path_resolve(std::string & path, const ServerConfig & server_conf, Location_const_it locations);
 
 	/* Connection */
-	void			connection_new( Listener * listener );
-	void			connection_read( Connection *connection , int read_size );
-	void			connection_write( Connection *connection );
-	void			connection_close( int connection_fd );
-	void			connection_event_toggle_write( int connection_fd );
-	void			connection_event_toggle_read( int connection_fd );
+	void				connection_new( Listener * listener );
+	void				connection_read( Connection *connection , int read_size );
+	void				connection_write( Connection *connection );
+	void				connection_close( int connection_fd );
+	void				connection_event_toggle_write( int connection_fd );
+	void				connection_event_toggle_read( int connection_fd );
 
 	/* Listener */
-	void			listener_close( int listener_fd );
-	void			listener_event_read_add( int listener_fd );
+	void				listener_close( int listener_fd );
+	void				listener_event_read_add( int listener_fd );
 
    	EVENT 			events[EVENTS_SIZE];
 

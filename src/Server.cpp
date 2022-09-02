@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/02 00:50:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/02 13:43:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,10 +256,10 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
 	if (req.request_uri.host.empty())
 		throw HTTPStatus<400>();
-	ServerConfig config_to_use = config_choose(req);
-	Location_const_it location_to_use = find_location_to_use(config_to_use, req.request_uri.path);
-	resolve_path(req.request_uri.path, config_to_use, location_to_use);
-    Handler *handler (handler_choose(req, connection_addr));
+	ServerConfig config_to_use = config_resolve(req);
+	Location_const_it location_to_use = location_resolve(config_to_use, req.request_uri.path);
+	path_resolve(req.request_uri.path, config_to_use, location_to_use);
+    Handler *handler (handler_resolve(req, connection_addr));
 	try {
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -269,7 +269,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 	delete handler;
 }
 
-Handler *Server::handler_choose( Request & req, const in_addr &connection_addr )
+Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
 {
 	std::string extension = get_extension(req.request_uri.path);
 	if (CGIHandler::extension_is_implemented(extension))
@@ -278,7 +278,7 @@ Handler *Server::handler_choose( Request & req, const in_addr &connection_addr )
         return (new FileHandler());
 }
 
-ServerConfig   Server::config_choose(const Request & req)
+ServerConfig   Server::config_resolve(const Request & req)
 {
 	ServerConfig to_use;
 	struct addrinfo *host = get_host(req.request_uri.host);
@@ -307,7 +307,7 @@ ServerConfig   Server::config_choose(const Request & req)
 	return (to_use);
 }
 
-Location_const_it      Server::find_location_to_use(const ServerConfig &server_block, const std::string & path)
+Location_const_it      Server::location_resolve(const ServerConfig &server_block, const std::string & path)
 {
 	std::string path_directory = path;
 	if (path_directory.back() != '/')
@@ -332,7 +332,7 @@ Location_const_it      Server::find_location_to_use(const ServerConfig &server_b
 
 // Create URL object
 
-void    Server::resolve_path(std::string & path, const ServerConfig & server_conf, Location_const_it locations)
+void    Server::path_resolve(std::string & path, const ServerConfig & server_conf, Location_const_it locations)
 {
 	std::string root = locations->second.get_root();
 	if (root.empty())

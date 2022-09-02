@@ -18,10 +18,8 @@ RUN rm -f var/www/html/index.nginx-debian.html
 RUN rm -f var/www/html/index.html
 
 COPY public /var/www/
-COPY www /var/www/
 
 EXPOSE 80
 
 COPY nginx/*.sh .
 CMD bash start.sh
-
