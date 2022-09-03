@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:00:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:06:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op *
 // TODO: will we also pass `domain`?
 Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
+
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/05 22:56:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:01:29 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,7 +122,6 @@ class LocationConfig : public BaseConfig
     private:
         CGI							_cgi;
         std::vector<std::string>    _limit_except;
-
 };
 
 

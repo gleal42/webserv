@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/05 22:59:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:06:40 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -271,8 +271,8 @@ bool    LocationConfig::is_empty( void )
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
         && this->_indexes.empty() && this->_redirect.empty()
-        && this->_limit_except.empty() 
-        && this->_cgi.extension.empty() && this->_cgi.interpreter.empty());
+        && this->_cgi.extension.empty() && this->_cgi.interpreter.empty()
+        && this->_limit_except.empty());
 }
 
 int     LocationConfig::find_directive(const std::string &directive)
@@ -333,12 +333,10 @@ void LocationConfig::set_directive(int directive, const std::string& content)
 void    LocationConfig::set_cgi(bool has_separators, const std::string &content)
 {
     (void)has_separators;
-    // if (has_separators)
-	//     throw (MultipleArgumentsError(content));
     this->_cgi.extension = std::strtok(const_cast<char *>(content.c_str()), " ");
     this->_cgi.interpreter = std::strtok(NULL, " ");
     if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
-        throw (BadFileError(this->_cgi.interpreter));
+	    throw (BadFileError(this->_cgi.interpreter));
 }
 
 void    LocationConfig::set_limit_except(const std::string &content)

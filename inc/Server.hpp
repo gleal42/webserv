@@ -6,11 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2022/09/02 13:43:46 by gleal            ###   ########.fr       */
-=======
-/*   Updated: 2022/09/02 00:47:37 by gleal            ###   ########.fr       */
->>>>>>> ad9d26c (Added resolved path logic from gl/tests/42_tester)
+/*   Updated: 2022/09/05 23:10:18 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +62,7 @@ public:
 	void				start( void );
 	void				service(Request & req, Response & res, const in_addr &connection_addr);
 	int					events_wait();
+	void				uri_process_config( Request & req );
 	ServerConfig		config_resolve(const Request & req);
 	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
 	Location_const_it	location_resolve(const ServerConfig &server_block, const std::string & path);

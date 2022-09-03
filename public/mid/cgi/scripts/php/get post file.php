@@ -70,7 +70,6 @@ function upload_file()
       echo "Not uploaded because of error #".$_FILES["cute_picture"]["error"];
    }
    return (true);
-
 }
 
 function thank_user()
