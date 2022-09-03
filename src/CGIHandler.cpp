@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 23:01:40 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:11:27 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ CGIHandler::CGIHandler( const URI &uri, const in_addr &connection_addr )
 	// script_path = script_path_parse(uri.path);
 	// extra_path = extra_path_parse(uri.path);
 
-	script_path = std::string("public") + uri.path;
+	script_path = uri.path;
 	extension = get_extension(script_path);
 	interpreter = extension_interpreter[extension];
 	std::cout <<
@@ -134,7 +134,6 @@ void	CGIHandler::do_DELETE( Request & req, Response & res )
 
 void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 {
-	url::decode(script_path);
 	FILE *input_file = tmpfile();
 	FILE *output_file = tmpfile();
 	if (input_file == NULL || output_file == NULL) {
@@ -160,7 +159,6 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		print_env_variables(envs, (env_vars.size() - 1));
 
 		// CGI arguments (1st and 2nd execve argument)
-		url::decode(script_path);
 		std::vector<char *> cgi_args;
 		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
 		std::vector<char> filepath = convert_to_char_vector(script_path);
@@ -265,6 +263,7 @@ void	CGIHandler::set_env( std::vector< std::vector<char> > &buf, const std::stri
 void	CGIHandler::set_response( std::string body, Response &res )
 {
 	// Headers Section
+	LOG("CGI BODY IS " << body);
 	size_t crlf = body.find(D_CRLF);
 	res.save_raw_headers(body.substr(0, crlf));
 	std::string status = res.get_header_value("Status");

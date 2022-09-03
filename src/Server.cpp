@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:02:48 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:12:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -256,7 +256,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
-		uri_process_config(req);
+		uri_process_config(req, res);
 		handler = handler_resolve(req, connection_addr);
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -266,16 +266,16 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 	delete handler;
 }
 
-void	Server::uri_process_config( Request & req )
+void	Server::uri_process_config( Request & req, Response & res )
 {
 	if (req.request_uri.host.empty())
 		throw HTTPStatus<400>();
-	ServerConfig config_to_use = config_resolve(req);
+	ServerConfig config_to_use = config_resolve(req, res);
 	Location_const_it location_to_use = location_resolve(config_to_use, req.request_uri.path);
 	path_resolve(req.request_uri.path, config_to_use, location_to_use);
 }
 
-ServerConfig   Server::config_resolve(const Request & req)
+ServerConfig   Server::config_resolve(const Request & req, Response & res )
 {
 	ServerConfig to_use;
 	struct addrinfo *host = get_host(req.request_uri.host);
@@ -287,14 +287,20 @@ ServerConfig   Server::config_resolve(const Request & req)
 		{
 			// if (it->second.is_default())
 			if (to_use.is_empty())
+			{
 				to_use = it->second->_config;
+				res.set_header("Host", to_use.get_server_names()[0]);
+			}
 			std::vector<std::string> server_names = it->second->_config.get_server_names();
 			for (std::vector<std::string>::iterator it_s = server_names.begin();
 				it_s != server_names.end();
 				it_s++)
 			{
 				if (*it_s == req.request_uri.host)
+				{
 				    to_use = it->second->_config;
+					res.set_header("Host", *it_s);
+				}
 			}
 		}
 	}
@@ -331,17 +337,21 @@ Location_const_it      Server::location_resolve(const ServerConfig &server_block
 
 void	Server::path_resolve( std::string & path, const ServerConfig & server_conf, Location_const_it locations)
 {
+	url::decode(path);
+	if (path.size() > 100) {
+		throw HTTPStatus<400>(); // Example
+	}
+	if (path.find("..") != std::string::npos) {
+		throw HTTPStatus<404>();
+	}
 	std::string root = locations->second.get_root();
-	if (root.empty())
-	{
+	if (root.empty()) {
 		root = server_conf.get_root();
-		if (root.empty())
-			root = "public";
 	}
 	if (root.size() > 0 && *(root.end()-1) == '/')
 		root.erase(--root.end());
 	std::string location_name = locations->first;
-	std::string temp_path = root + path;
+	std::string temp_path = "public" + root + path;
 	if (is_file(temp_path))
 	{
 		path = temp_path;

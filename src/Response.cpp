@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 23:02:42 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:11:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,10 +81,7 @@ void	Response::send_response( Socket const & socket )
 void	Response::set_header(const std::string &name, const std::string &value)
 {
 	_headers[name] = value;
-	if (name == "Content-Length")
-	{
-		std::cout << "Setting Content-Length as " << value << std::endl;
-	}
+	LOG ("Setting " << name << " as " << value);
 }
 
 bool	Response::is_empty()
