@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 }
 else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
    echo "<h1> List of files </h1>";
-   $path = "../../../uploads/";
+   $path = "../../../../uploads/";
    $files = scandir($path);
    $files = array_diff(scandir($path), array('.', '..'));
    $pos_public = strpos($path, "public/");  // temporary so that public logic is implemented logic
@@ -50,7 +50,7 @@ echo "</html>";
 
 function upload_file()
 {
-   $upload_dir = "../../../uploads/";
+   $upload_dir = "../../../../uploads/";
    $filename = trim($_FILES["cute_picture"]["name"]);
    $file_to_upload = basename($filename);
    $extension = pathinfo($file_to_upload, PATHINFO_EXTENSION);

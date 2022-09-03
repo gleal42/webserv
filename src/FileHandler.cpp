@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/04 20:13:50 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/05 23:11:46 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,18 +52,9 @@ FileHandler &	FileHandler::operator = ( FileHandler const & rhs )
 
 void	FileHandler::do_GET( Request & req, Response & res )
 {
-	url::decode(req._path);
-	if (req._path == "/")
-		res._uri = "public/index.html";
-	else
-		res._uri = std::string("public/") + (req._path.c_str() + 1);
+	url::decode(req.request_uri.path);
+	res._uri = req.request_uri.path;
 
-	if (req._path.size() > 100) { // TODO: check
-		throw HTTPStatus<400>(); // Example
-	}
-	if (req._path.find("..") != std::string::npos) {
-		throw HTTPStatus<404>();
-	}
 	res.set_with_file(res._uri);
 }
 

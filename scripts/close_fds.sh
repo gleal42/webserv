@@ -1,8 +1,10 @@
 #!/bin/bash
 
-database=`lsof -i:8080 | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1'`
-echo open sockets in 8080: $database
+PORT=8079
+
+database=`lsof -i:$PORT | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1'`
+echo open sockets in $PORT: $database
 if [ "$database" ]
 then
-	kill $(lsof -i:8080 | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1')
+	kill $(lsof -i:$PORT | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1')
 fi
