@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 22:59:42 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:02:48 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ void	Server::start( void )
 int	Server::events_wait( void )
 {
 	int		events_ready;
-
+	LOG("\n---------------Waiting for events---------------\n");
 #if defined(DARWIN)
 	events_ready = kevent(_queue_fd, NULL, 0, events, EVENTS_SIZE, TIMEOUT);
 #endif
@@ -254,13 +254,10 @@ void	Server::connection_event_toggle_read( int connection_fd )
 
 void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
-	if (req.request_uri.host.empty())
-		throw HTTPStatus<400>();
-	ServerConfig config_to_use = config_resolve(req);
-	Location_const_it location_to_use = location_resolve(config_to_use, req.request_uri.path);
-	path_resolve(req.request_uri.path, config_to_use, location_to_use);
-    Handler *handler (handler_resolve(req, connection_addr));
+    Handler *handler = NULL;
 	try {
+		uri_process_config(req);
+		handler = handler_resolve(req, connection_addr);
 		handler->service(req, res);
 		res.build_message(handler->script_status());
 	} catch (BaseStatus &error_status) {
@@ -269,13 +266,13 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 	delete handler;
 }
 
-Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
+void	Server::uri_process_config( Request & req )
 {
-	std::string extension = get_extension(req.request_uri.path);
-	if (CGIHandler::extension_is_implemented(extension))
-        return (new CGIHandler(req.request_uri, connection_addr));
-    else
-        return (new FileHandler());
+	if (req.request_uri.host.empty())
+		throw HTTPStatus<400>();
+	ServerConfig config_to_use = config_resolve(req);
+	Location_const_it location_to_use = location_resolve(config_to_use, req.request_uri.path);
+	path_resolve(req.request_uri.path, config_to_use, location_to_use);
 }
 
 ServerConfig   Server::config_resolve(const Request & req)
@@ -332,7 +329,7 @@ Location_const_it      Server::location_resolve(const ServerConfig &server_block
 
 // Create URL object
 
-void    Server::path_resolve(std::string & path, const ServerConfig & server_conf, Location_const_it locations)
+void	Server::path_resolve( std::string & path, const ServerConfig & server_conf, Location_const_it locations)
 {
 	std::string root = locations->second.get_root();
 	if (root.empty())
@@ -385,6 +382,15 @@ void    Server::path_resolve(std::string & path, const ServerConfig & server_con
 		path = root + (*index);
 	}
 	throw HTTPStatus<404>(); 
+}
+
+Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
+{
+	std::string extension = get_extension(req.request_uri.path);
+	if (CGIHandler::extension_is_implemented(extension))
+        return (new CGIHandler(req.request_uri, connection_addr));
+    else
+        return (new FileHandler());
 }
 
 Server::~Server( void )

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/04 19:43:57 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/05 23:02:42 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,8 @@ void	Response::send_response( Socket const & socket )
 	std::cout << "Message is: " << _message << std::endl;
 	std::cout << "Sent size before is: "<< sent_chars << std::endl;
 	_message = _message.substr(sent_chars, msg_size - sent_chars);
-	std::cout << "Message size after is: " << _message.size() << std::endl;
-    printf("\n------------------Hello message sent-------------------\n");
+	LOG("Message size after is: " << _message.size());
+    LOG("\n------------------Message sent-------------------\n");
 }
 // Note that the last += statement sends \r\n. This has the effect of transmitting
 // a blank line. This blank line is used by the client to delineate the HTTP
