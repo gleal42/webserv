@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/01 15:00:09 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/04 19:43:57 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ std::string		Response::message( void ) { return _message; }
 void	Response::send_response( Socket const & socket )
 {
 	int sent_chars = socket.send(_message);
+	// TODO: check -1 and 0?
 	int msg_size = _message.size();
 	std::cout << "Message size before is: " << msg_size << std::endl;
 	std::cout << "Message is: " << _message << std::endl;
@@ -132,7 +133,7 @@ void    Response::set_with_file( const std::string &filename )
 	len << body.str().size();
 	set_header("Content-Length", len.str());
 
-	file.close();	
+	file.close();
 }
 
 void	Response::clear( void )

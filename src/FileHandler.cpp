@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 14:59:49 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/04 20:13:50 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	FileHandler::do_GET( Request & req, Response & res )
 	else
 		res._uri = std::string("public/") + (req._path.c_str() + 1);
 
-	if (req._path.size() > 100) {
+	if (req._path.size() > 100) { // TODO: check
 		throw HTTPStatus<400>(); // Example
 	}
 	if (req._path.find("..") != std::string::npos) {
@@ -71,7 +71,7 @@ void	FileHandler::do_GET( Request & req, Response & res )
        -------- Default action for POST requests when no CGI is involved. -------
        Usually this is not part of the Server function but backend
        web frameworks that run on top.
-       
+
        Only multipart/form-data seems to support file uploads
        application/x-www-form-urlencoded file data is not sent
        only name (check single_form)
@@ -136,7 +136,7 @@ void	FileHandler::post_multi_type_form( Request & req )
 		if (last_delimiter == std::string::npos)
 			throw HTTPStatus<400>();
 		std::string filename = parse_from_multipart_form("filename=", multi_form, next_delimiter);
-	
+
 		start_file = multi_form.find(D_CRLF) + 4;
 		if (start_file == std::string::npos)
 			throw HTTPStatus<400>();
