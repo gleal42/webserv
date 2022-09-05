@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:09:54 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 21:17:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,6 +189,16 @@ bool is_file(const std::string &path)
 
     if (lstat(path.c_str(), &s) == 0)
         if (S_ISREG(s.st_mode))
+            return (true);
+    return (false);
+}
+
+bool is_link(const std::string &path)
+{
+    struct stat s;
+
+    if (lstat(path.c_str(), &s) == 0)
+        if (S_ISLNK(s.st_mode))
             return (true);
     return (false);
 }

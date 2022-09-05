@@ -6,13 +6,28 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/02 01:01:19 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 21:54:59 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "webserver.hpp"
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
+
+bool        CGI::is_configured(const std::string &uri_extension) const
+{
+       if (uri_extension == extension)
+               return true;
+       return false;
+}
+
+bool        CGI::empty() const { return (extension.empty() && interpreter.empty());}
+
+std::ostream&  operator<<(std::ostream&os, const CGI&cgi)
+{
+       os << "Extension [" << cgi.extension << "] Interpreter [" << cgi.interpreter << "]";
+       return os;
+}
 
 // Constructors
 BaseConfig::BaseConfig() : _autoindex(AUTOINDEX_UNSET), _client_max_body_size(-1)
@@ -57,7 +72,8 @@ LocationConfig::LocationConfig(const LocationConfig& param)
     this->_error_pages = param._error_pages;
     this->_client_max_body_size = param._client_max_body_size;
     this->_indexes = param._indexes;
-    this->_cgi = param._cgi;
+    this->_cgi.extension = param._cgi.extension;
+    this->_cgi.interpreter = param._cgi.interpreter;
     this->_limit_except = param._limit_except;
 }
 
@@ -138,7 +154,7 @@ void    BaseConfig::set_root(bool has_separators, const std::string &content)
 {
     if (has_separators)
 	    throw (MultipleArgumentsError(content));
-    else if (!is_directory(content))
+    else if (!is_directory("public" + content))
 	    throw (BadDirectoryError(content));
     this->_root = content;
 }
@@ -201,8 +217,6 @@ void    BaseConfig::set_indexes(const std::string &content)
     while (token != NULL)
     {
         std::string tokstr = std::string(token);
-        if (!(is_file(tokstr)))
-	        throw (BadFileError(tokstr));
         this->_indexes.push_back(tokstr);
         token = strtok(NULL, SEPARATORS);
     }
@@ -257,7 +271,8 @@ bool    LocationConfig::is_empty( void )
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
         && this->_indexes.empty() && this->_redirect.empty()
-        && this->_limit_except.empty() && this->_cgi.empty());
+        && this->_limit_except.empty() 
+        && this->_cgi.extension.empty() && this->_cgi.interpreter.empty());
 }
 
 int     LocationConfig::find_directive(const std::string &directive)
@@ -317,11 +332,13 @@ void LocationConfig::set_directive(int directive, const std::string& content)
 
 void    LocationConfig::set_cgi(bool has_separators, const std::string &content)
 {
-    if (has_separators)
-	    throw (MultipleArgumentsError(content));
-    else if (!is_file(content))
-	    throw (BadFileError(content));
-    this->_cgi = content;
+    (void)has_separators;
+    // if (has_separators)
+	//     throw (MultipleArgumentsError(content));
+    this->_cgi.extension = std::strtok(const_cast<char *>(content.c_str()), " ");
+    this->_cgi.interpreter = std::strtok(NULL, " ");
+    if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
+        throw (BadFileError(this->_cgi.interpreter));
 }
 
 void    LocationConfig::set_limit_except(const std::string &content)
@@ -343,7 +360,7 @@ void    LocationConfig::set_limit_except(const std::string &content)
 }
 
 // LocationConfig getters
-const std::string&                LocationConfig::get_cgi( void ) const {return (this->_cgi);}
+const std::string&                LocationConfig::get_cgi( void ) const {return (this->_cgi.interpreter);}
 const std::vector<std::string>&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
 
 

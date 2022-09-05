@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:00:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 21:58:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,6 @@ Socket::Socket( Socket const & src ) { *this = src; }
 /* Destructor */
 Socket::~Socket( void )
 {
-	if (_host != NULL)
-		freeaddrinfo(_host);
 	this->close();
 }
 

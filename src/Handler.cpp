@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Handler.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/25 17:10:13 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/04 18:36:51 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 22:14:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void  Handler::do_DELETE( Request & req, Response & res )
 
 BaseStatus Handler::script_status( void )
 {
-    if (_status_code == 200)
+	if (_status_code == 200)
 		return (HTTPStatus<200>());
 	if (_status_code == 302)
 		return (HTTPStatus<302>());

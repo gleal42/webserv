@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/04 22:04:04 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 22:13:54 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@
 # include "print.hpp"
 
 // Functions
-int 				webserver(std::string config);
+int 				webserver(const std::string &config);
 std::string 		get_extension( const std::string &filename );
 std::string			to_string( int number );
 int					str_to_hexa(std::string hexa_nbr);
@@ -48,6 +48,7 @@ std::string			get_query_string(const std::string &uri);
 std::string			to_string(int number);
 bool				is_directory(const std::string &path);
 bool				is_file(const std::string &path);
+bool				is_link(const std::string &path);
 struct addrinfo *	get_host(const std::string &hostname );
 bool				is_address_being_listened(const std::string & listener_address, const struct sockaddr_in *req_host);
 void				remove_directory(std::string &path);

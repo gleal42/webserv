@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/02 13:43:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 22:05:53 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -310,7 +310,7 @@ ServerConfig   Server::config_resolve(const Request & req)
 Location_const_it      Server::location_resolve(const ServerConfig &server_block, const std::string & path)
 {
 	std::string path_directory = path;
-	if (path_directory.back() != '/')
+	if ( path_directory.size() > 0 && *(path_directory.end()-1) != '/')
 		path_directory.push_back('/');
 	const Locations &locations = server_block.get_locations();
 	while (path_directory.empty() == false)
@@ -322,7 +322,7 @@ Location_const_it      Server::location_resolve(const ServerConfig &server_block
 				if ((it->first) == path_directory)
 					return (it);
 			}
-		path_directory.pop_back();
+		path_directory.erase(--path_directory.end());
 		// remove_directory(path_directory);
 	}
 	// locations.insert("/", LocationConfig());
@@ -341,8 +341,8 @@ void    Server::path_resolve(std::string & path, const ServerConfig & server_con
 		if (root.empty())
 			root = "public";
 	}
-	if (root.back() == '/')
-		root.pop_back();
+	if (root.size() > 0 && *(root.end()-1) == '/')
+		root.erase(--root.end());
 	std::string location_name = locations->first;
 	std::string temp_path = root + path;
 	if (is_file(temp_path))
@@ -353,7 +353,7 @@ void    Server::path_resolve(std::string & path, const ServerConfig & server_con
 	if (is_directory(temp_path))
 	{
 		root = temp_path;
-		if (root.back() != '/')
+		if (root.size() > 0 && *(root.end()-1) != '/')
 			root.push_back('/');
 		Indexes indexes;
 		indexes = locations->second.get_indexes();

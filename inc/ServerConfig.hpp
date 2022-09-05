@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/02 00:51:39 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 20:55:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,16 @@ struct Listen{
     int                         port;
     bool                        is_set;
 };
+
+struct CGI{
+    std::string					extension;
+    std::string					interpreter;
+    bool						is_configured(const std::string &extension) const;
+    bool						empty() const;
+};
+
+std::ostream&  operator<<(std::ostream&, const CGI&);
+
 
 typedef std::map<std::string, std::vector<unsigned short> > ErrorPage;
 
@@ -110,7 +120,7 @@ class LocationConfig : public BaseConfig
         const std::vector<std::string>& get_limit_except( void ) const;
 
     private:
-        std::string                 _cgi;
+        CGI							_cgi;
         std::vector<std::string>    _limit_except;
 
 };
