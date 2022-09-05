@@ -30,7 +30,7 @@ class BaseConfig{
     const std::string&              get_root( void ) const;
     AutoBool                        get_autoindex( void ) const;
     const ErrorPage&                get_error_pages( void ) const;
-    int                             get_max_body_size( void ) const;
+    long long                       get_max_body_size( void ) const;
     const std::vector<std::string>& get_indexes( void ) const;
     const std::vector<Redirect>&    get_redirect( void );
 
@@ -38,7 +38,7 @@ class BaseConfig{
         std::string                 _root;
         AutoBool                    _autoindex;
         ErrorPage                   _error_pages;
-        int                         _client_max_body_size;
+        long long                   _client_max_body_size;
         std::vector<std::string>    _indexes;
         std::vector<Redirect>       _redirect;
 };

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/07 15:52:19 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 15:57:20 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,4 +44,3 @@ int webserver(const std::string &config_file)
 	// Shutdown and cleanup inside destructor
     return 0;
 }
-

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 15:56:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 15:57:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,10 @@
 # include "macros.hpp"
 # include "types.hpp"
 # include "print.hpp"
-<<<<<<< HEAD
 # include "BaseStatus.hpp"
 # include "BaseConfig.hpp"
 # include "LocationConfig.hpp"
 # include "ServerConfig.hpp"
-=======
-# include "ServerConfig.hpp"
-
->>>>>>> 6842f0b (Changed path_resolve logic to include cgi extra-path)
 
 // Functions
 int 				webserver(const std::string &config);
@@ -72,5 +67,12 @@ T	str_to_nbr(const std::string &str)
 	ss >> nbr;
 	return (nbr);
 }
+
+struct equals
+{
+	equals(const std::string &ref);
+	bool operator()(const std::string&val);
+	std::string ref;
+};
 
 #endif

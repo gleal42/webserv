@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/07 15:56:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 16:18:59 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ class ServerConfig : public BaseConfig
         std::vector<std::string>    _server_names;
 };
 
-std::ostream&   operator<<(std::ostream&, ServerConfig&);
-std::ostream&  operator<<(std::ostream&, const CGI&);
+std::ostream&	operator<<(std::ostream&, ServerConfig&);
+std::ostream&	operator<<(std::ostream&, const CGI&);
 
 
 #endif

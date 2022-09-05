@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:18:34 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 00:17:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,3 +332,6 @@ std::string processed_root( const ServerConfig & server_conf, Location_const_it 
 		root.erase(--root.end());
     return (root);
 }
+
+equals::equals(const std::string &ref): ref(ref){}
+bool equals::operator()(const std::string&val){ return (val == ref);}
