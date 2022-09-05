@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/04 18:36:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 22:14:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigParser.hpp"
-
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Exceptions~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
@@ -117,9 +116,7 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             else if (context == LOCATION_CONTEXT){
                 if (new_location.is_empty())
                     throw (EmptyContextBlockError());
-                if (!(is_directory(location_path)))
-	                throw (BadDirectoryError(content));
-                server_ptr->get_locations()[location_path] = new_location;
+                server_ptr->set_location(location_path, new_location);
             }
             return;
         }
@@ -156,30 +153,35 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
 // This function opens the _config_file, and then parses the file while looking for an opening server block (aka "server {")
 // Then, calls context_parser() to parse the server block
 // OBS: So far, the new ServerConfig object is being stored inside the ConfigParser
-void ConfigParser::call()
+void    ConfigParser::call()
 {
     std::ifstream   file;
     std::string     line;
     std::string     directive;
     size_t          separator;
 
-    file.open(this->_config_file.c_str());
-    if (!file.is_open())
-        throw ConfigurationFileError();
-    while (std::getline(file, line))
-    {
-        line = strtrim(line);
-        if (!line.length() || line[0] == '#')
-            continue;
-        separator = line.find_first_of(SEPARATORS);
-        directive = line.substr(0, separator);
-        if (directive == "server"){
-            if (line[separator + 1] != '{')
-                throw ConfigurationSyntaxError();
-            context_parser(&file, SERVER_CONTEXT);
+    try{
+        file.open(this->_config_file.c_str());
+        if (!file.is_open())
+            throw ConfigurationFileError();
+        while (std::getline(file, line))
+        {
+            line = strtrim(line);
+            if (!line.length() || line[0] == '#')
+                continue;
+            separator = line.find_first_of(SEPARATORS);
+            directive = line.substr(0, separator);
+            if (directive == "server"){
+                if (line[separator + 1] != '{')
+                    throw ConfigurationSyntaxError();
+                context_parser(&file, SERVER_CONTEXT);
+            }
+            else
+                throw DirectiveOutOfScopeError(directive);
         }
-        else
-            throw DirectiveOutOfScopeError(directive);
+    }
+    catch (ConfigError &e) {
+		    ERROR(e.what());
     }
     file.close();
     std::vector<ServerConfig>::iterator it = server_configs.begin();

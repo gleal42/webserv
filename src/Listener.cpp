@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/01 03:09:14 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 21:57:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 Listener::Listener( void ) : Socket() { /* no-op */ }
 Listener::Listener( Listener const & src ) : Socket() { *this = src; }
 
-Listener::Listener( ServerConfig const & config ) : Socket(config)
+Listener::Listener( ServerConfig const & config ) : Socket(config), _config(config)
 {
 	try {
 		listen(MAX_CLIENTS);

@@ -1,0 +1,25 @@
+FROM debian:buster
+
+RUN apt-get update
+RUN apt-get upgrade -y
+
+
+RUN apt-get install -y vim
+RUN apt-get install -y wget
+RUN apt-get install -y nginx
+RUN apt-get install -y curl
+
+RUN apt-get -y install php7.3
+RUN apt-get -y install php7.3-fpm
+
+COPY nginx/test.conf /tmp/test.conf
+
+RUN rm -f var/www/html/index.nginx-debian.html
+RUN rm -f var/www/html/index.html
+
+COPY public /var/www/
+
+EXPOSE 80
+
+COPY nginx/*.sh .
+CMD bash start.sh

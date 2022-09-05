@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:00:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 21:58:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,13 +44,16 @@ Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
-	bind(config.get_listens()[0].port);
+	bind(config.get_ip(), config.get_port());
 }
 
 Socket::Socket( Socket const & src ) { *this = src; }
 
 /* Destructor */
-Socket::~Socket( void ) { close(); }
+Socket::~Socket( void )
+{
+	this->close();
+}
 
 /* Assignment operator */
 Socket &	Socket::operator = ( Socket const & rhs )
@@ -102,12 +105,25 @@ void	Socket::setsockopt( int option )
 	}
 }
 
-// C `bind` function wrapper
-void	Socket::bind( int port )
+/**
+ * Function to bind socket to the address and ports
+ * defined in the Configuration file 
+ * 
+ * @param address -	Interfaces that will listen to requests
+ * 					(e.g. 172.0.0.1 converted to binary)
+ * @param port -	Port in which interfaces will listen
+ * 					(e.g. 80)
+ */
+
+void	Socket::bind( const std::string &host_id, int port )
 {
+	_host  = get_host(host_id);
+	if (_host == NULL)
+		throw Socket::BindError(port);
 	memset(&_address, 0, sizeof(SocketAddress));
 	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	struct sockaddr_in *address_value = (struct sockaddr_in *)_host->ai_addr;
+	_address.sin_addr.s_addr = address_value->sin_addr.s_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);

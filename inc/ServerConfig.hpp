@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/08/27 21:14:55 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/05 20:55:36 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,16 @@ struct Listen{
     bool                        is_set;
 };
 
+struct CGI{
+    std::string					extension;
+    std::string					interpreter;
+    bool						is_configured(const std::string &extension) const;
+    bool						empty() const;
+};
+
+std::ostream&  operator<<(std::ostream&, const CGI&);
+
+
 typedef std::map<std::string, std::vector<unsigned short> > ErrorPage;
 
 struct Redirect{
@@ -64,14 +74,14 @@ class BaseConfig{
         virtual ~BaseConfig();
 
     // Setters
-    virtual int                     find_directive(std::string &directive) = 0;
-    virtual void                    set_directive(int directive, std::string &content) = 0;
-    void                            set_root(bool has_separators, std::string &content);
-    void                            set_autoindex(std::string &content);
-    void                            set_error_pages(std::string &content);
-    void                            set_max_body_size(bool has_separators,std::string &content);
-    void                            set_indexes(std::string &content);
-    void                            set_redirect(bool has_separators, std::string &content);
+    virtual int                     find_directive(const std::string &directive) = 0;
+    virtual void                    set_directive(int directive, const std::string &content) = 0;
+    void                            set_root(bool has_separators, const std::string &content);
+    void                            set_autoindex(const std::string &content);
+    void                            set_error_pages(const std::string &content);
+    void                            set_max_body_size(bool has_separators, const std::string &content);
+    void                            set_indexes(const std::string &content);
+    void                            set_redirect(bool has_separators, const std::string &content);
 
     // Getters
     const std::string&              get_root( void ) const;
@@ -100,21 +110,21 @@ class LocationConfig : public BaseConfig
 
         bool                            is_empty( void );
         // Setters
-        int                             find_directive(std::string &directive);
-        void                            set_directive(int directive, std::string &content);
-        void                            set_cgi(bool has_separators, std::string &content);
-        void                            set_limit_except(std::string &content);
+        int                             find_directive(const std::string &directive);
+        void                            set_directive(int directive, const std::string &content);
+        void                            set_cgi(bool has_separators, const std::string &content);
+        void                            set_limit_except(const std::string &content);
 
         // Getters
         const std::string&              get_cgi( void ) const;
         const std::vector<std::string>& get_limit_except( void ) const;
 
     private:
-        std::string                 _cgi;
+        CGI							_cgi;
         std::vector<std::string>    _limit_except;
 
 };
-typedef std::map<std::string, LocationConfig> Locations;
+
 
 class ServerConfig : public BaseConfig
 {
@@ -126,14 +136,17 @@ class ServerConfig : public BaseConfig
 
         bool                            is_empty( void );
         // Setters
-        int                             find_directive(std::string &directive);
-        void                            set_directive(int directive, std::string &content);
-        void                            set_listen(bool has_separators, std::string &content);
-        void                            set_server_name(std::string &content);
+        int                             find_directive(const std::string &directive);
+        void                            set_directive(int directive, const std::string &content);
+        void                            set_listen(bool has_separators, const std::string &content);
+        void                            set_server_name(const std::string &content);
+        void                            set_location(const std::string &name, const LocationConfig& location);
 
         // Getters
+        const std::string               &get_ip( void ) const;
+        int                             get_port( void ) const;
         const std::vector<Listen>&      get_listens( void ) const;
-        Locations&                      get_locations( void );
+        const Locations&                      get_locations( void ) const;
         const std::vector<std::string>& get_server_names( void ) const;
 
         Locations                   _locations;

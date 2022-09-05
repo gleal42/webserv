@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:19:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/01 14:57:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/02 00:57:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ public:
 	~Listener( void );
 	Listener &		operator = ( Listener const & rhs );
 
+	ServerConfig _config;
 private:
 
 	Listener( void );
