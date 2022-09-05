@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:50 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 14:57:18 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 19:20:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,8 +103,10 @@ public:
 	std::string		host;
 	int				port;
 	std::string		path;
+	std::string		extra_path;
 	std::string		query; // map
-
+	std::string		fragment;
+	
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
@@ -128,6 +130,8 @@ public:
 	std::string			_path; 				// The unparsed URI of the request
 	RequestMethod		request_method;
 	URI					request_uri;				// The parsed URI of the request
+	CGI					cgi;
+
 	int					client_max_body_size;		// Max client body size
 
 	// some of these will be private

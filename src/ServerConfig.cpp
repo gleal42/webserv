@@ -6,7 +6,11 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
+<<<<<<< HEAD
 /*   Updated: 2022/09/07 15:55:30 by gleal            ###   ########.fr       */
+=======
+/*   Updated: 2022/09/05 23:18:28 by gleal            ###   ########.fr       */
+>>>>>>> 6842f0b (Changed path_resolve logic to include cgi extra-path)
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +18,26 @@
 // #include "BaseConfig.hpp"
 // #include "LocationConfig.hpp"
 #include "webserver.hpp"
+<<<<<<< HEAD
+=======
+#include "ServerConfig.hpp"
+#include "ConfigParser.hpp"
+
+bool					CGI::is_configured(const std::string &uri_extension) const
+{
+	if (uri_extension == extension)
+		return true;
+	return false;
+}
+
+bool						CGI::empty() const { return (extension.empty() && interpreter.empty());}
+
+std::ostream&	operator<<(std::ostream&os, const CGI&cgi)
+{
+	os << "Extension [" << cgi.extension << "] Interpreter [" << cgi.interpreter << "]";
+	return os;
+}
+>>>>>>> 6842f0b (Changed path_resolve logic to include cgi extra-path)
 
 // Constructors
 ServerConfig::ServerConfig()

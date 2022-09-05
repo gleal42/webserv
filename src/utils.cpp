@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:07:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:18:34 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,13 +100,20 @@ HTTPStatusGroup	http_group( int code )
 	};
 }
 
+static bool is_not_alphanum( int c )
+{
+    return (!std::isalnum(c));
+}
+
 std::string get_extension( const std::string &filename )
 {
     std::string extension;
-    size_t ext_position = filename.find_last_of('.');
-    if (ext_position == std::string::npos )
+    size_t start_extension_pos = filename.find_last_of('.');
+    if (start_extension_pos == std::string::npos )
         return (extension);
-    return (filename.substr(ext_position));
+    extension = filename.substr(start_extension_pos);
+    std::string::iterator end_extension_pos (std::find_if((extension.begin()+1), extension.end(), is_not_alphanum)); // Too restrictive?
+    return (std::string(extension.begin(), end_extension_pos));
 }
 
 int	str_to_hexa(std::string hexa_nbr)
@@ -313,4 +320,15 @@ std::string b64decode(const std::string& encoded_string)
        pos += 4;
     }
     return ret;
+}
+
+std::string processed_root( const ServerConfig & server_conf, Location_const_it locations )
+{
+	std::string root = locations->second.get_root();
+	if (root.empty()) {
+		root = server_conf.get_root();
+	}
+	if (root.back() == '/')
+		root.erase(--root.end());
+    return (root);
 }

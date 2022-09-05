@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 15:52:00 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 15:56:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,10 +33,15 @@
 # include "macros.hpp"
 # include "types.hpp"
 # include "print.hpp"
+<<<<<<< HEAD
 # include "BaseStatus.hpp"
 # include "BaseConfig.hpp"
 # include "LocationConfig.hpp"
 # include "ServerConfig.hpp"
+=======
+# include "ServerConfig.hpp"
+
+>>>>>>> 6842f0b (Changed path_resolve logic to include cgi extra-path)
 
 // Functions
 int 				webserver(const std::string &config);
@@ -57,6 +62,7 @@ bool				is_address_being_listened(const std::string & listener_address, const st
 void				remove_directory(std::string &path);
 std::string			address_to_hostname(struct sockaddr *address);
 std::string			b64decode(const std::string & encoded_string);
+std::string			processed_root( const ServerConfig & server_conf, Location_const_it locations );
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
