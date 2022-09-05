@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/05 23:12:34 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:18:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,19 @@
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
 
-bool        CGI::is_configured(const std::string &uri_extension) const
+bool					CGI::is_configured(const std::string &uri_extension) const
 {
-       if (uri_extension == extension)
-               return true;
-       return false;
+	if (uri_extension == extension)
+		return true;
+	return false;
 }
 
-bool        CGI::empty() const { return (extension.empty() && interpreter.empty());}
+bool						CGI::empty() const { return (extension.empty() && interpreter.empty());}
 
-std::ostream&  operator<<(std::ostream&os, const CGI&cgi)
+std::ostream&	operator<<(std::ostream&os, const CGI&cgi)
 {
-       os << "Extension [" << cgi.extension << "] Interpreter [" << cgi.interpreter << "]";
-       return os;
+	os << "Extension [" << cgi.extension << "] Interpreter [" << cgi.interpreter << "]";
+	return os;
 }
 
 // Constructors
@@ -290,7 +290,6 @@ int     LocationConfig::find_directive(const std::string &directive)
     return (0);
 }
 
-
 // LocationConfig setters
 
 void LocationConfig::set_directive(int directive, const std::string& content)
@@ -358,8 +357,12 @@ void    LocationConfig::set_limit_except(const std::string &content)
 }
 
 // LocationConfig getters
-const std::string&                LocationConfig::get_cgi( void ) const {return (this->_cgi.interpreter);}
-const std::vector<std::string>&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
+const CGI&							LocationConfig::get_cgi( void ) const {return (this->_cgi);}
+bool                            	LocationConfig::has_cgi( const std::string &uri ) const
+{
+	return(_cgi.is_configured(get_extension(uri)));
+}
+const std::vector<std::string>&		LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~ServerConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

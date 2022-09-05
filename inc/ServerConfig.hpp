@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/05 23:01:29 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:13:56 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,8 @@ class LocationConfig : public BaseConfig
         void                            set_limit_except(const std::string &content);
 
         // Getters
-        const std::string&              get_cgi( void ) const;
+		const CGI&						get_cgi( void ) const;
+        bool                            has_cgi( const std::string & ) const;
         const std::vector<std::string>& get_limit_except( void ) const;
 
     private:

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:12:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 23:18:08 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -252,27 +252,30 @@ void	Server::connection_event_toggle_read( int connection_fd )
 ** @1-3	FileHandler handler or CGIHandler handler
 */
 
+// if (req.request_uri.host.empty())
+// 	throw HTTPStatus<400>();
+
 void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
     Handler *handler = NULL;
 	try {
-		uri_process_config(req, res);
+		request_process_config(req, res);
 		handler = handler_resolve(req, connection_addr);
 		handler->service(req, res);
 		res.build_message(handler->script_status());
 	} catch (BaseStatus &error_status) {
 		res.set_error_page(error_status);
 	}
-	delete handler;
+	if (handler != NULL)
+		delete handler;
 }
 
-void	Server::uri_process_config( Request & req, Response & res )
+void	Server::request_process_config( Request & req, Response & res )
 {
-	if (req.request_uri.host.empty())
-		throw HTTPStatus<400>();
+	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);
-	Location_const_it location_to_use = location_resolve(config_to_use, req.request_uri.path);
-	path_resolve(req.request_uri.path, config_to_use, location_to_use);
+	path_resolve(req.request_uri, config_to_use);
+		
 }
 
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
@@ -308,91 +311,107 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
+	
+}
+
+// if (location_path.back() != '/') Needs redirection to fix
+// 	location_path.push_back('/');
+// remove_directory(location_path); instead of location_path.erase
+// locations.insert("/", LocationConfig());
+// return locations["/"];
+
+void	Server::path_resolve( URI & uri, const ServerConfig & server_conf)
+{
+	Location_const_it locations = location_resolve(server_conf, uri.path);
+	std::string root (processed_root( server_conf, locations ));
+	std::string temp_path = "public" + root + uri.path;
+
+	if (is_directory(temp_path))
+		directory_indexing_resolve( uri, temp_path, server_conf, locations);
+	cgi_path_resolve(uri, locations);
+	if (is_file(temp_path))
+	{
+		uri.path = temp_path;
+		return ;
+	}	
+	throw HTTPStatus<404>(); 
 }
 
 Location_const_it      Server::location_resolve(const ServerConfig &server_block, const std::string & path)
 {
-	std::string path_directory = path;
-	if ( path_directory.size() > 0 && *(path_directory.end()-1) != '/')
-		path_directory.push_back('/');
+	std::string location_path = path;
+	std::string location_path = path;
+	if ( location_path.size() > 0 && *(location_path.end()-1) != '/')
+		location_path.push_back('/');
 	const Locations &locations = server_block.get_locations();
-	while (path_directory.empty() == false)
+	while (location_path.empty() == false)
 	{
 		for (Location_const_it it = locations.begin();
 			it != locations.end();
 			it++)
 			{
-				if ((it->first) == path_directory)
+				if ((it->first) == location_path)
 					return (it);
 			}
-		path_directory.erase(--path_directory.end());
-		// remove_directory(path_directory);
+		location_path.erase(--location_path.end());
 	}
-	// locations.insert("/", LocationConfig());
-	// return locations["/"];
 	throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
 }
 
-// Create URL object
-
-void	Server::path_resolve( std::string & path, const ServerConfig & server_conf, Location_const_it locations)
+void			Server::cgi_path_resolve( URI & uri, Location_const_it locations)
 {
-	url::decode(path);
-	if (path.size() > 100) {
-		throw HTTPStatus<400>(); // Example
-	}
-	if (path.find("..") != std::string::npos) {
-		throw HTTPStatus<404>();
-	}
-	std::string root = locations->second.get_root();
-	if (root.empty()) {
-		root = server_conf.get_root();
-	}
-	if (root.size() > 0 && *(root.end()-1) == '/')
-		root.erase(--root.end());
-	std::string location_name = locations->first;
-	std::string temp_path = "public" + root + path;
-	if (is_file(temp_path))
-	{
-		path = temp_path;
+	CGI cgi = locations->second.get_cgi();
+	if (cgi.empty())
 		return ;
-	}
-	if (is_directory(temp_path))
+	size_t script_path_pos = uri.path.find(cgi.extension) + cgi.extension.size();
+	uri.extra_path = uri.path.substr(script_path_pos + 1);
+	uri.path = uri.path.substr(0, script_path_pos);
+}
+
+void			Server::directory_indexing_resolve( URI & uri, std::string &root, const ServerConfig &server_conf, Location_const_it locations)
+{
+	// if (root.back() != '/')
+	// 	root.push_back('/');
+	Indexes indexes;
+	indexes = locations->second.get_indexes();
+	if (indexes.empty())
 	{
-		root = temp_path;
-		if (root.size() > 0 && *(root.end()-1) != '/')
-			root.push_back('/');
-		Indexes indexes;
-		indexes = locations->second.get_indexes();
+		indexes = server_conf.get_indexes();
 		if (indexes.empty())
 		{
-			indexes = server_conf.get_indexes();
-			if (indexes.empty())
+			if (is_file(root + "index.html"))
 			{
-				if (is_file(root + "index.html"))
-				{
-				    path = root + "index.html";
-				    return ;   
-				}
-				throw HTTPStatus<404>(); 
+			    uri.path = root + "index.html";
+			    return ;   
 			}
-			Index_const_it index = file::find_valid_index(root, indexes);
-			if (index == indexes.end())
-			{
-				if ((locations->second).get_autoindex() == AUTOINDEX_ON)
-					throw HTTPStatus<501>(); // Not implemented yet
-				throw HTTPStatus<403>();
-			}
-			path = root + (*index);
-			return ;
+			throw HTTPStatus<404>(); 
 		}
 		Index_const_it index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())
-			throw HTTPStatus<404>();
-		path = root + (*index);
+		{
+			if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+				throw HTTPStatus<501>(); // Not implemented yet
+			throw HTTPStatus<403>();
+		}
+		uri.path = root + (*index);
+		return ;
 	}
-	throw HTTPStatus<404>(); 
+	Index_const_it index = file::find_valid_index(root, indexes);
+	if (index == indexes.end())
+		throw HTTPStatus<404>();
+	uri.path = root + (*index);
 }
+
+// CGI and Files have different URI
+// size_t path_start = _path.find('/');
+// size_t query_string_start = _path.rfind('?');
+// if (path_start == std::string::npos) {
+// request_uri.path = _path;
+// }
+// else
+// request_uri.path = _path.substr(0, query_string_start);
+// if (query_string_start != std::string::npos)
+// request_uri.query = _path.substr(query_string_start);
 
 Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
 {
