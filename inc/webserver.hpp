@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:13:59 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 00:04:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,5 +66,12 @@ T	str_to_nbr(const std::string &str)
 	ss >> nbr;
 	return (nbr);
 }
+
+struct equals
+{
+	equals(const std::string &ref);
+	bool operator()(const std::string&val);
+	std::string ref;
+};
 
 #endif

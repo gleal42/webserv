@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/05 23:02:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 00:17:19 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,9 +184,9 @@ void    ConfigParser::call()
 		    ERROR(e.what());
     }
     file.close();
-    std::vector<ServerConfig>::iterator it = server_configs.begin();
-    for(; it != server_configs.end(); it++)
-        std::cout << *it;
+    // std::vector<ServerConfig>::iterator it = server_configs.begin();
+    // for(; it != server_configs.end(); it++)
+    //     std::cout << *it;
 };
 
 // void	ConfigParser::set_general_conf(void)

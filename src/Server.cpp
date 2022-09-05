@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:18:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 00:46:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -274,8 +274,10 @@ void	Server::request_process_config( Request & req, Response & res )
 {
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);
-	path_resolve(req.request_uri, config_to_use);
-		
+	Location_const_it location_to_use = path_resolve(req.request_uri, config_to_use);
+	const Indexes &indexes = location_to_use->second.get_limit_except();
+	if (std::find_if(indexes.begin(), indexes.end(), equals(req.method_to_str())) == indexes.end())
+		throw (HTTPStatus<403>());
 }
 
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
@@ -320,26 +322,33 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 // locations.insert("/", LocationConfig());
 // return locations["/"];
 
-void	Server::path_resolve( URI & uri, const ServerConfig & server_conf)
+Location_const_it	Server::path_resolve( URI & uri, const ServerConfig & server_conf)
 {
 	Location_const_it locations = location_resolve(server_conf, uri.path);
-	std::string root (processed_root( server_conf, locations ));
-	std::string temp_path = "public" + root + uri.path;
-
-	if (is_directory(temp_path))
-		directory_indexing_resolve( uri, temp_path, server_conf, locations);
+	std::string root ("public" + processed_root( server_conf, locations ));
+	std::string root_path = root + uri.path;
+	if (is_directory(root_path))
+		directory_indexing_resolve( uri, root_path, server_conf, locations);
 	cgi_path_resolve(uri, locations);
-	if (is_file(temp_path))
+	if (uri.path.front() != '/')
+		uri.path.insert(uri.path.begin(), '/');
+	root_path = root + uri.path;
+	if (is_file(root_path))
 	{
-		uri.path = temp_path;
-		return ;
-	}	
-	throw HTTPStatus<404>(); 
+		Location_const_it redir_locations = location_resolve(server_conf, uri.path);
+		if (redir_locations->first.size() > locations->first.size()) {
+			return (path_resolve(uri, server_conf));
+		} else {
+			uri.path = root_path;
+			return locations;
+		}
+	}
+	else
+		throw HTTPStatus<404>(); 
 }
 
 Location_const_it      Server::location_resolve(const ServerConfig &server_block, const std::string & path)
 {
-	std::string location_path = path;
 	std::string location_path = path;
 	if ( location_path.size() > 0 && *(location_path.end()-1) != '/')
 		location_path.push_back('/');
@@ -368,10 +377,8 @@ void			Server::cgi_path_resolve( URI & uri, Location_const_it locations)
 	uri.path = uri.path.substr(0, script_path_pos);
 }
 
-void			Server::directory_indexing_resolve( URI & uri, std::string &root, const ServerConfig &server_conf, Location_const_it locations)
+void			Server::directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
 {
-	// if (root.back() != '/')
-	// 	root.push_back('/');
 	Indexes indexes;
 	indexes = locations->second.get_indexes();
 	if (indexes.empty())
@@ -381,7 +388,7 @@ void			Server::directory_indexing_resolve( URI & uri, std::string &root, const S
 		{
 			if (is_file(root + "index.html"))
 			{
-			    uri.path = root + "index.html";
+			    uri.path = "index.html";
 			    return ;   
 			}
 			throw HTTPStatus<404>(); 
@@ -393,13 +400,13 @@ void			Server::directory_indexing_resolve( URI & uri, std::string &root, const S
 				throw HTTPStatus<501>(); // Not implemented yet
 			throw HTTPStatus<403>();
 		}
-		uri.path = root + (*index);
+		uri.path = (*index);
 		return ;
 	}
 	Index_const_it index = file::find_valid_index(root, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
-	uri.path = root + (*index);
+	uri.path = (*index);
 }
 
 // CGI and Files have different URI
