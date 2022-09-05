@@ -8,6 +8,7 @@ server {
 	location /home/user/Desktop {
 		client_max_body_size 13;
 		error_page 207 /home/user/Desktop/git/webserv/public/www;
+		cgi /home/user/Desktop/git/webserv/public/cgi/php/test_php.sh;
 	}
 	location /home/user/Desktop/playground {
 		client_max_body_size 33;

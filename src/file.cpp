@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   file.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 17:56:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 01:33:04 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ namespace file
 	std::streampos	size( std::string &full_path )
 	{
 		std::streampos	fsize = 0;
-		std::ifstream	file( full_path, std::ios::binary );
+		std::ifstream	file( full_path.c_str(), std::ios::binary );
 
 		fsize = file.tellg();
 		file.seekg( 0, std::ios::end );
@@ -71,13 +71,14 @@ namespace file
 
 	void	save( const std::string &file_body, const std::string & filename )
 	{
-		std::ofstream outfile;
-		outfile.open("public/uploads/" + filename, std::ios::binary);
+		std::ofstream	outfile;
+		std::string		tmp = "public/uploads/" + filename;
+		outfile.open(tmp.c_str() , std::ios::binary);
 		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 			throw std::runtime_error("Couldn't open new file");
 		}
 		outfile.write(file_body.data(), file_body.size());
-		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0 
+		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0
 			|| (outfile.rdstate() & std::ifstream::badbit ) != 0) {
 			throw std::runtime_error("Couldn't write to file");
 		}
@@ -85,7 +86,7 @@ namespace file
 	}
 
 	// Added a protection to prevent us from deleting a repository code or other testing data
-	
+
 	void	remove( const std::string & filename )
 	{
 		static char const * temp_ext[8] = {

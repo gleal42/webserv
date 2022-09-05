@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:07:44 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/04 22:04:04 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,10 @@
 
 # include <iostream>
 # include <string>
-# include <sys/event.h>
+# include <netdb.h>
 # include <sys/socket.h>
 # include <sys/types.h>
-# include <netdb.h>
+# include <sys/wait.h>
 # include <sys/time.h>
 # include <sys/stat.h>
 # include <cstdlib> // For EXIT_FAILURE, etc, macros

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 01:05:53 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/05 01:18:48 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,16 +51,16 @@ CGIHandler::CGIHandler( const URI &uri, const in_addr &connection_addr )
 	script_path = std::string("public") + uri.path;
 	extension = get_extension(script_path);
 	interpreter = extension_interpreter[extension];
-	std::cout << 
+	std::cout <<
 	"Script Path is " << script_path << std::endl <<
-	"Extension is " << extension << std::endl << 
-	"Extra_path is " << extra_path << std::endl << 
-	"Query_string is " << query_string << std::endl << 
-	"Interpreter is " << interpreter << std::endl << 
+	"Extension is " << extension << std::endl <<
+	"Extra_path is " << extra_path << std::endl <<
+	"Query_string is " << query_string << std::endl <<
+	"Interpreter is " << interpreter << std::endl <<
 	"Connection_address is " << inet_ntoa(*connection_address);
 }
 
-CGIHandler::CGIHandler( CGIHandler const & src ) { *this = src; }
+CGIHandler::CGIHandler( CGIHandler const & src ) : Handler(){ *this = src; }
 
 /* Destructor */
 CGIHandler::~CGIHandler( void ) { /* no-op */ }
@@ -105,25 +105,25 @@ void	CGIHandler::do_DELETE( Request & req, Response & res )
 		- Others defined in RFC
 
 	In order to send environment variables we use fork and execve:
-	
+
 	However there are 4 ways to achieve interprocess communication:
 	- Memory Mapped files
 	- Shared memory
 	- Named pipes
 	- Local TCP/UDP sockets
-	
+
 	These are ordered in from most performant to least performant
 	(check issue links)
 
 	I considered using shared memory however we couldn't perform
 	dup2 on shared memory fds.
 	I might try to use mmap instead of writing (will compare performance).
-	
+
 	Usually in C we allocate memory using malloc/strdup. However I used the
 	allocator from vector. The problem is that when we leave scope vector
 	frees memory. This sucks because the function is quite big and there's
 	not much I can do about it.
-	
+
 	Waitpid terminates with signals and debugger lldb sends an interrupt
 	signal. Don't know how to handle this.
 
@@ -145,7 +145,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	std::cout << "Body is " << req._raw_body.data() << std::endl;
 	write(input_fd, req._raw_body.data(), req._raw_body.size());
 	rewind(input_file);
-	
+
 	pid_t pid = 0, w_pid = 0;
 	int status;
 	pid=fork();
@@ -168,7 +168,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		cgi_args.push_back(NULL);
 		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
 		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
-	
+
 		dup2(input_fd, STDIN_FILENO);
 		dup2(output_fd, STDOUT_FILENO);
 		execve(interpreter.c_str(), cgi_args.data(), envs);
@@ -252,7 +252,7 @@ void	CGIHandler::set_env( std::vector< std::vector<char> > &buf, const std::stri
 }
 
 /*
-	CGI can send a Header "Status" (optional) that we then must convert to 
+	CGI can send a Header "Status" (optional) that we then must convert to
 	the first line of our Response.
 	First I save all headers
 	I check if one is Status and do some validations
