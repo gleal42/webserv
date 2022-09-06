@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/01 16:51:05 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 13:57:06 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define __CONFIG_PARSER_H__
 
 #include "webserver.hpp"
-#include "ServerConfig.hpp"
 
 # define SEPARATORS         " \t\v\n\r\f"
 # define SERVER_CONTEXT     1
