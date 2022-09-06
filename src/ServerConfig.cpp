@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/06 16:29:59 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 22:03:30 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,11 @@ void    BaseConfig::set_autoindex(const std::string &content)
 	    throw (ConfigurationDirectiveError(content));
 }
 
+/*
+ * Maybe only push_back if converted number is not assigned
+ * to any path already. (It seems that this is nginx behaviour)
+ */
+
 void    BaseConfig::set_error_pages(const std::string &content)
 {
     size_t              found = content.find_last_of(SEPARATORS);
@@ -177,8 +182,8 @@ void    BaseConfig::set_error_pages(const std::string &content)
 	    throw (MultipleArgumentsError(content));
 
     std::string         error_path = content.substr(found + 1);
-    if (!(is_directory(error_path)))
-	    throw (BadDirectoryError(error_path));
+    // if (!(is_directory(error_path)))
+	//     throw (BadDirectoryError(error_path));
     std::string         codes = content.substr(0, found);
     std::stringstream   stoi;
     int                 converted_number;

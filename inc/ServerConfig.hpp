@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/06 16:30:59 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 21:52:47 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ struct CGI{
 std::ostream&  operator<<(std::ostream&, const CGI&);
 
 
-typedef std::map<std::string, std::vector<unsigned short> > ErrorPage;
+
 
 struct Redirect{
     unsigned short              code;

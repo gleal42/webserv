@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 16:18:18 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 00:04:22 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class 	ServerConfig;
 class	Socket;
 class	URI;
 
+
 // TODO: add error structs?
 
 enum RequestMethod {
@@ -76,5 +77,8 @@ typedef std::map<std::string, LocationConfig>	Locations;
 typedef Locations::const_iterator				Location_const_it;
 typedef std::vector<std::string>				Indexes;
 typedef Indexes::const_iterator					Index_const_it;
+typedef std::map<std::string, std::vector<unsigned short> > ErrorPage;
+typedef ErrorPage::iterator							        ErrorPage_it;
+typedef ErrorPage::const_iterator							ErrorPage_const_it;
 
 #endif

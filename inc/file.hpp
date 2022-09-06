@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:21:06 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/02 00:46:56 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 00:13:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@
 # include <map>
 # include <set>
 # include "webserver.hpp"
-# include "Response.hpp"
+# include "HTTPStatus.hpp"
+
+// # include "Response.hpp"
 
 namespace file
 {

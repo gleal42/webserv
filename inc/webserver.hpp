@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 16:24:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 00:10:11 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,8 @@
 # include "types.hpp"
 # include "print.hpp"
 # include "ServerConfig.hpp"
+# include "file.hpp"
+
 
 
 // Functions
@@ -59,6 +61,11 @@ std::string			b64decode(const std::string & encoded_string);
 std::string			processed_root( const ServerConfig & server_conf, Location_const_it locations );
 const std::string &	priority_directive( const std::string &server_directive, const std::string & location_directive );
 const int &			priority_directive( const int &server_directive, const int & location_directive );
+void				update_error_code(ErrorPage &dest_list, const std::string &err_path, unsigned short code);
+Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf);
+Location_const_it	location_resolve(const ServerConfig &server_block, const std::string & path);
+void				cgi_path_resolve( URI & uri, Location_const_it locations);
+void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
@@ -74,6 +81,21 @@ struct equals
 	equals(const std::string &ref);
 	bool operator()(const std::string&val);
 	std::string ref;
+};
+
+class URI {
+
+public:
+	std::string		host;
+	int				port;
+	std::string		path;
+	std::string		extra_path;
+	std::string		query; // map
+	std::string		fragment;
+	
+	std::string		to_s( void ) {
+		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
+	}
 };
 
 #endif

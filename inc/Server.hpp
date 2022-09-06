@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 00:31:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 00:30:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,6 @@ public:
 	void				request_process_config( Request & req, Response & res );
 	ServerConfig		config_resolve( const Request & req, Response & res );
 	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
-	Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf);
-	Location_const_it	location_resolve(const ServerConfig &server_block, const std::string & path);
-	void				cgi_path_resolve( URI & uri, Location_const_it locations);
-	void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations);
-
 
 	/* Connection */
 	void				connection_new( Listener * listener );

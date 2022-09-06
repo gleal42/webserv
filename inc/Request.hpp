@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:50 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 19:20:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 00:07:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,14 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#include "webserver.hpp"
 #include "macros.hpp"
 #include "ServerConfig.hpp"
 #include "Socket.hpp"
 #include "HTTPStatus.hpp"
 #include "types.hpp"
+
+
 
 // https://www.rfc-editor.org/rfc/rfc9112.html#name-request-line
 
@@ -97,20 +100,7 @@ Warning								A general warning about possible problems with the entity body.		
 
 */
 
-class URI {
 
-public:
-	std::string		host;
-	int				port;
-	std::string		path;
-	std::string		extra_path;
-	std::string		query; // map
-	std::string		fragment;
-	
-	std::string		to_s( void ) {
-		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
-	}
-};
 
 class Request {
 
