@@ -18,6 +18,8 @@ NAME := webserv
 SRCS := main.cpp \
 		webserver.cpp \
 		Server.cpp \
+		BaseConfig.cpp \
+		LocationConfig.cpp \
 		ServerConfig.cpp \
 		Event.cpp \
 		ConfigParser.cpp \

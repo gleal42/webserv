@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/01 15:00:01 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 13:33:50 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Socket.hpp"
 #include "Listener.hpp"
 #include "HTTPStatus.hpp"
+#include "ServerConfig.hpp"
 #include <algorithm>
 
 std::map<enum RequestMethod, std::string>Request::_method_conv = init_map();
