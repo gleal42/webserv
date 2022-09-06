@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 15:57:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 16:29:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,8 @@ void				remove_directory(std::string &path);
 std::string			address_to_hostname(struct sockaddr *address);
 std::string			b64decode(const std::string & encoded_string);
 std::string			processed_root( const ServerConfig & server_conf, Location_const_it locations );
+const std::string &	priority_directive( const std::string &server_directive, const std::string & location_directive );
+const int &			priority_directive( const int &server_directive, const int & location_directive );
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
