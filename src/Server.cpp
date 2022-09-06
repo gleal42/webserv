@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 17:16:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 17:19:31 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -281,7 +281,7 @@ void	Server::request_process_config( Request & req, Response & res )
 		throw (HTTPStatus<403>());
 
 	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
-	if (max_client_body_size >= 0 && ((long long)req._raw_body.size() > max_client_body_size))
+	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
 
 	
