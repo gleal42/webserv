@@ -12,4 +12,4 @@ COPY . /usr/src/webserv
 RUN make
 
 # Run
-CMD ["./webserv", "test/test.conf"]
+CMD ["./webserv"]
