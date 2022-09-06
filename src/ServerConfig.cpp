@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/05 23:18:28 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 16:29:59 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -258,7 +258,7 @@ void    BaseConfig::set_redirect(bool has_separators, const std::string &content
 const std::string&              BaseConfig::get_root( void ) const{return (this->_root);}
 AutoBool                        BaseConfig::get_autoindex( void ) const{return (this->_autoindex);}
 const ErrorPage&                BaseConfig::get_error_pages( void ) const{return (this->_error_pages);}
-int                             BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
+long long						BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
 const std::vector<std::string>& BaseConfig::get_indexes( void ) const{return (this->_indexes);}
 const std::vector<Redirect>&    BaseConfig::get_redirect( void ){return (this->_redirect);}
 

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 00:46:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 17:16:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,9 +275,16 @@ void	Server::request_process_config( Request & req, Response & res )
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);
 	Location_const_it location_to_use = path_resolve(req.request_uri, config_to_use);
-	const Indexes &indexes = location_to_use->second.get_limit_except();
-	if (std::find_if(indexes.begin(), indexes.end(), equals(req.method_to_str())) == indexes.end())
+
+	const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
+	if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
 		throw (HTTPStatus<403>());
+
+	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
+	if (max_client_body_size >= 0 && ((long long)req._raw_body.size() > max_client_body_size))
+		throw (HTTPStatus<413>());
+
+	
 }
 
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
@@ -369,10 +376,17 @@ Location_const_it      Server::location_resolve(const ServerConfig &server_block
 
 void			Server::cgi_path_resolve( URI & uri, Location_const_it locations)
 {
+	if (uri.extra_path.empty() == false) {
+		uri.path = uri.path + uri.extra_path;
+		uri.extra_path.clear();
+	}
 	CGI cgi = locations->second.get_cgi();
 	if (cgi.empty())
 		return ;
-	size_t script_path_pos = uri.path.find(cgi.extension) + cgi.extension.size();
+	size_t script_path_pos = uri.path.find(cgi.extension);
+	if (script_path_pos == std::string::npos)
+		return ;
+	script_path_pos = script_path_pos + cgi.extension.size();
 	uri.extra_path = uri.path.substr(script_path_pos + 1);
 	uri.path = uri.path.substr(0, script_path_pos);
 }
