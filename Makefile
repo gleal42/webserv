@@ -15,8 +15,7 @@ endif
 
 CPPFLAGS := -Iinc
 NAME := webserv
-SRCS := main.cpp \
-		webserver.cpp \
+SRCS := webserver.cpp \
 		Server.cpp \
 		BaseConfig.cpp \
 		LocationConfig.cpp \

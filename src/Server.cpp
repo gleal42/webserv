@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 17:19:31 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 18:49:57 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,14 +284,14 @@ void	Server::request_process_config( Request & req, Response & res )
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
 
-	
+
 }
 
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
 {
 	ServerConfig to_use;
 	struct addrinfo *host = get_host(req.request_uri.host);
-	
+
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
 	{
 		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
@@ -320,7 +320,7 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
-	
+
 }
 
 // if (location_path.back() != '/') Needs redirection to fix
@@ -337,7 +337,7 @@ Location_const_it	Server::path_resolve( URI & uri, const ServerConfig & server_c
 	if (is_directory(root_path))
 		directory_indexing_resolve( uri, root_path, server_conf, locations);
 	cgi_path_resolve(uri, locations);
-	if (uri.path.front() != '/')
+	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
 	if (is_file(root_path))
@@ -351,7 +351,7 @@ Location_const_it	Server::path_resolve( URI & uri, const ServerConfig & server_c
 		}
 	}
 	else
-		throw HTTPStatus<404>(); 
+		throw HTTPStatus<404>();
 }
 
 Location_const_it      Server::location_resolve(const ServerConfig &server_block, const std::string & path)
@@ -403,9 +403,9 @@ void			Server::directory_indexing_resolve( URI & uri, const std::string &root, c
 			if (is_file(root + "index.html"))
 			{
 			    uri.path = "index.html";
-			    return ;   
+			    return ;
 			}
-			throw HTTPStatus<404>(); 
+			throw HTTPStatus<404>();
 		}
 		Index_const_it index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())

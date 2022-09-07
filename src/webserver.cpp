@@ -3,17 +3,31 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/07 15:57:20 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 19:19:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ServerConfig.hpp"
-#include "ConfigParser.hpp"
-#include "Listener.hpp"
 #include "Server.hpp"
+#include "webserver.hpp"
+
+int	main(int argc, char **argv)
+{
+	if (argc > 2) {
+		ERROR("Wrong number of arguments.");
+		return (EXIT_FAILURE);
+	}
+
+	if (argc == 1) {
+		webserver("default.conf");
+		return (EXIT_SUCCESS);
+	}
+
+	webserver(std::string(argv[1]));
+	return (EXIT_SUCCESS);
+}
 
 /*
 ** Creates webserver from configuration (that can handle multiple requests)
@@ -22,7 +36,6 @@
 ** Line-by-line comments:
 ** @1	Create Server - Will allow us to identify events and handle
 */
-
 int webserver(const std::string &config_file)
 {
 	ConfigParser	parser(config_file);
@@ -30,7 +43,11 @@ int webserver(const std::string &config_file)
 	try {
         parser.call();
     }
-    catch (std::exception &e) { // Use specific errors
+    catch (ConfigError &e) {
+		ERROR("ConfigError; " << e.what());
+		exit(EXIT_FAILURE);
+    }
+    catch (std::exception &e) {
 		ERROR(e.what());
 		exit(EXIT_FAILURE);
     }
@@ -42,5 +59,5 @@ int webserver(const std::string &config_file)
 	webserv.start();
 
 	// Shutdown and cleanup inside destructor
-    return 0;
+    return EXIT_SUCCESS;
 }
