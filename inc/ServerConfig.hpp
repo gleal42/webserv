@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/06 13:56:29 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/07 16:29:31 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ class ServerConfig : public BaseConfig
         std::vector<std::string>    _server_names;
 };
 
-std::ostream&   operator<<(std::ostream&, ServerConfig&);
-std::ostream&  operator<<(std::ostream&, const CGI&);
+std::ostream&	operator<<(std::ostream&, ServerConfig&);
+std::ostream&	operator<<(std::ostream&, const CGI&);
 
 
 #endif

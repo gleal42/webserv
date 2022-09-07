@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 13:58:34 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/07 16:29:49 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,9 @@ bool				is_address_being_listened(const std::string & listener_address, const st
 void				remove_directory(std::string &path);
 std::string			address_to_hostname(struct sockaddr *address);
 std::string			b64decode(const std::string & encoded_string);
+std::string			processed_root( const ServerConfig & server_conf, Location_const_it locations );
+const std::string &	priority_directive( const std::string &server_directive, const std::string & location_directive );
+const int &			priority_directive( const int &server_directive, const int & location_directive );
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
@@ -66,5 +69,12 @@ T	str_to_nbr(const std::string &str)
 	ss >> nbr;
 	return (nbr);
 }
+
+struct equals
+{
+	equals(const std::string &ref);
+	bool operator()(const std::string&val);
+	std::string ref;
+};
 
 #endif

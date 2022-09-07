@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/06 13:36:10 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/07 15:57:17 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,7 +185,46 @@ void    ConfigParser::call()
 		    ERROR(e.what());
     }
     file.close();
-    std::vector<ServerConfig>::iterator it = server_configs.begin();
-    for(; it != server_configs.end(); it++)
-        std::cout << *it;
+    // std::vector<ServerConfig>::iterator it = server_configs.begin();
+    // for(; it != server_configs.end(); it++)
+    //     std::cout << *it;
 };
+
+// void	ConfigParser::set_general_conf(void)
+// {
+//     ServerConfig server_block_1;
+//     server_block_1.set_root(0, "public/");
+//     server_block_1.set_listen(0, "8080");
+//     server_block_1.set_server_name("first");
+//     server_block_1.set_indexes("index.html");
+
+//     LocationConfig location_1a;
+//     location_1a.set_limit_except("GET POST DELETE");
+//     server_block_1.set_location("/", location_1a);
+
+//     LocationConfig location_1b;
+//     location_1b.set_limit_except("GET POST DELETE");
+//     location_1b.set_root(false, "public/mid/");
+//     server_block_1.set_location("/post/", location_1b);
+
+//     server_configs.push_back(server_block_1);
+
+//     ServerConfig server_block_2;
+//     server_block_2.set_listen(0, "8080");
+//     server_block_2.set_server_name("second");
+//     server_block_2.set_indexes("ms_index.html");
+//     LocationConfig location_2;
+//     location_2.set_limit_except("GET POST DELETE");
+//     server_block_2.set_location("/", location_2);
+//     server_configs.push_back(server_block_2);
+// }
+
+// void	ConfigParser::set_tester_conf(void)
+// {
+//     ServerConfig general_server;
+//     general_server.set_listen(0, "8080");
+//     general_server.set_server_name("boss_group");
+//     general_server.set_indexes("index.html");
+
+//     server_configs.push_back(general_server);
+// }

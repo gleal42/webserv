@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 21:17:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/06 16:23:08 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,13 +100,20 @@ HTTPStatusGroup	http_group( int code )
 	};
 }
 
+static bool is_not_alphanum( int c )
+{
+    return (!std::isalnum(c));
+}
+
 std::string get_extension( const std::string &filename )
 {
     std::string extension;
-    size_t ext_position = filename.find_last_of('.');
-    if (ext_position == std::string::npos )
+    size_t start_extension_pos = filename.find_last_of('.');
+    if (start_extension_pos == std::string::npos )
         return (extension);
-    return (filename.substr(ext_position));
+    extension = filename.substr(start_extension_pos);
+    std::string::iterator end_extension_pos (std::find_if((extension.begin()+1), extension.end(), is_not_alphanum)); // Too restrictive?
+    return (std::string(extension.begin(), end_extension_pos));
 }
 
 int	str_to_hexa(std::string hexa_nbr)
@@ -314,3 +321,28 @@ std::string b64decode(const std::string& encoded_string)
     }
     return ret;
 }
+
+std::string processed_root( const ServerConfig & server_conf, Location_const_it locations )
+{
+	std::string root = priority_directive(server_conf.get_root(), locations->second.get_root());
+	if (root.back() == '/')
+		root.erase(--root.end());
+    return (root);
+}
+
+const std::string &priority_directive( const std::string &server_directive, const std::string & location_directive )
+{
+    if (location_directive.empty() == false)
+        return (location_directive);
+    return (server_directive);
+}
+
+const int &priority_directive( const int &server_directive, const int & location_directive )
+{
+    if (location_directive >= 0)
+        return (location_directive);
+    return (server_directive);
+}
+
+equals::equals(const std::string &ref): ref(ref){}
+bool equals::operator()(const std::string&val){ return (val == ref);}

@@ -133,7 +133,11 @@ void    LocationConfig::set_limit_except(const std::string &content)
 }
 
 // LocationConfig getters
-const std::string&                LocationConfig::get_cgi( void ) const {return (this->_cgi.interpreter);}
+const CGI&						    LocationConfig::get_cgi( void ) const {return (this->_cgi);}
+bool                            	LocationConfig::has_cgi( const std::string &uri ) const
+{
+	return(_cgi.is_configured(get_extension(uri)));
+}
 const std::vector<std::string>&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
 
 // LocationConfig Operators

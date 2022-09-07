@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerConfig.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/06 14:00:05 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/07 16:30:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 // #include "BaseConfig.hpp"
 // #include "LocationConfig.hpp"
 #include "webserver.hpp"
+#include "ServerConfig.hpp"
+#include "ConfigParser.hpp"
 
 // Constructors
 ServerConfig::ServerConfig()
