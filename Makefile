@@ -82,7 +82,8 @@ vm_re: vm_build vm # re-builds and runs the app container
 vm_clean: # stops docker and deletes images, and processes
 	docker stop $$(docker ps -qa); \
 	docker rm $$(docker ps -qa); \
-	docker rmi -f $$(docker images -qa);
+	docker rmi -f $$(docker images -qa); \
+	docker system prune --force
 
 test_unit: # compiles and runs unit tests
 	$(MAKE) -C test/unit
