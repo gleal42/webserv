@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/01 14:57:23 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 00:11:03 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,7 @@ X-Frame-Options						Clickjacking protection: deny - no rendering		X-Frame-Optio
 # include "Socket.hpp"
 # include "HTTPStatus.hpp"
 # include "types.hpp"
+# include "ServerConfig.hpp"
 
 // ************************************************************************** //
 //                               Response Class                               //
@@ -171,6 +172,9 @@ public:
 	void			set_error_page( const BaseStatus &error_status );
 	void			save_raw_headers( std::string headers );
 	void    		set_with_file( const std::string &filename );
+	void    		add_error_list(const ErrorPage &server_error_pages, const ErrorPage &location_error_pages);
+	std::string   	error_path(unsigned short code);
+	void			set_server_config(const ServerConfig &config_to_use);
 
 	// Getters
 
@@ -188,6 +192,9 @@ private:
 	std::string		_body;
 	ResponseHeaders	_headers;			// Map of request headers
 	std::string		_message;
+	ErrorPage		_available_errors;
+	ServerConfig	_server_conf;
+
 	Response( Response const & src );		// while not implemented
 };
 

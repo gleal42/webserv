@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 16:29:45 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 17:44:03 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ class 	LocationConfig;
 class 	ServerConfig;
 class	Socket;
 class	URI;
+
 
 // TODO: add error structs?
 
@@ -116,6 +117,8 @@ typedef Locations::const_iterator								Location_const_it;
 typedef std::vector<std::string>								Indexes;
 typedef Indexes::const_iterator									Index_const_it;
 typedef std::map< std::string, std::vector<unsigned short> >	ErrorPage;
+typedef ErrorPage::iterator										ErrorPage_it;
+typedef ErrorPage::const_iterator								ErrorPage_const_it;
 
 
 #endif
