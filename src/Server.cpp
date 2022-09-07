@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:49:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 23:37:24 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,6 +285,8 @@ void	Server::request_process_config( Request & req, Response & res )
 	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
+
+	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
@@ -342,6 +344,7 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 
 Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
 {
+
 	std::string extension = get_extension(req.request_uri.path);
 	if (CGIHandler::extension_is_implemented(extension))
         return (new CGIHandler(req.request_uri, connection_addr));

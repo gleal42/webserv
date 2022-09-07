@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 23:11:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 23:28:05 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ CGIExtInterpreter CGIHandler::create_extension_pairs( void )
 {
 	CGIExtInterpreter	temp;
 	temp[".cgi"] = full_path("test/cgi/cpp/cgi_tester");
-	temp[".php"] = "/usr/local/bin/php-cgi";
+	temp[".php"] = full_path("test/cgi/php-cgi");
 	return (temp);
 }
 
@@ -165,6 +165,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		cgi_args.push_back(cmd_vec.data());
 		cgi_args.push_back(filepath.data());
 		cgi_args.push_back(NULL);
+		std::cout << "Interpreter is " << interpreter << std::endl;
 		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
 		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
 
