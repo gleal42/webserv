@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/06 16:23:08 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 18:05:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <algorithm>
 
 std::string	to_string(int number)
 {
@@ -325,7 +326,7 @@ std::string b64decode(const std::string& encoded_string)
 std::string processed_root( const ServerConfig & server_conf, Location_const_it locations )
 {
 	std::string root = priority_directive(server_conf.get_root(), locations->second.get_root());
-	if (root.back() == '/')
+	if (*(--root.end()) == '/')
 		root.erase(--root.end());
     return (root);
 }
@@ -346,3 +347,118 @@ const int &priority_directive( const int &server_directive, const int & location
 
 equals::equals(const std::string &ref): ref(ref){}
 bool equals::operator()(const std::string&val){ return (val == ref);}
+
+void    update_error_code(ErrorPage &dest_list, const std::string &err_path, unsigned short code)
+{
+	for (ErrorPage_it it_dest_err = dest_list.begin();
+		it_dest_err != dest_list.end();
+		it_dest_err++)
+	{
+		std::vector<unsigned short>::iterator it_del = std::find(it_dest_err->second.begin(), it_dest_err->second.end(), code);
+		if (it_del != it_dest_err->second.end())
+			it_dest_err->second.erase(it_del);
+	}
+	dest_list[err_path].push_back(code);
+}
+
+std::string   get_error_path(const ErrorPage &dest_list, unsigned short code)
+{
+	for (ErrorPage_const_it it_dest_err = dest_list.begin();
+		it_dest_err != dest_list.end();
+		it_dest_err++)
+	{
+		std::vector<unsigned short>::const_iterator it_del = std::find(it_dest_err->second.begin(), it_dest_err->second.end(), code);
+		if (it_del != it_dest_err->second.end())
+			return(it_dest_err->first);
+	}
+    return (std::string());
+}
+
+Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
+{
+	Location_const_it locations = location_resolve(server_conf, uri.path);
+	std::string root ("public" + processed_root( server_conf, locations ));
+	std::string root_path = root + uri.path;
+	if (is_directory(root_path))
+		directory_indexing_resolve( uri, root_path, server_conf, locations);
+	cgi_path_resolve(uri, locations);
+	if (*uri.path.begin() != '/')
+		uri.path.insert(uri.path.begin(), '/');
+	root_path = root + uri.path;
+	Location_const_it redir_locations = location_resolve(server_conf, uri.path);
+	if (redir_locations->first.size() > locations->first.size()) {
+		return (path_resolve(uri, server_conf));
+	} else {
+		uri.path = root_path;
+		return locations;
+	}
+}
+
+Location_const_it      location_resolve(const ServerConfig &server_block, const std::string & path)
+{
+	std::string location_path = path;
+	if ( location_path.size() > 0 && *(location_path.end()-1) != '/')
+		location_path.push_back('/');
+	const Locations &locations = server_block.get_locations();
+	while (location_path.empty() == false)
+	{
+		for (Location_const_it it = locations.begin();
+			it != locations.end();
+			it++)
+			{
+				if ((it->first) == location_path)
+					return (it);
+			}
+		location_path.erase(--location_path.end());
+	}
+	throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
+}
+
+void			cgi_path_resolve( URI & uri, Location_const_it locations)
+{
+	if (uri.extra_path.empty() == false) {
+		uri.path = uri.path + uri.extra_path;
+		uri.extra_path.clear();
+	}
+	CGI cgi = locations->second.get_cgi();
+	if (cgi.empty())
+		return ;
+	size_t script_path_pos = uri.path.find(cgi.extension);
+	if (script_path_pos == std::string::npos)
+		return ;
+	script_path_pos = script_path_pos + cgi.extension.size();
+	uri.extra_path = uri.path.substr(script_path_pos + 1);
+	uri.path = uri.path.substr(0, script_path_pos);
+}
+
+void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
+{
+	Indexes indexes;
+	indexes = locations->second.get_indexes();
+	if (indexes.empty())
+	{
+		indexes = server_conf.get_indexes();
+		if (indexes.empty())
+		{
+			if (is_file(root + "index.html"))
+			{
+			    uri.path = "index.html";
+			    return ;   
+			}
+			throw HTTPStatus<404>(); 
+		}
+		Index_const_it index = file::find_valid_index(root, indexes);
+		if (index == indexes.end())
+		{
+			if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+				throw HTTPStatus<501>(); // Not implemented yet
+			throw HTTPStatus<403>();
+		}
+		uri.path = (*index);
+		return ;
+	}
+	Index_const_it index = file::find_valid_index(root, indexes);
+	if (index == indexes.end())
+		throw HTTPStatus<404>();
+	uri.path = (*index);
+}

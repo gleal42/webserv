@@ -6,14 +6,17 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 23:15:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 18:01:33 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Server.hpp"
 #include "Response.hpp"
+#include "Request.hpp"
 #include "Socket.hpp"
 #include "HTTPStatus.hpp"
 #include "file.hpp"
+#include <algorithm>
 
 Response::Response( void ) { /* no-op */ }
 
@@ -106,14 +109,23 @@ void	Response::set_default_page( void )
 
 void	Response::set_error_page( const BaseStatus &error_status )
 {
-	std::string error_str = to_string(error_status.code);
-	error_str = "public/www/error_pages/" + error_str + ".html";
-	set_with_file(error_str);
+	std::string error_str = error_path(error_status.code);
+	try{
+		set_with_file(error_str);
+	}
+	catch (BaseStatus &exc)
+	{
+		error_str = to_string(error_status.code);
+		error_str = "public/www/error_pages/" + error_str + ".html";
+		set_with_file(error_str);
+	}
 	build_message(error_status);
 }
 
 void    Response::set_with_file( const std::string &filename )
 {
+	if (filename.empty())
+		throw HTTPStatus<404>();
 	std::ifstream file(filename.c_str());
 	if ( (file.rdstate() & std::ifstream::failbit ) != 0
 		|| (file.rdstate() & std::ifstream::badbit ) != 0 )
@@ -170,4 +182,47 @@ void	Response::delete_header( const std::string & name )
 {
 	std::cout << name << " header was deleted" << std::endl;
 	_headers.erase(name);
+}
+
+void	Response::add_error_list(const ErrorPage &server_error_pages , const ErrorPage &location_error_pages)
+{
+	this->_available_errors = server_error_pages;
+	for (ErrorPage_const_it it_err = location_error_pages.begin();
+			it_err != location_error_pages.end();
+			it_err++)
+		{
+			
+			for (std::vector<unsigned short>::const_iterator it_code = it_err->second.begin();
+				it_code != it_err->second.end();
+				it_code++)
+				{
+					update_error_code(this->_available_errors, it_err->first, *it_code);
+				}
+		}
+}
+
+std::string   Response::error_path(unsigned short code)
+{
+	for (ErrorPage_it it_dest_err = this->_available_errors.begin();
+		it_dest_err != this->_available_errors.end();
+		it_dest_err++)
+	{
+		std::vector<unsigned short>::iterator it_del = std::find(it_dest_err->second.begin(), it_dest_err->second.end(), code);
+		if (it_del != it_dest_err->second.end())
+		{
+			URI error_uri;
+			error_uri.path = it_dest_err->first;
+			Location_const_it location_to_use = path_resolve(error_uri, _server_conf);
+			const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
+			if (std::find_if(req_methods.begin(), req_methods.end(), equals("GET")) == req_methods.end())
+				return std::string();
+			return(error_uri.path);
+		}
+	}
+    return (std::string());
+}
+
+void			Response::set_server_config(const ServerConfig &config_to_use)
+{
+	_server_conf = config_to_use;
 }
