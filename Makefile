@@ -72,7 +72,7 @@ resetclean: fclean clean
 re: fclean all
 
 vm: # runs the app in a container
-	docker run -it --rm -p 8080:8080 --name webserv webserv
+	docker run -it --rm -p 8080:8080 --name webserv webserv $(CONFIG_FILE)
 
 vm_build: # build the app in a container
 	docker build --no-cache -t webserv .
