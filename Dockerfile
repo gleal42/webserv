@@ -1,5 +1,8 @@
-# https://hub.docker.com/_/gcc
-FROM gcc:latest
+FROM debian:buster
+
+RUN apt-get update
+RUN apt-get upgrade -y
+RUN apt-get -y install build-essential php7.3 php-cgi
 
 # Create app directory
 RUN mkdir -p /usr/src/webserv
@@ -12,4 +15,4 @@ COPY . /usr/src/webserv
 RUN make
 
 # Run
-CMD ["./webserv"]
+ENTRYPOINT ["./scripts/start.sh"]

@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
 /*   Updated: 2022/09/07 17:49:41 by gleal            ###   ########.fr       */
@@ -291,7 +291,7 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 {
 	ServerConfig to_use;
 	struct addrinfo *host = get_host(req.request_uri.host);
-	
+
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
 	{
 		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
@@ -320,7 +320,7 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
-	
+
 }
 
 // if (location_path.back() != '/') Needs redirection to fix
@@ -328,8 +328,6 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 // remove_directory(location_path); instead of location_path.erase
 // locations.insert("/", LocationConfig());
 // return locations["/"];
-
-
 
 // CGI and Files have different URI
 // size_t path_start = _path.find('/');

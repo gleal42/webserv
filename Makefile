@@ -15,8 +15,7 @@ endif
 
 CPPFLAGS := -Iinc
 NAME := webserv
-SRCS := main.cpp \
-		webserver.cpp \
+SRCS := webserver.cpp \
 		Server.cpp \
 		BaseConfig.cpp \
 		LocationConfig.cpp \
@@ -73,7 +72,7 @@ resetclean: fclean clean
 re: fclean all
 
 vm: # runs the app in a container
-	docker run -it --rm -p 8080:8080 --name webserv webserv
+	docker run -it --rm -p 8080:8080 --name webserv webserv $(CONFIG_FILE)
 
 vm_build: # build the app in a container
 	docker build --no-cache -t webserv .
@@ -83,7 +82,8 @@ vm_re: vm_build vm # re-builds and runs the app container
 vm_clean: # stops docker and deletes images, and processes
 	docker stop $$(docker ps -qa); \
 	docker rm $$(docker ps -qa); \
-	docker rmi -f $$(docker images -qa);
+	docker rmi -f $$(docker images -qa); \
+	docker system prune --force
 
 test_unit: # compiles and runs unit tests
 	$(MAKE) -C test/unit
