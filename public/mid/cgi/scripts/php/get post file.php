@@ -30,9 +30,10 @@ else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
       $path = $start_path . $path;
    }
    foreach ($files as $value) {
-      echo "Path is $path\n";
-      echo "Value is $value\n";
-      echo "<p><a href=\"" . $path.$value . "\">" . $value . "</a><p>";
+      echo "<p>Path is $path <p>";
+      echo "<p>Value is $value <p>";
+      echo "<p>ALL is $path$value <p>";
+      echo "<p><a href=\"" . "../$path$value" . "\">" . $value . "</a><p>";
    }
 }
 else{
