@@ -6,34 +6,18 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/06 22:03:30 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 17:50:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+// #include "ServerConfig.hpp"
+// #include "BaseConfig.hpp"
+// #include "LocationConfig.hpp"
 #include "webserver.hpp"
 #include "ServerConfig.hpp"
 #include "ConfigParser.hpp"
 
-bool					CGI::is_configured(const std::string &uri_extension) const
-{
-	if (uri_extension == extension)
-		return true;
-	return false;
-}
-
-bool						CGI::empty() const { return (extension.empty() && interpreter.empty());}
-
-std::ostream&	operator<<(std::ostream&os, const CGI&cgi)
-{
-	os << "Extension [" << cgi.extension << "] Interpreter [" << cgi.interpreter << "]";
-	return os;
-}
-
 // Constructors
-BaseConfig::BaseConfig() : _autoindex(AUTOINDEX_UNSET), _client_max_body_size(-1)
-{};
-LocationConfig::LocationConfig()
-{};
 ServerConfig::ServerConfig()
 {
     Listen  init_listen;
@@ -45,10 +29,6 @@ ServerConfig::ServerConfig()
 };
 
 // Destructors
-BaseConfig::~BaseConfig()
-{};
-LocationConfig::~LocationConfig()
-{};
 ServerConfig::~ServerConfig()
 {};
 
@@ -65,41 +45,8 @@ ServerConfig::ServerConfig(const ServerConfig& param)
     this->_server_names = param._server_names;
 }
 
-LocationConfig::LocationConfig(const LocationConfig& param)
-{
-    this->_root = param._root;
-    this->_autoindex = param._autoindex;
-    this->_error_pages = param._error_pages;
-    this->_client_max_body_size = param._client_max_body_size;
-    this->_indexes = param._indexes;
-    this->_cgi.extension = param._cgi.extension;
-    this->_cgi.interpreter = param._cgi.interpreter;
-    this->_limit_except = param._limit_except;
-}
-
 // ServerConfig utils
 namespace {
-    bool valid_error_code(int code)
-    {
-    return (code == 100 || code == 101 || code == 200 || code == 201
-         || code == 202 || code == 203 || code == 204 || code == 205
-         || code == 206 || code == 207 || code == 300 || code == 301
-         || code == 302 || code == 303 || code == 304 || code == 305
-         || code == 307 || code == 400 || code == 401 || code == 402
-         || code == 403 || code == 404 || code == 405 || code == 406
-         || code == 407 || code == 408 || code == 409 || code == 410
-         || code == 411 || code == 412 || code == 413 || code == 414
-         || code == 415 || code == 416 || code == 417 || code == 422
-         || code == 423 || code == 424 || code == 426 || code == 428
-         || code == 429 || code == 431 || code == 451 || code == 500
-         || code == 501 || code == 502 || code == 503 || code == 504
-         || code == 505 || code == 507 || code == 511);
-    }
-
-    bool valid_method(std::string str)
-    {
-        return (str == "GET" || str == "POST" || str == "DELETE");}
-
     bool is_number(const std::string& str)
     {
         return (!str.empty() && (str.find_first_not_of("[0123456789]") == std::string::npos));
@@ -145,230 +92,6 @@ namespace {
         return (true);
     }
 }
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~BaseConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-// BaseConfig Setters
-// void BaseConfig::set_directive(int directive, std::string& content)
-
-void    BaseConfig::set_root(bool has_separators, const std::string &content)
-{
-    if (has_separators)
-	    throw (MultipleArgumentsError(content));
-    else if (!is_directory("public" + content))
-	    throw (BadDirectoryError(content));
-    this->_root = content;
-}
-
-void    BaseConfig::set_autoindex(const std::string &content)
-{
-    if (content == "on")
-        this->_autoindex = AUTOINDEX_ON;
-    else if (content == "off")
-        this->_autoindex = AUTOINDEX_OFF;
-    else
-	    throw (ConfigurationDirectiveError(content));
-}
-
-/*
- * Maybe only push_back if converted number is not assigned
- * to any path already. (It seems that this is nginx behaviour)
- */
-
-void    BaseConfig::set_error_pages(const std::string &content)
-{
-    size_t              found = content.find_last_of(SEPARATORS);
-
-    if (found == std::string::npos)
-	    throw (MultipleArgumentsError(content));
-
-    std::string         error_path = content.substr(found + 1);
-    // if (!(is_directory(error_path)))
-	//     throw (BadDirectoryError(error_path));
-    std::string         codes = content.substr(0, found);
-    std::stringstream   stoi;
-    int                 converted_number;
-    char*               token = std::strtok(const_cast<char *>(codes.c_str()), SEPARATORS);
-    size_t              i = 0;
-
-    while (token != 0 && i++ < found)
-    {
-        stoi.clear();
-        stoi << token;
-        stoi >> converted_number;
-        if (!valid_error_code(converted_number))
-	        throw (ConfigurationDirectiveError(content));
-        this->_error_pages[error_path].push_back(converted_number);
-        token = std::strtok(NULL, SEPARATORS);
-    }
-}
-
-void    BaseConfig::set_max_body_size(bool has_separators, const std::string &content)
-{
-    if (has_separators)
-	    throw (MultipleArgumentsError(content));
-    int                 max_size;
-    std::stringstream   intValue(content);
-    intValue >> max_size;
-    if (max_size < 0)
-        throw (ConfigurationDirectiveError(content));
-    this->_client_max_body_size = max_size;
-}
-
-void    BaseConfig::set_indexes(const std::string &content)
-{
-    std::string tmp(content);
-    char*       token = strtok(const_cast<char *>(tmp.c_str()), SEPARATORS);
-
-    while (token != NULL)
-    {
-        std::string tokstr = std::string(token);
-        this->_indexes.push_back(tokstr);
-        token = strtok(NULL, SEPARATORS);
-    }
-}
-
-void    BaseConfig::set_redirect(bool has_separators, const std::string &content)
-{
-    Redirect    new_redir;
-    std::string str;
-
-    if (has_separators)
-    {
-        std::stringstream   stoi;
-        int                 converted_number;
-        str = content.substr(0, 3);
-        if (!is_number(str))
-            throw (ConfigurationDirectiveError(str));
-        stoi << str;
-        stoi >> converted_number;
-        new_redir.code = converted_number;
-        str.clear();
-        str = content.substr(3);
-        if (!is_directory(str) || !is_file(str))
-            throw (ConfigurationDirectiveError(str));
-        new_redir.new_path = str;
-    }
-    else
-    {
-        if (!is_directory(content) || !is_file(content))
-            throw (ConfigurationDirectiveError(str));
-        new_redir.new_path = content;
-        new_redir.code = 302;
-    }
-    this->_redirect.push_back(new_redir);
-}
-
-
-// BaseConfig Getters
-const std::string&              BaseConfig::get_root( void ) const{return (this->_root);}
-AutoBool                        BaseConfig::get_autoindex( void ) const{return (this->_autoindex);}
-const ErrorPage&                BaseConfig::get_error_pages( void ) const{return (this->_error_pages);}
-long long						BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
-const std::vector<std::string>& BaseConfig::get_indexes( void ) const{return (this->_indexes);}
-const std::vector<Redirect>&    BaseConfig::get_redirect( void ){return (this->_redirect);}
-
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~LocationConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-bool    LocationConfig::is_empty( void )
-{
-    return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
-        && this->_error_pages.empty() && this->_client_max_body_size == -1
-        && this->_indexes.empty() && this->_redirect.empty()
-        && this->_cgi.extension.empty() && this->_cgi.interpreter.empty()
-        && this->_limit_except.empty());
-}
-
-int     LocationConfig::find_directive(const std::string &directive)
-{
-    const std::string   valid_location_directives[CONTEXT_DIRECTIVES] =
-    {"root", "autoindex", "error_page", "client_max_body_size", "index",
-    "redirect", "cgi", "limit_except"};
-
-    int                 i = -1;
-
-    while (++i < CONTEXT_DIRECTIVES)
-        if (directive == valid_location_directives[i])
-        return (i);
-    throw (ConfigurationDirectiveError(directive));
-    return (0);
-}
-
-// LocationConfig setters
-
-void LocationConfig::set_directive(int directive, const std::string& content)
-{
-    bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
-    if (content.empty())
-        throw (ConfigurationSyntaxError());
-
-    switch (directive)
-    {
-        case DIRECTIVE_ROOT:
-            this->set_root(has_separators, content);
-            break;
-        case DIRECTIVE_AUTOINDEX:
-            this->set_autoindex(content);
-            break;
-        case DIRECTIVE_ERRORPAGE:
-            this->set_error_pages(content);
-            break;
-        case DIRECTIVE_MAXBODYSIZE:
-            this->set_max_body_size(has_separators, content);
-            break;
-        case DIRECTIVE_INDEX:
-            this->set_indexes(content);
-            break;
-        case DIRECTIVE_REDIRECT:
-            this->set_redirect(has_separators, content);
-            break;
-        case DIRECTIVE_CGI:
-         this->set_cgi(has_separators, content);
-            break;
-        case DIRECTIVE_LIMITEXCEPT:
-            this->set_limit_except(content);
-            break;
-        default:
-            break;
-    }
-}
-
-void    LocationConfig::set_cgi(bool has_separators, const std::string &content)
-{
-    (void)has_separators;
-    this->_cgi.extension = std::strtok(const_cast<char *>(content.c_str()), " ");
-    this->_cgi.interpreter = std::strtok(NULL, " ");
-    if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
-	    throw (BadFileError(this->_cgi.interpreter));
-}
-
-void    LocationConfig::set_limit_except(const std::string &content)
-{
-    char *token = std::strtok(const_cast<char *>(content.c_str()), " ");
-
-    while (token)
-    {
-        if (!(valid_method(token)))
-	        throw (ConfigurationDirectiveError(token));
-        std::vector<std::string>::iterator last = this->_limit_except.end();
-        std::vector<std::string>::iterator tmp = this->_limit_except.begin();
-        for (; tmp != last; ++tmp)
-            if (*tmp == token)
-	            throw (ConfigurationDirectiveError(content));
-        this->_limit_except.push_back(std::string(token));
-        token = std::strtok(NULL, " ");
-    }
-}
-
-// LocationConfig getters
-const CGI&							LocationConfig::get_cgi( void ) const {return (this->_cgi);}
-bool                            	LocationConfig::has_cgi( const std::string &uri ) const
-{
-	return(_cgi.is_configured(get_extension(uri)));
-}
-const std::vector<std::string>&		LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~ServerConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -524,22 +247,6 @@ ServerConfig& ServerConfig::operator= (const ServerConfig& param)
     this->_locations = param._locations;
     this->_listens = param._listens;
     this->_server_names = param._server_names;
-
-    return (*this);
-}
-
-LocationConfig& LocationConfig::operator= (const LocationConfig& param)
-{
-    if (this == &param)
-        return (*this);
-
-    this->_root = param._root;
-    this->_autoindex = param._autoindex;
-    this->_error_pages = param._error_pages;
-    this->_client_max_body_size = param._client_max_body_size;
-    this->_indexes = param._indexes;
-    this->_cgi = param._cgi;
-    this->_limit_except = param._limit_except;
 
     return (*this);
 }

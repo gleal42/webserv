@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 00:00:40 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 18:05:02 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <algorithm>
 
 std::string	to_string(int number)
 {
@@ -325,7 +326,7 @@ std::string b64decode(const std::string& encoded_string)
 std::string processed_root( const ServerConfig & server_conf, Location_const_it locations )
 {
 	std::string root = priority_directive(server_conf.get_root(), locations->second.get_root());
-	if (root.back() == '/')
+	if (*(--root.end()) == '/')
 		root.erase(--root.end());
     return (root);
 }
@@ -381,7 +382,7 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
 	if (is_directory(root_path))
 		directory_indexing_resolve( uri, root_path, server_conf, locations);
 	cgi_path_resolve(uri, locations);
-	if (uri.path.front() != '/')
+	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
 	Location_const_it redir_locations = location_resolve(server_conf, uri.path);

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/06 00:17:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 17:50:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ int webserver(const std::string &config_file)
     }
     catch (std::exception &e) { // Use specific errors
 		ERROR(e.what());
+		exit(EXIT_FAILURE);
     }
 
 	// Initialize all Listeners

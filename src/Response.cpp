@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/06 23:57:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 18:01:33 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "Socket.hpp"
 #include "HTTPStatus.hpp"
 #include "file.hpp"
+#include <algorithm>
 
 Response::Response( void ) { /* no-op */ }
 

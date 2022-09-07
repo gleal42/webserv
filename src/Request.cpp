@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 16:48:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 17:47:21 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "Socket.hpp"
 #include "Listener.hpp"
 #include "HTTPStatus.hpp"
+#include "ServerConfig.hpp"
 #include <algorithm>
 
 std::map<enum RequestMethod, std::string>Request::_method_conv = init_map();

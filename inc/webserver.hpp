@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 00:10:11 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/07 17:53:25 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,13 @@
 # include <unistd.h>
 # include <arpa/inet.h> // inet_ntop()
 # include "macros.hpp"
-# include "BaseStatus.hpp"
 # include "types.hpp"
 # include "print.hpp"
+# include "BaseStatus.hpp"
+# include "BaseConfig.hpp"
+# include "LocationConfig.hpp"
 # include "ServerConfig.hpp"
 # include "file.hpp"
-
-
 
 // Functions
 int 				webserver(const std::string &config);
