@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:49:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/08 23:37:11 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <dirent.h>
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -260,8 +261,12 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
     Handler *handler = NULL;
 	try {
 		request_process_config(req, res);
-		handler = handler_resolve(req, connection_addr);
-		handler->service(req, res);
+		if (res.autoindex_confirmed == true)
+            do_autoindex(req.request_uri.path, res);
+		else {
+			handler = handler_resolve(req, connection_addr);
+			handler->service(req, res);
+		}
 		res.build_message(handler->script_status());
 	} catch (BaseStatus &error_status) {
 		res.set_error_page(error_status);
@@ -270,7 +275,51 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-void	Server::request_process_config( Request & req, Response & res )
+void				Server::do_autoindex(std::string & path, Response & res){
+	std::ifstream	icon;
+	DIR	*			dir;
+	struct dirent *	de;
+    struct stat		st;
+    struct tm		tm_time;
+	std::string		time;
+    std::string     html_content = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h3>Index of " + path + "</h3><br>";
+
+    dir = opendir(path.c_str());
+    if (path != "")
+    if (dir == NULL)
+        throw HTTPStatus<404>();
+    while ((de = readdir(dir)) != NULL)
+    {
+        if (*de->d_name == 0 || (*de->d_name == '.' && *(de->d_name + 1) == 0))
+            continue ;
+        std::string file_path = path + de->d_name;
+        std::string file_name(de->d_name);
+
+        gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
+        std::string tmp_time(asctime(&tm_time));
+        time = tmp_time.substr(0, tmp_time.length() - 1);
+
+        if (lstat(file_path.c_str(), &st) == 0)
+        {
+            if (S_ISDIR(st.st_mode))
+                    html_content += "<div><a href=\"" + file_name + "/\">" + "&emsp;&emsp;&emsp;" + de->d_name + time + "&emsp;-" + "</div><br>";
+            else
+            {
+                size_t file_size(st.st_size);
+                std::stringstream ss;
+                ss << file_size;
+                html_content += "<div><a href=\"" + file_name + "\">" + "&emsp;&emsp;&emsp;" + de->d_name + time + "&emsp;" + ss.str() + "</div><br>";
+            }
+        }
+	    html_content += "\n</body>\n</html>\n";
+        closedir(dir);
+    }
+	res.set_header("Content-Type", "text/html");
+	res.set_header("Date", time);
+    res.set_body(html_content);
+}
+
+void	Server::request_process_config( Request & req, Response & res)
 {
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);

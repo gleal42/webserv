@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/07 18:01:33 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/08 23:35:10 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "file.hpp"
 #include <algorithm>
 
-Response::Response( void ) { /* no-op */ }
+Response::Response( void ) : autoindex_confirmed(false){ /* no-op */ }
 
 Response::Response( Response const & src ){
 	// TODO (implement constructor)
@@ -191,7 +191,7 @@ void	Response::add_error_list(const ErrorPage &server_error_pages , const ErrorP
 			it_err != location_error_pages.end();
 			it_err++)
 		{
-			
+
 			for (std::vector<unsigned short>::const_iterator it_code = it_err->second.begin();
 				it_code != it_err->second.end();
 				it_code++)
