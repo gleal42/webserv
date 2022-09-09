@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 23:37:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/09 01:29:16 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -344,7 +344,6 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 
 Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
 {
-
 	std::string extension = get_extension(req.request_uri.path);
 	if (CGIHandler::extension_is_implemented(extension))
         return (new CGIHandler(req.request_uri, connection_addr));

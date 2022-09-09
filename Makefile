@@ -75,8 +75,7 @@ vm: # runs the app in a container
 	docker run -it --rm -p 8080:8080 --name webserv webserv $(CONFIG_FILE)
 
 vm_build: # build the app in a container
-	docker build -t webserv .
-	# docker build --no-cache -t webserv .
+	docker build --no-cache -t webserv .
 
 vm_re: vm_build vm # re-builds and runs the app container
 
