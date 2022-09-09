@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:53:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/09 01:14:58 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,7 @@ public:
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
+	void			clear( void );
 };
 
 #endif

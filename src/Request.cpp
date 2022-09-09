@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:47:21 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/09 01:18:04 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,6 +241,10 @@ void	Request::clear()
 	_raw_headers.clear();
 	_raw_body.clear();
 	_path.clear();
+	request_uri.clear();
+	cgi.extension.clear();
+	cgi.interpreter.clear();
+	client_max_body_size = -1;
 	_headers.clear();
 }
 
