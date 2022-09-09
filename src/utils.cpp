@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/09 01:18:00 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/09 19:09:32 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -454,13 +454,13 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 				throw HTTPStatus<501>(); // Not implemented yet
 			throw HTTPStatus<403>();
 		}
-		uri.path = (*index);
+		uri.path = uri.path + (*index);
 		return ;
 	}
 	Index_const_it index = file::find_valid_index(root, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
-	uri.path = (*index);
+	uri.path = uri.path + (*index);
 }
 
 void			URI::clear( void )
