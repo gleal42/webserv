@@ -12,7 +12,7 @@ CPPFLAGS	:= $(INC)
 COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket listener parser status handler file_handler server event connection
+all:	socket listener connection parser status handler file_handler server event
 
 
 ##---  Socket  ---##
@@ -59,7 +59,9 @@ Connection:	$(CONNECTION) ../../inc/Connection.hpp
 
 
 ##---  ConfigParser  ---##
-PARSER := ConfigParser.test.cpp ../../src/ConfigParser.cpp
+PARSER := ConfigParser.test.cpp ../../src/ConfigParser.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp ../../src/LocationConfig.cpp ../../src/utils.cpp \
+	../../src/print.cpp ../../src/BaseStatus.cpp ../../src/file.cpp
 
 parser: ConfigParser # run ConfigParser class tests
 	./ConfigParser
@@ -70,8 +72,9 @@ ConfigParser:	$(PARSER) ../../inc/ConfigParser.hpp
 
 
 ##---  HTTPStatus  ---##
-STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp \
-../../src/utils.cpp ../../src/print.cpp
+STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp ../../src/ConfigParser.cpp \
+	../../src/utils.cpp ../../src/print.cpp ../../src/BaseConfig.cpp ../../src/file.cpp \
+	../../src/ServerConfig.cpp ../../src/LocationConfig.cpp
 
 status: HTTPStatus # run HTTPStatus class tests
 	./HTTPStatus
@@ -82,10 +85,11 @@ HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 
 
 ##---  Handler  ---##
-HANDLER := Handler.test.cpp ../../src/Handler.cpp \
+HANDLER := Handler.test.cpp ../../src/Handler.cpp ../../src/BaseConfig.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
 	../../src/Request.cpp ../../src/Socket.cpp ../../src/Response.cpp \
-	../../src/print.cpp ../../src/file.cpp
+	../../src/print.cpp ../../src/file.cpp ../../src/ServerConfig.cpp \
+	../../src/LocationConfig.cpp ../../src/ConfigParser.cpp
 
 handler: Handler # run Handler class tests
 	./Handler
@@ -99,7 +103,8 @@ Handler:	$(HANDLER) ../../inc/Handler.hpp
 FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
 	../../src/print.cpp ../../src/file.cpp ../../src/Handler.cpp ../../src/Request.cpp \
-	../../src/Socket.cpp ../../src/Response.cpp
+	../../src/Socket.cpp ../../src/Response.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp ../../src/LocationConfig.cpp ../../src/ConfigParser.cpp
 
 file_handler: FileHandler # run FileHandler class tests
 	./FileHandler
