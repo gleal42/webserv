@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 02:29:22 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/10 19:48:36 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,7 @@ void				cgi_path_resolve( URI & uri, Location_const_it locations);
 void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations);
 std::string			set_time(struct tm *tm_time);
 std::string			resolve_month(int i);
+std::string			insert_whitespace(size_t len, size_t spaces);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)

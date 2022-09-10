@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 02:31:36 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/10 19:59:56 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -484,7 +484,8 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		    uri.path = "index.html";
 		    return ;
 		}
-		else if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+		else if (locations->second.get_autoindex() == AUTOINDEX_ON
+		|| (server_conf.get_autoindex()== AUTOINDEX_ON && locations->second.get_autoindex()== AUTOINDEX_UNSET))
 		{
 			uri.autoindex_confirmed = true;
 			return ;
@@ -506,4 +507,12 @@ std::string resolve_month(int i)
 {
 	const std::string months[12] = {"Jan",  "Feb",  "Mar",  "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	return (months[i]);
+}
+
+std::string insert_whitespace(size_t len, size_t spaces){
+	std::string whitespaces;
+
+	for (size_t i = 0; i < spaces - len; i++)
+		whitespaces.push_back(' ');
+	return (whitespaces);
 }

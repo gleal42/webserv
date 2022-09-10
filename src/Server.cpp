@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 04:29:04 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/10 20:29:00 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <dirent.h>
+# define WHITESPACE_CAP 50
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -260,6 +261,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
+		std::cout << "\t\t\t\tHOST URI = " << req.request_uri.host << "\n";
 		request_process_config(req, res);
 		if (req.request_uri.autoindex_confirmed == true){
             do_autoindex(req.request_uri.path, res);
@@ -277,6 +279,11 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
+// TODO:
+// - Put right path on href
+// - reformat time in time funcs
+// - very big file names
+
 void				Server::do_autoindex(std::string & path, Response & res){
 	DIR	*			dir;
 	struct dirent *	de;
@@ -284,57 +291,66 @@ void				Server::do_autoindex(std::string & path, Response & res){
     struct tm		tm_time;
 	std::string		time;
 	std::string		private_path(path.substr(6));
-    std::string     html_content = "<html>\n<head><title>Index of " + private_path + "</title></head>\n<body>\n<h1>Index of " + private_path + "</h1><hr><pre>";
+    std::string     html_content = "<html>\n<head><title>Index of " + private_path
+								 + "</title></head>\n<body>\n<h1>Index of "
+								 + private_path + "</h1><hr><pre>"
+								 + "<div><a href=\"..\"></div>../</a>";
 
-	LOG("\t\t\t\t\tPRIVATEPATH IS: " << private_path);
+	LOG("\t\tPRIVATEPATH IS: " << private_path);
     dir = opendir(path.c_str());
-    if (path != "")
     if (dir == NULL)
         throw HTTPStatus<404>();
     while ((de = readdir(dir)) != NULL)
     {
-        if (*de->d_name == 0 || (*de->d_name == '.' && *(de->d_name + 1) == 0))
+        if (*de->d_name == 0 || *de->d_name == '.')
             continue ;
 
         std::string file_name(de->d_name);
-		if (*de->d_name == '.' && *(de->d_name + 1) == '.'){
-			html_content += "<a href=\"" + file_name + "\">" + de->d_name + "/</a><br>";
-			continue;
-		}
-
-		std::string file_path = path + '/' + de->d_name;
-	LOG("\t\t\t\t\tPATH IS: " << path);
-	LOG("\t\t\t\t\tFILEPATH IS: " << file_path);
-	LOG("\t\t\t\t\tD_NAME IS: " << de->d_name);
-        gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
-        std::string tmp_time(asctime(&tm_time));
-        time = tmp_time.substr(0, tmp_time.length() - 1);
+		std::string file_path = path + '/' + file_name;
 
         if (lstat(file_path.c_str(), &st) == 0)
         {
-            if (S_ISDIR(st.st_mode))
+			LOG("\t\tPATH IS: " << path);
+			LOG("\t\tFILEPATH IS: " << file_path);
+			LOG("\t\tFILE_NAME IS: " << file_name);
+			gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
+			std::string tmp_time(asctime(&tm_time));
+			time = tmp_time.substr(0, tmp_time.length() - 1);
+			bool is_dir = S_ISDIR(st.st_mode);
+			if (is_dir)
+				file_name.push_back('/');
+			if (file_name.length() >= WHITESPACE_CAP)
 			{
-				// html_content += "<a href=\"" + file_name + "\">" + de->d_name + "/</a>" + "<span style=\"padding-right\">" + time + " -";
-				html_content += "<div style=\"float: left\"><a href=\"" + file_name + "\"></div>" + de->d_name + "</a>"
-				+ "<div style=\"margin: 0 auto; width: 100px; height: 0px; text-align: center\">" + time + " -</div>";
-				// html_content += "<a href=\"" + file_name + "\">" + de->d_name + "/</a>" + "<span style=\"text-align:right;\">" + set_time(&tm_time) + " -" + "</span><br>";
+				file_name.substr(0, 47);
+				file_name.append("..>");
+				LOG("\t\tFILE_NAME AFTER CAP IS: " << file_name);
+			}
+
+			html_content += "<div><a href=\"" + file_name + "\">"
+						 + file_name + "</a>"
+						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
+            if (is_dir)
+			{
+				html_content += set_time(&tm_time)
+							 + insert_whitespace(1, WHITESPACE_CAP/2)
+							 + "-</div>";
 			}
             else
             {
                 size_t file_size(st.st_size);
                 std::stringstream ss;
                 ss << file_size;
-				html_content += "<div style=\"float: left\"><a href=\"" + file_name + "\"></div>" + de->d_name + "</a>"
-				+ "<div style=\"margin: 0 auto; width: 100px; height: 0px; text-align: center\">" + time + ' ' + ss.str() + "</div>";
+				std::string fsize = ss.str();
+				html_content += set_time(&tm_time)
+							 + insert_whitespace(fsize.length(), WHITESPACE_CAP/2)
+							 + fsize + "</div>";
             }
         }
     }
-	html_content += "\n</pre><hr></body>\n</html>";
-	LOG("\t\t\t\tclosing html: " << html_content);
     closedir(dir);
-	LOG("\t\t\t\t~~~~~~~END~~~~~~~\n");
+	html_content += "</pre><hr></body>\n</html>";
 	res.set_header("Content-Type", "text/html");
-	res.set_header("Date", time);
+	// res.set_header("Date", time);
     res.set_body(html_content);
 }
 
