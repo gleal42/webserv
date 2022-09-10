@@ -115,12 +115,13 @@ FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
 
 
 ##---  Server  ---##
-SERVER := Server.test.cpp ../../src/Server.cpp \
+SERVER := Server.test.cpp ../../src/Server.cpp ../../src/LocationConfig.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/Connection.cpp \
 	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/CGIHandler.cpp\
 	../../src/ConfigParser.cpp ../../src/Request.cpp ../../src/Listener.cpp \
 	../../src/Response.cpp ../../src/url.cpp ../../src/Socket.cpp \
-	../../src/Event.cpp ../../src/print.cpp ../../src/file.cpp
+	../../src/Event.cpp ../../src/print.cpp ../../src/file.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp
 
 server: Server # run Server class tests
 	./Server
