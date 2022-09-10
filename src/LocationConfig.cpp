@@ -110,8 +110,8 @@ void    LocationConfig::set_cgi(bool has_separators, const std::string &content)
 	//     throw (MultipleArgumentsError(content));
     this->_cgi.extension = std::strtok(const_cast<char *>(content.c_str()), " ");
     this->_cgi.interpreter = std::strtok(NULL, " ");
-    if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
-        throw (BadFileError(this->_cgi.interpreter));
+    // if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
+    //     throw (BadFileError(this->_cgi.interpreter));
 }
 
 void    LocationConfig::set_limit_except(const std::string &content)

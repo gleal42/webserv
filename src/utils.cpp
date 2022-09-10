@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 18:05:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/09 01:18:00 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,9 +225,9 @@ struct addrinfo *get_host(const std::string &hostname )
             return NULL;
         throw HTTPStatus<500>();
     }
-    if (host->ai_next != NULL){
-        throw HTTPStatus<500>();
-    }
+    // if (host->ai_next != NULL){
+    //     throw HTTPStatus<500>();
+    // }
 	return host;
 }
 
@@ -427,7 +427,7 @@ void			cgi_path_resolve( URI & uri, Location_const_it locations)
 	if (script_path_pos == std::string::npos)
 		return ;
 	script_path_pos = script_path_pos + cgi.extension.size();
-	uri.extra_path = uri.path.substr(script_path_pos + 1);
+	uri.extra_path = uri.path.substr(script_path_pos);
 	uri.path = uri.path.substr(0, script_path_pos);
 }
 
@@ -461,4 +461,14 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
 	uri.path = (*index);
+}
+
+void			URI::clear( void )
+{
+	host.clear();
+	port = -1;
+	path.clear();
+	extra_path.clear();
+	query.clear();
+	fragment.clear();
 }
