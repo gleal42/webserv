@@ -9,6 +9,7 @@
 
 // Constants
 #define PORT 8080
+#define HOSTNAME "127.0.0.1"
 #define FD 3 // if no other file descriptors open
 #define BUFFER_SIZE 5000
 #define MAX_CONNECTIONS 10
@@ -55,10 +56,10 @@ TEST_CASE("Socket `bind` method") {
 		a.close();
     }
 
-	SUBCASE("allows setting `port` separate from constructor") {
+	SUBCASE("allows setting `port` and `hostname` separate from constructor") {
 		Socket	a;
 		a.create();
-		a.bind(PORT);
+		a.bind(HOSTNAME, PORT);
 
 		CHECK(a.port() == PORT);
 
@@ -72,7 +73,7 @@ TEST_CASE("Socket `bind` method") {
 
 		a.create();
 
-		CHECK_NOTHROW(a.bind(PORT));
+		CHECK_NOTHROW(a.bind(HOSTNAME, PORT));
 
 		a.close();
 		b.close();
@@ -88,7 +89,7 @@ TEST_CASE("Socket `close` method") {
 		Socket			b;
 		b.create();
 
-		CHECK_NOTHROW(b.bind(PORT));
+		CHECK_NOTHROW(b.bind(HOSTNAME, PORT));
 
 		CHECK(b.fd() == FD);
 		CHECK(b.port() == PORT);

@@ -16,7 +16,10 @@ all:	socket listener connection parser status handler file_handler server event
 
 
 ##---  Socket  ---##
-SOCKET := Socket.test.cpp ../../src/utils.cpp ../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp
+SOCKET := Socket.test.cpp ../../src/utils.cpp ../../src/Socket.cpp \
+	../../src/print.cpp ../../src/BaseStatus.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp ../../src/LocationConfig.cpp ../../src/file.cpp \
+	../../src/ConfigParser.cpp
 
 socket: Socket # run Socket class tests
 	./Socket
