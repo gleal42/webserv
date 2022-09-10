@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:53:25 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/10 02:29:22 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf);
 Location_const_it	location_resolve(const ServerConfig &server_block, const std::string & path);
 void				cgi_path_resolve( URI & uri, Location_const_it locations);
 void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations);
+std::string			set_time(struct tm *tm_time);
+std::string			resolve_month(int i);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
@@ -92,7 +94,8 @@ public:
 	std::string		extra_path;
 	std::string		query; // map
 	std::string		fragment;
-	
+    bool			autoindex_confirmed;
+
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/07 17:47:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/09 01:12:02 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@ ConfigurationDirectiveError::ConfigurationDirectiveError(const std::string err)
 { /* No-op */}
 
 ConfigurationSyntaxError::ConfigurationSyntaxError()
-    : std::runtime_error("Error. Invalid syntax on the configuration file")
+    : std::runtime_error("Error: Invalid syntax on the configuration file")
 { /* No-op */}
 
 LocationPathError::LocationPathError(const std::string err)
-    : std::runtime_error("Error. The following path isn't accessible: " + err)
+    : std::runtime_error("Error: The following path isn't accessible: " + err)
 { /* No-op */}
 
 NestedContextError::NestedContextError(void)

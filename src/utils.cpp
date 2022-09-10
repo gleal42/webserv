@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 18:05:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/10 02:31:36 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,7 +270,7 @@ std::string address_to_hostname(struct sockaddr *address)
 {
     static char buf[NI_MAXHOST];
     std::memset(buf, '\0', NI_MAXHOST);
-    
+
     getnameinfo(address, sizeof(*address), buf, sizeof(buf), NULL, 0, NI_NUMERICHOST);
     return(buf);
 }
@@ -310,7 +310,7 @@ std::string b64decode(const std::string& encoded_string)
        {
 			ret.push_back(
 			((b64_decode_table(encoded_string[pos+1]) & 0x0f) << 4)	// Starting 4 bits taken from 2nd char (001111)
-		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100) 
+		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100)
        }
 	   if (pos + 3 < length_of_string)
 	   {
@@ -379,16 +379,21 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
 	Location_const_it locations = location_resolve(server_conf, uri.path);
 	std::string root ("public" + processed_root( server_conf, locations ));
 	std::string root_path = root + uri.path;
-	if (is_directory(root_path))
+	if (is_directory(root_path)) {
+		std::cout << "URI " << uri.path << " is dir\n";
 		directory_indexing_resolve( uri, root_path, server_conf, locations);
+		// if (uri.autoindex_confirmed == true) {
+		// 	std::cout << "autoindex_confirmed for " << uri.path << "\n";
+			// return locations;}
+	}
 	cgi_path_resolve(uri, locations);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
 	Location_const_it redir_locations = location_resolve(server_conf, uri.path);
-	if (redir_locations->first.size() > locations->first.size()) {
+	if (redir_locations->first.size() > locations->first.size())
 		return (path_resolve(uri, server_conf));
-	} else {
+	else {
 		uri.path = root_path;
 		return locations;
 	}
@@ -431,34 +436,74 @@ void			cgi_path_resolve( URI & uri, Location_const_it locations)
 	uri.path = uri.path.substr(0, script_path_pos);
 }
 
+// void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
+// {
+// 	Indexes indexes;
+// 	indexes = locations->second.get_indexes();
+// 	if (indexes.empty())
+// 	{
+// 		indexes = server_conf.get_indexes();
+// 		if (indexes.empty())
+// 		{
+// 			if (is_file(root + "index.html"))
+// 			{
+// 			    uri.path = "index.html";
+// 			    return ;
+// 			}
+// 			if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+// 				uri.autoindex_confirmed = true;
+// 					return ;
+// 			throw HTTPStatus<404>();
+// 		}
+// 		Index_const_it index = file::find_valid_index(root, indexes);
+// 		if (index == indexes.end())
+// 		{
+// 			if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+// 				throw HTTPStatus<501>(); // Not implemented yet
+// 			throw HTTPStatus<403>();
+// 		}
+// 		uri.path = (*index);
+// 		return ;
+// 	}
+// 	Index_const_it index = file::find_valid_index(root, indexes);
+// 	if (index == indexes.end())
+// 		throw HTTPStatus<404>();
+// 	uri.path = (*index);
+// }
+
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
 {
+	(void)server_conf;
+
 	Indexes indexes;
 	indexes = locations->second.get_indexes();
 	if (indexes.empty())
 	{
-		indexes = server_conf.get_indexes();
-		if (indexes.empty())
+		if (is_file(root + "index.html"))
 		{
-			if (is_file(root + "index.html"))
-			{
-			    uri.path = "index.html";
-			    return ;   
-			}
-			throw HTTPStatus<404>(); 
+		    uri.path = "index.html";
+		    return ;
 		}
-		Index_const_it index = file::find_valid_index(root, indexes);
-		if (index == indexes.end())
+		else if ((locations->second).get_autoindex() == AUTOINDEX_ON)
 		{
-			if ((locations->second).get_autoindex() == AUTOINDEX_ON)
-				throw HTTPStatus<501>(); // Not implemented yet
-			throw HTTPStatus<403>();
+			uri.autoindex_confirmed = true;
+			return ;
 		}
-		uri.path = (*index);
-		return ;
+		throw HTTPStatus<403>();
 	}
 	Index_const_it index = file::find_valid_index(root, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
-	uri.path = (*index);
+	uri.path = uri.path + (*index);
+}
+
+std::string set_time(struct tm *tm_time){
+	return (to_string(tm_time->tm_mday) + '-' + resolve_month(tm_time->tm_mon)
+	+ '-' + to_string(tm_time->tm_year + 1900) + ' ' + to_string(tm_time->tm_hour)
+	+ ':' + to_string(tm_time->tm_min));
+}
+std::string resolve_month(int i)
+{
+	const std::string months[12] = {"Jan",  "Feb",  "Mar",  "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	return (months[i]);
 }

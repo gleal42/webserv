@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/08 23:37:11 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/10 04:29:04 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,13 +261,15 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
     Handler *handler = NULL;
 	try {
 		request_process_config(req, res);
-		if (res.autoindex_confirmed == true)
+		if (req.request_uri.autoindex_confirmed == true){
             do_autoindex(req.request_uri.path, res);
+			res.build_message(HTTPStatus<200>());
+		}
 		else {
 			handler = handler_resolve(req, connection_addr);
 			handler->service(req, res);
+			res.build_message(handler->script_status());
 		}
-		res.build_message(handler->script_status());
 	} catch (BaseStatus &error_status) {
 		res.set_error_page(error_status);
 	}
@@ -276,14 +278,15 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 }
 
 void				Server::do_autoindex(std::string & path, Response & res){
-	std::ifstream	icon;
 	DIR	*			dir;
 	struct dirent *	de;
     struct stat		st;
     struct tm		tm_time;
 	std::string		time;
-    std::string     html_content = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n</head>\n<body>\n<h3>Index of " + path + "</h3><br>";
+	std::string		private_path(path.substr(6));
+    std::string     html_content = "<html>\n<head><title>Index of " + private_path + "</title></head>\n<body>\n<h1>Index of " + private_path + "</h1><hr><pre>";
 
+	LOG("\t\t\t\t\tPRIVATEPATH IS: " << private_path);
     dir = opendir(path.c_str());
     if (path != "")
     if (dir == NULL)
@@ -292,9 +295,17 @@ void				Server::do_autoindex(std::string & path, Response & res){
     {
         if (*de->d_name == 0 || (*de->d_name == '.' && *(de->d_name + 1) == 0))
             continue ;
-        std::string file_path = path + de->d_name;
-        std::string file_name(de->d_name);
 
+        std::string file_name(de->d_name);
+		if (*de->d_name == '.' && *(de->d_name + 1) == '.'){
+			html_content += "<a href=\"" + file_name + "\">" + de->d_name + "/</a><br>";
+			continue;
+		}
+
+		std::string file_path = path + '/' + de->d_name;
+	LOG("\t\t\t\t\tPATH IS: " << path);
+	LOG("\t\t\t\t\tFILEPATH IS: " << file_path);
+	LOG("\t\t\t\t\tD_NAME IS: " << de->d_name);
         gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
         std::string tmp_time(asctime(&tm_time));
         time = tmp_time.substr(0, tmp_time.length() - 1);
@@ -302,18 +313,26 @@ void				Server::do_autoindex(std::string & path, Response & res){
         if (lstat(file_path.c_str(), &st) == 0)
         {
             if (S_ISDIR(st.st_mode))
-                    html_content += "<div><a href=\"" + file_name + "/\">" + "&emsp;&emsp;&emsp;" + de->d_name + time + "&emsp;-" + "</div><br>";
+			{
+				// html_content += "<a href=\"" + file_name + "\">" + de->d_name + "/</a>" + "<span style=\"padding-right\">" + time + " -";
+				html_content += "<div style=\"float: left\"><a href=\"" + file_name + "\"></div>" + de->d_name + "</a>"
+				+ "<div style=\"margin: 0 auto; width: 100px; height: 0px; text-align: center\">" + time + " -</div>";
+				// html_content += "<a href=\"" + file_name + "\">" + de->d_name + "/</a>" + "<span style=\"text-align:right;\">" + set_time(&tm_time) + " -" + "</span><br>";
+			}
             else
             {
                 size_t file_size(st.st_size);
                 std::stringstream ss;
                 ss << file_size;
-                html_content += "<div><a href=\"" + file_name + "\">" + "&emsp;&emsp;&emsp;" + de->d_name + time + "&emsp;" + ss.str() + "</div><br>";
+				html_content += "<div style=\"float: left\"><a href=\"" + file_name + "\"></div>" + de->d_name + "</a>"
+				+ "<div style=\"margin: 0 auto; width: 100px; height: 0px; text-align: center\">" + time + ' ' + ss.str() + "</div>";
             }
         }
-	    html_content += "\n</body>\n</html>\n";
-        closedir(dir);
     }
+	html_content += "\n</pre><hr></body>\n</html>";
+	LOG("\t\t\t\tclosing html: " << html_content);
+    closedir(dir);
+	LOG("\t\t\t\t~~~~~~~END~~~~~~~\n");
 	res.set_header("Content-Type", "text/html");
 	res.set_header("Date", time);
     res.set_body(html_content);
@@ -327,9 +346,15 @@ void	Server::request_process_config( Request & req, Response & res)
 	Location_const_it location_to_use = path_resolve(req.request_uri, config_to_use);
 
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use->second.get_error_pages());
-	const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
-	if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
-		throw (HTTPStatus<403>());
+	if (location_to_use->second.get_limit_except().empty() == false){
+		const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
+		if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
+		{
+			LOG("req method " << req.method_to_str() << "was not found\n");
+				LOG("\t\t\t\t~~~~~~~whaty what?~~~~~~~\n");
+			throw (HTTPStatus<403>());
+		}
+	}
 
 	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/08 23:35:10 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/09 02:29:18 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "file.hpp"
 #include <algorithm>
 
-Response::Response( void ) : autoindex_confirmed(false){ /* no-op */ }
+Response::Response( void ){ /* no-op */ }
 
 Response::Response( Response const & src ){
 	// TODO (implement constructor)
