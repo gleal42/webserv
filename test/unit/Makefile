@@ -12,7 +12,7 @@ CPPFLAGS	:= $(INC)
 COMPILE		:= $(CXX) $(CXXFLAGS) $(CPPFLAGS)
 
 
-all:	socket listener connection parser status handler file_handler server event
+all:	socket listener parser status handler file_handler server event connection
 
 
 ##---  Socket  ---##
@@ -31,7 +31,9 @@ Socket:	$(SOCKET) ../../inc/Socket.hpp
 
 ##---  Listener  ---##
 LISTENER := Listener.test.cpp ../../src/utils.cpp ../../src/Listener.cpp \
-	../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp
+	../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp \
+	../../src/ServerConfig.cpp ../../src/BaseConfig.cpp ../../src/LocationConfig.cpp \
+	../../src/ConfigParser.cpp ../../src/file.cpp
 
 listener: Listener # run Listener class tests
 	./Listener
@@ -45,7 +47,8 @@ Listener:	$(LISTENER) ../../inc/Listener.hpp
 CONNECTION := Connection.test.cpp ../../src/utils.cpp ../../src/Connection.cpp \
 	../../src/Socket.cpp ../../src/Listener.cpp ../../src/Request.cpp \
 	../../src/Response.cpp ../../src/BaseStatus.cpp ../../src/print.cpp \
-	../../src/file.cpp
+	../../src/file.cpp ../../src/ServerConfig.cpp ../../src/BaseConfig.cpp \
+	../../src/LocationConfig.cpp ../../src/ConfigParser.cpp
 
 connection: Connection # run Connection class tests
 	./Connection

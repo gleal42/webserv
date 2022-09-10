@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/10 23:25:55 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/10 23:35:04 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,21 +163,24 @@ void	ServerConfig::set_listen(bool has_separators, const std::string &content)
 	if (has_separators)
 		throw (MultipleArgumentsError(content));
 
-	std::stringstream   stoi;
-	Listen			  new_listen;
+	std::stringstream	stoi;
+	Listen			 	new_listen;
 
 	if (content.find(':') != std::string::npos)
 	{
-		std::string ip_str = content.substr(0, content.find(':'));
+		std::string	ip_str = content.substr(0, content.find(':'));
 		std::string port_str = content.substr(content.find(':') + 1);
+
 		if (!valid_ip(ip_str) || port_str.empty())
 			throw (ConfigurationDirectiveError(content));
-		else if (ip_str == "*")
+
+		if (ip_str == "*")
 			new_listen.ip = "0.0.0.0";
 		else if (ip_str == "localhost")
 			new_listen.ip = "127.0.0.1";
 		else
 			new_listen.ip = ip_str;
+
 		stoi << port_str;
 		stoi >> new_listen.port;
 	}
