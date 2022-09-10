@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 23:03:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/10 23:21:49 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ int				Socket::fd( void ) const { return _fd; }
 int				Socket::port( void ) const { return _port; }
 int				Socket::bytes( void ) const { return _bytes; }
 
-const in_addr &Socket::address( void ) const
+const in_addr &	Socket::address( void ) const
 {
 	return(_address.sin_addr);
 }
