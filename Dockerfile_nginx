@@ -12,7 +12,8 @@ RUN apt-get install -y curl
 RUN apt-get -y install php7.3
 RUN apt-get -y install php7.3-fpm
 
-COPY nginx/default.conf /tmp/default.conf
+# COPY nginx/default.conf /tmp/default.conf
+COPY nginx/test/index_server_not_location.conf /tmp/default.conf
 
 RUN rm -f var/www/html/index.nginx-debian.html
 RUN rm -f var/www/html/index.html

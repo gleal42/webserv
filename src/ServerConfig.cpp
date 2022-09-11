@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/10 23:35:04 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/10 20:02:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,56 +160,55 @@ void ServerConfig::set_directive(int directive, const std::string& content)
 
 void	ServerConfig::set_listen(bool has_separators, const std::string &content)
 {
-	if (has_separators)
-		throw (MultipleArgumentsError(content));
+    if (has_separators)
+	    throw (MultipleArgumentsError(content));
 
-	std::stringstream	stoi;
-	Listen			 	new_listen;
+    std::stringstream   stoi;
+    Listen              new_listen;
 
-	if (content.find(':') != std::string::npos)
-	{
-		std::string	ip_str = content.substr(0, content.find(':'));
-		std::string port_str = content.substr(content.find(':') + 1);
-
-		if (!valid_ip(ip_str) || port_str.empty())
-			throw (ConfigurationDirectiveError(content));
-
-		if (ip_str == "*")
-			new_listen.ip = "0.0.0.0";
-		else if (ip_str == "localhost")
-			new_listen.ip = "127.0.0.1";
-		else
-			new_listen.ip = ip_str;
-
-		stoi << port_str;
-		stoi >> new_listen.port;
-	}
-	else if (valid_ip(content))
-	{
-		if (content == "*")
-			new_listen.ip = "0.0.0.0";
-		else if (content == "localhost")
-			new_listen.ip = "127.0.0.1";
-		else
-			new_listen.ip = content;
-		new_listen.port = 8080;
-	}
-	else
-	{
-		stoi << content;
-		stoi >> new_listen.port;
-		if (new_listen.port > PORT_MAX || new_listen.port <= PORT_MIN)
-			throw (ConfigurationDirectiveError(content));
-		new_listen.ip = "127.0.0.1";
-	}
-	if (this->_listens[0].is_set == false)
-	{
-		this->_listens[0].ip = new_listen.ip;
-		this->_listens[0].port = new_listen.port;
-		this->_listens[0].is_set = true;
-	}
-	else
-		this->_listens.push_back(new_listen);
+    if (content.find(':') != std::string::npos)
+    {
+        std::string ip_str = content.substr(0, content.find(':'));
+        std::string port_str = content.substr(content.find(':') + 1);
+        if (!valid_ip(ip_str) || port_str.empty())
+	        throw (ConfigurationDirectiveError(content));
+        else if (ip_str == "*")
+            new_listen.ip = "0.0.0.0";
+        else if (ip_str == "localhost")
+            new_listen.ip = "127.0.0.1";
+        else
+            new_listen.ip = ip_str;
+        stoi << port_str;
+        stoi >> new_listen.port;
+    }
+    else if (valid_ip(content))
+    {
+        if (content == "*")
+            new_listen.ip = "0.0.0.0";
+        else if (content == "localhost")
+            new_listen.ip = "127.0.0.1";
+        else
+            new_listen.ip = content;
+        new_listen.port = 80;
+    }
+    else
+    {
+        stoi << content;
+        stoi >> new_listen.port;
+        if (new_listen.port > PORT_MAX || new_listen.port <= PORT_MIN)
+	        throw (ConfigurationDirectiveError(content));
+        new_listen.ip = "0.0.0.0";
+    }
+    if (new_listen.ip != "0.0.0.0" && new_listen.port < 1024)
+        throw (ConfigurationDirectiveError("Port and address combination " + new_listen.ip + " with " + to_string(new_listen.port)));
+    if (this->_listens[0].is_set == false)
+    {
+        this->_listens[0].ip = new_listen.ip;
+        this->_listens[0].port = new_listen.port;
+        this->_listens[0].is_set = true;
+    }
+    else
+        this->_listens.push_back(new_listen);
 }
 
 void	ServerConfig::set_server_name( const std::string &content )

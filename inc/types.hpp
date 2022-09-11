@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 23:03:00 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/10 17:12:15 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ typedef std::map<int, Connection *>								Connections;
 typedef Connections::iterator									Connections_it;
 typedef std::set<String>										Extensions;
 typedef StringMap												Parameters;
-typedef sockaddr_in												SocketAddress;
+typedef sockaddr_in *												SocketAddress;
 typedef std::map<int, Listener *>								Listeners;
 typedef Listeners::iterator										Listener_it;
 typedef StringMap												ResponseHeaders;
