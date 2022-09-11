@@ -3413,7 +3413,7 @@ namespace detail
         bool            hasCurrentTestFailed;
 
         std::vector<IContextScope*> contexts;            // for logging with INFO() and friends
-        StringVector    exceptionalContexts; // logging from INFO() due to an exception
+        std::vector<std::string>    exceptionalContexts; // logging from INFO() due to an exception
 
         // stuff for subcases
         std::set<SubcaseSignature> subcasesPassed;
