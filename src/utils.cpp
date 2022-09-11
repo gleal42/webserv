@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 19:59:56 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/11 05:22:35 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -379,12 +379,8 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
 	Location_const_it locations = location_resolve(server_conf, uri.path);
 	std::string root ("public" + processed_root( server_conf, locations ));
 	std::string root_path = root + uri.path;
-	if (is_directory(root_path)) {
-		std::cout << "URI " << uri.path << " is dir\n";
+	if (is_directory(root_path)){
 		directory_indexing_resolve( uri, root_path, server_conf, locations);
-		// if (uri.autoindex_confirmed == true) {
-		// 	std::cout << "autoindex_confirmed for " << uri.path << "\n";
-			// return locations;}
 	}
 	cgi_path_resolve(uri, locations);
 	if (*uri.path.begin() != '/')
@@ -471,17 +467,26 @@ void			cgi_path_resolve( URI & uri, Location_const_it locations)
 // 	uri.path = (*index);
 // }
 
+
+// ~INDEX PRIORITY: html assigned by index directive -> index.html inside location's directory -> autoindex directive on
+// ~AFAIK, the only way to define an index for root is through location /
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
 {
 	(void)server_conf;
 
 	Indexes indexes;
 	indexes = locations->second.get_indexes();
+	std::string rootslash(root);
+	if (root[root.length()-1] != '/')
+		rootslash.push_back('/');
 	if (indexes.empty())
 	{
-		if (is_file(root + "index.html"))
+		if ((rootslash != "public/" && is_file(rootslash + "index.html"))
+			|| (locations->first == "/" && is_file(rootslash + "index.html")))
 		{
-		    uri.path = "index.html";
+			if (strncmp(rootslash.c_str(), "public/", 7) == 0)
+				rootslash = rootslash.substr(7);
+		    uri.path = rootslash + "index.html";
 		    return ;
 		}
 		else if (locations->second.get_autoindex() == AUTOINDEX_ON
@@ -492,20 +497,24 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		}
 		throw HTTPStatus<403>();
 	}
-	Index_const_it index = file::find_valid_index(root, indexes);
+	Index_const_it index = file::find_valid_index(rootslash, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
-	uri.path = uri.path + (*index);
+	uri.path = uri.path + "/" + (*index);
 }
 
 std::string set_time(struct tm *tm_time){
-	return (to_string(tm_time->tm_mday) + '-' + resolve_month(tm_time->tm_mon)
-	+ '-' + to_string(tm_time->tm_year + 1900) + ' ' + to_string(tm_time->tm_hour)
-	+ ':' + to_string(tm_time->tm_min));
+	return (to_string(tm_time->tm_mday)
+			+ '-' + resolve_month(tm_time->tm_mon)
+			+ '-' + to_string(tm_time->tm_year + 1900) + ' '
+			+ (tm_time->tm_hour < 10 ? "0" : "") + to_string(tm_time->tm_hour)
+			+ ':' + (tm_time->tm_min < 10 ? "0" : "")
+			+ to_string(tm_time->tm_min));
 }
 std::string resolve_month(int i)
 {
-	const std::string months[12] = {"Jan",  "Feb",  "Mar",  "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+	const std::string months[12] = {"Jan",  "Feb",  "Mar",  "Apr", "May", "Jun",
+									"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	return (months[i]);
 }
 

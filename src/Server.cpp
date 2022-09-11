@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 20:29:00 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/11 05:17:32 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,11 +261,11 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
-		std::cout << "\t\t\t\tHOST URI = " << req.request_uri.host << "\n";
 		request_process_config(req, res);
 		if (req.request_uri.autoindex_confirmed == true){
             do_autoindex(req.request_uri.path, res);
 			res.build_message(HTTPStatus<200>());
+			req.request_uri.autoindex_confirmed = false;
 		}
 		else {
 			handler = handler_resolve(req, connection_addr);
@@ -281,8 +281,6 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 
 // TODO:
 // - Put right path on href
-// - reformat time in time funcs
-// - very big file names
 
 void				Server::do_autoindex(std::string & path, Response & res){
 	DIR	*			dir;
@@ -292,14 +290,16 @@ void				Server::do_autoindex(std::string & path, Response & res){
 	std::string		time;
 	std::string		private_path(path.substr(6));
     std::string     html_content = "<html>\n<head><title>Index of " + private_path
-								 + "</title></head>\n<body>\n<h1>Index of "
-								 + private_path + "</h1><hr><pre>"
+								 + "/</title></head>\n<body>\n<h1>Index of "
+								 + private_path + "/</h1><hr><pre>"
 								 + "<div><a href=\"..\"></div>../</a>";
 
-	LOG("\t\tPRIVATEPATH IS: " << private_path);
     dir = opendir(path.c_str());
     if (dir == NULL)
+	{
+		perror("opendir");
         throw HTTPStatus<404>();
+	}
     while ((de = readdir(dir)) != NULL)
     {
         if (*de->d_name == 0 || *de->d_name == '.')
@@ -310,23 +310,16 @@ void				Server::do_autoindex(std::string & path, Response & res){
 
         if (lstat(file_path.c_str(), &st) == 0)
         {
-			LOG("\t\tPATH IS: " << path);
-			LOG("\t\tFILEPATH IS: " << file_path);
-			LOG("\t\tFILE_NAME IS: " << file_name);
 			gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
 			std::string tmp_time(asctime(&tm_time));
-			time = tmp_time.substr(0, tmp_time.length() - 1);
 			bool is_dir = S_ISDIR(st.st_mode);
+
+			time = tmp_time.substr(0, tmp_time.length() - 1);
 			if (is_dir)
 				file_name.push_back('/');
 			if (file_name.length() >= WHITESPACE_CAP)
-			{
-				file_name.substr(0, 47);
-				file_name.append("..>");
-				LOG("\t\tFILE_NAME AFTER CAP IS: " << file_name);
-			}
-
-			html_content += "<div><a href=\"" + file_name + "\">"
+				file_name = file_name.substr(0, 46).append("..> ");
+			html_content += "<div><a href=\"" + std::string(de->d_name) + "\">"
 						 + file_name + "</a>"
 						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
             if (is_dir)
@@ -350,6 +343,7 @@ void				Server::do_autoindex(std::string & path, Response & res){
     closedir(dir);
 	html_content += "</pre><hr></body>\n</html>";
 	res.set_header("Content-Type", "text/html");
+	res.set_header("Content-Length", to_string(html_content.size()));
 	// res.set_header("Date", time);
     res.set_body(html_content);
 }
@@ -366,8 +360,6 @@ void	Server::request_process_config( Request & req, Response & res)
 		const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
 		if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
 		{
-			LOG("req method " << req.method_to_str() << "was not found\n");
-				LOG("\t\t\t\t~~~~~~~whaty what?~~~~~~~\n");
 			throw (HTTPStatus<403>());
 		}
 	}
