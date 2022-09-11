@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/10 20:02:55 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:13:02 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,10 +52,10 @@ namespace {
 		return (!str.empty() && (str.find_first_not_of("[0123456789]") == std::string::npos));
 	}
 
-	std::vector<std::string> split(const std::string& str, char delim)
+	StringVector split(const std::string& str, char delim)
 	{
 		size_t					  i = 0;
-		std::vector<std::string>	vec;
+		StringVector	vec;
 		size_t					  pos = str.find(delim);
 
 		while (pos != std::string::npos)
@@ -73,14 +73,14 @@ namespace {
 		if (ip == "0.0.0.0" || ip == "localhost" || ip == "*")
 			return (true);
 
-		std::vector<std::string> ip_vec = split(ip, '.');
+		StringVector ip_vec = split(ip, '.');
 
 		if (ip_vec.size() != 4)
 			return (false);
 
 		int									  i;
 		std::stringstream						stoi;
-		std::vector<std::string>::iterator it	= ip_vec.begin();
+		StringVector_it it	= ip_vec.begin();
 		for (; it != ip_vec.end(); it++)
 		{
 				stoi.clear();
@@ -232,7 +232,7 @@ void	ServerConfig::set_location(const std::string &name, const LocationConfig& l
 
 const std::vector<Listen>&	  ServerConfig::get_listens( void ) const {return (this->_listens);}
 const Locations&					  ServerConfig::get_locations( void ) const {return (this->_locations);}
-const std::vector<std::string>& ServerConfig::get_server_names( void ) const {return (this->_server_names);}
+const StringVector& ServerConfig::get_server_names( void ) const {return (this->_server_names);}
 
 
 // Operators
@@ -283,8 +283,8 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
 	if (!(server.get_server_names().empty()))
 	{
 		s << "| - server names [";
-		std::vector<std::string> s_list(server.get_server_names());
-		std::vector<std::string>::iterator s_it(s_list.begin());
+		StringVector s_list(server.get_server_names());
+		StringVector_it s_it(s_list.begin());
 		for (; s_it != s_list.end() ; ++s_it)
 			s << " " << *s_it << " ";
 		s << "]" << std::endl;
@@ -293,7 +293,7 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
 	if(!(server.get_indexes().empty()))
 	{
 				s << "|	  Index [";
-				std::vector<std::string>::const_iterator i_it(server.get_indexes().begin());
+				StringVector_cit i_it(server.get_indexes().begin());
 				for (; i_it != server.get_indexes().end() ; ++i_it)
 					s << *i_it;
 				s << "]" << std::endl;
@@ -325,7 +325,7 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
 			if(!(it->second.get_indexes().empty()))
 			{
 				s << "|	  Index [";
-				std::vector<std::string>::const_iterator i_it(it->second.get_indexes().begin());
+				StringVector_cit i_it(it->second.get_indexes().begin());
 				for (; i_it != it->second.get_indexes().end() ; ++i_it)
 					s << *i_it;
 				s << "]" << std::endl;
@@ -341,7 +341,7 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
 			if(!(it->second.get_limit_except().empty()))
 			{
 				s << "|	  Accepted methods [";
-				std::vector<std::string>::const_iterator m_it(it->second.get_limit_except().begin());
+				StringVector_cit m_it(it->second.get_limit_except().begin());
 				for (; m_it != it->second.get_limit_except().end() ; ++m_it)
 					s << " " << *m_it << " ";
 				s << "]" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 17:12:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,6 @@ class 	ServerConfig;
 class	Socket;
 class	URI;
 
-
-// TODO: add error structs?
-
 enum RequestMethod {
 	GET,
 	POST,
@@ -57,7 +54,7 @@ enum RequestMethod {
 };
 
 // ServerConfig data structs
-enum directives{
+enum directives {
     DIRECTIVE_ROOT,
     DIRECTIVE_AUTOINDEX,
     DIRECTIVE_ERRORPAGE,
@@ -70,26 +67,26 @@ enum directives{
     DIRECTIVE_SERVERNAME = 7,
 };
 
-enum AutoBool{
+enum AutoBool {
     AUTOINDEX_OFF,
     AUTOINDEX_ON,
     AUTOINDEX_UNSET
 };
 
-struct Listen{
+struct Listen {
     std::string	ip;
     int        	port;
     bool       	is_set;
 };
 
-struct CGI{
+struct CGI {
     std::string	extension;
     std::string	interpreter;
     bool		is_configured(const std::string &extension) const;
     bool		empty() const;
 };
 
-struct Redirect{
+struct Redirect {
     unsigned short	code;
     std::string   	new_path;
 };
@@ -97,28 +94,32 @@ struct Redirect{
 /* Building Blocks */
 typedef std::string												String;
 typedef std::map<String, String>								StringMap;
+typedef std::vector<String>										StringVector;
 
-typedef std::vector<ServerConfig> 								Configs;
-typedef std::map<int, Connection *>								Connections;
-typedef Connections::iterator									Connections_it;
-typedef std::set<String>										Extensions;
 typedef StringMap												Parameters;
-typedef sockaddr_in *												SocketAddress;
-typedef std::map<int, Listener *>								Listeners;
-typedef Listeners::iterator										Listener_it;
 typedef StringMap												ResponseHeaders;
 typedef StringMap												RequestHeaders;
-typedef std::map<String, RequestMethod>							RequestMethods;
-typedef	ResponseHeaders::iterator								ResponseHeaders_it;
-typedef std::map<int, String>									HTTPStatuses;
 typedef StringMap												MimeTypes;
+typedef std::vector<ServerConfig> 								Configs;
+typedef std::map<int, Connection *>								Connections;
+typedef std::set<String>										Extensions;
+typedef sockaddr_in *											SocketAddress;
+typedef std::map<int, Listener *>								Listeners;
+typedef std::map<String, RequestMethod>							RequestMethods;
+typedef std::map<int, String>									HTTPStatuses;
 typedef std::map<std::string, LocationConfig>					Locations;
-typedef Locations::const_iterator								Location_const_it;
-typedef std::vector<std::string>								Indexes;
-typedef Indexes::const_iterator									Index_const_it;
+typedef StringVector											Indexes;
 typedef std::map< std::string, std::vector<unsigned short> >	ErrorPage;
-typedef ErrorPage::iterator										ErrorPage_it;
-typedef ErrorPage::const_iterator								ErrorPage_const_it;
 
+// Iterators
+typedef StringVector::iterator									StringVector_it;
+typedef StringVector::const_iterator							StringVector_cit;
+typedef	ResponseHeaders::iterator								ResponseHeaders_it;
+typedef Listeners::iterator										Listener_it;
+typedef Connections::iterator									Connections_it;
+typedef ErrorPage::iterator										ErrorPage_it;
+typedef ErrorPage::const_iterator								ErrorPage_cit;
+typedef Locations::const_iterator								Location_cit;
+typedef Indexes::const_iterator									Indexes_cit;
 
 #endif

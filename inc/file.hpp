@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   file.hpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:21:06 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/07 00:13:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:14:55 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,12 +24,12 @@
 namespace file
 {
 	std::string const	content_type( const std::string & path );
-	std::streampos		size( const std::string &full_path );
+	std::streampos		size( const std::string & full_path );
 	long				size( FILE *open_file );
-	void				save( const std::string &file_body, const std::string & filename );
-	void				remove( const std::string & filename );
-	std::string			get_string(FILE *file_ptr, int file_fd );
-	Index_const_it find_valid_index(const std::string &root, const std::vector<std::string> &indexes );
+	void				save( const std::string & file_body, const std::string & file_name );
+	void				remove( const std::string & file_name );
+	std::string			get_string( FILE *file_ptr, int file_fd );
+	Indexes_cit		find_valid_index( const std::string & root, const StringVector & indexes );
 }
 
 
