@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 21:44:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/12 00:23:12 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,7 +259,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
-		request_process_config(req, res);
+		request_process_config(req, res, connection_addr);
 		handler = handler_resolve(req, connection_addr);
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -270,10 +270,10 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-void	Server::request_process_config( Request & req, Response & res )
+void	Server::request_process_config( Request & req, Response & res, const in_addr &connection_addr )
 {
 	url::decode(req.request_uri.path);
-	ServerConfig config_to_use = config_resolve(req, res);
+	ServerConfig config_to_use = config_resolve(req, res, connection_addr);
 	res.set_server_config(config_to_use);
 	Location_const_it location_inside_server = path_resolve(req.request_uri, config_to_use);
 	LocationConfig location_to_use;
@@ -293,14 +293,12 @@ void	Server::request_process_config( Request & req, Response & res )
 	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
-ServerConfig   Server::config_resolve(const Request & req, Response & res )
+ServerConfig   Server::config_resolve(const Request & req, Response & res, const in_addr &connection_addr )
 {
 	ServerConfig to_use;
-	struct addrinfo *host = get_host(req.request_uri.host);
-
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
 	{
-		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
+		if (is_address_being_listened(it->second->_config.get_ip(), (const sockaddr_in *)&connection_addr)
 			&& it->second->_config.get_port() == req.request_uri.port)
 		{
 			// if (it->second.is_default())
@@ -311,20 +309,18 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 				if (serv_names.size() > 0)
 					res.set_header("Host", serv_names[0]);
 			}
-			std::vector<std::string> server_names = it->second->_config.get_server_names();
-			for (std::vector<std::string>::iterator it_s = server_names.begin();
-				it_s != server_names.end();
-				it_s++)
+			std::vector<std::string> temp_server_names = it->second->_config.get_server_names();
+			std::vector<std::string>::iterator temp_host = std::find_if(temp_server_names.begin(), temp_server_names.end(), equals(req.request_uri.host));
+			
+			std::vector<std::string> official_host_names = to_use.get_server_names();
+			std::vector<std::string>::iterator official_host = std::find_if(official_host_names.begin(), official_host_names.end(), equals(req.request_uri.host));
+			if (temp_host != temp_server_names.end() && official_host != official_host_names.end())
 			{
-				if (*it_s == req.request_uri.host)
-				{
-				    to_use = it->second->_config;
-					res.set_header("Host", *it_s);
-				}
+			    to_use = it->second->_config;
+				res.set_header("Host", *temp_host);
 			}
 		}
 	}
-	freeaddrinfo(host);
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
