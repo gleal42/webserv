@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/09 00:26:19 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 09:45:50 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,14 @@ CGIExtInterpreter CGIHandler::create_extension_pairs( void )
 {
 	CGIExtInterpreter	temp;
 	#if defined(DARWIN)
-	temp[".php"] = full_path("test/cgi/php-cgi-mac");
-	temp[".cgi"] = full_path("test/cgi/cpp/cgi_tester_mac");
+	temp[".php"] = full_path("bin/php-cgi-mac");
+	temp[".cgi"] = full_path("bin/cgi_tester_mac");
 	#endif
 	#if defined(LINUX)
-	temp[".php"] = full_path("test/cgi/php-cgi-linux");
-	temp[".cgi"] = full_path("test/cgi/cpp/cgi_tester_ubuntu");
+	temp[".php"] = full_path("bin/php-cgi-linux");
+	temp[".cgi"] = full_path("bin/cgi_tester_ubuntu");
 	#endif
-	
+
 	return (temp);
 }
 
