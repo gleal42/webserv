@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 22:08:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 10:37:04 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ public:
 	std::string		extra_path;
 	std::string		query; // map
 	std::string		fragment;
-	
+
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
 	}
