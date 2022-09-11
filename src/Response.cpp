@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/07 18:01:33 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,11 +187,11 @@ void	Response::delete_header( const std::string & name )
 void	Response::add_error_list(const ErrorPage &server_error_pages , const ErrorPage &location_error_pages)
 {
 	this->_available_errors = server_error_pages;
-	for (ErrorPage_const_it it_err = location_error_pages.begin();
+	for (ErrorPage_cit it_err = location_error_pages.begin();
 			it_err != location_error_pages.end();
 			it_err++)
 		{
-			
+
 			for (std::vector<unsigned short>::const_iterator it_code = it_err->second.begin();
 				it_code != it_err->second.end();
 				it_code++)
@@ -212,8 +212,8 @@ std::string   Response::error_path(unsigned short code)
 		{
 			URI error_uri;
 			error_uri.path = it_dest_err->first;
-			Location_const_it location_to_use = path_resolve(error_uri, _server_conf);
-			const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
+			Location_cit location_to_use = path_resolve(error_uri, _server_conf);
+			const StringVector &req_methods = location_to_use->second.get_limit_except();
 			if (std::find_if(req_methods.begin(), req_methods.end(), equals("GET")) == req_methods.end())
 				return std::string();
 			return(error_uri.path);

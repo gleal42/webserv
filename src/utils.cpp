@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 22:07:38 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -225,7 +225,7 @@ struct addrinfo *get_host(const std::string &hostname )
             return NULL;
         throw HTTPStatus<500>();
     }
-    if (host->ai_next != NULL){ 
+    if (host->ai_next != NULL){
         throw HTTPStatus<500>();
     }
 	return host;
@@ -270,7 +270,7 @@ std::string address_to_hostname(struct sockaddr *address)
 {
     static char buf[NI_MAXHOST];
     std::memset(buf, '\0', NI_MAXHOST);
-    
+
     getnameinfo(address, sizeof(*address), buf, sizeof(buf), NULL, 0, NI_NUMERICHOST);
     return(buf);
 }
@@ -310,7 +310,7 @@ std::string b64decode(const std::string& encoded_string)
        {
 			ret.push_back(
 			((b64_decode_table(encoded_string[pos+1]) & 0x0f) << 4)	// Starting 4 bits taken from 2nd char (001111)
-		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100) 
+		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100)
        }
 	   if (pos + 3 < length_of_string)
 	   {
@@ -363,7 +363,7 @@ void    update_error_code(ErrorPage &dest_list, const std::string &err_path, uns
 
 std::string   get_error_path(const ErrorPage &dest_list, unsigned short code)
 {
-	for (ErrorPage_const_it it_dest_err = dest_list.begin();
+	for (ErrorPage_cit it_dest_err = dest_list.begin();
 		it_dest_err != dest_list.end();
 		it_dest_err++)
 	{
@@ -374,13 +374,13 @@ std::string   get_error_path(const ErrorPage &dest_list, unsigned short code)
     return (std::string());
 }
 
-Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
+Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 {
-	Location_const_it location_inside_server = location_resolve(server_conf, uri.path);
+	Location_cit location_inside_server = location_resolve(server_conf, uri.path);
 	LocationConfig location;
 	if (location_inside_server != server_conf.get_locations().end())
 		location = location_inside_server->second;
-	
+
 	std::string root ("public" + processed_root( server_conf, location ));
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
@@ -389,8 +389,8 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
-	Location_const_it redir_locations = location_resolve(server_conf, uri.path);
-	
+	Location_cit redir_locations = location_resolve(server_conf, uri.path);
+
 	if ( redir_locations != server_conf.get_locations().end() && redir_locations->first.size() > location_inside_server->first.size()) {
 		return (path_resolve(uri, server_conf));
 	} else {
@@ -399,7 +399,7 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
 	}
 }
 
-Location_const_it      location_resolve(const ServerConfig &server_block, const std::string & path)
+Location_cit      location_resolve(const ServerConfig &server_block, const std::string & path)
 {
 	std::string location_path = path;
 	if ( location_path.size() > 0 && *(location_path.end()-1) != '/')
@@ -409,7 +409,7 @@ Location_const_it      location_resolve(const ServerConfig &server_block, const 
 		return (locations.end());
 	while (location_path.empty() == false)
 	{
-		for (Location_const_it it = locations.begin();
+		for (Location_cit it = locations.begin();
 			it != locations.end();
 			it++)
 			{
@@ -450,11 +450,11 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 			if (is_file(root + "index.html"))
 			{
 			    uri.path = "index.html";
-			    return ;   
+			    return ;
 			}
-			throw HTTPStatus<404>(); 
+			throw HTTPStatus<404>();
 		}
-		Index_const_it index = file::find_valid_index(root, indexes);
+		Indexes_cit index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())
 		{
 			if (location.get_autoindex() == AUTOINDEX_ON)
@@ -464,7 +464,7 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		uri.path = uri.path + (*index);
 		return ;
 	}
-	Index_const_it index = file::find_valid_index(root, indexes);
+	Indexes_cit index = file::find_valid_index(root, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
 	uri.path = uri.path + (*index);

@@ -124,11 +124,13 @@ void	Socket::bind( const std::string &hostname, int port )
 	if (_host == NULL) {
 		throw Socket::BindError(port);
   }
+  
 	_address = *(SocketAddress *)_host->ai_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (const sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);
 	}
+
 	_port = port;	// only set port if did't fail `bind` call
 	freeaddrinfo(_host); // okay because _address is a copy
 	LOG("Bound to address " << inet_ntoa(_address.sin_addr) << " and port " << _port);
@@ -162,19 +164,12 @@ void	Socket::receive( int buffer_size ) {
 	// std::cout << "The data received was :" << std::endl;
 	// std::cout << _buffer.data() << std::endl;
 }
-// It is a common mistake to try printing data that's received from recv() directly
-// as a C string. There is no guarantee that the data received from recv() is null
-// terminated! If you try to print it with printf(request) or printf("%s", request),
-// you will likely receive a segmentation fault error (or at best it will print some
-// garbage).
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
 Socket *	Socket::accept( void ) {
 	Socket *	s = new Socket();
-
-	// TODO: Need to check that these vars are actually set on new socket
 	socklen_t	length = sizeof(s->_address);
 	sockaddr *	address = (sockaddr *)&s->_address;
 
@@ -183,8 +178,8 @@ Socket *	Socket::accept( void ) {
 		delete s;
         throw Socket::AcceptError();
 	}
-	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 
+	fcntl(s->fd(), F_SETFL, O_NONBLOCK);
 	return s;
 }
 

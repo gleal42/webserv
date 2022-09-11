@@ -4,29 +4,30 @@
 #include "types.hpp"
 #include "webserver.hpp"
 
-class LocationConfig : public BaseConfig
-{
-    public:
-        LocationConfig();
-        ~LocationConfig();
-        LocationConfig(const LocationConfig&);
-        LocationConfig& operator= (const LocationConfig&);
+class LocationConfig : public BaseConfig {
 
-        bool                            is_empty( void );
-        // Setters
-        int                             find_directive(const std::string &directive);
-        void                            set_directive(int directive, const std::string &content);
-        void                            set_cgi(bool has_separators, const std::string &content);
-        void                            set_limit_except(const std::string &content);
+public:
+	LocationConfig( void );
+	~LocationConfig( void );
+	LocationConfig( const LocationConfig & );
+	LocationConfig & operator= ( const LocationConfig & );
 
-        // Getters
-        const CGI&						get_cgi( void ) const;
-        bool                            has_cgi( const std::string & ) const;
-        const std::vector<std::string>& get_limit_except( void ) const;
+	bool	is_empty( void );
 
-    private:
-        CGI							_cgi;
-        std::vector<std::string>    _limit_except;
+	// Setters
+	int		find_directive(const std::string &directive);
+	void	set_directive(int directive, const std::string &content);
+	void	set_cgi(bool has_separators, const std::string &content);
+	void	set_limit_except(const std::string &content);
+
+	// Getters
+	const CGI &				get_cgi( void ) const;
+	bool					has_cgi( const std::string & ) const;
+	const StringVector &	get_limit_except( void ) const;
+
+private:
+	CGI				_cgi;
+	StringVector	_limit_except;
 
 };
 

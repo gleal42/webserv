@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 21:44:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,14 +275,14 @@ void	Server::request_process_config( Request & req, Response & res )
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);
 	res.set_server_config(config_to_use);
-	Location_const_it location_inside_server = path_resolve(req.request_uri, config_to_use);
+	Location_cit location_inside_server = path_resolve(req.request_uri, config_to_use);
 	LocationConfig location_to_use;
 	if (location_inside_server != config_to_use.get_locations().end())
 		location_to_use = location_inside_server->second;
 
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 
-	const std::vector<std::string> &req_methods = location_to_use.get_limit_except();
+	const StringVector &req_methods = location_to_use.get_limit_except();
 	if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
 		throw (HTTPStatus<403>());
 
@@ -307,12 +307,12 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 			if (to_use.is_empty())
 			{
 				to_use = it->second->_config;
-				const std::vector<std::string>&serv_names = to_use.get_server_names();
+				const StringVector&serv_names = to_use.get_server_names();
 				if (serv_names.size() > 0)
 					res.set_header("Host", serv_names[0]);
 			}
-			std::vector<std::string> server_names = it->second->_config.get_server_names();
-			for (std::vector<std::string>::iterator it_s = server_names.begin();
+			StringVector server_names = it->second->_config.get_server_names();
+			for (StringVector_it it_s = server_names.begin();
 				it_s != server_names.end();
 				it_s++)
 			{

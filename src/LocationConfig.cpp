@@ -122,8 +122,8 @@ void    LocationConfig::set_limit_except(const std::string &content)
     {
         if (!(valid_method(token)))
 	        throw (ConfigurationDirectiveError(token));
-        std::vector<std::string>::iterator last = this->_limit_except.end();
-        std::vector<std::string>::iterator tmp = this->_limit_except.begin();
+        StringVector_it last = this->_limit_except.end();
+        StringVector_it tmp = this->_limit_except.begin();
         for (; tmp != last; ++tmp)
             if (*tmp == token)
 	            throw (ConfigurationDirectiveError(content));
@@ -138,7 +138,7 @@ bool                            	LocationConfig::has_cgi( const std::string &uri
 {
 	return(_cgi.is_configured(get_extension(uri)));
 }
-const std::vector<std::string>&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
+const StringVector&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
 
 // LocationConfig Operators
 
