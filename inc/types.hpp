@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/11 17:06:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ typedef StringMap												MimeTypes;
 typedef std::vector<ServerConfig> 								Configs;
 typedef std::map<int, Connection *>								Connections;
 typedef std::set<String>										Extensions;
-typedef sockaddr_in *											SocketAddress;
+typedef sockaddr_in 											SocketAddress;
 typedef std::map<int, Listener *>								Listeners;
 typedef std::map<String, RequestMethod>							RequestMethods;
 typedef std::map<int, String>									HTTPStatuses;
