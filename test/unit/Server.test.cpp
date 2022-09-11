@@ -6,7 +6,7 @@
 
 #include "Server.hpp"
 
-#define CONFIG_FILE "config_file" // Temporary
+#define CONFIG_FILE "../../default.conf" // Temporary
 
 /* Helpers */
 bool	check_fd_unset(int	fd);

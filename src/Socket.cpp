@@ -76,7 +76,7 @@ int				Socket::fd( void ) const { return _fd; }
 int				Socket::port( void ) const { return _port; }
 int				Socket::bytes( void ) const { return _bytes; }
 
-const in_addr &Socket::address( void ) const
+const in_addr &	Socket::address( void ) const
 {
 	return(_address->sin_addr);
 }

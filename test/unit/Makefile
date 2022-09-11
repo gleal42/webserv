@@ -31,7 +31,9 @@ Socket:	$(SOCKET) ../../inc/Socket.hpp
 
 ##---  Listener  ---##
 LISTENER := Listener.test.cpp ../../src/utils.cpp ../../src/Listener.cpp \
-	../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp
+	../../src/Socket.cpp ../../src/print.cpp ../../src/BaseStatus.cpp \
+	../../src/ServerConfig.cpp ../../src/BaseConfig.cpp ../../src/LocationConfig.cpp \
+	../../src/ConfigParser.cpp ../../src/file.cpp
 
 listener: Listener # run Listener class tests
 	./Listener
@@ -45,7 +47,8 @@ Listener:	$(LISTENER) ../../inc/Listener.hpp
 CONNECTION := Connection.test.cpp ../../src/utils.cpp ../../src/Connection.cpp \
 	../../src/Socket.cpp ../../src/Listener.cpp ../../src/Request.cpp \
 	../../src/Response.cpp ../../src/BaseStatus.cpp ../../src/print.cpp \
-	../../src/file.cpp
+	../../src/file.cpp ../../src/ServerConfig.cpp ../../src/BaseConfig.cpp \
+	../../src/LocationConfig.cpp ../../src/ConfigParser.cpp
 
 connection: Connection # run Connection class tests
 	./Connection
@@ -56,7 +59,9 @@ Connection:	$(CONNECTION) ../../inc/Connection.hpp
 
 
 ##---  ConfigParser  ---##
-PARSER := ConfigParser.test.cpp ../../src/ConfigParser.cpp
+PARSER := ConfigParser.test.cpp ../../src/ConfigParser.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp ../../src/LocationConfig.cpp ../../src/utils.cpp \
+	../../src/print.cpp ../../src/BaseStatus.cpp ../../src/file.cpp
 
 parser: ConfigParser # run ConfigParser class tests
 	./ConfigParser
@@ -67,8 +72,9 @@ ConfigParser:	$(PARSER) ../../inc/ConfigParser.hpp
 
 
 ##---  HTTPStatus  ---##
-STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp \
-../../src/utils.cpp ../../src/print.cpp
+STATUS := HTTPStatus.test.cpp ../../src/BaseStatus.cpp ../../src/ConfigParser.cpp \
+	../../src/utils.cpp ../../src/print.cpp ../../src/BaseConfig.cpp ../../src/file.cpp \
+	../../src/ServerConfig.cpp ../../src/LocationConfig.cpp
 
 status: HTTPStatus # run HTTPStatus class tests
 	./HTTPStatus
@@ -79,10 +85,11 @@ HTTPStatus:	$(STATUS) ../../inc/HTTPStatus.hpp
 
 
 ##---  Handler  ---##
-HANDLER := Handler.test.cpp ../../src/Handler.cpp \
+HANDLER := Handler.test.cpp ../../src/Handler.cpp ../../src/BaseConfig.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
 	../../src/Request.cpp ../../src/Socket.cpp ../../src/Response.cpp \
-	../../src/print.cpp ../../src/file.cpp
+	../../src/print.cpp ../../src/file.cpp ../../src/ServerConfig.cpp \
+	../../src/LocationConfig.cpp ../../src/ConfigParser.cpp
 
 handler: Handler # run Handler class tests
 	./Handler
@@ -96,7 +103,8 @@ Handler:	$(HANDLER) ../../inc/Handler.hpp
 FILE_HANDLER := FileHandler.test.cpp ../../src/FileHandler.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/url.cpp \
 	../../src/print.cpp ../../src/file.cpp ../../src/Handler.cpp ../../src/Request.cpp \
-	../../src/Socket.cpp ../../src/Response.cpp
+	../../src/Socket.cpp ../../src/Response.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp ../../src/LocationConfig.cpp ../../src/ConfigParser.cpp
 
 file_handler: FileHandler # run FileHandler class tests
 	./FileHandler
@@ -107,12 +115,13 @@ FileHandler:	$(FILE_HANDLER) ../../inc/FileHandler.hpp
 
 
 ##---  Server  ---##
-SERVER := Server.test.cpp ../../src/Server.cpp \
+SERVER := Server.test.cpp ../../src/Server.cpp ../../src/LocationConfig.cpp \
 	../../src/BaseStatus.cpp ../../src/utils.cpp ../../src/Connection.cpp \
 	../../src/Handler.cpp ../../src/FileHandler.cpp ../../src/CGIHandler.cpp\
 	../../src/ConfigParser.cpp ../../src/Request.cpp ../../src/Listener.cpp \
 	../../src/Response.cpp ../../src/url.cpp ../../src/Socket.cpp \
-	../../src/Event.cpp ../../src/print.cpp ../../src/file.cpp
+	../../src/Event.cpp ../../src/print.cpp ../../src/file.cpp ../../src/ServerConfig.cpp \
+	../../src/BaseConfig.cpp
 
 server: Server # run Server class tests
 	./Server

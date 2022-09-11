@@ -8,6 +8,7 @@
 
 // Constants
 #define PORT 8080
+#define PORT_STR "8080"
 #define FD 3 // if no other file descriptors open
 #define BUFFER_SIZE 5000
 #define MAX_CONNECTIONS 10
@@ -37,7 +38,7 @@ TEST_CASE("Listener constructors") {
 
 TEST_CASE("Listener `close` method") {
 	ServerConfig	config;
-	config.port = PORT;
+	config.set_listen(false, PORT_STR);
 
 	SUBCASE("closes file descriptor and frees fd") {
 		Listener		a(config);
