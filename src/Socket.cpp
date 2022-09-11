@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 23:03:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/10 20:00:59 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int				Socket::bytes( void ) const { return _bytes; }
 
 const in_addr &Socket::address( void ) const
 {
-	return(_address.sin_addr);
+	return(_address->sin_addr);
 }
 
 // Setters
@@ -121,19 +121,18 @@ void	Socket::setsockopt( int option )
 void	Socket::bind( const std::string &hostname, int port )
 {
 	_host = get_host(hostname);
-	if (_host == NULL)
+	if (_host == NULL) {
 		throw Socket::BindError(port);
-
-	SocketAddress	*address_value = (SocketAddress *)_host->ai_addr;
-	memset(&_address, 0, sizeof(SocketAddress));
-
-	_address.sin_family = AF_INET;
-	_address.sin_addr.s_addr = address_value->sin_addr.s_addr;
-	_address.sin_port = htons(port);
-	if (::bind(_fd, (sockaddr *)&_address, sizeof(_address)) < 0) {
+  }
+    
+	_address = (SocketAddress)_host->ai_addr;
+	_address->sin_port = htons(port);
+	LOG("About to bind to address " << inet_ntoa(_address->sin_addr));
+	if (::bind(_fd, _host->ai_addr, _host->ai_addrlen) < 0) {
 		throw Socket::BindError(port);
 	}
-
+	
+  freeaddrinfo(_host);
 	_port = port;	// only set port if did't fail `bind` call
 }
 

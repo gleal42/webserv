@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/09 01:29:16 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/10 21:44:13 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,14 +275,18 @@ void	Server::request_process_config( Request & req, Response & res )
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);
 	res.set_server_config(config_to_use);
-	Location_const_it location_to_use = path_resolve(req.request_uri, config_to_use);
+	Location_const_it location_inside_server = path_resolve(req.request_uri, config_to_use);
+	LocationConfig location_to_use;
+	if (location_inside_server != config_to_use.get_locations().end())
+		location_to_use = location_inside_server->second;
 
-	res.add_error_list(config_to_use.get_error_pages(), location_to_use->second.get_error_pages());
-	const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
-	if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
+	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
+
+	const std::vector<std::string> &req_methods = location_to_use.get_limit_except();
+	if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
 		throw (HTTPStatus<403>());
 
-	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
+	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use.get_max_body_size());
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
 
@@ -303,7 +307,9 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 			if (to_use.is_empty())
 			{
 				to_use = it->second->_config;
-				res.set_header("Host", to_use.get_server_names()[0]);
+				const std::vector<std::string>&serv_names = to_use.get_server_names();
+				if (serv_names.size() > 0)
+					res.set_header("Host", serv_names[0]);
 			}
 			std::vector<std::string> server_names = it->second->_config.get_server_names();
 			for (std::vector<std::string>::iterator it_s = server_names.begin();

@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/07 17:50:13 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/10 20:02:55 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,7 +189,7 @@ void    ServerConfig::set_listen(bool has_separators, const std::string &content
             new_listen.ip = "127.0.0.1";
         else
             new_listen.ip = content;
-        new_listen.port = 8080;
+        new_listen.port = 80;
     }
     else
     {
@@ -197,8 +197,10 @@ void    ServerConfig::set_listen(bool has_separators, const std::string &content
         stoi >> new_listen.port;
         if (new_listen.port > PORT_MAX || new_listen.port <= PORT_MIN)
 	        throw (ConfigurationDirectiveError(content));
-        new_listen.ip = "127.0.0.1";
+        new_listen.ip = "0.0.0.0";
     }
+    if (new_listen.ip != "0.0.0.0" && new_listen.port < 1024)
+        throw (ConfigurationDirectiveError("Port and address combination " + new_listen.ip + " with " + to_string(new_listen.port)));
     if (this->_listens[0].is_set == false)
     {
         this->_listens[0].ip = new_listen.ip;
