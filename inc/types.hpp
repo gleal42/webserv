@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   types.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 17:12:15 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 17:06:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ typedef std::map<int, Connection *>								Connections;
 typedef Connections::iterator									Connections_it;
 typedef std::set<String>										Extensions;
 typedef StringMap												Parameters;
-typedef sockaddr_in *												SocketAddress;
+typedef sockaddr_in 											SocketAddress;
 typedef std::map<int, Listener *>								Listeners;
 typedef Listeners::iterator										Listener_it;
 typedef StringMap												ResponseHeaders;

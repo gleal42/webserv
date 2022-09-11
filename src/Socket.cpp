@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 20:00:59 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 17:23:35 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int				Socket::bytes( void ) const { return _bytes; }
 
 const in_addr &	Socket::address( void ) const
 {
-	return(_address->sin_addr);
+	return(_address.sin_addr);
 }
 
 // Setters
@@ -124,16 +124,14 @@ void	Socket::bind( const std::string &hostname, int port )
 	if (_host == NULL) {
 		throw Socket::BindError(port);
   }
-    
-	_address = (SocketAddress)_host->ai_addr;
-	_address->sin_port = htons(port);
-	LOG("About to bind to address " << inet_ntoa(_address->sin_addr));
-	if (::bind(_fd, _host->ai_addr, _host->ai_addrlen) < 0) {
+	_address = *(SocketAddress *)_host->ai_addr;
+	_address.sin_port = htons(port);
+	if (::bind(_fd, (const sockaddr *)&_address, sizeof(_address)) < 0) {
 		throw Socket::BindError(port);
 	}
-	
-  freeaddrinfo(_host);
 	_port = port;	// only set port if did't fail `bind` call
+	freeaddrinfo(_host); // okay because _address is a copy
+	LOG("Bound to address " << inet_ntoa(_address.sin_addr) << " and port " << _port);
 }
 
 // C `close` function wrapper
