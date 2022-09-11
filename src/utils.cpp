@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 05:22:35 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/11 05:42:55 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -472,8 +472,6 @@ void			cgi_path_resolve( URI & uri, Location_const_it locations)
 // ~AFAIK, the only way to define an index for root is through location /
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
 {
-	(void)server_conf;
-
 	Indexes indexes;
 	indexes = locations->second.get_indexes();
 	std::string rootslash(root);

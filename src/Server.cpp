@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 05:17:32 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/11 05:41:31 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -257,6 +257,7 @@ void	Server::connection_event_toggle_read( int connection_fd )
 // if (req.request_uri.host.empty())
 // 	throw HTTPStatus<400>();
 
+//TODO: FIX URI BUG
 void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
     Handler *handler = NULL;
