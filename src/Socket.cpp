@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 17:23:35 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 19:37:31 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,8 +123,8 @@ void	Socket::bind( const std::string &hostname, int port )
 	_host = get_host(hostname);
 	if (_host == NULL) {
 		throw Socket::BindError(port);
-  }
-  
+	}
+
 	_address = *(SocketAddress *)_host->ai_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (const sockaddr *)&_address, sizeof(_address)) < 0) {
