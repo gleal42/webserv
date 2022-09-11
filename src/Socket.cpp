@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
 /*   Updated: 2022/09/10 20:00:59 by gleal            ###   ########.fr       */
@@ -110,26 +110,29 @@ void	Socket::setsockopt( int option )
 
 /**
  * Function to bind socket to the address and ports
- * defined in the Configuration file 
- * 
+ * defined in the Configuration file
+ *
  * @param address -	Interfaces that will listen to requests
  * 					(e.g. 172.0.0.1 converted to binary)
  * @param port -	Port in which interfaces will listen
  * 					(e.g. 80)
  */
 
-void	Socket::bind( const std::string &host_id, int port )
+void	Socket::bind( const std::string &hostname, int port )
 {
-	_host  = get_host(host_id);
-	if (_host == NULL)
+	_host = get_host(hostname);
+	if (_host == NULL) {
 		throw Socket::BindError(port);
+  }
+    
 	_address = (SocketAddress)_host->ai_addr;
 	_address->sin_port = htons(port);
 	LOG("About to bind to address " << inet_ntoa(_address->sin_addr));
 	if (::bind(_fd, _host->ai_addr, _host->ai_addrlen) < 0) {
 		throw Socket::BindError(port);
 	}
-	freeaddrinfo(_host);
+	
+  freeaddrinfo(_host);
 	_port = port;	// only set port if did't fail `bind` call
 }
 

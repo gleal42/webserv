@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   types.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
 /*   Updated: 2022/09/10 17:12:15 by gleal            ###   ########.fr       */
