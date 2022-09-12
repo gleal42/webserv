@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 05:41:31 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/12 01:31:07 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,7 +263,8 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
     Handler *handler = NULL;
 	try {
 		request_process_config(req, res);
-		if (req.request_uri.autoindex_confirmed == true){
+		if (req.request_uri.autoindex_confirmed == true)
+		{
             do_autoindex(req.request_uri.path, res);
 			res.build_message(HTTPStatus<200>());
 			req.request_uri.autoindex_confirmed = false;
@@ -281,7 +282,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 }
 
 // TODO:
-// - Put right path on href
+// - A URI path without a '/' in the end must cause a redirection to path + '/' (when file is a directory)
 
 void				Server::do_autoindex(std::string & path, Response & res){
 	DIR	*			dir;
@@ -290,9 +291,11 @@ void				Server::do_autoindex(std::string & path, Response & res){
     struct tm		tm_time;
 	std::string		time;
 	std::string		private_path(path.substr(6));
+	// if (private_path[private_path.length()-1] != '/')
+	// 	private_path.push_back('/');
     std::string     html_content = "<html>\n<head><title>Index of " + private_path
-								 + "/</title></head>\n<body>\n<h1>Index of "
-								 + private_path + "/</h1><hr><pre>"
+								 + "</title></head>\n<body>\n<h1>Index of "
+								 + private_path + "</h1><hr><pre>"
 								 + "<div><a href=\"..\"></div>../</a>";
 
     dir = opendir(path.c_str());
@@ -307,8 +310,8 @@ void				Server::do_autoindex(std::string & path, Response & res){
             continue ;
 
         std::string file_name(de->d_name);
+		// std::string file_path = path + file_name;
 		std::string file_path = path + '/' + file_name;
-
         if (lstat(file_path.c_str(), &st) == 0)
         {
 			gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
@@ -319,9 +322,13 @@ void				Server::do_autoindex(std::string & path, Response & res){
 			if (is_dir)
 				file_name.push_back('/');
 			if (file_name.length() >= WHITESPACE_CAP)
-				file_name = file_name.substr(0, 46).append("..> ");
-			html_content += "<div><a href=\"" + std::string(de->d_name) + "\">"
-						 + file_name + "</a>"
+			{
+				file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
+				html_content += "<div><a href=\"" + std::string(de->d_name) + "\">";
+			}
+			else
+				html_content += "<div><a href=\"" + std::string(file_name) + "\">";
+			html_content += file_name + "</a>"
 						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
             if (is_dir)
 			{

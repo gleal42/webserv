@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 05:42:55 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/12 01:26:44 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -380,6 +380,10 @@ Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
 	std::string root ("public" + processed_root( server_conf, locations ));
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path)){
+		// if (root_path[root_path.length()-1] != '/'){
+		// 	root_path.push_back('/');
+		// 	uri.path.push_back('/');
+		// }
 		directory_indexing_resolve( uri, root_path, server_conf, locations);
 	}
 	cgi_path_resolve(uri, locations);
@@ -474,17 +478,15 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 {
 	Indexes indexes;
 	indexes = locations->second.get_indexes();
-	std::string rootslash(root);
-	if (root[root.length()-1] != '/')
-		rootslash.push_back('/');
+	std::string tmp_root(root);
 	if (indexes.empty())
 	{
-		if ((rootslash != "public/" && is_file(rootslash + "index.html"))
-			|| (locations->first == "/" && is_file(rootslash + "index.html")))
+		if ((tmp_root != "public/" && is_file(tmp_root + "index.html"))
+			|| (locations->first == "/" && is_file(tmp_root + "index.html")))
 		{
-			if (strncmp(rootslash.c_str(), "public/", 7) == 0)
-				rootslash = rootslash.substr(7);
-		    uri.path = rootslash + "index.html";
+			if (strncmp(tmp_root.c_str(), "public/", 7) == 0)
+				tmp_root = tmp_root.substr(7);
+		    uri.path = tmp_root + "index.html";
 		    return ;
 		}
 		else if (locations->second.get_autoindex() == AUTOINDEX_ON
@@ -495,10 +497,10 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		}
 		throw HTTPStatus<403>();
 	}
-	Index_const_it index = file::find_valid_index(rootslash, indexes);
+	Index_const_it index = file::find_valid_index(tmp_root, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
-	uri.path = uri.path + "/" + (*index);
+	uri.path = uri.path + (*index);
 }
 
 std::string set_time(struct tm *tm_time){
