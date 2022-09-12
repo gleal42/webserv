@@ -110,8 +110,8 @@ void    LocationConfig::set_cgi(bool has_separators, const std::string &content)
 	//     throw (MultipleArgumentsError(content));
     this->_cgi.extension = std::strtok(const_cast<char *>(content.c_str()), " ");
     this->_cgi.interpreter = std::strtok(NULL, " ");
-    if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
-        throw (BadFileError(this->_cgi.interpreter));
+    // if (!is_file(this->_cgi.interpreter) && !is_link(this->_cgi.interpreter))
+    //     throw (BadFileError(this->_cgi.interpreter));
 }
 
 void    LocationConfig::set_limit_except(const std::string &content)
@@ -122,8 +122,8 @@ void    LocationConfig::set_limit_except(const std::string &content)
     {
         if (!(valid_method(token)))
 	        throw (ConfigurationDirectiveError(token));
-        std::vector<std::string>::iterator last = this->_limit_except.end();
-        std::vector<std::string>::iterator tmp = this->_limit_except.begin();
+        StringVector_it last = this->_limit_except.end();
+        StringVector_it tmp = this->_limit_except.begin();
         for (; tmp != last; ++tmp)
             if (*tmp == token)
 	            throw (ConfigurationDirectiveError(content));
@@ -138,7 +138,7 @@ bool                            	LocationConfig::has_cgi( const std::string &uri
 {
 	return(_cgi.is_configured(get_extension(uri)));
 }
-const std::vector<std::string>&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
+const StringVector&   LocationConfig::get_limit_except( void ) const {return (this->_limit_except);}
 
 // LocationConfig Operators
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 23:11:27 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 09:45:50 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,15 @@ CGIExtInterpreter CGIHandler::extension_interpreter = create_extension_pairs();
 CGIExtInterpreter CGIHandler::create_extension_pairs( void )
 {
 	CGIExtInterpreter	temp;
-	temp[".cgi"] = full_path("test/cgi/cpp/cgi_tester");
-	temp[".php"] = "/usr/local/bin/php-cgi";
+	#if defined(DARWIN)
+	temp[".php"] = full_path("bin/php-cgi-mac");
+	temp[".cgi"] = full_path("bin/cgi_tester_mac");
+	#endif
+	#if defined(LINUX)
+	temp[".php"] = full_path("bin/php-cgi-linux");
+	temp[".cgi"] = full_path("bin/cgi_tester_ubuntu");
+	#endif
+
 	return (temp);
 }
 
@@ -160,11 +167,12 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 
 		// CGI arguments (1st and 2nd execve argument)
 		std::vector<char *> cgi_args;
-		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter).c_str());
+		std::vector<char> cmd_vec = convert_to_char_vector(filename(interpreter));
 		std::vector<char> filepath = convert_to_char_vector(script_path);
 		cgi_args.push_back(cmd_vec.data());
 		cgi_args.push_back(filepath.data());
 		cgi_args.push_back(NULL);
+		std::cout << "Interpreter is " << interpreter << std::endl;
 		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
 		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
 

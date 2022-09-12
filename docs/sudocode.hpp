@@ -157,7 +157,7 @@ private:
 	// Forward method and args to Socket or other IO object
 	std::string		read_data(Socket socket,
 							  std::string method,
-							  std::vector<std::string> args);
+							  StringVector args);
 
 	void			parse_query( void ); 			// Parse and set query member variable
 	void			setup_forwarded_info( void );

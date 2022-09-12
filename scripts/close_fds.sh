@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=8079
+PORT=8080
 
 database=`lsof -i:$PORT | tr -s ' ' | cut -d ' ' -f 2 | awk 'NR>1'`
 echo open sockets in $PORT: $database

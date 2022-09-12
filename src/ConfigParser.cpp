@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/09 01:12:02 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/12 01:55:22 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,9 +182,9 @@ void    ConfigParser::call( void )
 			throw DirectiveOutOfScopeError(directive);
 	}
     file.close();
-    // std::vector<ServerConfig>::iterator it = server_configs.begin();
-    // for(; it != server_configs.end(); it++)
-    //     std::cout << *it;
+    std::vector<ServerConfig>::iterator it = server_configs.begin();
+    for(; it != server_configs.end(); it++)
+        std::cout << *it;
 };
 
 // void	ConfigParser::set_general_conf(void)

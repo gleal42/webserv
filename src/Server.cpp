@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/12 01:31:07 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/12 01:57:05 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -361,20 +361,22 @@ void	Server::request_process_config( Request & req, Response & res)
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res);
 	res.set_server_config(config_to_use);
-	Location_const_it location_to_use = path_resolve(req.request_uri, config_to_use);
+	Location_cit location_inside_server = path_resolve(req.request_uri, config_to_use);
+	LocationConfig location_to_use;
+	if (location_inside_server != config_to_use.get_locations().end())
+		location_to_use = location_inside_server->second;
 
-	res.add_error_list(config_to_use.get_error_pages(), location_to_use->second.get_error_pages());
-	if (location_to_use->second.get_limit_except().empty() == false){
-		const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
-		if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
-		{
-			throw (HTTPStatus<403>());
-		}
-	}
+	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 
-	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
+	const StringVector &req_methods = location_to_use.get_limit_except();
+	if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
+		throw (HTTPStatus<403>());
+
+	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use.get_max_body_size());
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
+
+	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
@@ -391,10 +393,12 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 			if (to_use.is_empty())
 			{
 				to_use = it->second->_config;
-				res.set_header("Host", to_use.get_server_names()[0]);
+				const StringVector&serv_names = to_use.get_server_names();
+				if (serv_names.size() > 0)
+					res.set_header("Host", serv_names[0]);
 			}
-			std::vector<std::string> server_names = it->second->_config.get_server_names();
-			for (std::vector<std::string>::iterator it_s = server_names.begin();
+			StringVector server_names = it->second->_config.get_server_names();
+			for (StringVector_it it_s = server_names.begin();
 				it_s != server_names.end();
 				it_s++)
 			{

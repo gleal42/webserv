@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   file.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 22:58:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:14:55 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,16 +119,17 @@ namespace file
 		if (file_contents == (void *)-1) {
 			throw HTTPStatus<500>();
 		}
-		std::string str(file_contents, sz);
+		std::string	str(file_contents, sz);
 		str.push_back('\0');
 		munmap(file_contents, sz);
 		return (str);
 	}
-	Index_const_it find_valid_index(const std::string &root, const std::vector<std::string> &indexes )
+
+	Indexes_cit find_valid_index(const std::string &root, const StringVector &indexes )
 	{
-		for (Index_const_it index = indexes.begin();
-		index != indexes.end();
-		index++)
+		for (Indexes_cit index = indexes.begin();
+			index != indexes.end();
+			index++)
 		{
 			if (is_file(root + (*index)))
 				return (index);

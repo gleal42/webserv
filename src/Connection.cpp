@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Connection.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/12 19:09:38 by gleal             #+#    #+#             */
-/*   Updated: 2022/08/31 21:35:32 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 17:46:56 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 Connection::Connection( Listener * listener )
 try : Socket(*listener->accept()) { /* no-op */ }
-catch(Socket::AcceptError& e) {
-	LOG(e.what());
+catch(Socket::AcceptError & e) {
+	ERROR(e.what());
 }
 
 Connection::Connection( const Connection & src ) : Socket(src)
