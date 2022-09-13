@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/11 00:09:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/11 18:14:55 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,9 +125,9 @@ namespace file
 		return (str);
 	}
 
-	Index_const_it find_valid_index(const std::string &root, const std::vector<std::string> &indexes )
+	Indexes_cit find_valid_index(const std::string &root, const StringVector &indexes )
 	{
-		for (Index_const_it index = indexes.begin();
+		for (Indexes_cit index = indexes.begin();
 			index != indexes.end();
 			index++)
 		{

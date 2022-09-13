@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 18:59:57 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/13 19:03:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -275,14 +275,14 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res, connection_addr);
 	res.set_server_config(config_to_use);
-	Location_const_it location_inside_server = path_resolve(req.request_uri, config_to_use);
+	Location_cit location_inside_server = path_resolve(req.request_uri, config_to_use);
 	LocationConfig location_to_use;
 	if (location_inside_server != config_to_use.get_locations().end())
 		location_to_use = location_inside_server->second;
 
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 
-	const std::vector<std::string> &req_methods = location_to_use.get_limit_except();
+	const StringVector &req_methods = location_to_use.get_limit_except();
 	if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
 		throw (HTTPStatus<403>());
 
@@ -305,14 +305,14 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res, const
 			if (to_use.is_empty())
 			{
 				to_use = it->second->_config;
-				const std::vector<std::string>&serv_names = to_use.get_server_names();
+				const StringVector&serv_names = to_use.get_server_names();
 				if (serv_names.size() > 0)
 					res.set_header("Host", serv_names[0]);
 			}
-			std::vector<std::string> potential_server_names = it->second->_config.get_server_names();
-			std::vector<std::string>::iterator potential_host = std::find_if(potential_server_names.begin(), potential_server_names.end(), equals(req.request_uri.host));
-			std::vector<std::string> to_use_host_names = to_use.get_server_names();
-			std::vector<std::string>::iterator to_use_host = std::find_if(to_use_host_names.begin(), to_use_host_names.end(), equals(req.request_uri.host));
+			StringVector potential_server_names = it->second->_config.get_server_names();
+			StringVector_it potential_host = std::find_if(potential_server_names.begin(), potential_server_names.end(), equals(req.request_uri.host));
+			StringVector to_use_host_names = to_use.get_server_names();
+			StringVector_it to_use_host = std::find_if(to_use_host_names.begin(), to_use_host_names.end(), equals(req.request_uri.host));
 			if (potential_host != potential_server_names.end() && to_use_host == to_use_host_names.end())
 			{
 			    to_use = it->second->_config;
