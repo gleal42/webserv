@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 17:33:35 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 18:58:39 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,81 +290,6 @@ void	Server::do_redirect(Request & req, Response & res)
 	res.build_message(get_httpstatus(res.redirect.code));
 }
 
-// void	Server::do_autoindex(URI & uri, Response & res)
-// {
-// 	DIR	*			dir;
-// 	struct dirent *	de;
-//     struct stat		st;
-//     struct tm		tm_time;
-// 	std::string		time;
-// 	std::string		path = uri.path;
-// 	std::string		private_path(path.substr(6));
-
-//     std::string     html_content = "<html>\n<head><title>Index of " + private_path
-// 								 + "</title></head>\n<body>\n<h1>Index of "
-// 								 + private_path + "</h1><hr><pre>"
-// 								 + "<div><a href=\"..\"></div>../</a>";
-
-//     dir = opendir(path.c_str());
-//     if (dir == NULL)
-// 	{
-// 		perror("opendir");
-//         throw HTTPStatus<404>();
-// 	}
-//     while ((de = readdir(dir)) != NULL)
-//     {
-//         if (*de->d_name == 0 || *de->d_name == '.')
-//             continue ;
-
-//         std::string file_name(de->d_name);
-// 		std::string file_path = path + '/' + file_name;
-//         if (lstat(file_path.c_str(), &st) == 0)
-//         {
-// 			gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
-// 			std::string tmp_time(asctime(&tm_time));
-// 			bool is_dir = S_ISDIR(st.st_mode);
-
-// 			time = tmp_time.substr(0, tmp_time.length() - 1);
-// 			if (is_dir)
-// 				file_name.push_back('/');
-// 			if (file_name.length() >= WHITESPACE_CAP)
-// 			{
-// 				file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
-// 				html_content += "<div><a href=\"" + std::string(de->d_name) + "\">";
-// 			}
-// 			else
-// 				html_content += "<div><a href=\"" + std::string(file_name) + "\">";
-// 			html_content += file_name + "</a>"
-// 						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
-//             if (is_dir)
-// 			{
-// 				html_content += set_time(&tm_time)
-// 							 + insert_whitespace(1, WHITESPACE_CAP/2)
-// 							 + "-</div>";
-// 			}
-//             else
-//             {
-//                 size_t file_size(st.st_size);
-//                 std::stringstream ss;
-//                 ss << file_size;
-// 				std::string fsize = ss.str();
-// 				html_content += set_time(&tm_time)
-// 							 + insert_whitespace(fsize.length(), WHITESPACE_CAP/2)
-// 							 + fsize + "</div>";
-//             }
-//         }
-//     }
-//     closedir(dir);
-// 	html_content += "</pre><hr></body>\n</html>";
-
-// 	uri.autoindex_confirmed = false;
-// 	res.set_header("Content-Type", "text/html");
-// 	res.set_header("Content-Length", to_string(html_content.size()));
-// 	// res.set_header("Date", time);
-//     res.set_body(html_content);
-// 	res.build_message(HTTPStatus<200>());
-// }
-
 void	Server::do_autoindex(URI & uri, Response & res)
 {
 	DIR	*			dir;
@@ -413,13 +338,17 @@ void	Server::do_autoindex(URI & uri, Response & res)
 				else
 					dirs_buffer += "<div><a href=\"" + std::string(file_name) + "\">";
 				dirs_buffer += file_name + "</a>"
-							+ insert_whitespace(file_name.length(), WHITESPACE_CAP);
-					dirs_buffer += set_time(&tm_time)
-								+ insert_whitespace(1, WHITESPACE_CAP/2)
-								+ "-</div>";
+							+ insert_whitespace(file_name.length(), WHITESPACE_CAP)
+							+ set_time(&tm_time)
+							+ insert_whitespace(1, WHITESPACE_CAP/2)
+							+ "-</div>";
 			}
             else
             {
+                size_t file_size(st.st_size);
+                std::stringstream ss;
+                ss << file_size;
+				std::string fsize = ss.str();
 				if (file_name.length() >= WHITESPACE_CAP)
 				{
 					file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
@@ -428,12 +357,8 @@ void	Server::do_autoindex(URI & uri, Response & res)
 				else
 					files_buffer += "<div><a href=\"" + std::string(file_name) + "\">";
 				files_buffer += file_name + "</a>"
-						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
-                size_t file_size(st.st_size);
-                std::stringstream ss;
-                ss << file_size;
-				std::string fsize = ss.str();
-				files_buffer += set_time(&tm_time)
+							 + insert_whitespace(file_name.length(), WHITESPACE_CAP)
+							 + set_time(&tm_time)
 							 + insert_whitespace(fsize.length(), WHITESPACE_CAP/2)
 							 + fsize + "</div>";
             }
