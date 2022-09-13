@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/09 01:18:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/12 18:50:43 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ Request::Request( ServerConfig const & config )
 	// even though we aren't using in `parse` might still be needed for counting
 	// how much read and that can still read, if not remove
 	client_max_body_size = config.get_max_body_size();
+	request_uri.autoindex_confirmed = false;
+	request_uri.redirect_confirmed = false;
 }
 
 Request::Request( Request const & param ) {

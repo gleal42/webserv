@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/12 01:57:26 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 03:15:34 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ ServerConfig::ServerConfig(const ServerConfig& param)
 	this->_error_pages = param._error_pages;
 	this->_client_max_body_size = param._client_max_body_size;
 	this->_indexes = param._indexes;
+    this->_redirects = param._redirects;
 	this->_locations = param._locations;
 	this->_listens = param._listens;
 	this->_server_names = param._server_names;
@@ -100,7 +101,7 @@ bool	ServerConfig::is_empty( void )
 {
 	return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
 		&& this->_error_pages.empty() && this->_client_max_body_size == -1
-		&& this->_indexes.empty() && this->_redirect.empty()
+		&& this->_indexes.empty() && this->_redirects.empty()
 		&& this->_listens[0].ip == "0.0.0.0" && this->_listens[0].port == 80
 		&& this->_server_names.empty() && this->_locations.empty());
 }
@@ -123,7 +124,7 @@ int	 ServerConfig::find_directive(const std::string &directive)
 // ServerConfig setters
 void ServerConfig::set_directive(int directive, const std::string& content)
 {
-	bool	has_separators = (content.find(SEPARATORS) != std::string::npos);
+    bool    has_separators = (content.find_first_of(SEPARATORS) != std::string::npos);
 	if (content.empty())
 		throw (ConfigurationSyntaxError());
 
@@ -246,6 +247,7 @@ ServerConfig& ServerConfig::operator= (const ServerConfig& param)
 	this->_error_pages = param._error_pages;
 	this->_client_max_body_size = param._client_max_body_size;
 	this->_indexes = param._indexes;
+    this->_redirects = param._redirects;
 	this->_locations = param._locations;
 	this->_listens = param._listens;
 	this->_server_names = param._server_names;
@@ -330,12 +332,11 @@ std::ostream& operator<<(std::ostream & s, ServerConfig & server) {
 					s << *i_it;
 				s << "]" << std::endl;
 			}
-			if(!(it->second.get_redirect().empty()))
+			if(!(it->second.get_redirects().empty()))
 			{
 				s << "|	  Redirect [";
-				std::vector<Redirect>::const_iterator r_it(it->second.get_redirect().begin());
-				for (; r_it != it->second.get_redirect().end() ; ++r_it)
-					s << " " << "Path = " << r_it->new_path << ", Code = " << r_it->code << " ";
+				Redirect red = it->second.get_first_redirect();
+				s << " " << "Path = " << red.new_path << ", Code = " << red.code << " ";
 				s << "]" << std::endl;
 			}
 			if(!(it->second.get_limit_except().empty()))

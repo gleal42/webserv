@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/12 03:45:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 04:29:18 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,13 +262,12 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
     Handler *handler = NULL;
 	try {
 		request_process_config(req, res);
-		if (req.request_uri.autoindex_confirmed == true)
+		if (req.request_uri.redirect_confirmed == true)
+            do_redirect(req, res);
+		else if (req.request_uri.autoindex_confirmed == true)
+            do_autoindex(req.request_uri, res);
+		else
 		{
-            do_autoindex(req.request_uri.path, res);
-			res.build_message(HTTPStatus<200>());
-			req.request_uri.autoindex_confirmed = false;
-		}
-		else {
 			handler = handler_resolve(req, connection_addr);
 			handler->service(req, res);
 			res.build_message(handler->script_status());
@@ -280,15 +279,24 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-// TODO:
-// - A URI path without a '/' in the end must cause a redirection to path + '/' (when file is a directory)
+void	Server::do_redirect(Request & req, Response & res)
+{
+	req.request_uri.redirect_confirmed = false;
+	res.set_header("Location", res.redirect.new_path);
+	res.set_header("Content-Length", to_string(res.get_body_size()));
+	res.set_header("Content-Type", "text/html");
+	res.set_header("Connection", "keep-alive");
+	res.build_message(get_httpstatus(res.redirect.code));
+}
 
-void				Server::do_autoindex(std::string & path, Response & res){
+void	Server::do_autoindex(URI & uri, Response & res)
+{
 	DIR	*			dir;
 	struct dirent *	de;
     struct stat		st;
     struct tm		tm_time;
 	std::string		time;
+	std::string		path = uri.path;
 	std::string		private_path(path.substr(6));
 	// if (private_path[private_path.length()-1] != '/')
 	// 	private_path.push_back('/');
@@ -349,10 +357,13 @@ void				Server::do_autoindex(std::string & path, Response & res){
     }
     closedir(dir);
 	html_content += "</pre><hr></body>\n</html>";
+
+	uri.autoindex_confirmed = false;
 	res.set_header("Content-Type", "text/html");
 	res.set_header("Content-Length", to_string(html_content.size()));
 	// res.set_header("Date", time);
     res.set_body(html_content);
+	res.build_message(HTTPStatus<200>());
 }
 
 void	Server::request_process_config( Request & req, Response & res)
@@ -364,6 +375,35 @@ void	Server::request_process_config( Request & req, Response & res)
 	LocationConfig location_to_use;
 	if (location_inside_server != config_to_use.get_locations().end())
 		location_to_use = location_inside_server->second;
+	if (req.request_uri.redirect_confirmed == true)
+	{
+		res.redirect.new_path = "http://";
+		res.redirect.new_path += req._headers.at("Host");
+		if (strncmp(req.request_uri.path.c_str(), "public/", 7) == 0)
+			req.request_uri.path = req.request_uri.path.substr(6);
+		res.redirect.new_path += req.request_uri.path + "/";
+		res.redirect.code = 301;
+		return ;
+	}
+	if (location_to_use.get_redirects().empty() == false)
+	{
+		req.request_uri.redirect_confirmed = true;
+		LOG("\t\t\t\tPATH IS " << location_to_use.get_first_redirect().new_path);
+		if(is_directory("public" + location_to_use.get_first_redirect().new_path) || is_file("public" + location_to_use.get_first_redirect().new_path))
+		{
+			res.redirect.new_path = req._headers.at("Host");
+			res.redirect.new_path += location_to_use.get_first_redirect().new_path;
+		}
+		else
+		{
+			LOG("\t\t\t NOT A DIR OR FILE");
+			if (strncmp(location_to_use.get_first_redirect().new_path.c_str(), "http://", 7) != 0)
+				res.redirect.new_path = "http://";
+			res.redirect.new_path += location_to_use.get_first_redirect().new_path;
+		}
+		res.redirect.code = location_to_use.get_first_redirect().code;
+		return ;
+	}
 
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 

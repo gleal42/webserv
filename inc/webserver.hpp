@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/12 03:25:06 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/12 17:09:10 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ void				directory_indexing_resolve( URI & uri, const std::string &root, const Se
 std::string			set_time(struct tm *tm_time);
 std::string			resolve_month(int i);
 std::string			insert_whitespace(size_t len, size_t spaces);
+BaseStatus			get_httpstatus(int code);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
@@ -96,6 +97,7 @@ public:
 	std::string		query; // map
 	std::string		fragment;
     bool			autoindex_confirmed;
+    bool			redirect_confirmed;
 
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;

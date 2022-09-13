@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/12 03:13:33 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 04:21:28 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ std::string get_query_string(const std::string &uri)
 bool is_directory(const std::string &path)
 {
     struct stat s;
-
+	LOG("\t\t\t\tIS_DIR TESTING :" << path);
     if (lstat(path.c_str(), &s) == 0)
         if (S_ISDIR(s.st_mode))
             return (true);
@@ -382,9 +382,17 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 		location = location_inside_server->second;
 
 	std::string root ("public" + processed_root( server_conf, location ));
+	if (strncmp(uri.path.c_str(), "public/", 7) == 0){
+		uri.path = uri.path.substr(7);
+	}
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
-		directory_indexing_resolve( uri, root_path, server_conf, location_inside_server);
+	{
+		if (root_path[root_path.length()-1] != '/')
+			uri.redirect_confirmed = true;
+		else
+			directory_indexing_resolve( uri, root_path, server_conf, location_inside_server);
+	}
 	cgi_path_resolve(uri, location);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
@@ -439,7 +447,11 @@ void			cgi_path_resolve( URI & uri, const LocationConfig &location )
 	uri.path = uri.path.substr(0, script_path_pos);
 }
 
-// ~INDEX PRIORITY: .html assigned to location by index directive -> index.html inside location's directory -> autoindex directive on
+// ~INDEX PRIORITY:
+//		1) matching [locationpath].html assigned to location by index directive on LocationConfig
+// 		2) matching [locationpath].html set on location's ServerConfig index directive
+//		3) index.html inside location's directory
+//		4) autoindex directive on
 // ~AFAIK, the only way to define an index for root is through location /
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_cit location)
 {
@@ -448,21 +460,46 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 	std::string tmp_root(root);
 	if (indexes.empty())
 	{
-		if ((tmp_root != "public/" && is_file(tmp_root + "index.html"))
-			|| (location->first == "/" && is_file(tmp_root + "index.html")))
+		indexes = server_conf.get_indexes();
+		if (indexes.empty())
 		{
-			if (strncmp(tmp_root.c_str(), "public/", 7) == 0)
-				tmp_root = tmp_root.substr(7);
-		    uri.path = tmp_root + "index.html";
-		    return ;
+			if ((tmp_root != "public/" && is_file(tmp_root + "index.html"))
+				|| (location->first == "/" && is_file(tmp_root + "index.html")))
+			{
+				if (strncmp(tmp_root.c_str(), "public/", 7) == 0)
+					tmp_root = tmp_root.substr(7);
+				uri.path = tmp_root + "index.html";
+				return ;
+			}
+			else if (location->second.get_autoindex() == AUTOINDEX_ON
+			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+			{
+				uri.autoindex_confirmed = true;
+				return ;
+			}
+			throw HTTPStatus<404>();
 		}
-		else if (location->second.get_autoindex() == AUTOINDEX_ON
-		|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+		Indexes_cit index = file::find_valid_index(root, indexes);
+		if (index == indexes.end())
 		{
-			uri.autoindex_confirmed = true;
-			return ;
+			if ((tmp_root != "public/" && is_file(tmp_root + "index.html"))
+				|| (location->first == "/" && is_file(tmp_root + "index.html")))
+			{
+				if (strncmp(tmp_root.c_str(), "public/", 7) == 0)
+					tmp_root = tmp_root.substr(7);
+				uri.path = tmp_root + "index.html";
+				return ;
+			}
+			else if (location->second.get_autoindex() == AUTOINDEX_ON
+			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+			{
+				uri.autoindex_confirmed = true;
+				return ;
+			}
+			throw HTTPStatus<404>();
 		}
-		throw HTTPStatus<403>();
+		uri.path = uri.path + (*index);
+		return ;
 	}
 	Indexes_cit index = file::find_valid_index(root, indexes);
 	if (index == indexes.end())
@@ -478,6 +515,7 @@ std::string set_time(struct tm *tm_time){
 			+ ':' + (tm_time->tm_min < 10 ? "0" : "")
 			+ to_string(tm_time->tm_min));
 }
+
 std::string resolve_month(int i)
 {
 	const std::string months[12] = {"Jan",  "Feb",  "Mar",  "Apr", "May", "Jun",
@@ -501,4 +539,111 @@ void			URI::clear( void )
 	extra_path.clear();
 	query.clear();
 	fragment.clear();
+}
+
+BaseStatus get_httpstatus(int code)
+{
+	if (code == 200)
+		return (HTTPStatus<200>());
+	if (code == 302)
+		return (HTTPStatus<302>());
+	if (code == 400)
+		return (HTTPStatus<400>());
+	if (code == 511)
+		return (HTTPStatus<511>());
+    if (code == 100)
+        return (HTTPStatus<100>());
+    if (code == 101)
+        return (HTTPStatus<101>());
+    if (code == 201)
+        return (HTTPStatus<201>());
+    if (code == 202)
+        return (HTTPStatus<202>());
+    if (code == 203)
+        return (HTTPStatus<203>());
+    if (code == 204)
+        return (HTTPStatus<204>());
+    if (code == 205)
+        return (HTTPStatus<205>());
+    if (code == 206)
+        return (HTTPStatus<206>());
+    if (code == 207)
+        return (HTTPStatus<207>());
+    if (code == 300)
+		return (HTTPStatus<300>());
+	if (code == 301)
+		return (HTTPStatus<301>());
+	if (code == 303)
+		return (HTTPStatus<303>());
+	if (code == 304)
+		return (HTTPStatus<304>());
+	if (code == 305)
+		return (HTTPStatus<305>());
+	if (code == 307)
+		return (HTTPStatus<307>());
+	if (code == 401)
+		return (HTTPStatus<401>());
+	if (code == 402)
+		return (HTTPStatus<402>());
+	if (code == 403)
+		return (HTTPStatus<403>());
+	if (code == 404)
+		return (HTTPStatus<404>());
+	if (code == 405)
+		return (HTTPStatus<405>());
+	if (code == 406)
+		return (HTTPStatus<406>());
+	if (code == 407)
+		return (HTTPStatus<407>());
+	if (code == 408)
+		return (HTTPStatus<408>());
+	if (code == 409)
+		return (HTTPStatus<409>());
+	if (code == 410)
+		return (HTTPStatus<410>());
+	if (code == 411)
+		return (HTTPStatus<411>());
+	if (code == 412)
+		return (HTTPStatus<412>());
+	if (code == 413)
+		return (HTTPStatus<413>());
+	if (code == 414)
+		return (HTTPStatus<414>());
+	if (code == 415)
+		return (HTTPStatus<415>());
+	if (code == 416)
+		return (HTTPStatus<416>());
+	if (code == 417)
+		return (HTTPStatus<417>());
+	if (code == 422)
+		return (HTTPStatus<422>());
+	if (code == 423)
+		return (HTTPStatus<423>());
+	if (code == 424)
+		return (HTTPStatus<424>());
+	if (code == 426)
+		return (HTTPStatus<426>());
+	if (code == 428)
+		return (HTTPStatus<428>());
+	if (code == 429)
+		return (HTTPStatus<429>());
+	if (code == 431)
+		return (HTTPStatus<431>());
+	if (code == 451)
+		return (HTTPStatus<451>());
+	if (code == 500)
+		return (HTTPStatus<500>());
+	if (code == 501)
+		return (HTTPStatus<501>());
+	if (code == 502)
+		return (HTTPStatus<502>());
+	if (code == 503)
+		return (HTTPStatus<503>());
+	if (code == 504)
+		return (HTTPStatus<504>());
+	if (code == 505)
+		return (HTTPStatus<505>());
+	if (code == 507)
+		return (HTTPStatus<507>());
+	return (HTTPStatus<500>());
 }
