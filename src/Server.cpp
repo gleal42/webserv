@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/12 00:23:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/13 18:59:57 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,15 +309,14 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res, const
 				if (serv_names.size() > 0)
 					res.set_header("Host", serv_names[0]);
 			}
-			std::vector<std::string> temp_server_names = it->second->_config.get_server_names();
-			std::vector<std::string>::iterator temp_host = std::find_if(temp_server_names.begin(), temp_server_names.end(), equals(req.request_uri.host));
-			
-			std::vector<std::string> official_host_names = to_use.get_server_names();
-			std::vector<std::string>::iterator official_host = std::find_if(official_host_names.begin(), official_host_names.end(), equals(req.request_uri.host));
-			if (temp_host != temp_server_names.end() && official_host != official_host_names.end())
+			std::vector<std::string> potential_server_names = it->second->_config.get_server_names();
+			std::vector<std::string>::iterator potential_host = std::find_if(potential_server_names.begin(), potential_server_names.end(), equals(req.request_uri.host));
+			std::vector<std::string> to_use_host_names = to_use.get_server_names();
+			std::vector<std::string>::iterator to_use_host = std::find_if(to_use_host_names.begin(), to_use_host_names.end(), equals(req.request_uri.host));
+			if (potential_host != potential_server_names.end() && to_use_host == to_use_host_names.end())
 			{
 			    to_use = it->second->_config;
-				res.set_header("Host", *temp_host);
+				res.set_header("Host", *potential_host);
 			}
 		}
 	}
