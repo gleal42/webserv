@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 04:29:18 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 17:33:35 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -286,8 +286,84 @@ void	Server::do_redirect(Request & req, Response & res)
 	res.set_header("Content-Length", to_string(res.get_body_size()));
 	res.set_header("Content-Type", "text/html");
 	res.set_header("Connection", "keep-alive");
+	// if res.redirect.code isn't valid, sends 500 as code. Nginx sends code anyway. Shall we keep it like this?
 	res.build_message(get_httpstatus(res.redirect.code));
 }
+
+// void	Server::do_autoindex(URI & uri, Response & res)
+// {
+// 	DIR	*			dir;
+// 	struct dirent *	de;
+//     struct stat		st;
+//     struct tm		tm_time;
+// 	std::string		time;
+// 	std::string		path = uri.path;
+// 	std::string		private_path(path.substr(6));
+
+//     std::string     html_content = "<html>\n<head><title>Index of " + private_path
+// 								 + "</title></head>\n<body>\n<h1>Index of "
+// 								 + private_path + "</h1><hr><pre>"
+// 								 + "<div><a href=\"..\"></div>../</a>";
+
+//     dir = opendir(path.c_str());
+//     if (dir == NULL)
+// 	{
+// 		perror("opendir");
+//         throw HTTPStatus<404>();
+// 	}
+//     while ((de = readdir(dir)) != NULL)
+//     {
+//         if (*de->d_name == 0 || *de->d_name == '.')
+//             continue ;
+
+//         std::string file_name(de->d_name);
+// 		std::string file_path = path + '/' + file_name;
+//         if (lstat(file_path.c_str(), &st) == 0)
+//         {
+// 			gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
+// 			std::string tmp_time(asctime(&tm_time));
+// 			bool is_dir = S_ISDIR(st.st_mode);
+
+// 			time = tmp_time.substr(0, tmp_time.length() - 1);
+// 			if (is_dir)
+// 				file_name.push_back('/');
+// 			if (file_name.length() >= WHITESPACE_CAP)
+// 			{
+// 				file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
+// 				html_content += "<div><a href=\"" + std::string(de->d_name) + "\">";
+// 			}
+// 			else
+// 				html_content += "<div><a href=\"" + std::string(file_name) + "\">";
+// 			html_content += file_name + "</a>"
+// 						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
+//             if (is_dir)
+// 			{
+// 				html_content += set_time(&tm_time)
+// 							 + insert_whitespace(1, WHITESPACE_CAP/2)
+// 							 + "-</div>";
+// 			}
+//             else
+//             {
+//                 size_t file_size(st.st_size);
+//                 std::stringstream ss;
+//                 ss << file_size;
+// 				std::string fsize = ss.str();
+// 				html_content += set_time(&tm_time)
+// 							 + insert_whitespace(fsize.length(), WHITESPACE_CAP/2)
+// 							 + fsize + "</div>";
+//             }
+//         }
+//     }
+//     closedir(dir);
+// 	html_content += "</pre><hr></body>\n</html>";
+
+// 	uri.autoindex_confirmed = false;
+// 	res.set_header("Content-Type", "text/html");
+// 	res.set_header("Content-Length", to_string(html_content.size()));
+// 	// res.set_header("Date", time);
+//     res.set_body(html_content);
+// 	res.build_message(HTTPStatus<200>());
+// }
 
 void	Server::do_autoindex(URI & uri, Response & res)
 {
@@ -298,12 +374,13 @@ void	Server::do_autoindex(URI & uri, Response & res)
 	std::string		time;
 	std::string		path = uri.path;
 	std::string		private_path(path.substr(6));
-	// if (private_path[private_path.length()-1] != '/')
-	// 	private_path.push_back('/');
+
     std::string     html_content = "<html>\n<head><title>Index of " + private_path
 								 + "</title></head>\n<body>\n<h1>Index of "
 								 + private_path + "</h1><hr><pre>"
 								 + "<div><a href=\"..\"></div>../</a>";
+	std::string		dirs_buffer("");
+	std::string		files_buffer("");
 
     dir = opendir(path.c_str());
     if (dir == NULL)
@@ -317,7 +394,6 @@ void	Server::do_autoindex(URI & uri, Response & res)
             continue ;
 
         std::string file_name(de->d_name);
-		// std::string file_path = path + file_name;
 		std::string file_path = path + '/' + file_name;
         if (lstat(file_path.c_str(), &st) == 0)
         {
@@ -327,36 +403,44 @@ void	Server::do_autoindex(URI & uri, Response & res)
 
 			time = tmp_time.substr(0, tmp_time.length() - 1);
 			if (is_dir)
+			{
 				file_name.push_back('/');
-			if (file_name.length() >= WHITESPACE_CAP)
-			{
-				file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
-				html_content += "<div><a href=\"" + std::string(de->d_name) + "\">";
-			}
-			else
-				html_content += "<div><a href=\"" + std::string(file_name) + "\">";
-			html_content += file_name + "</a>"
-						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
-            if (is_dir)
-			{
-				html_content += set_time(&tm_time)
-							 + insert_whitespace(1, WHITESPACE_CAP/2)
-							 + "-</div>";
+				if (file_name.length() >= WHITESPACE_CAP)
+				{
+					file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
+					dirs_buffer += "<div><a href=\"" + std::string(de->d_name) + "\">";
+				}
+				else
+					dirs_buffer += "<div><a href=\"" + std::string(file_name) + "\">";
+				dirs_buffer += file_name + "</a>"
+							+ insert_whitespace(file_name.length(), WHITESPACE_CAP);
+					dirs_buffer += set_time(&tm_time)
+								+ insert_whitespace(1, WHITESPACE_CAP/2)
+								+ "-</div>";
 			}
             else
             {
+				if (file_name.length() >= WHITESPACE_CAP)
+				{
+					file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
+					files_buffer += "<div><a href=\"" + std::string(de->d_name) + "\">";
+				}
+				else
+					files_buffer += "<div><a href=\"" + std::string(file_name) + "\">";
+				files_buffer += file_name + "</a>"
+						 + insert_whitespace(file_name.length(), WHITESPACE_CAP);
                 size_t file_size(st.st_size);
                 std::stringstream ss;
                 ss << file_size;
 				std::string fsize = ss.str();
-				html_content += set_time(&tm_time)
+				files_buffer += set_time(&tm_time)
 							 + insert_whitespace(fsize.length(), WHITESPACE_CAP/2)
 							 + fsize + "</div>";
             }
         }
     }
     closedir(dir);
-	html_content += "</pre><hr></body>\n</html>";
+	html_content += dirs_buffer + files_buffer + "</pre><hr></body>\n</html>";
 
 	uri.autoindex_confirmed = false;
 	res.set_header("Content-Type", "text/html");
@@ -375,36 +459,8 @@ void	Server::request_process_config( Request & req, Response & res)
 	LocationConfig location_to_use;
 	if (location_inside_server != config_to_use.get_locations().end())
 		location_to_use = location_inside_server->second;
-	if (req.request_uri.redirect_confirmed == true)
-	{
-		res.redirect.new_path = "http://";
-		res.redirect.new_path += req._headers.at("Host");
-		if (strncmp(req.request_uri.path.c_str(), "public/", 7) == 0)
-			req.request_uri.path = req.request_uri.path.substr(6);
-		res.redirect.new_path += req.request_uri.path + "/";
-		res.redirect.code = 301;
+	if (is_redirect(req, res, location_to_use))
 		return ;
-	}
-	if (location_to_use.get_redirects().empty() == false)
-	{
-		req.request_uri.redirect_confirmed = true;
-		LOG("\t\t\t\tPATH IS " << location_to_use.get_first_redirect().new_path);
-		if(is_directory("public" + location_to_use.get_first_redirect().new_path) || is_file("public" + location_to_use.get_first_redirect().new_path))
-		{
-			res.redirect.new_path = req._headers.at("Host");
-			res.redirect.new_path += location_to_use.get_first_redirect().new_path;
-		}
-		else
-		{
-			LOG("\t\t\t NOT A DIR OR FILE");
-			if (strncmp(location_to_use.get_first_redirect().new_path.c_str(), "http://", 7) != 0)
-				res.redirect.new_path = "http://";
-			res.redirect.new_path += location_to_use.get_first_redirect().new_path;
-		}
-		res.redirect.code = location_to_use.get_first_redirect().code;
-		return ;
-	}
-
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 
 	const StringVector &req_methods = location_to_use.get_limit_except();
@@ -418,6 +474,34 @@ void	Server::request_process_config( Request & req, Response & res)
 	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
+bool	Server::is_redirect(Request & req, Response & res, LocationConfig & location)
+{
+	if (req.request_uri.redirect_confirmed == true)
+	{
+		res.redirect.new_path = "http://";
+		res.redirect.new_path += req._headers.at("Host");
+		if (strncmp(req.request_uri.path.c_str(), "public/", 7) == 0)
+			req.request_uri.path = req.request_uri.path.substr(6);
+		res.redirect.new_path += req.request_uri.path + "/";
+		res.redirect.code = 301;
+		return (true);
+	}
+	if (location.get_redirects().empty() == false)
+	{
+		req.request_uri.redirect_confirmed = true;
+		if(is_directory("public" + location.get_first_redirect().new_path) || is_file("public" + location.get_first_redirect().new_path))
+			res.redirect.new_path += location.get_first_redirect().new_path;
+		else
+		{
+			if (strncmp(location.get_first_redirect().new_path.c_str(), "http://", 7) != 0)
+				res.redirect.new_path = "http://";
+			res.redirect.new_path += location.get_first_redirect().new_path;
+		}
+		res.redirect.code = location.get_first_redirect().code;
+		return (true);
+	}
+	return (false);
+}
 ServerConfig   Server::config_resolve(const Request & req, Response & res )
 {
 	ServerConfig to_use;

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 04:21:28 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 18:37:23 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ std::string get_query_string(const std::string &uri)
 bool is_directory(const std::string &path)
 {
     struct stat s;
-	LOG("\t\t\t\tIS_DIR TESTING :" << path);
+
     if (lstat(path.c_str(), &s) == 0)
         if (S_ISDIR(s.st_mode))
             return (true);
@@ -450,7 +450,7 @@ void			cgi_path_resolve( URI & uri, const LocationConfig &location )
 // ~INDEX PRIORITY:
 //		1) matching [locationpath].html assigned to location by index directive on LocationConfig
 // 		2) matching [locationpath].html set on location's ServerConfig index directive
-//		3) index.html inside location's directory
+//		3) index.html inside location's directory (in case there is no index on ServerConfig)
 //		4) autoindex directive on
 // ~AFAIK, the only way to define an index for root is through location /
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_cit location)
@@ -477,26 +477,18 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 				uri.autoindex_confirmed = true;
 				return ;
 			}
-			throw HTTPStatus<404>();
+			throw HTTPStatus<403>();
 		}
 		Indexes_cit index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())
 		{
-			if ((tmp_root != "public/" && is_file(tmp_root + "index.html"))
-				|| (location->first == "/" && is_file(tmp_root + "index.html")))
-			{
-				if (strncmp(tmp_root.c_str(), "public/", 7) == 0)
-					tmp_root = tmp_root.substr(7);
-				uri.path = tmp_root + "index.html";
-				return ;
-			}
-			else if (location->second.get_autoindex() == AUTOINDEX_ON
+			if (location->second.get_autoindex() == AUTOINDEX_ON
 			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
 			{
 				uri.autoindex_confirmed = true;
 				return ;
 			}
-			throw HTTPStatus<404>();
+			throw HTTPStatus<403>();
 		}
 		uri.path = uri.path + (*index);
 		return ;

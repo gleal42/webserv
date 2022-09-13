@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 03:30:26 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/13 16:09:30 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,6 +67,7 @@ public:
 	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
 	void				do_autoindex(URI & uri, Response & res);
 	void				do_redirect(Request & req, Response & res);
+	bool				is_redirect(Request & req, Response & res, LocationConfig & location);
 
 	/* Connection */
 	void				connection_new( Listener * listener );
