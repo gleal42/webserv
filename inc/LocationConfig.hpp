@@ -12,7 +12,7 @@ public:
 	LocationConfig( const LocationConfig & );
 	LocationConfig & operator= ( const LocationConfig & );
 
-	bool	is_empty( void );
+	bool	is_empty( void ) const;
 
 	// Setters
 	int		find_directive(const std::string &directive);

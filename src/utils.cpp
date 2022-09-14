@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/14 14:40:41 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/14 23:50:33 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -335,6 +335,7 @@ const std::string &priority_directive( const std::string &server_directive, cons
 {
     if (location_directive.empty() == false)
         return (location_directive);
+
     return (server_directive);
 }
 
@@ -380,18 +381,16 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 	LocationConfig location;
 	if (location_inside_server != server_conf.get_locations().end())
 		location = location_inside_server->second;
-
 	std::string root ("public" + processed_root( server_conf, location ));
-	if (strncmp(uri.path.c_str(), "public/", 7) == 0){
+	if (uri.path.compare(0, 6 , "public/") == 0)
 		uri.path = uri.path.substr(7);
-	}
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
 	{
 		if (root_path[root_path.length()-1] != '/')
 			uri.redirect_confirmed = true;
 		else
-			directory_indexing_resolve( uri, root_path, server_conf, location_inside_server);
+			directory_indexing_resolve( uri, root_path, server_conf, location);
 	}
 	cgi_path_resolve(uri, location);
 	if (*uri.path.begin() != '/')
@@ -436,7 +435,9 @@ void			cgi_path_resolve( URI & uri, const LocationConfig &location )
 		uri.path = uri.path + uri.extra_path;
 		uri.extra_path.clear();
 	}
-	CGI cgi = location.get_cgi();
+	CGI cgi;
+	if (!location.is_empty())
+		CGI cgi = location.get_cgi();
 	if (cgi.empty())
 		return ;
 	size_t script_path_pos = uri.path.find(cgi.extension);
@@ -453,26 +454,25 @@ void			cgi_path_resolve( URI & uri, const LocationConfig &location )
 //		3) index.html inside location's directory (in case there is no index on ServerConfig)
 //		4) autoindex directive on
 // ~AFAIK, the only way to define an index for root is through location /
-void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_cit location)
+void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig & location)
 {
 	Indexes indexes;
-	indexes = location->second.get_indexes();
-	std::string tmp_root(root);
+
+	if (!location.is_empty())
+		indexes = location.get_indexes();
+
 	if (indexes.empty())
 	{
 		indexes = server_conf.get_indexes();
 		if (indexes.empty())
 		{
-			if ((tmp_root != "public/" && is_file(tmp_root + "index.html"))
-				|| (location->first == "/" && is_file(tmp_root + "index.html")))
+			if (root != "public/" && is_file(root + "index.html"))
 			{
-				if (strncmp(tmp_root.c_str(), "public/", 7) == 0)
-					tmp_root = tmp_root.substr(7);
-				uri.path = tmp_root + "index.html";
+				uri.path = root.substr(7) + "index.html";
 				return ;
 			}
-			else if (location->second.get_autoindex() == AUTOINDEX_ON
-			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+			else if (location.get_autoindex() == AUTOINDEX_ON
+			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location.get_autoindex()== AUTOINDEX_UNSET))
 			{
 				uri.autoindex_confirmed = true;
 				return ;
@@ -482,8 +482,8 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		Indexes_cit index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())
 		{
-			if (location->second.get_autoindex() == AUTOINDEX_ON
-			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+			if (location.get_autoindex() == AUTOINDEX_ON
+			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location.get_autoindex()== AUTOINDEX_UNSET))
 			{
 				uri.autoindex_confirmed = true;
 				return ;
@@ -493,10 +493,11 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		uri.path = uri.path + (*index);
 		return ;
 	}
+
 	Indexes_cit index = file::find_valid_index(root, indexes);
 	if (index == indexes.end()){
-		if (location->second.get_autoindex() == AUTOINDEX_ON
-		|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+		if (location.get_autoindex() == AUTOINDEX_ON
+		|| (server_conf.get_autoindex()== AUTOINDEX_ON && location.get_autoindex()== AUTOINDEX_UNSET))
 		{
 			uri.autoindex_confirmed = true;
 			return ;

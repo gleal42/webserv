@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/13 03:15:34 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/14 23:53:20 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,7 @@ namespace {
 //~~~~~~~~~~~~~~~~~~~~~~~~ServerConfig methods~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // ServerConfig utils
-bool	ServerConfig::is_empty( void )
+bool	ServerConfig::is_empty( void ) const
 {
 	return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
 		&& this->_error_pages.empty() && this->_client_max_body_size == -1

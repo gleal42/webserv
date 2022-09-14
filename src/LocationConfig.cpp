@@ -40,7 +40,7 @@ bool	CGI::is_configured(const std::string &uri_extension) const
 
 bool	CGI::empty() const { return (extension.empty() && interpreter.empty());}
 
-bool    LocationConfig::is_empty( void )
+bool    LocationConfig::is_empty( void ) const
 {
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1

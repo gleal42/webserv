@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 18:58:39 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/14 21:34:01 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -462,7 +462,6 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
-
 }
 
 // if (location_path.back() != '/') Needs redirection to fix
