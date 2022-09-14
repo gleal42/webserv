@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 18:37:23 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/14 14:40:41 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -494,8 +494,15 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		return ;
 	}
 	Indexes_cit index = file::find_valid_index(root, indexes);
-	if (index == indexes.end())
-		throw HTTPStatus<404>();
+	if (index == indexes.end()){
+		if (location->second.get_autoindex() == AUTOINDEX_ON
+		|| (server_conf.get_autoindex()== AUTOINDEX_ON && location->second.get_autoindex()== AUTOINDEX_UNSET))
+		{
+			uri.autoindex_confirmed = true;
+			return ;
+		}
+		throw HTTPStatus<403>();
+	}
 	uri.path = uri.path + (*index);
 }
 
