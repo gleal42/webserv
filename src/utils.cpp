@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/15 22:11:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -385,7 +385,7 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
 		directory_indexing_resolve( uri, root_path, server_conf, location);
-	cgi_path_resolve(uri, location);
+	cgi_path_resolve(uri, location, root);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
@@ -422,21 +422,41 @@ Location_cit      location_resolve(const ServerConfig &server_block, const std::
 	// throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
 }
 
-void			cgi_path_resolve( URI & uri, const LocationConfig &location )
+void	reset_path(std::string &path, std::string &extra_path)
 {
-	if (uri.extra_path.empty() == false) {
-		uri.path = uri.path + uri.extra_path;
-		uri.extra_path.clear();
+	if (extra_path.empty() == false) {
+		path = path + extra_path;
+		extra_path.clear();
 	}
+}
+
+void			cgi_path_resolve( URI & uri, const LocationConfig &location, const std::string &root)
+{
+	reset_path(uri.path, uri.extra_path);
 	CGI cgi = location.get_cgi();
 	if (cgi.empty())
 		return ;
+	size_t query_string_start = uri.path.rfind("?");
+	while (query_string_start != std::string::npos)
+	{
+		reset_path(uri.path, uri.extra_path);
+		uri.query = uri.path.substr(query_string_start);
+		uri.path = uri.path.substr(0, query_string_start);
+		if ( is_file(root + uri.path) == false )
+		{
+			size_t extra_path_start = uri.path.rfind("?");
+			while (extra_path_start != std::string::npos)
+			{
+				uri.query = uri.path.substr(query_string_start);
+				uri.path = uri.path.substr(0, query_string_start);
+				if (is_file(root + uri.path) == true)
+					break ;
+			}
+		}
+	}	
 	size_t script_path_pos = uri.path.find(cgi.extension);
 	if (script_path_pos == std::string::npos)
-		return ;
-	script_path_pos = script_path_pos + cgi.extension.size();
-	uri.extra_path = uri.path.substr(script_path_pos);
-	uri.path = uri.path.substr(0, script_path_pos);
+		throw HTTPStatus<500>(); // check
 }
 
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location )

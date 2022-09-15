@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/15 22:12:06 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,9 +62,9 @@ std::string			processed_root( const ServerConfig & server_conf, const LocationCo
 const std::string &	priority_directive( const std::string &server_directive, const std::string & location_directive );
 const int &			priority_directive( const int &server_directive, const int & location_directive );
 void				update_error_code(ErrorPage &dest_list, const std::string &err_path, unsigned short code);
-Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf);
-Location_cit	location_resolve(const ServerConfig &server_block, const std::string & path);
-void				cgi_path_resolve( URI & uri, const LocationConfig &locations );
+Location_cit		path_resolve( URI & uri, const ServerConfig & server_conf);
+Location_cit		location_resolve(const ServerConfig &server_block, const std::string & path);
+void				cgi_path_resolve( URI & uri, const LocationConfig &location, const std::string &root);
 void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location );
 
 template <typename T>

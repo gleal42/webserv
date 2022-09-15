@@ -6,6 +6,13 @@ echo "<head>";
 echo "<meta charset=\"UTF-8\">";
 echo "</head>";
 echo "<body>";
+$path = trim($_SERVER['SCRIPT_FILENAME']);
+$path = dirname($path);
+$path = dirname($path);
+$path = dirname($path);
+$path = dirname($path);
+$path = dirname($path);
+$path = "$path/uploads";
 $method = trim($_SERVER['REQUEST_METHOD']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST')
 {
@@ -18,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 }
 else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
    echo "<h1> List of files </h1>";
-   $path = "../../../../uploads/";
+
    $files = scandir($path);
    $files = array_diff(scandir($path), array('.', '..'));
    $pos_public = strpos($path, "public/");  // temporary so that public logic is implemented logic
@@ -35,6 +42,9 @@ else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
       echo "<p>ALL is $path$value <p>";
       echo "<p><a href=\"" . "../$path$value" . "\">" . $value . "</a><p>";
    }
+}
+else if ($_SERVER['REQUEST_METHOD'] === 'DELETE'){
+
 }
 else{
    http_response_code(501);
@@ -69,6 +79,7 @@ function upload_file()
    } else {
       echo "Sorry, there was an error uploading your file.";
       echo "Not uploaded because of error #".$_FILES["cute_picture"]["error"];
+      return (false);
    }
    return (true);
 }
@@ -111,6 +122,30 @@ function appropriate_intro( $gender )
       $intro = "";
    }
    return $intro;
+}
+
+function delete_file()
+{
+   $delete_dir = "../../../../uploads/";
+   $file_to_delete = basename($filename);
+   $extension = pathinfo($file_to_upload, PATHINFO_EXTENSION);
+   $file_to_upload = pathinfo($file_to_upload, PATHINFO_FILENAME);
+   $temp = $upload_dir . $file_to_upload . "." . $extension;
+   $nbr = 1;
+   while (file_exists($temp))
+   {
+      $temp = $upload_dir . $file_to_upload . $nbr . "." . $extension;
+      $nbr = $nbr + 1;
+   }
+   $file_to_upload = $temp;
+   if (move_uploaded_file($_FILES["cute_picture"]["tmp_name"], $file_to_upload)) {
+      echo "<p>The file ". basename(htmlspecialchars( $file_to_upload )). " has been uploaded.</p>";
+   } else {
+      echo "Sorry, there was an error uploading your file.";
+      echo "Not uploaded because of error #".$_FILES["cute_picture"]["error"];
+      return (false);
+   }
+   return (true);
 }
 
 ?>
