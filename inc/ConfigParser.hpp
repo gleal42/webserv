@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/11 17:05:59 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/16 23:51:18 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Needs to be able to:
 
 struct ConfigError : virtual public std::runtime_error{
         ConfigError();
-        virtual ~ConfigError (void) throw(){}
+        virtual ~ConfigError (void) throw(){} // TODO: can we?
         // virtual const char*		what( void ) const throw ();
 };
 

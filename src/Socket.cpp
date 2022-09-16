@@ -6,14 +6,19 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/16 23:31:46 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 00:10:08 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 
 /* Exceptions */
+SocketError::SocketError() : std::runtime_error("Error in sockets"){};
+
 Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
+Socket::BindError::BindError( int port )
+	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
+	{ /* No-op */ }
 
 Socket::CreateError::CreateError( void )
 	: std::runtime_error("Failed to create socket.") { /* No-op */ }
@@ -23,10 +28,6 @@ Socket::ReusableAddressError::ReusableAddressError( void )
 
 Socket::ReusablePortError::ReusablePortError( void )
 	: std::runtime_error("Failed to make socket port reusable.") { /* No-op */ }
-
-Socket::BindError::BindError( int port )
-	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
-	{ /* No-op */ }
 
 Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
