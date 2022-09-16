@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Listener.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/05 23:02:24 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 17:47:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ Listener::Listener( ServerConfig const & config ) : Socket(config), _config(conf
 	try {
 		listen(MAX_CLIENTS);
 	}
-	catch(Socket::ListenError& e) {
-		LOG(e.what());
+	catch(Socket::ListenError & e) {
+		ERROR(e.what());
 	}
 }
 

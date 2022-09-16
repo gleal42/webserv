@@ -6,7 +6,7 @@
 /*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:54:28 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 23:54:51 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ public:
 	void				start( void );
 	void				service(Request & req, Response & res, const in_addr &connection_addr);
 	int					events_wait();
-	void				request_process_config( Request & req, Response & res );
-	ServerConfig		config_resolve( const Request & req, Response & res );
+	void				request_process_config( Request & req, Response & res, const in_addr &connection_addr );
+	ServerConfig		config_resolve( const Request & req, Response & res, const in_addr &connection_addr );
 	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
 
 

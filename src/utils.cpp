@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 18:05:02 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,7 +270,7 @@ std::string address_to_hostname(struct sockaddr *address)
 {
     static char buf[NI_MAXHOST];
     std::memset(buf, '\0', NI_MAXHOST);
-    
+
     getnameinfo(address, sizeof(*address), buf, sizeof(buf), NULL, 0, NI_NUMERICHOST);
     return(buf);
 }
@@ -310,7 +310,7 @@ std::string b64decode(const std::string& encoded_string)
        {
 			ret.push_back(
 			((b64_decode_table(encoded_string[pos+1]) & 0x0f) << 4)	// Starting 4 bits taken from 2nd char (001111)
-		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100) 
+		+	((b64_decode_table(encoded_string[pos+2]) & 0x3c) >> 2)); // Last 4 bits taken from 3rd char (111100)
        }
 	   if (pos + 3 < length_of_string)
 	   {
@@ -323,9 +323,9 @@ std::string b64decode(const std::string& encoded_string)
     return ret;
 }
 
-std::string processed_root( const ServerConfig & server_conf, Location_const_it locations )
+std::string processed_root( const ServerConfig & server_conf, const LocationConfig &location )
 {
-	std::string root = priority_directive(server_conf.get_root(), locations->second.get_root());
+	std::string root = priority_directive(server_conf.get_root(), location.get_root());
 	if (*(--root.end()) == '/')
 		root.erase(--root.end());
     return (root);
@@ -363,7 +363,7 @@ void    update_error_code(ErrorPage &dest_list, const std::string &err_path, uns
 
 std::string   get_error_path(const ErrorPage &dest_list, unsigned short code)
 {
-	for (ErrorPage_const_it it_dest_err = dest_list.begin();
+	for (ErrorPage_cit it_dest_err = dest_list.begin();
 		it_dest_err != dest_list.end();
 		it_dest_err++)
 	{
@@ -374,35 +374,42 @@ std::string   get_error_path(const ErrorPage &dest_list, unsigned short code)
     return (std::string());
 }
 
-Location_const_it	path_resolve( URI & uri, const ServerConfig & server_conf)
+Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 {
-	Location_const_it locations = location_resolve(server_conf, uri.path);
-	std::string root ("public" + processed_root( server_conf, locations ));
+	Location_cit location_inside_server = location_resolve(server_conf, uri.path);
+	LocationConfig location;
+	if (location_inside_server != server_conf.get_locations().end())
+		location = location_inside_server->second;
+
+	std::string root ("public" + processed_root( server_conf, location ));
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
-		directory_indexing_resolve( uri, root_path, server_conf, locations);
-	cgi_path_resolve(uri, locations);
+		directory_indexing_resolve( uri, root_path, server_conf, location);
+	cgi_path_resolve(uri, location);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
-	Location_const_it redir_locations = location_resolve(server_conf, uri.path);
-	if (redir_locations->first.size() > locations->first.size()) {
+	Location_cit redir_locations = location_resolve(server_conf, uri.path);
+
+	if ( redir_locations != server_conf.get_locations().end() && redir_locations->first.size() > location_inside_server->first.size()) {
 		return (path_resolve(uri, server_conf));
 	} else {
 		uri.path = root_path;
-		return locations;
+		return location_inside_server;
 	}
 }
 
-Location_const_it      location_resolve(const ServerConfig &server_block, const std::string & path)
+Location_cit      location_resolve(const ServerConfig &server_block, const std::string & path)
 {
 	std::string location_path = path;
 	if ( location_path.size() > 0 && *(location_path.end()-1) != '/')
 		location_path.push_back('/');
 	const Locations &locations = server_block.get_locations();
+	if (locations.size() == 0)
+		return (locations.end());
 	while (location_path.empty() == false)
 	{
-		for (Location_const_it it = locations.begin();
+		for (Location_cit it = locations.begin();
 			it != locations.end();
 			it++)
 			{
@@ -411,30 +418,30 @@ Location_const_it      location_resolve(const ServerConfig &server_block, const 
 			}
 		location_path.erase(--location_path.end());
 	}
-	throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
+	return (locations.end());
+	// throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
 }
 
-void			cgi_path_resolve( URI & uri, Location_const_it locations)
+void			cgi_path_resolve( URI & uri, const LocationConfig &location )
 {
 	if (uri.extra_path.empty() == false) {
 		uri.path = uri.path + uri.extra_path;
 		uri.extra_path.clear();
 	}
-	CGI cgi = locations->second.get_cgi();
+	CGI cgi = location.get_cgi();
 	if (cgi.empty())
 		return ;
 	size_t script_path_pos = uri.path.find(cgi.extension);
 	if (script_path_pos == std::string::npos)
 		return ;
 	script_path_pos = script_path_pos + cgi.extension.size();
-	uri.extra_path = uri.path.substr(script_path_pos + 1);
+	uri.extra_path = uri.path.substr(script_path_pos);
 	uri.path = uri.path.substr(0, script_path_pos);
 }
 
-void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, Location_const_it locations)
+void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location )
 {
-	Indexes indexes;
-	indexes = locations->second.get_indexes();
+	Indexes indexes = location.get_indexes();
 	if (indexes.empty())
 	{
 		indexes = server_conf.get_indexes();
@@ -443,22 +450,32 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 			if (is_file(root + "index.html"))
 			{
 			    uri.path = "index.html";
-			    return ;   
+			    return ;
 			}
-			throw HTTPStatus<404>(); 
+			throw HTTPStatus<404>();
 		}
-		Index_const_it index = file::find_valid_index(root, indexes);
+		Indexes_cit index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())
 		{
-			if ((locations->second).get_autoindex() == AUTOINDEX_ON)
+			if (location.get_autoindex() == AUTOINDEX_ON)
 				throw HTTPStatus<501>(); // Not implemented yet
 			throw HTTPStatus<403>();
 		}
-		uri.path = (*index);
+		uri.path = uri.path + (*index);
 		return ;
 	}
-	Index_const_it index = file::find_valid_index(root, indexes);
+	Indexes_cit index = file::find_valid_index(root, indexes);
 	if (index == indexes.end())
 		throw HTTPStatus<404>();
-	uri.path = (*index);
+	uri.path = uri.path + (*index);
+}
+
+void			URI::clear( void )
+{
+	host.clear();
+	port = -1;
+	path.clear();
+	extra_path.clear();
+	query.clear();
+	fragment.clear();
 }

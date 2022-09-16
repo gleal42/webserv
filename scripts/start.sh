@@ -17,3 +17,5 @@ fi
 readonly CONFIG_FILE=$1
 
 ./webserv ${CONFIG_FILE}
+
+# bash

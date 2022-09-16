@@ -6,9 +6,10 @@
 
 #include "ConfigParser.hpp"
 
-#define CONFIG_FILE "config_file"
+#define CONFIG_FILE "../../default.conf"
 
-// TODO: Boiler Plate, complete later
+// TODO: needs more tests
+
 TEST_CASE("ConfigParser constructor") {
 
 	SUBCASE("accepts config_file") {

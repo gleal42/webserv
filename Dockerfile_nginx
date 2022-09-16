@@ -12,14 +12,21 @@ RUN apt-get install -y curl
 RUN apt-get -y install php7.3
 RUN apt-get -y install php7.3-fpm
 
-COPY nginx/default.conf /tmp/default.conf
+ARG src_dir="nginx/test/"
+
+# ARG file="1 - multiple_servers_different_ports.conf"
+# ARG file="2 - index_server_not_location.conf"
+ARG file="3-same_port_different_names.conf"
+
+ARG src=${src_dir}${file}
+
+# COPY nginx/default.conf /tmp/default.conf
+COPY ${src} "/tmp/default.conf"
 
 RUN rm -f var/www/html/index.nginx-debian.html
 RUN rm -f var/www/html/index.html
 
 COPY public /var/www/
-
-EXPOSE 80
 
 COPY nginx/*.sh .
 CMD bash start.sh

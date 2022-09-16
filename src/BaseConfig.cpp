@@ -145,6 +145,6 @@ const std::string&              BaseConfig::get_root( void ) const{return (this-
 AutoBool                        BaseConfig::get_autoindex( void ) const{return (this->_autoindex);}
 const ErrorPage&                BaseConfig::get_error_pages( void ) const{return (this->_error_pages);}
 long long                       BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
-const std::vector<std::string>& BaseConfig::get_indexes( void ) const{return (this->_indexes);}
+const StringVector &			BaseConfig::get_indexes( void ) const{return (this->_indexes);}
 const std::vector<Redirect>&    BaseConfig::get_redirect( void ){return (this->_redirect);}
 

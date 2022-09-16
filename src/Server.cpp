@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:49:41 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/13 19:03:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,7 +259,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
-		request_process_config(req, res);
+		request_process_config(req, res, connection_addr);
 		handler = handler_resolve(req, connection_addr);
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -270,53 +270,56 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-void	Server::request_process_config( Request & req, Response & res )
+void	Server::request_process_config( Request & req, Response & res, const in_addr &connection_addr )
 {
 	url::decode(req.request_uri.path);
-	ServerConfig config_to_use = config_resolve(req, res);
+	ServerConfig config_to_use = config_resolve(req, res, connection_addr);
 	res.set_server_config(config_to_use);
-	Location_const_it location_to_use = path_resolve(req.request_uri, config_to_use);
+	Location_cit location_inside_server = path_resolve(req.request_uri, config_to_use);
+	LocationConfig location_to_use;
+	if (location_inside_server != config_to_use.get_locations().end())
+		location_to_use = location_inside_server->second;
 
-	res.add_error_list(config_to_use.get_error_pages(), location_to_use->second.get_error_pages());
-	const std::vector<std::string> &req_methods = location_to_use->second.get_limit_except();
-	if (std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
+	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
+
+	const StringVector &req_methods = location_to_use.get_limit_except();
+	if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
 		throw (HTTPStatus<403>());
 
-	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use->second.get_max_body_size());
+	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use.get_max_body_size());
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
+
+	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
-ServerConfig   Server::config_resolve(const Request & req, Response & res )
+ServerConfig   Server::config_resolve(const Request & req, Response & res, const in_addr &connection_addr )
 {
 	ServerConfig to_use;
-	struct addrinfo *host = get_host(req.request_uri.host);
-
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
 	{
-		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
+		if (is_address_being_listened(it->second->_config.get_ip(), (const sockaddr_in *)&connection_addr)
 			&& it->second->_config.get_port() == req.request_uri.port)
 		{
 			// if (it->second.is_default())
 			if (to_use.is_empty())
 			{
 				to_use = it->second->_config;
-				res.set_header("Host", to_use.get_server_names()[0]);
+				const StringVector&serv_names = to_use.get_server_names();
+				if (serv_names.size() > 0)
+					res.set_header("Host", serv_names[0]);
 			}
-			std::vector<std::string> server_names = it->second->_config.get_server_names();
-			for (std::vector<std::string>::iterator it_s = server_names.begin();
-				it_s != server_names.end();
-				it_s++)
+			StringVector potential_server_names = it->second->_config.get_server_names();
+			StringVector_it potential_host = std::find_if(potential_server_names.begin(), potential_server_names.end(), equals(req.request_uri.host));
+			StringVector to_use_host_names = to_use.get_server_names();
+			StringVector_it to_use_host = std::find_if(to_use_host_names.begin(), to_use_host_names.end(), equals(req.request_uri.host));
+			if (potential_host != potential_server_names.end() && to_use_host == to_use_host_names.end())
 			{
-				if (*it_s == req.request_uri.host)
-				{
-				    to_use = it->second->_config;
-					res.set_header("Host", *it_s);
-				}
+			    to_use = it->second->_config;
+				res.set_header("Host", *potential_host);
 			}
 		}
 	}
-	freeaddrinfo(host);
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
