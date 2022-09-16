@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/13 19:03:28 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,7 +259,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
-		request_process_config(req, res);
+		request_process_config(req, res, connection_addr);
 		handler = handler_resolve(req, connection_addr);
 		handler->service(req, res);
 		res.build_message(handler->script_status());
@@ -270,10 +270,10 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-void	Server::request_process_config( Request & req, Response & res )
+void	Server::request_process_config( Request & req, Response & res, const in_addr &connection_addr )
 {
 	url::decode(req.request_uri.path);
-	ServerConfig config_to_use = config_resolve(req, res);
+	ServerConfig config_to_use = config_resolve(req, res, connection_addr);
 	res.set_server_config(config_to_use);
 	Location_cit location_inside_server = path_resolve(req.request_uri, config_to_use);
 	LocationConfig location_to_use;
@@ -293,14 +293,12 @@ void	Server::request_process_config( Request & req, Response & res )
 	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
-ServerConfig   Server::config_resolve(const Request & req, Response & res )
+ServerConfig   Server::config_resolve(const Request & req, Response & res, const in_addr &connection_addr )
 {
 	ServerConfig to_use;
-	struct addrinfo *host = get_host(req.request_uri.host);
-
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
 	{
-		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
+		if (is_address_being_listened(it->second->_config.get_ip(), (const sockaddr_in *)&connection_addr)
 			&& it->second->_config.get_port() == req.request_uri.port)
 		{
 			// if (it->second.is_default())
@@ -311,20 +309,17 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 				if (serv_names.size() > 0)
 					res.set_header("Host", serv_names[0]);
 			}
-			StringVector server_names = it->second->_config.get_server_names();
-			for (StringVector_it it_s = server_names.begin();
-				it_s != server_names.end();
-				it_s++)
+			StringVector potential_server_names = it->second->_config.get_server_names();
+			StringVector_it potential_host = std::find_if(potential_server_names.begin(), potential_server_names.end(), equals(req.request_uri.host));
+			StringVector to_use_host_names = to_use.get_server_names();
+			StringVector_it to_use_host = std::find_if(to_use_host_names.begin(), to_use_host_names.end(), equals(req.request_uri.host));
+			if (potential_host != potential_server_names.end() && to_use_host == to_use_host_names.end())
 			{
-				if (*it_s == req.request_uri.host)
-				{
-				    to_use = it->second->_config;
-					res.set_header("Host", *it_s);
-				}
+			    to_use = it->second->_config;
+				res.set_header("Host", *potential_host);
 			}
 		}
 	}
-	freeaddrinfo(host);
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
