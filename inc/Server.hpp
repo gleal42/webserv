@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 16:09:30 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/16 16:22:53 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,8 @@ public:
 	void				start( void );
 	void				service(Request & req, Response & res, const in_addr &connection_addr);
 	int					events_wait();
-	void				request_process_config( Request & req, Response & res );
-	ServerConfig		config_resolve( const Request & req, Response & res );
+	void				request_process_config( Request & req, Response & res, const in_addr &connection_addr );
+	ServerConfig		config_resolve( const Request & req, Response & res, const in_addr &connection_addr );
 	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
 	void				do_autoindex(URI & uri, Response & res);
 	void				do_redirect(Request & req, Response & res);

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/14 21:34:01 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/16 16:36:45 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -261,7 +261,7 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
-		request_process_config(req, res);
+		request_process_config(req, res, connection_addr);
 		if (req.request_uri.redirect_confirmed == true)
             do_redirect(req, res);
 		else if (req.request_uri.autoindex_confirmed == true)
@@ -375,10 +375,10 @@ void	Server::do_autoindex(URI & uri, Response & res)
 	res.build_message(HTTPStatus<200>());
 }
 
-void	Server::request_process_config( Request & req, Response & res)
+void	Server::request_process_config( Request & req, Response & res, const in_addr &connection_addr)
 {
 	url::decode(req.request_uri.path);
-	ServerConfig config_to_use = config_resolve(req, res);
+	ServerConfig config_to_use = config_resolve(req, res, connection_addr);
 	res.set_server_config(config_to_use);
 	Location_cit location_inside_server = path_resolve(req.request_uri, config_to_use);
 	LocationConfig location_to_use;
@@ -427,14 +427,12 @@ bool	Server::is_redirect(Request & req, Response & res, LocationConfig & locatio
 	}
 	return (false);
 }
-ServerConfig   Server::config_resolve(const Request & req, Response & res )
+ServerConfig   Server::config_resolve(const Request & req, Response & res , const in_addr &connection_addr)
 {
 	ServerConfig to_use;
-	struct addrinfo *host = get_host(req.request_uri.host);
-
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
 	{
-		if (is_address_being_listened(it->second->_config.get_ip(), (const struct sockaddr_in *)host->ai_addr)
+		if (is_address_being_listened(it->second->_config.get_ip(), (const sockaddr_in *)&connection_addr)
 			&& it->second->_config.get_port() == req.request_uri.port)
 		{
 			// if (it->second.is_default())
@@ -445,20 +443,17 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res )
 				if (serv_names.size() > 0)
 					res.set_header("Host", serv_names[0]);
 			}
-			StringVector server_names = it->second->_config.get_server_names();
-			for (StringVector_it it_s = server_names.begin();
-				it_s != server_names.end();
-				it_s++)
+			StringVector potential_server_names = it->second->_config.get_server_names();
+			StringVector_it potential_host = std::find_if(potential_server_names.begin(), potential_server_names.end(), equals(req.request_uri.host));
+			StringVector to_use_host_names = to_use.get_server_names();
+			StringVector_it to_use_host = std::find_if(to_use_host_names.begin(), to_use_host_names.end(), equals(req.request_uri.host));
+			if (potential_host != potential_server_names.end() && to_use_host == to_use_host_names.end())
 			{
-				if (*it_s == req.request_uri.host)
-				{
-				    to_use = it->second->_config;
-					res.set_header("Host", *it_s);
-				}
+			    to_use = it->second->_config;
+				res.set_header("Host", *potential_host);
 			}
 		}
 	}
-	freeaddrinfo(host);
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
