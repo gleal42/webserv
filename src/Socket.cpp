@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/16 22:34:41 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/16 23:31:46 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,8 +127,6 @@ void	Socket::bind( const std::string &hostname, int port )
 	_address = *(SocketAddress *)_host->ai_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (const sockaddr *)&_address, sizeof(_address)) < 0) {
-		LOG("Socket::bind");
-
 		throw Socket::BindError(port);
 	}
 
