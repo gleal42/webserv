@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/04 19:27:09 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/11 18:14:55 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/16 22:13:28 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,14 +88,14 @@ namespace file
 	void	remove( const std::string & filename )
 	{
 		static char const * temp_ext[8] = {
-		[0] = ".cpp",
-		[1] = ".hpp",
-		[2] = ".html",
-		[3] = ".ico",
-		[4] = ".ts",
-		[5] = ".rb",
-		[6] = ".sh",
-		[7] = ".h",
+			".cpp",
+			".hpp",
+			".html",
+			".ico",
+			".ts",
+			".rb",
+			".sh",
+			".h",
 		};
 		const Extensions	forbidden_extensions(temp_ext, temp_ext + sizeof(temp_ext) / sizeof(char const *));
 
@@ -107,7 +107,7 @@ namespace file
 			throw HTTPStatus<405>();
 		std::cout << "Extension is [" << file_extension << "]" << std::endl;
 		std::cout << "Filename is [" << filename << "]" << std::endl;
-		if (std::remove (filename.c_str()) != 0)
+		if (std::remove(filename.c_str()) != 0)
 			throw HTTPStatus<404>();
 	}
 
