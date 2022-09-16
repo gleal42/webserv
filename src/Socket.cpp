@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 19:37:31 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/16 22:34:41 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,6 @@ Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op *
 // TODO: will we also pass `domain`?
 Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
-
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
@@ -128,6 +127,8 @@ void	Socket::bind( const std::string &hostname, int port )
 	_address = *(SocketAddress *)_host->ai_addr;
 	_address.sin_port = htons(port);
 	if (::bind(_fd, (const sockaddr *)&_address, sizeof(_address)) < 0) {
+		LOG("Socket::bind");
+
 		throw Socket::BindError(port);
 	}
 
