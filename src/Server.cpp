@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:55:56 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 13:33:45 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,10 @@
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
-// private
-Server::Server( void ) { throw std::runtime_error("Please use non-default constructor"); }
+Server::Server( void )
+{
+	throw std::runtime_error("Please use non-default constructor");
+}
 
 // The size argument is an indication to the kernel about the number of file descriptors
 // a process wants to monitor, which helps the kernel to decide the size of the epoll
@@ -35,8 +37,15 @@ Listeners	Server::listeners( void ) const { return _listeners; }
 Connections	Server::connections( void ) const { return _connections; }
 size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
 
-Server::Server(const ConfigParser &parser)
+Server::Server(const ConfigParser &parser) : _queue_fd(FD_UNSET) { init(parser); }
+
+void	Server::init(const ConfigParser &parser)
 {
+	// guard from calling more then once
+	if (_queue_fd != FD_UNSET) {
+		return;
+	}
+
 	_queue_fd = QUEUE();
 	if (_queue_fd < 0) {
 		throw CreateError();
@@ -519,7 +528,10 @@ Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr 
         return (new FileHandler());
 }
 
-Server::~Server( void )
+// Destructor
+Server::~Server( void ) { close(); }
+
+void	Server::close( void )
 {
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
 		listener_close(it->first);
@@ -527,7 +539,7 @@ Server::~Server( void )
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
 		connection_close(it->first);
 	}
-	close(_queue_fd);
+	::close(_queue_fd);
 }
 
 void	Server::listener_close( int listener_fd )

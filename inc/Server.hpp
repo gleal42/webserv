@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:56:03 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 13:34:35 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,8 @@ public:
 		CreateError( void );
 	};
 
-	Server(const ConfigParser &parser);
+	Server( void );
+	Server( const ConfigParser &parser );
 	~Server( void );
 
 	// Getters
@@ -59,9 +60,11 @@ public:
 	size_t				listeners_amount( void ) const;
 
 	// TODO: check if can be private
+	void				init( const ConfigParser &parser );
 	void				start( void );
-	void				service(Request & req, Response & res, const in_addr &connection_addr);
-	int					events_wait();
+	void				service( Request & req, Response & res, const in_addr &connection_addr );
+	int					events_wait( void );
+	void				close( void );
 	void				request_process_config( Request & req, Response & res, const in_addr &connection_addr );
 	ServerConfig		config_resolve( const Request & req, Response & res, const in_addr &connection_addr );
 	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
@@ -85,7 +88,6 @@ public:
 
 private:
 
-	Server( void );
 	Server( Server const & src );
 	Server &		operator=( Server const & src );
 	int				_queue_fd;
