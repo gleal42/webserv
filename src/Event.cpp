@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Event.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 15:52:30 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 17:39:20 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:20:44 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ bool	Event::is_close( void )
 	return _event_os.flags & EV_EOF;
 #endif
 #if defined(LINUX)
-	return _event_os.events & EPOLLHUP;
+	return (_event_os.events & EPOLLIN) && (read_size() == 0);
 #endif
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/14 23:12:26 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,14 @@ std::string			processed_root( const ServerConfig & server_conf, const LocationCo
 const std::string &	priority_directive( const std::string &server_directive, const std::string & location_directive );
 const int &			priority_directive( const int &server_directive, const int & location_directive );
 void				update_error_code(ErrorPage &dest_list, const std::string &err_path, unsigned short code);
-Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf);
-Location_cit	location_resolve(const ServerConfig &server_block, const std::string & path);
+Location_cit		path_resolve( URI & uri, const ServerConfig & server_conf);
+Location_cit		location_resolve(const ServerConfig &server_block, const std::string & path);
 void				cgi_path_resolve( URI & uri, const LocationConfig &locations );
-void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location );
+void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig & location );
+std::string			set_time(struct tm *tm_time);
+std::string			resolve_month(int i);
+std::string			insert_whitespace(size_t len, size_t spaces);
+BaseStatus			get_httpstatus(int code);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
@@ -92,6 +96,8 @@ public:
 	std::string		extra_path;
 	std::string		query; // map
 	std::string		fragment;
+    bool			autoindex_confirmed;
+    bool			redirect_confirmed;
 
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;

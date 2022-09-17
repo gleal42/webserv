@@ -1,12 +1,13 @@
 server {
 	listen localhost:8889;
-	index public/page2.html;
+	root /post;
 	server_name Hello;
 	error_page 404 502 203 /home/user/Desktop/git/webserv/public/www;
-	#root /home/user/Desktop/git/webserv/public;
 	client_max_body_size 10000;
-	location /home/user/Desktop {
+	index index.html;
+	location / {
 		client_max_body_size 13;
+		index index.html;
 		error_page 207 /home/user/Desktop/git/webserv/public/www;
 		#cgi .bla /usr/local/bin/php-cgi;
 	}

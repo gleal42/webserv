@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ServerConfig.hpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/07/22 00:50:11 by fmeira            #+#    #+#             */
+/*   Updated: 2022/09/14 23:53:26 by fmeira           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
 #ifndef SERVERCONFIG_HPP
 # define SERVERCONFIG_HPP
 
@@ -12,7 +25,7 @@ public:
 	ServerConfig( const ServerConfig & );
 	ServerConfig & operator= ( const ServerConfig & );
 
-	bool	is_empty( void );
+	bool	is_empty( void ) const;
 
 	// Setters
 	int		find_directive( const std::string & directive );

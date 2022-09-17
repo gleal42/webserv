@@ -17,6 +17,7 @@ LocationConfig::LocationConfig(const LocationConfig& param)
     this->_error_pages = param._error_pages;
     this->_client_max_body_size = param._client_max_body_size;
     this->_indexes = param._indexes;
+    this->_redirects = param._redirects;
     this->_cgi.extension = param._cgi.extension;
     this->_cgi.interpreter = param._cgi.interpreter;
     this->_limit_except = param._limit_except;
@@ -39,11 +40,11 @@ bool	CGI::is_configured(const std::string &uri_extension) const
 
 bool	CGI::empty() const { return (extension.empty() && interpreter.empty());}
 
-bool    LocationConfig::is_empty( void )
+bool    LocationConfig::is_empty( void ) const
 {
     return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
         && this->_error_pages.empty() && this->_client_max_body_size == -1
-        && this->_indexes.empty() && this->_redirect.empty()
+        && this->_indexes.empty() && this->_redirects.empty()
         && this->_limit_except.empty()
         && this->_cgi.extension.empty() && this->_cgi.interpreter.empty());
 }
@@ -68,7 +69,7 @@ int     LocationConfig::find_directive(const std::string &directive)
 
 void LocationConfig::set_directive(int directive, const std::string& content)
 {
-    bool    has_separators = (content.find(SEPARATORS) != std::string::npos);
+    bool    has_separators = (content.find_first_of(SEPARATORS) != std::string::npos);
     if (content.empty())
         throw (ConfigurationSyntaxError());
 
@@ -158,6 +159,7 @@ LocationConfig& LocationConfig::operator= (const LocationConfig& param)
     this->_error_pages = param._error_pages;
     this->_client_max_body_size = param._client_max_body_size;
     this->_indexes = param._indexes;
+    this->_redirects = param._redirects;
     this->_cgi = param._cgi;
     this->_limit_except = param._limit_except;
 
