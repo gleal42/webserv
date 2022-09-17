@@ -22,7 +22,7 @@ class Connection : public Socket {
 
 public:
 
-	Connection( Listener * listener );
+	Connection( void );
 	~Connection( void );
 
 	Request		request;
@@ -30,7 +30,6 @@ public:
 
 private:
 
-	Connection( void );
 	Connection( const Connection & src );
 	Connection &	operator=( const Connection & src );
 

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+# include "Connection.hpp"
 
 /* Exceptions */
 SocketError::SocketError() : std::runtime_error("Error in sockets") { /* No-op */ };
@@ -182,8 +183,8 @@ void	Socket::receive( int buffer_size ) {
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }
 
 // C `accept` function wrapper
-Socket *	Socket::accept( void ) {
-	Socket *	s = new Socket();
+Connection *	Socket::accept( void ) {
+	Connection *	s = new Connection();
 	socklen_t	length = sizeof(s->_address);
 	sockaddr *	address = (sockaddr *)&s->_address;
 
