@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/12 18:50:43 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:31:13 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,6 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	_path = _unparsed_request.substr(i, j);
 	if (request_methods.find("..") != request_methods.end())
 		throw HTTPStatus<405>();
-
 	for (it++; *it != '\n'; it++)
 		j++;
 

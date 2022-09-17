@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/16 16:36:45 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:55:56 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,15 +88,19 @@ void	Server::start( void )
 			else {
 				Connections_it	connection_it = _connections.find(event.fd());
 
+				LOG("\n\t\t\tNEW EVENT");
 				if (event.is_close()) {
 					connection_close(event.fd());
+					LOG("\n\t\t\tCONNECTIONS SIZE = " << _connections.size());
 
 					// If there are no more connections open in server do cleanup(return)
 					if (_connections.size() == 0) {
+						LOG("\n\t\t\tLEAVING");
 						return ;
 					}
 				}
 				else if (event.is_read()) {
+					LOG("\n\t\t\tDETECTED READ");
 					connection_read(connection_it->second, event.read_size());
 				}
 				else if (event.is_write()) {
@@ -261,9 +265,11 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
+		req.request_uri.autoindex_confirmed = false;
+		req.request_uri.redirect_confirmed = false;
 		request_process_config(req, res, connection_addr);
 		if (req.request_uri.redirect_confirmed == true)
-            do_redirect(req, res);
+            do_redirect(res);
 		else if (req.request_uri.autoindex_confirmed == true)
             do_autoindex(req.request_uri, res);
 		else
@@ -279,9 +285,8 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-void	Server::do_redirect(Request & req, Response & res)
+void	Server::do_redirect(Response & res)
 {
-	req.request_uri.redirect_confirmed = false;
 	res.set_header("Location", res.redirect.new_path);
 	res.set_header("Content-Length", to_string(res.get_body_size()));
 	res.set_header("Content-Type", "text/html");
@@ -367,7 +372,6 @@ void	Server::do_autoindex(URI & uri, Response & res)
     closedir(dir);
 	html_content += dirs_buffer + files_buffer + "</pre><hr></body>\n</html>";
 
-	uri.autoindex_confirmed = false;
 	res.set_header("Content-Type", "text/html");
 	res.set_header("Content-Length", to_string(html_content.size()));
 	// res.set_header("Date", time);
@@ -401,6 +405,7 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 
 bool	Server::is_redirect(Request & req, Response & res, LocationConfig & location)
 {
+	res.redirect.new_path.clear();
 	if (req.request_uri.redirect_confirmed == true)
 	{
 		res.redirect.new_path = "http://";
@@ -414,8 +419,8 @@ bool	Server::is_redirect(Request & req, Response & res, LocationConfig & locatio
 	if (location.get_redirects().empty() == false)
 	{
 		req.request_uri.redirect_confirmed = true;
-		if(is_directory("public" + location.get_first_redirect().new_path) || is_file("public" + location.get_first_redirect().new_path))
-			res.redirect.new_path += location.get_first_redirect().new_path;
+		if (is_directory("public" + location.get_first_redirect().new_path) || is_file("public" + location.get_first_redirect().new_path))
+			res.redirect.new_path = location.get_first_redirect().new_path;
 		else
 		{
 			if (strncmp(location.get_first_redirect().new_path.c_str(), "http://", 7) != 0)
@@ -514,7 +519,7 @@ void	Server::listener_close( int listener_fd )
 	// Weird! When I change this to _listeners.erase(listener_fd),
 	// which should be the correct one afaik
 	// I get a segfault
-	_connections.erase(listener_fd);
+	_listeners.erase(listener_fd);
 }
 
 void	Server::connection_close( int connection_fd )

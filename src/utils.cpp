@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/14 23:50:33 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:33:40 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -466,6 +466,7 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		indexes = server_conf.get_indexes();
 		if (indexes.empty())
 		{
+			LOG("\n\t\t\t\tTRYING ROOT + HTML: " << root);
 			if (root != "public/" && is_file(root + "index.html"))
 			{
 				uri.path = root.substr(7) + "index.html";
