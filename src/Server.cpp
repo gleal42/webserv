@@ -57,6 +57,10 @@ void	Server::init(const ConfigParser &parser)
 
 	Listener	*listener;
 	for (size_t i = 0; i < _listeners_amount; ++i) {
+		if (_connections.size() + _listeners.size() > 1020) {
+			break;
+		}
+
 		try {
 			listener = new Listener(parser.config(i));
 		}
@@ -149,7 +153,10 @@ int	Server::events_wait( void )
 
 void	Server::connection_new( Listener * listener )
 {
-	// TODO: check if can still add
+	if (_connections.size() + _listeners.size() > 1020) {
+		return;
+	}
+
 	Connection *	connection;
 	try {
 		connection = listener->accept();
