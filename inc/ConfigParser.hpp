@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:50:04 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/17 01:05:48 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 19:26:55 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,10 @@ struct BadFileError : public ConfigError{
 };
 struct MultipleArgumentsError : public ConfigError{
     MultipleArgumentsError(const std::string err);
+};
+
+struct DuplicatedPortError : public ConfigError{
+    DuplicatedPortError(const std::string err);
 };
 
 class ConfigParser

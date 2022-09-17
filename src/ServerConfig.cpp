@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/17 17:42:33 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 19:28:37 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,6 +205,11 @@ void	ServerConfig::set_listen(bool has_separators, const std::string &content)
         this->_listens[0].is_set = true;
     }
     else
+	{
+		for (std::vector<Listen>::iterator it = this->_listens.begin(); it != this->_listens.end(); it++)
+			if (it->port == new_listen.port)
+				throw (DuplicatedPortError(content));
+	}
 		this->_listens.push_back(new_listen);
 
 	if (new_listen.port > PORT_MAX || new_listen.port < PORT_MIN)
