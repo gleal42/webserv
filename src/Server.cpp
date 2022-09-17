@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:35:03 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 02:57:12 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,7 +177,15 @@ void	Server::connection_read( Connection *connection, int read_size )
 	LOG("About to read the file descriptor: " << connection->fd());
 	LOG("Incoming data has size of: " << read_size);
 
-	connection->request.parse(*connection, read_size);
+	try {
+		connection->request.parse(*connection, read_size);
+	}
+	catch (SocketError& e) {
+		ERROR("Failed connection read: " << e.what());
+		connection_close(connection->fd());
+		return ;
+	}
+
 
 	if (connection->request._headers.count("Content-Length")) {
 		LOG("Analyzing if whole body was transferred: ");
@@ -215,7 +223,14 @@ void	Server::connection_write( Connection *connection )
 		service(connection->request, connection->response, connection->address());
 	}
 
-	connection->response.send_response(*connection);
+	try {
+		connection->response.send_response(*connection);
+	}
+	catch (SocketError& e) {
+		ERROR("Failed connection write: " << e.what());
+		connection_close(connection->fd());
+		return ;
+	}
 
 	if (connection->response.is_empty()) {
 		LOG("Connection was empty after sending");

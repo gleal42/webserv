@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/09 01:18:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 03:07:54 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -199,8 +199,12 @@ void	Request::read_body(std::string &_unparsed_request)
 void	Request::parse(Socket & socket, int read_size )
 {
 	socket.receive(read_size);
-	if (socket._buffer.empty() || socket.bytes() < 0)
+	if (socket._buffer.empty()) {
 		throw std::exception(); // TODO: decide what error this is
+	}
+	if (socket.bytes() == 0) {
+		// TODO: decide what to do here
+	}
 
 	std::cout << "We have received [" << socket._buffer.size() << "] bytes in total." << std::endl;
 	append_buffer(_unparsed_request, socket._buffer);

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:06:12 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 03:14:25 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,12 @@ Socket::ListenError::ListenError( void )
 
 Socket::AcceptError::AcceptError( void )
 	: std::runtime_error("Failed to Accept new connection.") { /* No-op */ }
+
+Socket::SendError::SendError( void )
+	: std::runtime_error("Failed to send on socket.") { /* No-op */ }
+
+Socket::ReceiveError::ReceiveError( void )
+	: std::runtime_error("Failed to receive on socket.") { /* No-op */ }
 
 /* Constructors */
 Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
@@ -76,11 +82,7 @@ Socket &	Socket::operator = ( Socket const & rhs )
 int				Socket::fd( void ) const { return _fd; }
 int				Socket::port( void ) const { return _port; }
 int				Socket::bytes( void ) const { return _bytes; }
-
-const in_addr &	Socket::address( void ) const
-{
-	return(_address.sin_addr);
-}
+const in_addr &	Socket::address( void ) const { return _address.sin_addr; }
 
 // Setters
 void	Socket::set_fd( int fd ) { _fd = fd; }
@@ -123,7 +125,7 @@ void	Socket::bind( const std::string &hostname, int port )
 {
 	_host = get_host(hostname);
 	if (_host == NULL) {
-		throw Socket::BindError(port);
+		throw Socket::BindError(port); // TODO: change error name?
 	}
 
 	_address = *(SocketAddress *)_host->ai_addr;
@@ -149,7 +151,14 @@ void	Socket::listen( int max_connections ) { // Coming from server config or sho
 
 // `send` function wrapper
 int	Socket::send( const std::string & response ) const {
-	return (::send(_fd, response.c_str(), response.size(), 0));
+	int		sent_chars;
+
+	sent_chars = ::send(_fd, response.c_str(), response.size(), 0);
+	if (sent_chars == -1) {
+		throw Socket::SendError();
+	}
+
+	return (sent_chars);
 }
 
 // `recv` function wrapper
@@ -158,12 +167,16 @@ void	Socket::receive( int buffer_size ) {
 	_buffer = std::vector<char>(buffer_size + 1, '\0'); // One more for null terminated string
 
 	_bytes = recv(_fd, _buffer.data(), buffer_size, 0);
-	std::cout << "We just received " << _bytes << " bytes." << std::endl;
+	if (_bytes == -1) {
+		throw Socket::ReceiveError();
+	}
+
+	LOG("We just received " << _bytes << " bytes.");
 	// What is this comparison for and what does it mean?
 	if (buffer_size != _bytes)
 		throw std::runtime_error("UH OHHHHHHHHHHHH");
-	// std::cout << "The data received was :" << std::endl;
-	// std::cout << _buffer.data() << std::endl;
+	// LOG("The data received was :");
+	// LOG(_buffer.data());
 }
 
 std::string	Socket::to_s( void ) const { return std::string(_buffer.data()); }

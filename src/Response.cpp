@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 03:11:24 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,10 @@ std::string		Response::message( void ) { return _message; }
 void	Response::send_response( Socket const & socket )
 {
 	int sent_chars = socket.send(_message);
-	// TODO: check -1 and 0?
+	if (sent_chars == 0) {
+		// TODO: decide what to do
+	}
+
 	int msg_size = _message.size();
 	std::cout << "Message size before is: " << msg_size << std::endl;
 	std::cout << "Message is: " << _message << std::endl;
