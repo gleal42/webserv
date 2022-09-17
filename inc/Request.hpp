@@ -22,6 +22,7 @@
 #include "ServerConfig.hpp"
 #include "Socket.hpp"
 #include "HTTPStatus.hpp"
+#include "URI.hpp"
 #include "types.hpp"
 
 

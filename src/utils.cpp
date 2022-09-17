@@ -552,16 +552,6 @@ std::string insert_whitespace(size_t len, size_t spaces){
 	return (whitespaces);
 }
 
-void			URI::clear( void )
-{
-	host.clear();
-	port = -1;
-	path.clear();
-	extra_path.clear();
-	query.clear();
-	fragment.clear();
-	cgi_confirmed = false;
-}
 
 BaseStatus get_httpstatus(int code)
 {

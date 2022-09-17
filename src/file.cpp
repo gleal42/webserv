@@ -39,6 +39,7 @@ namespace file
 		mime_types[".pdf"] = "application/pdf";
 		mime_types[".svg"] = "image/svg+xml";
 		mime_types[".txt"] = "text/plain";
+		mime_types[".php"] = "application/x-httpd-php";
 
 		if (extension.size() && mime_types.find(extension) != mime_types.end()) {
 			return mime_types[extension];

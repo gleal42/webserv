@@ -111,7 +111,7 @@ public:
 	void			listen( int max_connections );
 	int				send( const std::string & response ) const;
 	void			receive( int buffer_size );
-	Socket *		accept( void );
+	Connection *		accept( void );
 	std::string		to_s( void ) const;
 	std::vector<char>	_buffer;
 

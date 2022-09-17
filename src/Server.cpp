@@ -116,12 +116,6 @@ void	Server::start( void )
 				if (event.is_close()) {
 					connection_close(event.fd());
 					LOG("\n\t\t\tCONNECTIONS SIZE = " << _connections.size());
-
-					// If there are no more connections open in server do cleanup(return)
-					if (_connections.size() == 0) {
-						LOG("\n\t\t\tLEAVING");
-						return ;
-					}
 				}
 				else if (event.is_read()) {
 					LOG("\n\t\t\tDETECTED READ");
@@ -158,7 +152,7 @@ void	Server::connection_new( Listener * listener )
 	// TODO: check if can still add
 	Connection *	connection;
 	try {
-		connection = new Connection(listener);
+		connection = listener->accept();
 	}
 	catch (SocketError& e) {
 		ERROR("Failed connection new: " << e.what());
@@ -168,6 +162,7 @@ void	Server::connection_new( Listener * listener )
 	int 			connection_fd = connection->fd();
 	EVENT 			event;
 
+	LOG("NEW Connection with fd" << connection_fd);
 	_connections[connection_fd] = connection;
 
 #if defined(DARWIN)
@@ -537,7 +532,7 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res , cons
 Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
 {
 	std::string extension = get_extension(req.request_uri.path);
-	if (CGIHandler::extension_is_implemented(extension))
+	if (CGIHandler::extension_is_implemented(extension) && req.request_uri.cgi_confirmed)
         return (new CGIHandler(req.request_uri, connection_addr));
     else
         return (new FileHandler());
@@ -548,11 +543,13 @@ Server::~Server( void ) { close(); }
 
 void	Server::close( void )
 {
-	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
-		listener_close(it->first);
-	}
+	if (_queue_fd == FD_UNSET)
+		return ;
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
 		connection_close(it->first);
+	}
+	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
+		listener_close(it->first);
 	}
 	::close(_queue_fd);
 }
@@ -576,6 +573,7 @@ void	Server::listener_close( int listener_fd )
 	// which should be the correct one afaik
 	// I get a segfault
 	_listeners.erase(listener_fd);
+	LOG("We now have " << _listeners.size() << " listeners.");
 }
 
 void	Server::connection_close( int connection_fd )
@@ -595,6 +593,7 @@ void	Server::connection_close( int connection_fd )
 #endif
 
 	delete _connections[connection_fd];
+	_connections[connection_fd]=NULL;
 	_connections.erase(connection_fd);
 }
 
