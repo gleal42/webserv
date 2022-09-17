@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 03:11:24 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/13 00:58:43 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,6 +180,9 @@ const std::string	Response::get_header_value(const std::string &name)
 	}
 	return ("");
 }
+
+std::size_t			Response::get_body_size( void ) {return(_body.size());}
+
 
 void	Response::delete_header( const std::string & name )
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 02:57:12 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:55:56 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 #include "CGIHandler.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <dirent.h>
+# define WHITESPACE_CAP 50
 
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
@@ -92,15 +94,19 @@ void	Server::start( void )
 			else {
 				Connections_it	connection_it = _connections.find(event.fd());
 
+				LOG("\n\t\t\tNEW EVENT");
 				if (event.is_close()) {
 					connection_close(event.fd());
+					LOG("\n\t\t\tCONNECTIONS SIZE = " << _connections.size());
 
 					// If there are no more connections open in server do cleanup(return)
 					if (_connections.size() == 0) {
+						LOG("\n\t\t\tLEAVING");
 						return ;
 					}
 				}
 				else if (event.is_read()) {
+					LOG("\n\t\t\tDETECTED READ");
 					connection_read(connection_it->second, event.read_size());
 				}
 				else if (event.is_write()) {
@@ -288,10 +294,19 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 {
     Handler *handler = NULL;
 	try {
+		req.request_uri.autoindex_confirmed = false;
+		req.request_uri.redirect_confirmed = false;
 		request_process_config(req, res, connection_addr);
-		handler = handler_resolve(req, connection_addr);
-		handler->service(req, res);
-		res.build_message(handler->script_status());
+		if (req.request_uri.redirect_confirmed == true)
+            do_redirect(res);
+		else if (req.request_uri.autoindex_confirmed == true)
+            do_autoindex(req.request_uri, res);
+		else
+		{
+			handler = handler_resolve(req, connection_addr);
+			handler->service(req, res);
+			res.build_message(handler->script_status());
+		}
 	} catch (BaseStatus &error_status) {
 		res.set_error_page(error_status);
 	}
@@ -299,7 +314,101 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		delete handler;
 }
 
-void	Server::request_process_config( Request & req, Response & res, const in_addr &connection_addr )
+void	Server::do_redirect(Response & res)
+{
+	res.set_header("Location", res.redirect.new_path);
+	res.set_header("Content-Length", to_string(res.get_body_size()));
+	res.set_header("Content-Type", "text/html");
+	res.set_header("Connection", "keep-alive");
+	// if res.redirect.code isn't valid, sends 500 as code. Nginx sends code anyway. Shall we keep it like this?
+	res.build_message(get_httpstatus(res.redirect.code));
+}
+
+void	Server::do_autoindex(URI & uri, Response & res)
+{
+	DIR	*			dir;
+	struct dirent *	de;
+    struct stat		st;
+    struct tm		tm_time;
+	std::string		time;
+	std::string		path = uri.path;
+	std::string		private_path(path.substr(6));
+
+    std::string     html_content = "<html>\n<head><title>Index of " + private_path
+								 + "</title></head>\n<body>\n<h1>Index of "
+								 + private_path + "</h1><hr><pre>"
+								 + "<div><a href=\"..\"></div>../</a>";
+	std::string		dirs_buffer("");
+	std::string		files_buffer("");
+
+    dir = opendir(path.c_str());
+    if (dir == NULL)
+	{
+		perror("opendir");
+        throw HTTPStatus<404>();
+	}
+    while ((de = readdir(dir)) != NULL)
+    {
+        if (*de->d_name == 0 || *de->d_name == '.')
+            continue ;
+
+        std::string file_name(de->d_name);
+		std::string file_path = path + '/' + file_name;
+        if (lstat(file_path.c_str(), &st) == 0)
+        {
+			gmtime_r(&(st.st_mtim.tv_sec), &tm_time);
+			std::string tmp_time(asctime(&tm_time));
+			bool is_dir = S_ISDIR(st.st_mode);
+
+			time = tmp_time.substr(0, tmp_time.length() - 1);
+			if (is_dir)
+			{
+				file_name.push_back('/');
+				if (file_name.length() >= WHITESPACE_CAP)
+				{
+					file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
+					dirs_buffer += "<div><a href=\"" + std::string(de->d_name) + "\">";
+				}
+				else
+					dirs_buffer += "<div><a href=\"" + std::string(file_name) + "\">";
+				dirs_buffer += file_name + "</a>"
+							+ insert_whitespace(file_name.length(), WHITESPACE_CAP)
+							+ set_time(&tm_time)
+							+ insert_whitespace(1, WHITESPACE_CAP/2)
+							+ "-</div>";
+			}
+            else
+            {
+                size_t file_size(st.st_size);
+                std::stringstream ss;
+                ss << file_size;
+				std::string fsize = ss.str();
+				if (file_name.length() >= WHITESPACE_CAP)
+				{
+					file_name = file_name.substr(0, WHITESPACE_CAP - 4).append("..> ");
+					files_buffer += "<div><a href=\"" + std::string(de->d_name) + "\">";
+				}
+				else
+					files_buffer += "<div><a href=\"" + std::string(file_name) + "\">";
+				files_buffer += file_name + "</a>"
+							 + insert_whitespace(file_name.length(), WHITESPACE_CAP)
+							 + set_time(&tm_time)
+							 + insert_whitespace(fsize.length(), WHITESPACE_CAP/2)
+							 + fsize + "</div>";
+            }
+        }
+    }
+    closedir(dir);
+	html_content += dirs_buffer + files_buffer + "</pre><hr></body>\n</html>";
+
+	res.set_header("Content-Type", "text/html");
+	res.set_header("Content-Length", to_string(html_content.size()));
+	// res.set_header("Date", time);
+    res.set_body(html_content);
+	res.build_message(HTTPStatus<200>());
+}
+
+void	Server::request_process_config( Request & req, Response & res, const in_addr &connection_addr)
 {
 	url::decode(req.request_uri.path);
 	ServerConfig config_to_use = config_resolve(req, res, connection_addr);
@@ -308,7 +417,8 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 	LocationConfig location_to_use;
 	if (location_inside_server != config_to_use.get_locations().end())
 		location_to_use = location_inside_server->second;
-
+	if (is_redirect(req, res, location_to_use))
+		return ;
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 
 	const StringVector &req_methods = location_to_use.get_limit_except();
@@ -322,7 +432,36 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
-ServerConfig   Server::config_resolve(const Request & req, Response & res, const in_addr &connection_addr )
+bool	Server::is_redirect(Request & req, Response & res, LocationConfig & location)
+{
+	res.redirect.new_path.clear();
+	if (req.request_uri.redirect_confirmed == true)
+	{
+		res.redirect.new_path = "http://";
+		res.redirect.new_path += req._headers.at("Host");
+		if (strncmp(req.request_uri.path.c_str(), "public/", 7) == 0)
+			req.request_uri.path = req.request_uri.path.substr(6);
+		res.redirect.new_path += req.request_uri.path + "/";
+		res.redirect.code = 301;
+		return (true);
+	}
+	if (location.get_redirects().empty() == false)
+	{
+		req.request_uri.redirect_confirmed = true;
+		if (is_directory("public" + location.get_first_redirect().new_path) || is_file("public" + location.get_first_redirect().new_path))
+			res.redirect.new_path = location.get_first_redirect().new_path;
+		else
+		{
+			if (strncmp(location.get_first_redirect().new_path.c_str(), "http://", 7) != 0)
+				res.redirect.new_path = "http://";
+			res.redirect.new_path += location.get_first_redirect().new_path;
+		}
+		res.redirect.code = location.get_first_redirect().code;
+		return (true);
+	}
+	return (false);
+}
+ServerConfig   Server::config_resolve(const Request & req, Response & res , const in_addr &connection_addr)
 {
 	ServerConfig to_use;
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); it++)
@@ -352,7 +491,6 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res, const
 	if (to_use.get_server_names().size())
 		std::cout << "We will use config with server_name " << to_use.get_server_names()[0] << std::endl;
 	return (to_use);
-
 }
 
 // if (location_path.back() != '/') Needs redirection to fix
@@ -410,7 +548,7 @@ void	Server::listener_close( int listener_fd )
 	// Weird! When I change this to _listeners.erase(listener_fd),
 	// which should be the correct one afaik
 	// I get a segfault
-	_connections.erase(listener_fd);
+	_listeners.erase(listener_fd);
 }
 
 void	Server::connection_close( int connection_fd )
