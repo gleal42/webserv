@@ -6,7 +6,7 @@
 #include "ConfigParser.hpp"
 
 # define PORT_MAX   65535
-# define PORT_MIN   1
+# define PORT_MIN   1024
 # define CONTEXT_DIRECTIVES 8
 
 class BaseConfig {

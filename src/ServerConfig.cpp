@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 18:13:55 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/14 23:53:20 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 17:42:33 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ ServerConfig::ServerConfig()
 	Listen  init_listen;
 
 	init_listen.ip = "0.0.0.0";
-	init_listen.port = 80;
+	init_listen.port = 8080;
 	init_listen.is_set = false;
 	this->_listens.push_back(init_listen);
 };
@@ -102,7 +102,7 @@ bool	ServerConfig::is_empty( void ) const
 	return (this->_root.empty() && this->_autoindex == AUTOINDEX_UNSET
 		&& this->_error_pages.empty() && this->_client_max_body_size == -1
 		&& this->_indexes.empty() && this->_redirects.empty()
-		&& this->_listens[0].ip == "0.0.0.0" && this->_listens[0].port == 80
+		&& this->_listens[0].ip == "0.0.0.0" && this->_listens[0].port == 8080
 		&& this->_server_names.empty() && this->_locations.empty());
 }
 
@@ -190,18 +190,14 @@ void	ServerConfig::set_listen(bool has_separators, const std::string &content)
             new_listen.ip = "127.0.0.1";
         else
             new_listen.ip = content;
-        new_listen.port = 80;
+        new_listen.port = 8080;
     }
     else
     {
         stoi << content;
         stoi >> new_listen.port;
-        if (new_listen.port > PORT_MAX || new_listen.port <= PORT_MIN)
-	        throw (ConfigurationDirectiveError(content));
         new_listen.ip = "0.0.0.0";
     }
-    if (new_listen.ip != "0.0.0.0" && new_listen.port < 1024)
-        throw (ConfigurationDirectiveError("Port and address combination " + new_listen.ip + " with " + to_string(new_listen.port)));
     if (this->_listens[0].is_set == false)
     {
         this->_listens[0].ip = new_listen.ip;
@@ -209,7 +205,10 @@ void	ServerConfig::set_listen(bool has_separators, const std::string &content)
         this->_listens[0].is_set = true;
     }
     else
-        this->_listens.push_back(new_listen);
+		this->_listens.push_back(new_listen);
+
+	if (new_listen.port > PORT_MAX || new_listen.port < PORT_MIN)
+		throw (ConfigurationDirectiveError(content));
 }
 
 void	ServerConfig::set_server_name( const std::string &content )
