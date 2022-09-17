@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 13:34:35 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 13:56:14 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,35 +54,39 @@ public:
 	~Server( void );
 
 	// Getters
-	int					queue_fd() const;
-	Connections			connections( void ) const;
-	Listeners			listeners( void ) const;
-	size_t				listeners_amount( void ) const;
+	int				queue_fd() const;
+	Connections		connections( void ) const;
+	Listeners		listeners( void ) const;
+	size_t			listeners_amount( void ) const;
+	bool			sigint( void ) const;
+
+	// Setters
+	void			set_sigint( bool called );
 
 	// TODO: check if can be private
-	void				init( const ConfigParser &parser );
-	void				start( void );
-	void				service( Request & req, Response & res, const in_addr &connection_addr );
-	int					events_wait( void );
-	void				close( void );
-	void				request_process_config( Request & req, Response & res, const in_addr &connection_addr );
-	ServerConfig		config_resolve( const Request & req, Response & res, const in_addr &connection_addr );
-	Handler *			handler_resolve( Request & req, const in_addr &connection_addr);
-	void				do_autoindex(URI & uri, Response & res);
-	void				do_redirect(Response & res);
-	bool				is_redirect(Request & req, Response & res, LocationConfig & location);
+	void			init( const ConfigParser &parser );
+	void			start( void );
+	void			service( Request & req, Response & res, const in_addr &connection_addr );
+	int				events_wait( void );
+	void			close( void );
+	void			request_process_config( Request & req, Response & res, const in_addr &connection_addr );
+	ServerConfig	config_resolve( const Request & req, Response & res, const in_addr &connection_addr );
+	Handler *		handler_resolve( Request & req, const in_addr &connection_addr);
+	void			do_autoindex(URI & uri, Response & res);
+	void			do_redirect(Response & res);
+	bool			is_redirect(Request & req, Response & res, LocationConfig & location);
 
 	/* Connection */
-	void				connection_new( Listener * listener );
-	void				connection_read( Connection *connection , int read_size );
-	void				connection_write( Connection *connection );
-	void				connection_close( int connection_fd );
-	void				connection_event_toggle_write( int connection_fd );
-	void				connection_event_toggle_read( int connection_fd );
+	void			connection_new( Listener * listener );
+	void			connection_read( Connection *connection , int read_size );
+	void			connection_write( Connection *connection );
+	void			connection_close( int connection_fd );
+	void			connection_event_toggle_write( int connection_fd );
+	void			connection_event_toggle_read( int connection_fd );
 
 	/* Listener */
-	void				listener_close( int listener_fd );
-	void				listener_event_read_add( int listener_fd );
+	void			listener_close( int listener_fd );
+	void			listener_event_read_add( int listener_fd );
 
    	EVENT 			events[EVENTS_SIZE];
 
@@ -94,6 +98,7 @@ private:
 	Connections		_connections;
 	Listeners		_listeners;
 	size_t			_listeners_amount;
+   	bool 			_sigint;
 
 };
 

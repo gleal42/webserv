@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 13:33:45 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 14:02:54 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,10 @@
 Server::CreateError::CreateError( void )
 : std::runtime_error("Failed to create Kernel Queue.") { /* No-op */ }
 
-Server::Server( void )
-{
-	throw std::runtime_error("Please use non-default constructor");
-}
+// Constructors
+Server::Server( void ) : _queue_fd(FD_UNSET), _sigint(false) { /* No-op */ }
+Server::Server(const ConfigParser &parser) : _queue_fd(FD_UNSET), _sigint(false)
+{ init(parser); }
 
 // The size argument is an indication to the kernel about the number of file descriptors
 // a process wants to monitor, which helps the kernel to decide the size of the epoll
@@ -36,8 +36,10 @@ int	Server::queue_fd( void ) const { return _queue_fd; }
 Listeners	Server::listeners( void ) const { return _listeners; }
 Connections	Server::connections( void ) const { return _connections; }
 size_t	Server::listeners_amount( void ) const { return _listeners_amount; }
+bool	Server::sigint( void ) const { return _sigint; }
 
-Server::Server(const ConfigParser &parser) : _queue_fd(FD_UNSET) { init(parser); }
+// Setters
+void	Server::set_sigint( bool called ) { _sigint = called; }
 
 void	Server::init(const ConfigParser &parser)
 {
@@ -86,11 +88,20 @@ void	Server::start( void )
 
 	while (1) {
 		n = events_wait();
+
+		if (sigint()) {
+			LOG("\nClosing server...");
+			close();
+			break;
+		}
+
+		if (n == -1) {
+			ERROR("Error in kernel queue polling.");
+			exit(EXIT_FAILURE);
+		}
+
 		LOG("Number of events recorded: " << n);
 
-		if (n <= 0) {
-			continue;
-		}
 
 		for (int i = 0; i < n; i++) {
 			Event		event(events[i]);

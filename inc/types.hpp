@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/26 16:49:12 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 13:30:13 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 13:39:17 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,8 +121,5 @@ typedef ErrorPage::iterator										ErrorPage_it;
 typedef ErrorPage::const_iterator								ErrorPage_cit;
 typedef Locations::const_iterator								Location_cit;
 typedef Indexes::const_iterator									Indexes_cit;
-
-// Global variables
-Server	server;
 
 #endif

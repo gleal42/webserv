@@ -6,12 +6,15 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 13:35:17 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 14:02:08 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "webserver.hpp"
+
+// Global
+Server	server;
 
 int	main(int argc, char **argv)
 {
@@ -31,10 +34,11 @@ int	main(int argc, char **argv)
 
 void	sigint_handler(int sig)
 {
-	if (sig != SIGINT)
+	if (sig != SIGINT) {
 		return ;
-	LOG("Closing server...");
-	server.close();
+	}
+
+	server.set_sigint(true);
 }
 
 /*
