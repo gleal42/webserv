@@ -6,14 +6,20 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/11 19:37:31 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:06:12 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Socket.hpp"
 
 /* Exceptions */
+SocketError::SocketError() : std::runtime_error("Error in sockets") { /* No-op */ };
+SocketError::~SocketError() throw() { /* No-op */ };
+
 Socket::BindError::BindError( void ) : std::runtime_error("") { /* No-op */ }
+Socket::BindError::BindError( int port )
+	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
+	{ /* No-op */ }
 
 Socket::CreateError::CreateError( void )
 	: std::runtime_error("Failed to create socket.") { /* No-op */ }
@@ -23,10 +29,6 @@ Socket::ReusableAddressError::ReusableAddressError( void )
 
 Socket::ReusablePortError::ReusablePortError( void )
 	: std::runtime_error("Failed to make socket port reusable.") { /* No-op */ }
-
-Socket::BindError::BindError( int port )
-	: std::runtime_error("Failed to bind to port " + to_string(port) + ".")
-	{ /* No-op */ }
 
 Socket::ListenError::ListenError( void )
 	: std::runtime_error("Failed to listen on socket.") { /* No-op */ }
@@ -41,7 +43,6 @@ Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op *
 // TODO: will we also pass `domain`?
 Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
-
 	create();
 	setsockopt(SO_REUSEPORT);
 	setsockopt(SO_REUSEADDR);
