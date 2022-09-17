@@ -32,11 +32,9 @@ CGIExtInterpreter CGIHandler::create_extension_pairs( void )
 	CGIExtInterpreter	temp;
 	#if defined(DARWIN)
 	temp[".php"] = full_path("bin/php-cgi-mac");
-	temp[".cgi"] = full_path("bin/cgi_tester_mac");
 	#endif
 	#if defined(LINUX)
 	temp[".php"] = full_path("bin/php-cgi-linux");
-	temp[".cgi"] = full_path("bin/cgi_tester_ubuntu");
 	#endif
 
 	return (temp);

@@ -31,6 +31,7 @@ SRCS := webserver.cpp \
 		FileHandler.cpp \
 		CGIHandler.cpp \
 		BaseStatus.cpp \
+		URI.cpp \
 		url.cpp \
 		file.cpp \
 		print.cpp \
