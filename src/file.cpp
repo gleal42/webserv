@@ -72,6 +72,17 @@ namespace file
 	{
 		std::ofstream	outfile;
 		std::string		tmp = "public/uploads/" + filename;
+
+		if (is_file(tmp))
+		{
+			std::string	extension = get_extension(filename);
+			if (extension.empty() == false)
+				tmp = tmp.substr(0, (tmp.size() - extension.size()));
+			int nbr = 0;
+			while (is_file(tmp + to_string(++nbr) + extension))
+				;
+			tmp = tmp + to_string(nbr) + extension;
+		}
 		outfile.open(tmp.c_str() , std::ios::binary);
 		if ( (outfile.rdstate() & std::ifstream::failbit ) != 0) {
 			throw std::runtime_error("Couldn't open new file");
