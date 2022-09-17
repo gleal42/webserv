@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 00:08:19 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:06:21 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,9 @@ Implements wrappers for the following C functions
 
 */
 
-struct SocketError : virtual public std::runtime_error{
-	SocketError();
-	virtual ~SocketError (void) throw(){}
+struct SocketError : virtual public std::runtime_error {
+	SocketError( void );
+	virtual ~SocketError( void ) throw();
 };
 
 class Socket {

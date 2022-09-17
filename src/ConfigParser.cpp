@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/10 16:41:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 01:05:56 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ MultipleArgumentsError::MultipleArgumentsError(const std::string err)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Constructors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 ConfigError::ConfigError() : std::runtime_error("Error in configuration"){};
+ConfigError::~ConfigError() throw() {};
 ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file){ /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
 
