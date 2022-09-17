@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/16 18:15:44 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 02:05:09 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ MultipleArgumentsError::MultipleArgumentsError(const std::string err)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Constructors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 ConfigError::ConfigError() : std::runtime_error("Error in configuration"){};
+ConfigError::~ConfigError() throw() {};
 ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file){ /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
 
