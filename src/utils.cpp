@@ -385,7 +385,7 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
 		directory_indexing_resolve( uri, root_path, server_conf, location);
-	cgi_path_resolve(uri, location, root);
+	cgi_path_resolve(uri, root);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
@@ -430,33 +430,32 @@ void	reset_path(std::string &path, std::string &extra_path)
 	}
 }
 
-void			cgi_path_resolve( URI & uri, const LocationConfig &location, const std::string &root)
+void			cgi_path_resolve( URI & uri, const std::string &root)
 {
 	reset_path(uri.path, uri.extra_path);
-	CGI cgi = location.get_cgi();
-	if (cgi.empty())
-		return ;
-	size_t query_string_start = uri.path.rfind("?");
-	while (query_string_start != std::string::npos)
+
+	if ( is_file(root + uri.path) == false )
 	{
-		reset_path(uri.path, uri.extra_path);
-		uri.query = uri.path.substr(query_string_start);
-		uri.path = uri.path.substr(0, query_string_start);
-		if ( is_file(root + uri.path) == false )
+		size_t query_string_start = uri.path.rfind("?");
+		while (query_string_start != std::string::npos)
 		{
-			size_t extra_path_start = uri.path.rfind("?");
+			reset_path(uri.path, uri.extra_path);
+			uri.query = uri.path.substr(query_string_start);
+			uri.path = uri.path.substr(0, query_string_start);
+			if ( is_file(root + uri.path) == true )
+				break ;
+			size_t extra_path_start = uri.path.rfind("/");
 			while (extra_path_start != std::string::npos)
 			{
-				uri.query = uri.path.substr(query_string_start);
-				uri.path = uri.path.substr(0, query_string_start);
+				uri.extra_path = uri.path.substr(extra_path_start) + uri.extra_path;
+				uri.path = uri.path.substr(0, extra_path_start);
 				if (is_file(root + uri.path) == true)
 					break ;
+				extra_path_start = uri.path.rfind("/");
 			}
+			query_string_start = uri.path.rfind("?");
 		}
-	}	
-	size_t script_path_pos = uri.path.find(cgi.extension);
-	if (script_path_pos == std::string::npos)
-		throw HTTPStatus<500>(); // check
+	}
 }
 
 void			directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location )
@@ -498,4 +497,5 @@ void			URI::clear( void )
 	extra_path.clear();
 	query.clear();
 	fragment.clear();
+	is_cgi = false;
 }
