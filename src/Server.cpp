@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 00:31:11 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 21:30:51 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -441,9 +441,11 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 		return ;
 	res.add_error_list(config_to_use.get_error_pages(), location_to_use.get_error_pages());
 
-	const StringVector &req_methods = location_to_use.get_limit_except();
-	if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
-		throw (HTTPStatus<403>());
+	if (location_inside_server != config_to_use.get_locations().end()) {
+		const StringVector &req_methods = location_to_use.get_limit_except();
+		if (req_methods.empty() == false && std::find_if(req_methods.begin(), req_methods.end(), equals(req.method_to_str())) == req_methods.end())
+			throw (HTTPStatus<403>());
+	}
 
 	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use.get_max_body_size());
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))

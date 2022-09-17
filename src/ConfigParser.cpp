@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/17 15:48:42 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 19:28:01 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,9 +60,12 @@ BadFileError::BadFileError(const std::string err)
 { /* No-op */}
 
 MultipleArgumentsError::MultipleArgumentsError(const std::string err)
-    : std::runtime_error("Error: " + err + ". This directive can only have one argument")
+    : std::runtime_error("Error: " + err + ". Wrong number of arguments")
 { /* No-op */}
 
+DuplicatedPortError::DuplicatedPortError(const std::string err)
+    : std::runtime_error("Error: " + err + " port is already set on the block")
+{ /* No-op */}
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Constructors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 ConfigError::ConfigError() : std::runtime_error("Error in configuration"){};
