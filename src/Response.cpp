@@ -68,7 +68,10 @@ std::string		Response::message( void ) { return _message; }
 void	Response::send_response( Socket const & socket )
 {
 	int sent_chars = socket.send(_message);
-	// TODO: check -1 and 0?
+	if (sent_chars == 0) {
+		// TODO: decide what to do
+	}
+
 	int msg_size = _message.size();
 	std::cout << "Message size before is: " << msg_size << std::endl;
 	std::cout << "Message is: " << _message << std::endl;

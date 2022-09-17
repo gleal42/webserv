@@ -9,11 +9,13 @@
 #include "ServerConfig.hpp"
 
 // Constants
+#define PORT_STR "8080"
 #define FD 3 // if no other file descriptors open
 #define BUFFER_SIZE 5000
 
 TEST_CASE("Connection constructors") {
 	ServerConfig	config;
+	config.set_listen(0, PORT_STR);
 	Listener		listener(config);
 
 	SUBCASE("with `listener` argument, sets `fd`") {
@@ -27,6 +29,7 @@ TEST_CASE("Connection constructors") {
 
 TEST_CASE("Connection `close` method") {
 	ServerConfig	config;
+	config.set_listen(0, PORT_STR);
 	Listener		listener(config);
 
 	SUBCASE("closes file descriptor and frees fd") {
@@ -57,6 +60,7 @@ TEST_CASE("Connection `close` method") {
 
 TEST_CASE("Connection `send` method") {
 	ServerConfig	config;
+	config.set_listen(0, PORT_STR);
 	Listener		listener(config);
   	std::string		response = "Good talking to you\n";
 
@@ -72,6 +76,7 @@ TEST_CASE("Connection `send` method") {
 
 TEST_CASE("Connection `receive` method") {
 	ServerConfig	config;
+	config.set_listen(0, PORT_STR);
 	Listener		listener(config);
 	// Connection 		a(&listener);
 

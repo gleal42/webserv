@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:06:21 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 02:27:14 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,12 @@ public:
 	};
 	struct AcceptError : public SocketError {
 		AcceptError( void );
+	};
+	struct SendError : public SocketError {
+		SendError( void );
+	};
+	struct ReceiveError : public SocketError {
+		ReceiveError( void );
 	};
 
 	Socket( void );

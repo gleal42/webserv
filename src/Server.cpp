@@ -45,10 +45,16 @@ Server::Server(const ConfigParser &parser)
 	_listeners_amount = parser.configs_amount();
 
 	Listener	*listener;
-	for (size_t i = 0; i < _listeners_amount; ++i)
-	{
-		listener = new Listener(parser.config(i));
-		listener_event_read_add(listener->fd()); // TODO: method in listener class
+	for (size_t i = 0; i < _listeners_amount; ++i) {
+		try {
+			listener = new Listener(parser.config(i));
+		}
+		catch (SocketError& e) {
+			ERROR("Failed listener new: " << e.what());
+			continue ;
+		}
+
+		listener_event_read_add(listener->fd());
 		_listeners[listener->fd()] = listener;
 	}
 }
@@ -132,7 +138,15 @@ int	Server::events_wait( void )
 void	Server::connection_new( Listener * listener )
 {
 	// TODO: check if can still add
-	Connection *	connection = new Connection(listener);
+	Connection *	connection;
+	try {
+		connection = new Connection(listener);
+	}
+	catch (SocketError& e) {
+		ERROR("Failed connection new: " << e.what());
+		return ;
+	}
+
 	int 			connection_fd = connection->fd();
 	EVENT 			event;
 
@@ -169,7 +183,15 @@ void	Server::connection_read( Connection *connection, int read_size )
 	LOG("About to read the file descriptor: " << connection->fd());
 	LOG("Incoming data has size of: " << read_size);
 
-	connection->request.parse(*connection, read_size);
+	try {
+		connection->request.parse(*connection, read_size);
+	}
+	catch (SocketError& e) {
+		ERROR("Failed connection read: " << e.what());
+		connection_close(connection->fd());
+		return ;
+	}
+
 
 	if (connection->request._headers.count("Content-Length")) {
 		LOG("Analyzing if whole body was transferred: ");
@@ -207,7 +229,14 @@ void	Server::connection_write( Connection *connection )
 		service(connection->request, connection->response, connection->address());
 	}
 
-	connection->response.send_response(*connection);
+	try {
+		connection->response.send_response(*connection);
+	}
+	catch (SocketError& e) {
+		ERROR("Failed connection write: " << e.what());
+		connection_close(connection->fd());
+		return ;
+	}
 
 	if (connection->response.is_empty()) {
 		LOG("Connection was empty after sending");

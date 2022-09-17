@@ -200,8 +200,12 @@ void	Request::read_body(std::string &_unparsed_request)
 void	Request::parse(Socket & socket, int read_size )
 {
 	socket.receive(read_size);
-	if (socket._buffer.empty() || socket.bytes() < 0)
+	if (socket._buffer.empty()) {
 		throw std::exception(); // TODO: decide what error this is
+	}
+	if (socket.bytes() == 0) {
+		// TODO: decide what to do here
+	}
 
 	std::cout << "We have received [" << socket._buffer.size() << "] bytes in total." << std::endl;
 	append_buffer(_unparsed_request, socket._buffer);
