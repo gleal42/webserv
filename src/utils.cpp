@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/15 22:11:10 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 21:35:48 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -463,8 +463,6 @@ void			clean_path( URI & uri, const std::string &root)
 			query_string_start = uri.path.rfind("?");
 		}
 	}
-	if ( is_file(root + uri.path) == false && is_directory(root + uri.path) == false)
-		throw HTTPStatus<404>();
 	if (uri.query.size() > 0)
 		uri.query = uri.query.substr(1);
 }
@@ -487,7 +485,7 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		indexes = server_conf.get_indexes();
 		if (indexes.empty())
 		{
-			if (root != "public/" && is_file(root + "index.html"))
+			if (is_file(root + "index.html"))
 			{
 				uri.path = root.substr(7) + "index.html";
 				return ;
@@ -503,6 +501,11 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		Indexes_cit index = file::find_valid_index(root, indexes);
 		if (index == indexes.end())
 		{
+			if (is_file(root + "index.html"))
+			{
+				uri.path = root.substr(7) + "index.html";
+				return ;
+			}
 			if (location.get_autoindex() == AUTOINDEX_ON
 			|| (server_conf.get_autoindex()== AUTOINDEX_ON && location.get_autoindex()== AUTOINDEX_UNSET))
 			{
