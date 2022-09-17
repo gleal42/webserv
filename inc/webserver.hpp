@@ -37,6 +37,7 @@
 # include "LocationConfig.hpp"
 # include "ServerConfig.hpp"
 # include "file.hpp"
+# include "URI.hpp"
 # include "types.hpp"
 
 // Functions
@@ -87,23 +88,5 @@ struct equals
 	std::string ref;
 };
 
-class URI {
-
-public:
-	std::string		host;
-	int				port;
-	std::string		path;
-	std::string		extra_path;
-	std::string		query; // map
-	std::string		fragment;
-	bool			cgi_confirmed;
-    bool			autoindex_confirmed;
-    bool			redirect_confirmed;
-
-	std::string		to_s( void ) {
-		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;
-	}
-	void			clear( void );
-};
 
 #endif

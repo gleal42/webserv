@@ -537,7 +537,7 @@ ServerConfig   Server::config_resolve(const Request & req, Response & res , cons
 Handler *Server::handler_resolve( Request & req, const in_addr &connection_addr )
 {
 	std::string extension = get_extension(req.request_uri.path);
-	if (CGIHandler::extension_is_implemented(extension))
+	if (CGIHandler::extension_is_implemented(extension) && req.request_uri.cgi_confirmed)
         return (new CGIHandler(req.request_uri, connection_addr));
     else
         return (new FileHandler());
