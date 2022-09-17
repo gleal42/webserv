@@ -65,6 +65,9 @@ void    BaseConfig::set_error_pages(const std::string &content)
 	    throw (MultipleArgumentsError(content));
 
     std::string         error_path = content.substr(found + 1);
+
+    if (!is_file("public/" + error_path))
+        throw(BadFileError(error_path));
     std::string         codes = content.substr(0, found);
     std::stringstream   stoi;
     int                 converted_number;
