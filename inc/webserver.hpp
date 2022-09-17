@@ -66,6 +66,10 @@ Location_cit		path_resolve( URI & uri, const ServerConfig & server_conf);
 Location_cit		location_resolve(const ServerConfig &server_block, const std::string & path);
 void				cgi_path_resolve( URI & uri, const std::string &root);
 void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location );
+std::string			set_time(struct tm *tm_time);
+std::string			resolve_month(int i);
+std::string			insert_whitespace(size_t len, size_t spaces);
+BaseStatus			get_httpstatus(int code);
 
 template <typename T>
 T	str_to_nbr(const std::string &str)
@@ -92,7 +96,9 @@ public:
 	std::string		extra_path;
 	std::string		query; // map
 	std::string		fragment;
-	bool			is_cgi;
+	bool			cgi_confirmed;
+    bool			autoindex_confirmed;
+    bool			redirect_confirmed;
 
 	std::string		to_s( void ) {
 		return std::string("http://") + host + std::string(":") + to_string(port) + path + query;

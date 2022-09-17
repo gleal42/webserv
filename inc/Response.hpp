@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/07 00:11:03 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/13 00:57:46 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,6 +154,7 @@ public:
 	// Variables
 
 	RequestMethod	request_method;
+	Redirect		redirect;
 
 	std::string 	start_line( const BaseStatus &status );
 	void			build_message( const BaseStatus &status );
@@ -182,6 +183,7 @@ public:
 
 	// Getters
 	const std::string	get_header_value( const std::string &name );
+	std::size_t			get_body_size( void );
 
 	// Unsetters
 

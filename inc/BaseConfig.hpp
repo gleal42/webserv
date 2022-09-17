@@ -35,7 +35,8 @@ public:
 	const ErrorPage &				get_error_pages( void ) const;
 	long long						get_max_body_size( void ) const;
 	const StringVector &			get_indexes( void ) const;
-	const std::vector<Redirect> &	get_redirect( void );
+	const Redirect &                get_first_redirect( void ) const;
+	const std::vector<Redirect> &   get_redirects( void ) const;
 
 protected:
 
@@ -44,7 +45,7 @@ protected:
 	ErrorPage				_error_pages;
 	long long				_client_max_body_size;
 	StringVector			_indexes;
-	std::vector<Redirect>	_redirect;
+	std::vector<Redirect>	_redirects;
 
 };
 

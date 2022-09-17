@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/10 16:54:04 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 02:27:14 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,28 +55,39 @@ Implements wrappers for the following C functions
 
 */
 
+struct SocketError : virtual public std::runtime_error {
+	SocketError( void );
+	virtual ~SocketError( void ) throw();
+};
+
 class Socket {
 
 public:
 
-	struct CreateError : public std::runtime_error {
+	struct CreateError : public SocketError {
 		CreateError( void );
 	};
-	struct ReusableAddressError : public std::runtime_error {
+	struct ReusableAddressError : public SocketError {
 		ReusableAddressError( void );
 	};
-	struct ReusablePortError : public std::runtime_error {
+	struct ReusablePortError : public SocketError {
 		ReusablePortError( void );
 	};
-	struct BindError : public std::runtime_error {
+	struct BindError : public SocketError {
 		BindError( void );
 		BindError( int port );
 	};
-	struct ListenError : public std::runtime_error {
+	struct ListenError : public SocketError {
 		ListenError( void );
 	};
-	struct AcceptError : public std::runtime_error {
+	struct AcceptError : public SocketError {
 		AcceptError( void );
+	};
+	struct SendError : public SocketError {
+		SendError( void );
+	};
+	struct ReceiveError : public SocketError {
+		ReceiveError( void );
 	};
 
 	Socket( void );

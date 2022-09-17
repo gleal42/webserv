@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigParser.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/10 16:41:12 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 02:05:09 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@ ConfigurationDirectiveError::ConfigurationDirectiveError(const std::string err)
 { /* No-op */}
 
 ConfigurationSyntaxError::ConfigurationSyntaxError()
-    : std::runtime_error("Error. Invalid syntax on the configuration file")
+    : std::runtime_error("Error: Invalid syntax on the configuration file")
 { /* No-op */}
 
 LocationPathError::LocationPathError(const std::string err)
-    : std::runtime_error("Error. The following path isn't accessible: " + err)
+    : std::runtime_error("Error: The following path isn't accessible: " + err)
 { /* No-op */}
 
 NestedContextError::NestedContextError(void)
@@ -66,6 +66,7 @@ MultipleArgumentsError::MultipleArgumentsError(const std::string err)
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Constructors~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 ConfigError::ConfigError() : std::runtime_error("Error in configuration"){};
+ConfigError::~ConfigError() throw() {};
 ConfigParser::ConfigParser(std::string config_file) : _config_file(config_file){ /* no-op */ }
 ConfigParser::ConfigParser( ConfigParser const & src ) { *this = src; }
 
@@ -110,14 +111,12 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             continue;
         if (line == "}"){
             if (context == SERVER_CONTEXT){
-                if (new_server.is_empty())
-                    throw (EmptyContextBlockError());
-                this->server_configs.push_back(new_server);
+                if (!new_server.is_empty())
+                    this->server_configs.push_back(new_server);
             }
             else if (context == LOCATION_CONTEXT){
-                if (new_location.is_empty())
-                    throw (EmptyContextBlockError());
-                server_ptr->set_location(location_path, new_location);
+                if (!new_location.is_empty())
+                    server_ptr->set_location(location_path, new_location);
             }
             return;
         }

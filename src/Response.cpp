@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/11 18:15:33 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/13 00:58:43 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,10 @@ std::string		Response::message( void ) { return _message; }
 void	Response::send_response( Socket const & socket )
 {
 	int sent_chars = socket.send(_message);
-	// TODO: check -1 and 0?
+	if (sent_chars == 0) {
+		// TODO: decide what to do
+	}
+
 	int msg_size = _message.size();
 	std::cout << "Message size before is: " << msg_size << std::endl;
 	std::cout << "Message is: " << _message << std::endl;
@@ -177,6 +180,9 @@ const std::string	Response::get_header_value(const std::string &name)
 	}
 	return ("");
 }
+
+std::size_t			Response::get_body_size( void ) {return(_body.size());}
+
 
 void	Response::delete_header( const std::string & name )
 {

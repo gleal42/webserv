@@ -59,6 +59,7 @@ CGIHandler::CGIHandler( const URI &uri, const in_addr &connection_addr )
 	script_path = uri.path;
 	extension = get_extension(script_path);
 	interpreter = extension_interpreter[extension];
+
 	std::cout <<
 	"Script Path is " << script_path << std::endl <<
 	"Extension is " << extension << std::endl <<

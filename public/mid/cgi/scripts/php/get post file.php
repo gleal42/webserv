@@ -6,11 +6,8 @@ echo "<head>";
 echo "<meta charset=\"UTF-8\">";
 echo "</head>";
 echo "<body>";
+
 $path = trim($_SERVER['SCRIPT_FILENAME']);
-$path = dirname($path);
-$path = dirname($path);
-$path = dirname($path);
-$path = dirname($path);
 $path = dirname($path);
 $path = "$path/uploads";
 $method = trim($_SERVER['REQUEST_METHOD']);
@@ -25,22 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST')
 }
 else if ($_SERVER['REQUEST_METHOD'] === 'GET'){
    echo "<h1> List of files </h1>";
-
    $files = scandir($path);
    $files = array_diff(scandir($path), array('.', '..'));
-   $pos_public = strpos($path, "public/");  // temporary so that public logic is implemented logic
-   if ($pos_public != false)
-   {
-      $start_path = substr($path, 0, $pos_public);
-      $pos_public = $pos_public + strlen("public/");
-      $path = substr($path, $pos_public);
-      $path = $start_path . $path;
-   }
    foreach ($files as $value) {
       echo "<p>Path is $path <p>";
       echo "<p>Value is $value <p>";
-      echo "<p>ALL is $path$value <p>";
-      echo "<p><a href=\"" . "../$path$value" . "\">" . $value . "</a><p>";
+      echo "<p>ALL is $path/$value <p>";
+      echo "<p><a href=\"" . "uploads/$value" . "\">" . $value . "</a><p>";
    }
 }
 else if ($_SERVER['REQUEST_METHOD'] === 'DELETE'){

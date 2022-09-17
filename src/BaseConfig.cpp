@@ -124,19 +124,17 @@ void    BaseConfig::set_redirect(bool has_separators, const std::string &content
         stoi >> converted_number;
         new_redir.code = converted_number;
         str.clear();
-        str = content.substr(3);
-        if (!is_directory(str) || !is_file(str))
+        str = content.substr(4);
+        if (str.find(' ') != std::string::npos)
             throw (ConfigurationDirectiveError(str));
         new_redir.new_path = str;
     }
     else
     {
-        if (!is_directory(content) || !is_file(content))
-            throw (ConfigurationDirectiveError(str));
         new_redir.new_path = content;
         new_redir.code = 302;
     }
-    this->_redirect.push_back(new_redir);
+    this->_redirects.push_back(new_redir);
 }
 
 
@@ -146,5 +144,7 @@ AutoBool                        BaseConfig::get_autoindex( void ) const{return (
 const ErrorPage&                BaseConfig::get_error_pages( void ) const{return (this->_error_pages);}
 long long                       BaseConfig::get_max_body_size( void ) const {return (this->_client_max_body_size);}
 const StringVector &			BaseConfig::get_indexes( void ) const{return (this->_indexes);}
-const std::vector<Redirect>&    BaseConfig::get_redirect( void ){return (this->_redirect);}
+const Redirect &                BaseConfig::get_first_redirect( void ) const{return (this->_redirects[0]);}
+const std::vector<Redirect> &   BaseConfig::get_redirects( void ) const{return (this->_redirects);}
+
 
