@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/15 21:00:50 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 17:39:07 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,10 @@ void	Request::parse(Socket & socket, int read_size )
 	}
 	if (socket.bytes() == 0) {
 		// TODO: decide what to do here
+		LOG("BYTES WAS ZERO");
+		LOG("BYTES WAS ZERO");
+		LOG("BYTES WAS ZERO");
+		LOG("BYTES WAS ZERO");
 	}
 
 	std::cout << "We have received [" << socket._buffer.size() << "] bytes in total." << std::endl;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 15:41:02 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 17:39:00 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,10 @@ void	Response::send_response( Socket const & socket )
 	int sent_chars = socket.send(_message);
 	if (sent_chars == 0) {
 		// TODO: decide what to do
+		LOG("SENT CHARS WAS ZERO");
+		LOG("SENT CHARS WAS ZERO");
+		LOG("SENT CHARS WAS ZERO");
+		LOG("SENT CHARS WAS ZERO");
 	}
 
 	int msg_size = _message.size();
