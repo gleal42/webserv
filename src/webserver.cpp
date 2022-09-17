@@ -6,12 +6,15 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 00:45:37 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 14:02:08 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 #include "webserver.hpp"
+
+// Global
+Server	server;
 
 int	main(int argc, char **argv)
 {
@@ -27,6 +30,15 @@ int	main(int argc, char **argv)
 
 	webserver(std::string(argv[1]));
 	return (EXIT_SUCCESS);
+}
+
+void	sigint_handler(int sig)
+{
+	if (sig != SIGINT) {
+		return ;
+	}
+
+	server.set_sigint(true);
 }
 
 /*
@@ -53,11 +65,14 @@ int webserver(const std::string &config_file)
     }
 
 	// Initialize all Listeners
-    Server webserv(parser); //TODO: rethink this design
+    server.init(parser);
+
+	// Proper cleanup when ctrl-c is pressed
+	signal(SIGINT, sigint_handler);
 
 	// Start waiting for events
 	try {
-        webserv.start();
+        server.start();
     }
     catch (std::exception &e) {
 		ERROR("NOT HANDLED PROPERLY: " << e.what());
