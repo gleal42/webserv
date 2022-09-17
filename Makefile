@@ -42,9 +42,9 @@ OBJS := $(SRCS:%.cpp=$(OBJ_DIR)%.o)
 DEPS := $(SRCS:%.cpp=$(DEP_DIR)%.d)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEP_DIR)/$*.d
 
-all: fd_script $(NAME)
+all: $(NAME)
 
-fd_script: # temporary while server doesn't clear open fd's
+fd_script: # manually clear open fd's
 	@bash scripts/close_fds.sh
 
 $(DEP_DIR): ; mkdir -p $@

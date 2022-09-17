@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/14 23:12:26 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 13:38:48 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,13 +31,13 @@
 # include <unistd.h>
 # include <arpa/inet.h> // inet_ntop()
 # include "macros.hpp"
-# include "types.hpp"
 # include "print.hpp"
 # include "BaseStatus.hpp"
 # include "BaseConfig.hpp"
 # include "LocationConfig.hpp"
 # include "ServerConfig.hpp"
 # include "file.hpp"
+# include "types.hpp"
 
 // Functions
 int 				webserver(const std::string &config);
