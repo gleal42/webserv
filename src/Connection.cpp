@@ -12,13 +12,6 @@
 
 # include "Connection.hpp"
 
-Connection::Connection( Listener * listener )
-try : Socket(*listener->accept()) { /* no-op */ }
-catch(Socket::AcceptError & e) {
-	ERROR(e.what());
-	throw ;
-}
-
 Connection::Connection( const Connection & src ) : Socket(src) {
 	throw std::runtime_error("Connection copy constructor is private");
 }
@@ -30,6 +23,4 @@ Connection & Connection::operator=( const Connection & src ) {
 	throw std::runtime_error("Connection assignment operator is private");
 }
 
-Connection::Connection( void ) {
-	throw std::runtime_error("Default constructor is private");
-}
+Connection::Connection( void ) { /* no-op */ }
