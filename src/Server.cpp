@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 14:02:54 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 14:06:13 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,8 +101,6 @@ void	Server::start( void )
 		}
 
 		LOG("Number of events recorded: " << n);
-
-
 		for (int i = 0; i < n; i++) {
 			Event		event(events[i]);
 			Listener_it	it = _listeners.find(event.fd());
