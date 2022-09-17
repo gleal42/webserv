@@ -384,6 +384,7 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 	std::string root ("public" + processed_root( server_conf, location ));
 	if (uri.path.compare(0, 6 , "public/") == 0)
 		uri.path = uri.path.substr(7);
+	clean_path(uri, root);
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
 	{
@@ -392,7 +393,6 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 		else
 			directory_indexing_resolve( uri, root_path, server_conf, location);
 	}
-	cgi_path_resolve(uri, root);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
@@ -437,11 +437,11 @@ void	reset_path(std::string &path, std::string &extra_path)
 	}
 }
 
-void			cgi_path_resolve( URI & uri, const std::string &root)
+void			clean_path( URI & uri, const std::string &root)
 {
 	reset_path(uri.path, uri.extra_path);
 
-	if ( is_file(root + uri.path) == false )
+	if ( is_file(root + uri.path) == false && is_directory(root + uri.path) == false)
 	{
 		size_t query_string_start = uri.path.rfind("?");
 		while (query_string_start != std::string::npos)
@@ -449,21 +449,21 @@ void			cgi_path_resolve( URI & uri, const std::string &root)
 			reset_path(uri.path, uri.extra_path);
 			uri.query = uri.path.substr(query_string_start);
 			uri.path = uri.path.substr(0, query_string_start);
-			if ( is_file(root + uri.path) == true )
+			if ( is_file(root + uri.path) == true || is_directory(root + uri.path) == true )
 				break ;
 			size_t extra_path_start = uri.path.rfind("/");
 			while (extra_path_start != std::string::npos)
 			{
 				uri.extra_path = uri.path.substr(extra_path_start) + uri.extra_path;
 				uri.path = uri.path.substr(0, extra_path_start);
-				if (is_file(root + uri.path) == true)
+				if ( is_file(root + uri.path) == true || is_directory(root + uri.path) == true )
 					break ;
 				extra_path_start = uri.path.rfind("/");
 			}
 			query_string_start = uri.path.rfind("?");
 		}
 	}
-	if ( is_file(root + uri.path) == false )
+	if ( is_file(root + uri.path) == false && is_directory(root + uri.path) == false)
 		throw HTTPStatus<404>();
 	if (uri.query.size() > 0)
 		uri.query = uri.query.substr(1);

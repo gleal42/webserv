@@ -64,7 +64,7 @@ const int &			priority_directive( const int &server_directive, const int & locat
 void				update_error_code(ErrorPage &dest_list, const std::string &err_path, unsigned short code);
 Location_cit		path_resolve( URI & uri, const ServerConfig & server_conf);
 Location_cit		location_resolve(const ServerConfig &server_block, const std::string & path);
-void				cgi_path_resolve( URI & uri, const std::string &root);
+void				clean_path( URI & uri, const std::string &root);
 void				directory_indexing_resolve( URI & uri, const std::string &root, const ServerConfig &server_conf, const LocationConfig &location );
 std::string			set_time(struct tm *tm_time);
 std::string			resolve_month(int i);
