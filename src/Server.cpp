@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 14:06:13 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 00:31:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,10 @@ void	Server::init(const ConfigParser &parser)
 
 	Listener	*listener;
 	for (size_t i = 0; i < _listeners_amount; ++i) {
+		if (_connections.size() + _listeners.size() > 1020) {
+			break;
+		}
+
 		try {
 			listener = new Listener(parser.config(i));
 		}
@@ -149,7 +153,10 @@ int	Server::events_wait( void )
 
 void	Server::connection_new( Listener * listener )
 {
-	// TODO: check if can still add
+	if (_connections.size() + _listeners.size() > 1020) {
+		return;
+	}
+
 	Connection *	connection;
 	try {
 		connection = listener->accept();
