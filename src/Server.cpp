@@ -116,12 +116,6 @@ void	Server::start( void )
 				if (event.is_close()) {
 					connection_close(event.fd());
 					LOG("\n\t\t\tCONNECTIONS SIZE = " << _connections.size());
-
-					// // If there are no more connections open in server do cleanup(return)
-					// if (_connections.size() == 0) {
-					// 	LOG("\n\t\t\tLEAVING");
-					// 	return ;
-					// }
 				}
 				else if (event.is_read()) {
 					LOG("\n\t\t\tDETECTED READ");
@@ -549,15 +543,15 @@ Server::~Server( void ) { close(); }
 
 void	Server::close( void )
 {
+	if (_queue_fd == FD_UNSET)
+		return ;
 	for (Connections_it it = _connections.begin(); it != _connections.end(); it++) {
 		connection_close(it->first);
 	}
 	for (Listener_it it = _listeners.begin(); it != _listeners.end(); ++it) {
 		listener_close(it->first);
 	}
-	if (_queue_fd != FD_UNSET) {
-		::close(_queue_fd);
-	}
+	::close(_queue_fd);
 }
 
 void	Server::listener_close( int listener_fd )
