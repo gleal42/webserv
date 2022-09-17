@@ -321,10 +321,18 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 			res.build_message(handler->script_status());
 		}
 	} catch (BaseStatus &error_status) {
+		if (handler != NULL)
+		{
+			delete handler;
+			handler = NULL;
+		}
 		res.set_error_page(error_status);
 	}
 	if (handler != NULL)
+	{
 		delete handler;
+		handler = NULL;
+	}
 }
 
 void	Server::do_redirect(Response & res)

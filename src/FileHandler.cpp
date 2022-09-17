@@ -145,6 +145,7 @@ void	FileHandler::post_multi_type_form( Request & req )
 		{
 			file::save(section_body, filename);
 			filename.clear();
+			set_status_code(201);
 		}
 		if (next_delimiter == last_delimiter)
 			return ;
