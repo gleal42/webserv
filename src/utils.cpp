@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:33:40 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/15 22:11:10 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,6 +384,7 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 	std::string root ("public" + processed_root( server_conf, location ));
 	if (uri.path.compare(0, 6 , "public/") == 0)
 		uri.path = uri.path.substr(7);
+	clean_path(uri, root);
 	std::string root_path = root + uri.path;
 	if (is_directory(root_path))
 	{
@@ -392,7 +393,6 @@ Location_cit	path_resolve( URI & uri, const ServerConfig & server_conf)
 		else
 			directory_indexing_resolve( uri, root_path, server_conf, location);
 	}
-	cgi_path_resolve(uri, location);
 	if (*uri.path.begin() != '/')
 		uri.path.insert(uri.path.begin(), '/');
 	root_path = root + uri.path;
@@ -429,23 +429,44 @@ Location_cit      location_resolve(const ServerConfig &server_block, const std::
 	// throw HTTPStatus<404>(); // may need to add default / location to match nginx behaviour
 }
 
-void			cgi_path_resolve( URI & uri, const LocationConfig &location )
+void	reset_path(std::string &path, std::string &extra_path)
 {
-	if (uri.extra_path.empty() == false) {
-		uri.path = uri.path + uri.extra_path;
-		uri.extra_path.clear();
+	if (extra_path.empty() == false) {
+		path = path + extra_path;
+		extra_path.clear();
 	}
-	CGI cgi;
-	if (!location.is_empty())
-		CGI cgi = location.get_cgi();
-	if (cgi.empty())
-		return ;
-	size_t script_path_pos = uri.path.find(cgi.extension);
-	if (script_path_pos == std::string::npos)
-		return ;
-	script_path_pos = script_path_pos + cgi.extension.size();
-	uri.extra_path = uri.path.substr(script_path_pos);
-	uri.path = uri.path.substr(0, script_path_pos);
+}
+
+void			clean_path( URI & uri, const std::string &root)
+{
+	reset_path(uri.path, uri.extra_path);
+
+	if ( is_file(root + uri.path) == false && is_directory(root + uri.path) == false)
+	{
+		size_t query_string_start = uri.path.rfind("?");
+		while (query_string_start != std::string::npos)
+		{
+			reset_path(uri.path, uri.extra_path);
+			uri.query = uri.path.substr(query_string_start);
+			uri.path = uri.path.substr(0, query_string_start);
+			if ( is_file(root + uri.path) == true || is_directory(root + uri.path) == true )
+				break ;
+			size_t extra_path_start = uri.path.rfind("/");
+			while (extra_path_start != std::string::npos)
+			{
+				uri.extra_path = uri.path.substr(extra_path_start) + uri.extra_path;
+				uri.path = uri.path.substr(0, extra_path_start);
+				if ( is_file(root + uri.path) == true || is_directory(root + uri.path) == true )
+					break ;
+				extra_path_start = uri.path.rfind("/");
+			}
+			query_string_start = uri.path.rfind("?");
+		}
+	}
+	if ( is_file(root + uri.path) == false && is_directory(root + uri.path) == false)
+		throw HTTPStatus<404>();
+	if (uri.query.size() > 0)
+		uri.query = uri.query.substr(1);
 }
 
 // ~INDEX PRIORITY:
@@ -466,7 +487,6 @@ void			directory_indexing_resolve( URI & uri, const std::string &root, const Ser
 		indexes = server_conf.get_indexes();
 		if (indexes.empty())
 		{
-			LOG("\n\t\t\t\tTRYING ROOT + HTML: " << root);
 			if (root != "public/" && is_file(root + "index.html"))
 			{
 				uri.path = root.substr(7) + "index.html";
@@ -540,6 +560,7 @@ void			URI::clear( void )
 	extra_path.clear();
 	query.clear();
 	fragment.clear();
+	cgi_confirmed = false;
 }
 
 BaseStatus get_httpstatus(int code)

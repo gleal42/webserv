@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/11 09:45:50 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/15 20:20:40 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ CGIHandler::CGIHandler( const URI &uri, const in_addr &connection_addr )
 	script_path = uri.path;
 	extension = get_extension(script_path);
 	interpreter = extension_interpreter[extension];
+
 	std::cout <<
 	"Script Path is " << script_path << std::endl <<
 	"Extension is " << extension << std::endl <<
@@ -240,7 +241,7 @@ std::vector< std::vector<char> >	CGIHandler::environment_variables( Request & re
 	set_env(buf, "REMOTE_USER", req.get_remote_user()); // The server may choose not to support this feature, or not to request the data for efficiency reasons, or not to return available identity data.
 	set_env(buf, "REQUEST_METHOD", req.method_to_str());
 	set_env(buf, "SCRIPT_NAME", script_path);
-	set_env(buf, "SCRIPT_FILENAME", script_path);
+	set_env(buf, "SCRIPT_FILENAME", full_path(script_path));
 	set_env(buf, "SERVER_NAME", req.get_hostname());
 	set_env(buf, "SERVER_PORT", to_string(uri->port));
 	set_env(buf, "SERVER_PROTOCOL", "HTTP/1.1");

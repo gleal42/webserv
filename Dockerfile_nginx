@@ -14,11 +14,15 @@ RUN apt-get -y install php7.3-fpm
 
 ARG src_dir="nginx/test/"
 
-# ARG file="1 - multiple_servers_different_ports.conf"
-# ARG file="2 - index_server_not_location.conf"
-ARG file="3-same_port_different_names.conf"
+ARG file1="1-multiple_servers_different_ports.conf"
+ARG file2="2-index_server_not_location.conf"
+ARG file3="3-same_port_different_names.conf"
+ARG file4="4-default_error_pages.conf"
+ARG file5="5-body_size_limit.conf"
+ARG file6="6-routes.conf"
+ARG file7="7-indexes.conf"
 
-ARG src=${src_dir}${file}
+ARG src=${src_dir}${file1}
 
 # COPY nginx/default.conf /tmp/default.conf
 COPY ${src} "/tmp/default.conf"

@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 01:31:13 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/15 21:00:50 by gleal            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,15 +117,7 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	}
 	_unparsed_request = _unparsed_request.substr(++j + ++i);
 
-	size_t path_start = _path.find('/');
-	size_t query_string_start = _path.find("/?");
-	if (path_start == std::string::npos) {
-		request_uri.path = _path;
-	}
-	else
-		request_uri.path = _path.substr(0, query_string_start);
-	if (query_string_start != std::string::npos)
-		request_uri.query = _path.substr(query_string_start);
+	request_uri.path = _path;
 };
 
 // 1

@@ -447,6 +447,12 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
 		throw (HTTPStatus<413>());
 
+	CGI cgi = location_to_use.get_cgi();
+	if (cgi.empty())
+		return ;
+	size_t script_path_pos = req.request_uri.path.find(cgi.extension);
+	if (script_path_pos != std::string::npos)
+		req.request_uri.cgi_confirmed = true; // check
 	// TODO: add some HTTPstatus error when cgi config path doesn't match CGI Handler or similar logic
 }
 
