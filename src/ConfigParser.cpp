@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/22 00:49:53 by fmeira            #+#    #+#             */
-/*   Updated: 2022/09/17 03:24:39 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/17 15:48:42 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,8 +111,7 @@ void    ConfigParser::context_parser(std::ifstream *file, int context, std::stri
             continue;
         if (line == "}"){
             if (context == SERVER_CONTEXT){
-                //if (!new_server.is_empty())
-                    this->server_configs.push_back(new_server);
+                this->server_configs.push_back(new_server);
             }
             else if (context == LOCATION_CONTEXT){
                 if (!new_location.is_empty())
