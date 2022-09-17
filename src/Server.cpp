@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/13 19:03:28 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/17 01:35:03 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,10 +43,16 @@ Server::Server(const ConfigParser &parser)
 	_listeners_amount = parser.configs_amount();
 
 	Listener	*listener;
-	for (size_t i = 0; i < _listeners_amount; ++i)
-	{
-		listener = new Listener(parser.config(i));
-		listener_event_read_add(listener->fd()); // TODO: method in listener class
+	for (size_t i = 0; i < _listeners_amount; ++i) {
+		try {
+			listener = new Listener(parser.config(i));
+		}
+		catch (SocketError& e) {
+			ERROR("Failed listener new: " << e.what());
+			continue ;
+		}
+
+		listener_event_read_add(listener->fd());
 		_listeners[listener->fd()] = listener;
 	}
 }
@@ -126,7 +132,15 @@ int	Server::events_wait( void )
 void	Server::connection_new( Listener * listener )
 {
 	// TODO: check if can still add
-	Connection *	connection = new Connection(listener);
+	Connection *	connection;
+	try {
+		connection = new Connection(listener);
+	}
+	catch (SocketError& e) {
+		ERROR("Failed connection new: " << e.what());
+		return ;
+	}
+
 	int 			connection_fd = connection->fd();
 	EVENT 			event;
 
