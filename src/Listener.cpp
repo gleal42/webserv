@@ -6,12 +6,12 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 22:16:37 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 01:42:29 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/17 01:56:11 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Listener.hpp"
-#define MAX_CLIENTS 10 //not defined in config_file
+#define MAX_CLIENTS 10 // not defined in config_file
 
 /* Constructors */
 Listener::Listener( void ) : Socket() { /* no-op */ }
