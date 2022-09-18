@@ -115,7 +115,7 @@ namespace file
 		if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
 			throw HTTPStatus<405>();
 		}
-		if (filename.substr(0, 20) != "public/uploads/") // Temporary
+		if (filename.substr(0, 15) != "public/uploads/") // Temporary
 			throw HTTPStatus<405>();
 		std::cout << "Extension is [" << file_extension << "]" << std::endl;
 		std::cout << "Filename is [" << filename << "]" << std::endl;
