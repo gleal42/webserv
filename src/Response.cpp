@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/18 04:57:43 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 06:07:22 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void	Response::send_response( Socket const & socket )
 
 	int msg_size = _message.size();
 	LOG("Message size before is: " << msg_size);
-	LOG("Message is: " << _message);
+	// LOG("Message is: " << _message);
 	LOG("Sent size before is: "<< sent_chars);
 	_message = _message.substr(sent_chars, msg_size - sent_chars);
 	LOG("Message size after is: " << _message.size());
