@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:10:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 02:27:14 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:50:58 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 # include <unistd.h> // For close()
 # include <fcntl.h>
 # include <cstring>
-# include <cerrno> // TODO: chekc if needed
 
 # include "macros.hpp"
 # include "webserver.hpp"

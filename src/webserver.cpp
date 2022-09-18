@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/05/30 19:43:25 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 17:35:53 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:54:45 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,7 @@ int webserver(const std::string &config_file)
         server.start();
     }
     catch (std::exception &e) {
-		ERROR("NOT HANDLED PROPERLY: " << e.what());
-		ERROR("NOT HANDLED PROPERLY: " << e.what());
-		ERROR("NOT HANDLED PROPERLY: " << e.what());
-		ERROR("NOT HANDLED PROPERLY: " << e.what());
+		ERROR("Server Error: " << e.what());
     }
 
 	// Shutdown and cleanup inside destructor

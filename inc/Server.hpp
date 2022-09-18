@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/15 00:20:17 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 13:56:14 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:50:50 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ public:
 	// Setters
 	void			set_sigint( bool called );
 
-	// TODO: check if can be private
 	void			init( const ConfigParser &parser );
 	void			start( void );
 	void			service( Request & req, Response & res, const in_addr &connection_addr );
