@@ -152,6 +152,14 @@ void    Response::set_with_file( const std::string &filename )
 	file.close();
 }
 
+void	Response::set_last_case_scenario( void )
+{
+	set_header("Content-Type", "text/html");
+	set_body("<html><head><title>500 Internal Server Error</title></head><body><h1>500 Internal Server Error</h1><p>Unexpected condition was encountered.</p></body></html>");
+	set_header("Content-Length", "157");
+	build_message(HTTPStatus<500>());
+}
+
 void	Response::clear( void )
 {
 	_uri.clear();
