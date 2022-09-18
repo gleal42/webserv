@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/18 03:38:00 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:14:13 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,14 +164,6 @@ void    Response::set_with_file( const std::string &filename )
 	set_header("Content-Length", len.str());
 
 	file.close();
-}
-
-void	Response::set_last_case_scenario( void )
-{
-	set_header("Content-Type", "text/html");
-	set_body("<html><head><title>500 Internal Server Error</title></head><body><h1>500 Internal Server Error</h1><p>Unexpected condition was encountered.</p></body></html>");
-	set_header("Content-Length", "157");
-	build_message(HTTPStatus<500>());
 }
 
 void	Response::clear( void )
