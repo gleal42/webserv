@@ -68,7 +68,6 @@ TEST_CASE("Socket `bind` method") {
 		a.close();
     }
 
-	// TODO: get this to pass somehow
 	// SUBCASE("allow setting the same `port` twice") {
 	// 	ServerConfig	config;
 
@@ -165,7 +164,6 @@ TEST_CASE("Socket `listen` method") {
 // 		Socket 			a(config);
 
 // 		CHECK_NOTHROW(a.send(response));
-// 		// TODO: more tests
 
 // 		a.close();
 //     }
@@ -189,7 +187,6 @@ TEST_CASE("Socket `accept` method") {
 	Socket 			server(config);
 	server.listen(MAX_CONNECTIONS);
 
-	// TODO: when non-blocking
 	// SUBCASE("returns new socket connected to client") {
 	// 	Socket *client;
 	// 	client = server.accept();

@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/15 18:31:55 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 03:14:25 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:53:20 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ Socket::ReceiveError::ReceiveError( void )
 Socket::Socket( void ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0){ /* No-op */ }
 
 // Changed to config parameter so that we could copy parent request to connections socket
-// TODO: will we also pass `domain`?
 Socket::Socket( ServerConfig config ) : _port(PORT_UNSET), _fd(FD_UNSET), _bytes(0)
 {
 	create();
@@ -126,7 +125,7 @@ void	Socket::bind( const std::string &hostname, int port )
 {
 	_host = get_host(hostname);
 	if (_host == NULL) {
-		throw Socket::BindError(port); // TODO: change error name?
+		throw Socket::BindError(port);
 	}
 
 	_address = *(SocketAddress *)_host->ai_addr;

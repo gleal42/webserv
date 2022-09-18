@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/14 23:48:22 by msousa            #+#    #+#             */
-/*   Updated: 2022/08/28 19:09:58 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:50:42 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ HTTPStatusGroup		http_group( int code );
 // ************************************************************************** //
 
 class BaseStatus: virtual public std::exception {
-	// TODO: canonical form
+
 public:
 
 	// https://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-mean

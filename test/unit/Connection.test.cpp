@@ -68,7 +68,6 @@ TEST_CASE("Connection `send` method") {
 		// Connection 		a(&listener);
 
 		// CHECK_NOTHROW(a.send(response));
-		// // TODO: more tests
 
 		// a.close();
     }

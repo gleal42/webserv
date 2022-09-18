@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/18 04:14:13 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:57:29 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,17 +69,13 @@ void	Response::send_response( Socket const & socket )
 {
 	int sent_chars = socket.send(_message);
 	if (sent_chars == 0) {
-		// TODO: decide what to do
-		LOG("SENT CHARS WAS ZERO");
-		LOG("SENT CHARS WAS ZERO");
-		LOG("SENT CHARS WAS ZERO");
-		LOG("SENT CHARS WAS ZERO");
+		return ;
 	}
 
 	int msg_size = _message.size();
-	std::cout << "Message size before is: " << msg_size << std::endl;
-	std::cout << "Message is: " << _message << std::endl;
-	std::cout << "Sent size before is: "<< sent_chars << std::endl;
+	LOG("Message size before is: " << msg_size);
+	LOG("Message is: " << _message);
+	LOG("Sent size before is: "<< sent_chars);
 	_message = _message.substr(sent_chars, msg_size - sent_chars);
 	LOG("Message size after is: " << _message.size());
     LOG("\n------------------Message sent-------------------\n");

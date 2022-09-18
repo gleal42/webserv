@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   CGIHandler.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/27 15:01:30 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/15 20:20:40 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/18 05:00:18 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 	}
 	int input_fd = fileno(input_file);
 	int output_fd = fileno(output_file);
-	std::cout << "Body is " << req._raw_body.data() << std::endl;
+	LOG("Body is " << req._raw_body.data());
 	write(input_fd, req._raw_body.data(), req._raw_body.size());
 	rewind(input_file);
 
@@ -171,9 +171,9 @@ void	CGIHandler::execute_cgi_script( Request & req, Response & res  )
 		cgi_args.push_back(cmd_vec.data());
 		cgi_args.push_back(filepath.data());
 		cgi_args.push_back(NULL);
-		std::cout << "Interpreter is " << interpreter << std::endl;
-		std::cout << "CGI 1 Argument is " << cgi_args[0] << std::endl;
-		std::cout << "CGI 2 Argument is " << cgi_args[1] << std::endl;
+		LOG("Interpreter is " << interpreter);
+		LOG("CGI 1 Argument is " << cgi_args[0]);
+		LOG("CGI 2 Argument is " << cgi_args[1]);
 
 		dup2(input_fd, STDIN_FILENO);
 		dup2(output_fd, STDOUT_FILENO);
