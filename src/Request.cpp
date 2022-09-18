@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 20:30:18 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 03:36:12 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:09:14 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Request::ReqMethodConversion	Request::init_map( void )
 }
 
 /* Constructors */
-Request::Request( void ) { /* no-op */ }
+Request::Request( void ) : error_code(0) { /* no-op */ }
 
 Request::Request( ServerConfig const & config )
 {
@@ -107,7 +107,7 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 		throw HTTPStatus<414>();
 	}
 	if (_path.find("..") != std::string::npos) {
-		throw HTTPStatus<404>();
+		throw HTTPStatus<403>();
 	}
 	_unparsed_request = _unparsed_request.substr(++j + ++i);
 
