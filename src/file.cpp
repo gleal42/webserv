@@ -99,25 +99,8 @@ namespace file
 
 	void	remove( const std::string & filename )
 	{
-		static char const * temp_ext[8] = {
-			".cpp",
-			".hpp",
-			".html",
-			".ico",
-			".ts",
-			".rb",
-			".sh",
-			".h",
-		};
-		const Extensions	forbidden_extensions(temp_ext, temp_ext + sizeof(temp_ext) / sizeof(char const *));
-
-		std::string file_extension = get_extension(filename);
-		if (file_extension.empty() || forbidden_extensions.count(file_extension)) {
-			throw HTTPStatus<405>();
-		}
-		if (filename.substr(0, 15) != "public/uploads/") // Temporary
-			throw HTTPStatus<405>();
-		std::cout << "Extension is [" << file_extension << "]" << std::endl;
+		if (filename.substr(0, 15) != "public/uploads/")
+			throw HTTPStatus<403>();
 		std::cout << "Filename is [" << filename << "]" << std::endl;
 		if (std::remove(filename.c_str()) != 0)
 			throw HTTPStatus<404>();
