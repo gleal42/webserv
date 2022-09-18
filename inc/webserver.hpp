@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserver.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/22 16:09:11 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 13:38:48 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:48:02 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ std::string			set_time(struct tm *tm_time);
 std::string			resolve_month(int i);
 std::string			insert_whitespace(size_t len, size_t spaces);
 BaseStatus			get_httpstatus(int code);
+std::string			get_time( void );
 
 template <typename T>
 T	str_to_nbr(const std::string &str)

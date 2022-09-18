@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/18 04:57:29 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:57:43 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,8 @@ void	Response::set_default_page( void )
 	std::stringstream len;
 	len << body.size();
 	this->set_header("Content-Length", len.str());
+	this->set_header("Date", get_time());
+	this->set_header("Connection", "keep-alive");
 }
 
 void	Response::set_error_page( const BaseStatus &error_status )
@@ -151,13 +153,15 @@ void    Response::set_with_file( const std::string &filename )
 		throw HTTPStatus<404>();
 	}
 
-	set_header("Content-Type", file::content_type(filename.c_str()));
+	this->set_header("Content-Type", file::content_type(filename.c_str()));
+	this->set_header("Date", get_time());
+	this->set_header("Connection", "keep-alive");
 	std::stringstream body;
 	body << file.rdbuf();
-	set_body(body.str());
+	this->set_body(body.str());
 	std::stringstream len;
 	len << body.str().size();
-	set_header("Content-Length", len.str());
+	this->set_header("Content-Length", len.str());
 
 	file.close();
 }

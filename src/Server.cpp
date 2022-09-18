@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
 /*   Updated: 2022/09/18 04:51:15 by msousa           ###   ########.fr       */
@@ -323,6 +323,8 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 		if (req.error_code == 405) {
 			res.set_header("Allow", "GET, POST, DELETE");
 		}
+		res.set_header("Date", get_time());
+		res.set_header("Connection", "keep-alive");
 		res.build_message(error_status);
 		req.error_code = 0;
 		return ;
@@ -450,7 +452,8 @@ void	Server::do_autoindex(URI & uri, Response & res)
 
 	res.set_header("Content-Type", "text/html");
 	res.set_header("Content-Length", to_string(html_content.size()));
-	// res.set_header("Date", time);
+	res.set_header("Date", get_time());
+	res.set_header("Connection", "keep-alive");
     res.set_body(html_content);
 	res.build_message(HTTPStatus<200>());
 }
