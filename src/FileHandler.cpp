@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 01:08:26 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 01:55:30 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,13 +83,6 @@ void	FileHandler::do_POST( Request & req, Response & res )
 	}
 	else if (form_type == "application/x-www-form-urlencoded")
 		post_form_urlencoded(req);
-	else if (form_type == "plain/text") {
-		long long max_body = res.get_server_config().get_max_body_size();
-		if ((max_body > -1) && str_to_nbr<long long>(req.get_header_value("Content-Length")) > max_body)
-			throw (HTTPStatus<413>());
-	}
-	else
-		throw HTTPStatus<500>();
 	// throw HTTPStatus<415>();
 	res.set_default_page(); // temporary
 }

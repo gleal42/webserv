@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 21:30:51 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 02:01:53 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -441,7 +441,7 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 	}
 
 	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use.get_max_body_size());
-	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
+	if (max_client_body_size > 0 && str_to_nbr<long long>(req.get_header_value("Content-Length")) > max_client_body_size)
 		throw (HTTPStatus<413>());
 
 	CGI cgi = location_to_use.get_cgi();
