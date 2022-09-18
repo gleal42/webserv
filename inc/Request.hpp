@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:50 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/07 17:42:06 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/18 00:45:34 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,6 +141,7 @@ public:
 	std::string			get_remote_user( void ) const;
 	std::string			get_delimiter( void );
 	std::string			get_hostname( void );
+	const std::string	get_header_value( const std::string &name );
 	std::string			method_to_str( void );
 private:
 	typedef	std::map<enum RequestMethod, std::string>	ReqMethodConversion;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/17 17:39:00 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 00:54:59 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -217,6 +217,8 @@ void	Response::add_error_list(const ErrorPage &server_error_pages , const ErrorP
 				}
 		}
 }
+
+ServerConfig &		Response::get_server_config( void ){return (_server_conf);}
 
 std::string   Response::error_path(unsigned short code)
 {
