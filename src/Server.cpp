@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 21:30:51 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 02:01:53 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,9 @@ void	Server::init(const ConfigParser &parser)
 
 	Listener	*listener;
 	for (size_t i = 0; i < _listeners_amount; ++i) {
-		if (_connections.size() + _listeners.size() > 1020) {
-			break;
-		}
+		// if (_connections.size() + _listeners.size() > 1020) {
+		// 	break;
+		// }
 
 		try {
 			listener = new Listener(parser.config(i));
@@ -153,9 +153,9 @@ int	Server::events_wait( void )
 
 void	Server::connection_new( Listener * listener )
 {
-	if (_connections.size() + _listeners.size() > 1020) {
-		return;
-	}
+	// if (_connections.size() + _listeners.size() > 1020) {
+	// 	return;
+	// }
 
 	Connection *	connection;
 	try {
@@ -333,7 +333,13 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 			delete handler;
 			handler = NULL;
 		}
-		res.set_error_page(error_status);
+		try
+		{
+			res.set_error_page(error_status);
+		} catch (BaseStatus &error_status)
+		{
+			res.set_last_case_scenario();
+		}
 	}
 	if (handler != NULL)
 	{
@@ -456,7 +462,7 @@ void	Server::request_process_config( Request & req, Response & res, const in_add
 	}
 
 	long long max_client_body_size = priority_directive(config_to_use.get_max_body_size(), location_to_use.get_max_body_size());
-	if (max_client_body_size > 0 && ((long long)req._raw_body.size() > max_client_body_size))
+	if (max_client_body_size > 0 && str_to_nbr<long long>(req.get_header_value("Content-Length")) > max_client_body_size)
 		throw (HTTPStatus<413>());
 
 	CGI cgi = location_to_use.get_cgi();

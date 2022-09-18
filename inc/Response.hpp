@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/13 00:57:46 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 00:54:48 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,6 +176,7 @@ public:
 	void    		add_error_list(const ErrorPage &server_error_pages, const ErrorPage &location_error_pages);
 	std::string   	error_path(unsigned short code);
 	void			set_server_config(const ServerConfig &config_to_use);
+	void			set_last_case_scenario( void );
 
 	// Getters
 
@@ -184,6 +185,7 @@ public:
 	// Getters
 	const std::string	get_header_value( const std::string &name );
 	std::size_t			get_body_size( void );
+	ServerConfig &		get_server_config( void );
 
 	// Unsetters
 
