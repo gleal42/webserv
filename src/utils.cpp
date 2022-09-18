@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/25 19:38:07 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/17 21:35:48 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:47:36 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -661,4 +661,19 @@ BaseStatus get_httpstatus(int code)
 	if (code == 507)
 		return (HTTPStatus<507>());
 	return (HTTPStatus<500>());
+}
+
+std::string get_time( void ){
+  time_t rawtime;
+  struct tm * timeinfo;
+  char buffer[80];
+
+  time (&rawtime);
+  timeinfo = localtime(&rawtime);
+
+  strftime(buffer,sizeof(buffer),"%d-%m-%Y %H:%M:%S",timeinfo);
+  std::string str(buffer);
+
+  return (str);
+
 }
