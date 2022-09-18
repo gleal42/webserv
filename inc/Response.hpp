@@ -177,6 +177,7 @@ public:
 	std::string   	error_path(unsigned short code);
 	void			set_server_config(const ServerConfig &config_to_use);
 	void			set_last_case_scenario( void );
+	void			set_default_error(const BaseStatus &error_status);
 
 	// Getters
 

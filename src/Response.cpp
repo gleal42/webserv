@@ -129,19 +129,18 @@ void	Response::set_error_page( const BaseStatus &error_status )
 		else
 			set_default_error(error_status);
 	}
-
 	build_message(error_status);
 }
 
-void	set_default_error(const BaseStatus &error_status)
+void	Response::set_default_error(const BaseStatus &error_status)
 {
 	set_header("Content-Type", "text/html");
-	
-	std::string body = 
-	set_body(body.str());
-	std::stringstream len;
-	len << body.str().size();
-	set_header("Content-Length", len.str());
+	std::string body = "<html><head><title>";
+	body += to_string(error_status.code);
+	body += " " + error_status.reason_phrase + "</title></head><body><h1>"
+		 + to_string(error_status.code) + " " + error_status.reason_phrase + "</h1></body></html>";
+	set_body(body);
+	set_header("Content-Length", to_string(body.size()));
 }
 
 void    Response::set_with_file( const std::string &filename )
