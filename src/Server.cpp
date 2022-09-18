@@ -6,7 +6,7 @@
 /*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 04:09:27 by msousa           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:10:49 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -157,8 +157,6 @@ void	Server::connection_new( Listener * listener )
 	// 	return;
 	// }
 
-	Connection *	connection;
-	try {
 		connection = listener->accept();
 	}
 	catch (SocketError& e) {
