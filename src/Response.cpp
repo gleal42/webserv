@@ -120,13 +120,28 @@ void	Response::set_error_page( const BaseStatus &error_status )
 	try{
 		set_with_file(error_str);
 	}
-	catch (BaseStatus &exc)
+	catch (std::exception &exc)
 	{
 		error_str = to_string(error_status.code);
 		error_str = "public/www/error_pages/" + error_str + ".html";
-		set_with_file(error_str);
+		if (is_file(error_str))
+			set_with_file(error_str);
+		else
+			set_default_error(error_status);
 	}
+
 	build_message(error_status);
+}
+
+void	set_default_error(const BaseStatus &error_status)
+{
+	set_header("Content-Type", "text/html");
+	
+	std::string body = 
+	set_body(body.str());
+	std::stringstream len;
+	len << body.str().size();
+	set_header("Content-Length", len.str());
 }
 
 void    Response::set_with_file( const std::string &filename )

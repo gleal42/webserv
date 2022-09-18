@@ -95,13 +95,7 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	for (*(it)++; *it != ' '; it++)
 		j++;
 
-	// Temporary, TODO: make proper URI instance:
-	// request_uri.parse(_unparsed_uri);
-	// _path = request_uri.path;
-	// _path = "public" + _unparsed_request.substr(i, j);
 	_path = _unparsed_request.substr(i, j);
-	if (request_methods.find("..") != request_methods.end())
-		throw HTTPStatus<405>();
 	for (it++; *it != '\n'; it++)
 		j++;
 
@@ -110,7 +104,7 @@ void	Request::read_request_line( std::string & _unparsed_request ) {
 	std::cout << "Path is :" << _path << std::endl;
 
 	if (_path.size() > 100) {
-		throw HTTPStatus<400>(); // Example
+		throw HTTPStatus<414>(); // Example
 	}
 	if (_path.find("..") != std::string::npos) {
 		throw HTTPStatus<404>();
