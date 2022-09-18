@@ -1,8 +1,6 @@
 # webserv
 
-Created by [@coderMeira](https://www.github.com/coderMeira), [@mlrcbsousa](https://www.github.com/mlrcbsousa) and [@gleal42](https://www.github.com/gleal42)
-
-Writing your own HTTP server
+HTTP server created by [@coderMeira](https://www.github.com/coderMeira), [@mlrcbsousa](https://www.github.com/mlrcbsousa) and [@gleal42](https://www.github.com/gleal42)
 
 - [How to contribute](https://github.com/gleal42/webserv/blob/master/CONTRIBUTE.md)
 - [Resources](https://github.com/gleal42/webserv/blob/master/RESOURCES.md)
