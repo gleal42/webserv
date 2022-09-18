@@ -57,9 +57,9 @@ void	Server::init(const ConfigParser &parser)
 
 	Listener	*listener;
 	for (size_t i = 0; i < _listeners_amount; ++i) {
-		if (_connections.size() + _listeners.size() > 1020) {
-			break;
-		}
+		// if (_connections.size() + _listeners.size() > 1020) {
+		// 	break;
+		// }
 
 		try {
 			listener = new Listener(parser.config(i));
@@ -153,9 +153,9 @@ int	Server::events_wait( void )
 
 void	Server::connection_new( Listener * listener )
 {
-	if (_connections.size() + _listeners.size() > 1020) {
-		return;
-	}
+	// if (_connections.size() + _listeners.size() > 1020) {
+	// 	return;
+	// }
 
 	Connection *	connection;
 	try {
@@ -333,7 +333,13 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
 			delete handler;
 			handler = NULL;
 		}
-		res.set_error_page(error_status);
+		try
+		{
+			res.set_error_page(error_status);
+		} catch (BaseStatus &error_status)
+		{
+			res.set_last_case_scenario();
+		}
 	}
 	if (handler != NULL)
 	{

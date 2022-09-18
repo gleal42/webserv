@@ -176,6 +176,7 @@ public:
 	void    		add_error_list(const ErrorPage &server_error_pages, const ErrorPage &location_error_pages);
 	std::string   	error_path(unsigned short code);
 	void			set_server_config(const ServerConfig &config_to_use);
+	void			set_last_case_scenario( void );
 
 	// Getters
 
