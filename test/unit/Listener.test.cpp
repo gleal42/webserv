@@ -80,7 +80,6 @@ TEST_CASE("Listener `listen` method") {
     }
 }
 
-// TODO: broken pipe error
 // TEST_CASE("Listener `send` method") {
 //   	std::string response = "Good talking to you\n";
 
@@ -90,7 +89,6 @@ TEST_CASE("Listener `listen` method") {
 // 		Listener 		a(config);
 
 // 		CHECK_NOTHROW(a.send(response));
-// 		// TODO: more tests
 
 // 		a.close();
 //     }
@@ -114,7 +112,6 @@ TEST_CASE("Listener `accept` method") {
 	Listener 		server(config);
 	server.listen(MAX_CONNECTIONS);
 
-	// TODO: when non-blocking
 	// SUBCASE("returns new listener connected to client") {
 	// 	Listener *client;
 	// 	client = server.accept();

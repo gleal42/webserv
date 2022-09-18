@@ -8,8 +8,6 @@
 
 #define CONFIG_FILE "../../default.conf"
 
-// TODO: needs more tests
-
 TEST_CASE("ConfigParser constructor") {
 
 	SUBCASE("accepts config_file") {

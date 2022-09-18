@@ -6,7 +6,7 @@
 /*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 04:53:31 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:51:15 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -392,11 +392,10 @@ void	Server::do_autoindex(URI & uri, Response & res)
 	std::string		files_buffer("");
 
     dir = opendir(path.c_str());
-    if (dir == NULL)
-	{
-		perror("opendir");
+    if (dir == NULL) {
         throw HTTPStatus<404>();
 	}
+
     while ((de = readdir(dir)) != NULL)
     {
         if (*de->d_name == 0 || *de->d_name == '.')
