@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/05 09:45:56 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 02:01:53 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:13:14 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,7 +211,9 @@ void	Server::connection_read( Connection *connection, int read_size )
 		connection_close(connection->fd());
 		return ;
 	}
-
+	catch (BaseStatus& e) {
+		connection->request.error_code = e.code;
+	}
 
 	if (connection->request._headers.count("Content-Length")) {
 		LOG("Analyzing if whole body was transferred: ");
@@ -313,6 +315,19 @@ void	Server::connection_event_toggle_read( int connection_fd )
 void	Server::service(Request & req, Response & res, const in_addr &connection_addr)
 {
     Handler *handler = NULL;
+
+	if (req.error_code) {
+		BaseStatus	error_status = get_httpstatus(req.error_code);
+
+		res.set_default_error(error_status);
+		if (req.error_code == 405) {
+			res.set_header("Allow", "GET, POST, DELETE");
+		}
+		res.build_message(error_status);
+		req.error_code = 0;
+		return ;
+	}
+
 	try {
 		req.request_uri.autoindex_confirmed = false;
 		req.request_uri.redirect_confirmed = false;
@@ -321,24 +336,23 @@ void	Server::service(Request & req, Response & res, const in_addr &connection_ad
             do_redirect(res);
 		else if (req.request_uri.autoindex_confirmed == true)
             do_autoindex(req.request_uri, res);
-		else
-		{
+		else {
 			handler = handler_resolve(req, connection_addr);
 			handler->service(req, res);
 			res.build_message(handler->script_status());
 		}
 	} catch (BaseStatus &error_status) {
-		if (handler != NULL)
-		{
+		if (handler != NULL) {
 			delete handler;
 			handler = NULL;
 		}
-		try
-		{
+
+		try {
 			res.set_error_page(error_status);
-		} catch (BaseStatus &error_status)
-		{
-			res.set_last_case_scenario();
+		}
+		catch (BaseStatus &ignore) {
+			res.set_default_error(error_status);
+			res.build_message(error_status);
 		}
 	}
 	if (handler != NULL)

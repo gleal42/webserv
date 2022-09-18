@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/14 01:05:43 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/18 00:54:59 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 04:14:13 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,13 +120,27 @@ void	Response::set_error_page( const BaseStatus &error_status )
 	try{
 		set_with_file(error_str);
 	}
-	catch (BaseStatus &exc)
+	catch (std::exception &exc)
 	{
 		error_str = to_string(error_status.code);
 		error_str = "public/www/error_pages/" + error_str + ".html";
-		set_with_file(error_str);
+		if (is_file(error_str))
+			set_with_file(error_str);
+		else
+			set_default_error(error_status);
 	}
 	build_message(error_status);
+}
+
+void	Response::set_default_error(const BaseStatus &error_status)
+{
+	set_header("Content-Type", "text/html");
+	std::string body = "<html><head><title>";
+	body += to_string(error_status.code);
+	body += " " + error_status.reason_phrase + "</title></head><body><h1>"
+		 + to_string(error_status.code) + " " + error_status.reason_phrase + "</h1></body></html>";
+	set_body(body);
+	set_header("Content-Length", to_string(body.size()));
 }
 
 void    Response::set_with_file( const std::string &filename )
@@ -150,14 +164,6 @@ void    Response::set_with_file( const std::string &filename )
 	set_header("Content-Length", len.str());
 
 	file.close();
-}
-
-void	Response::set_last_case_scenario( void )
-{
-	set_header("Content-Type", "text/html");
-	set_body("<html><head><title>500 Internal Server Error</title></head><body><h1>500 Internal Server Error</h1><p>Unexpected condition was encountered.</p></body></html>");
-	set_header("Content-Length", "157");
-	build_message(HTTPStatus<500>());
 }
 
 void	Response::clear( void )

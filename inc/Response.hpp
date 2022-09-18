@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Response.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/13 23:00:39 by gleal             #+#    #+#             */
-/*   Updated: 2022/09/18 00:54:48 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 03:35:37 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -176,7 +176,7 @@ public:
 	void    		add_error_list(const ErrorPage &server_error_pages, const ErrorPage &location_error_pages);
 	std::string   	error_path(unsigned short code);
 	void			set_server_config(const ServerConfig &config_to_use);
-	void			set_last_case_scenario( void );
+	void			set_default_error(const BaseStatus &error_status);
 
 	// Getters
 
