@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   FileHandler.cpp                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gleal <gleal@student.42lisboa.com>         +#+  +:+       +#+        */
+/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:59 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/05 23:11:46 by gleal            ###   ########.fr       */
+/*   Updated: 2022/09/18 01:08:26 by fmeira           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,11 +77,17 @@ void	FileHandler::do_GET( Request & req, Response & res )
 
 void	FileHandler::do_POST( Request & req, Response & res )
 {
-	if (req.get_form_type() == "multipart/form-data") {
+	std::string form_type = req.get_form_type();
+	if (form_type == "multipart/form-data") {
 		post_multi_type_form(req);
 	}
-	else if (req.get_form_type() == "application/x-www-form-urlencoded")
+	else if (form_type == "application/x-www-form-urlencoded")
 		post_form_urlencoded(req);
+	else if (form_type == "plain/text") {
+		long long max_body = res.get_server_config().get_max_body_size();
+		if ((max_body > -1) && str_to_nbr<long long>(req.get_header_value("Content-Length")) > max_body)
+			throw (HTTPStatus<413>());
+	}
 	else
 		throw HTTPStatus<500>();
 	// throw HTTPStatus<415>();
