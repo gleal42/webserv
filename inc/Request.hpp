@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Request.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fmeira <fmeira@student.42lisboa.com>       +#+  +:+       +#+        */
+/*   By: msousa <mlrcbsousa@gmail.com>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/28 19:16:50 by msousa            #+#    #+#             */
-/*   Updated: 2022/09/18 00:45:34 by fmeira           ###   ########.fr       */
+/*   Updated: 2022/09/18 03:53:51 by msousa           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,9 @@ public:
 	std::string			get_hostname( void );
 	const std::string	get_header_value( const std::string &name );
 	std::string			method_to_str( void );
+
+	int					error_code;
+
 private:
 	typedef	std::map<enum RequestMethod, std::string>	ReqMethodConversion;
 	static ReqMethodConversion _method_conv;
